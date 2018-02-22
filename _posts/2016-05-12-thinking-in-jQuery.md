@@ -7,7 +7,7 @@ tags:
 toc: true
 ---
 
-> jQuery is still strong!
+> Live long and prosper!
 
 How to select DOM elements
 ---
