@@ -132,6 +132,10 @@
   animation: $intro-transition;
   -webkit-animation-delay: 0.25s;
   animation-delay: 0.25s;
+  //add bolder and shadow
+  border: 1px solid #888;
+  padding: 0 10px;
+  box-shadow: 3px 6px #888;
 
   &--overlay {
     position: relative;

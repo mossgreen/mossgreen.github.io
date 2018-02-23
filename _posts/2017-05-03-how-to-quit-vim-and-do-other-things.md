@@ -4,7 +4,7 @@ search: true
 
 header:
   image:  assets/images/how-to-quit-vim.png
-  teaser: assets/images/how-to-quit-vim.png
+  --teaser: assets/images/how-to-quit-vim.png
 tags: 
   - Linux
   - Vim
