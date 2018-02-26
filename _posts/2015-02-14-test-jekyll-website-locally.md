@@ -36,7 +36,7 @@ Run it
     $ bundle exec jekyll serve --watch
     ```
 
-- Navigate to: 'localhost:4200' or 'http://127.0.0.1:4000/'
+- Navigate to: 'localhost:4000' or 'http://127.0.0.1:4000'
 
 - If you update something, when you hit "Save", it will automaticly update
 
