@@ -9,7 +9,7 @@ toc: true
 
 Essential commands to manipulate files and directories in Linux, and Mac.
 
-### 1. Create, Delete
+### 1. Create VS Delete
 
 ```yaml
 # Create a file
@@ -29,7 +29,7 @@ $ rmdir ./testfolder2 #Error, if directory is not empty
 $ rm -rf ./testfolder3 # recursively, force
 ```
 
-### 2. Copy, Move
+### 2. Copy VS Move
 
 ```yaml
 # Copy file
@@ -44,7 +44,7 @@ $ mv file1.copy.txt file2.copy.txt # RENAME
 
 ```
 
-### 3. Link
+### 3. Link Files and Directories
     
 ```yaml
 # link directory
@@ -67,3 +67,46 @@ $ cat testfolder/file0.txt testfolder/file3.txt
 # Read from the first matching iterm
 $ more +/test2 testfolder/file0.txt
 ```
+
+### 5. Archive VS Extract
+
+**tar**: Creating an archive file which contains many other files.
+
+the switches are as follows:
+
+- `-c = create`
+- `-v = verbose`
+- `-f = files`
+- `-t = list contents of an archive`
+- `-x = extract`
+- `-r = apppend`
+
+```yaml
+
+# Archive some files or directory to a tar file
+$ tar -cvf testname.tar ./tutorials
+
+# Extract files from a tar file
+$ tar -xvf somename.tar
+
+# View contents of a tar file
+$ tar -tzf tutorials-master.zip.gz
+
+# Append files to a tar file
+$ tar -rvf somename.tar ./foldername/filename.txt
+
+# Remove ORIGIN FILES after adding to a tar file
+$ tar --remove-files -cvf tarfile.tar ./originfolder
+
+# Only append files only if they are newer
+$ tar -uvf somename.tar ./foldername/filename.txt
+
+# Only extract files that are newer than existing files
+$ tar --keep-newer-files -xvf tarfilename.tar
+
+# Others
+$man tar
+$tar --help
+```
+
+
