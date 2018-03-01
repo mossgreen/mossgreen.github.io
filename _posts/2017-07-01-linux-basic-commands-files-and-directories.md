@@ -1,5 +1,5 @@
 ---
-title: Linux Basic Commands for Files and Directory
+title: Linux Basic Commands for Files and Directories
 search: true
 tags: 
   - Linux
