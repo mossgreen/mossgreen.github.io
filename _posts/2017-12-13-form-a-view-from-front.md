@@ -64,11 +64,11 @@ user_name=moss&user_mail=haha@haha.com
 ```html
 <!-- probably a better one -->
 <div>
-  <label for="username">Name: <abbr title="required">*</abbr></label>
-  <input id="username" type="text" name="username">
+  <label for="user_name">Name: <abbr title="required">*</abbr></label>
+  <input id="user_name" type="text" name="username">
 </div>
 ```
-When user click on the label, the input with `id="name"` shall be activated.
+When user click on the label, the input with `id="user_name"` shall be activated.
 
 It is especially useful for radio buttons and checkboxes.
 
@@ -159,13 +159,99 @@ request.open("POST", "submitform.php");
 formData.append("serialnumber", serialNumber++);
 request.send(formData);
 ```
-### 8.  `HTML5` Validation Attributes 
+### 8. Form Validation 
 
+When user enter data, form checks if it's correct. It won't allow invalid data to be submited, using `HTML5` validation, Javascript and 3rd party library.
 
+#### `<input>` HTML5 Valid
 
+A quick demo with email validation.
+Show red dashed border when input is invalid. 
 
+```html
+<form>
+  <label for="user_mail">What is your name?</label>
+  <input id="user_mail" type="email" name="user_name" required>
+  <button type="submit">Submit</button>
+</form>
+```
+
+```css
+input:invalid { border: 2px dashed red; }
+
+input:valid { border: 2px solid black; }
+```
+
+#### `<input>` Regex Valid
+
+`<input>` has a `pattern` attribute, using regex to match text strings.
+
+In this demo, it only accepts "man" or "woman".
+
+```html
+<form>
+  <label for="gender">What is your phycical gender?</label>
+  <input id="gender" name="gender" required pattern="man|woman">
+  <button>Submit</button>
+</form>
+```
+
+#### Javascript Validation
+
+- Use `novalidate` to provent the default form validation and let your JS validation take control
+
+```html
+<form novalidate>
+  <label for="mail">
+    <span>Please enter an email address:</span>
+    <input type="email" id="mail" name="mail">
+    <span class="error" aria-live="polite"></span>
+  </label>
+  <button>Submit</button>
+</form>
+```
+
+```javascript
+// There are many ways to pick a DOM node; here we get the form itself and the email
+// input box, as well as the span element into which we will place the error message.
+
+var form  = document.getElementsByTagName('form')[0];
+var email = document.getElementById('mail');
+var error = document.querySelector('.error');
+
+email.addEventListener("input", function (event) {
+  // Each time the user types something, we check if the
+  // email field is valid.
+  if (email.validity.valid) {
+    // In case there is an error message visible, if the field
+    // is valid, we remove the error message.
+    error.innerHTML = ""; // Reset the content of the message
+    error.className = "error"; // Reset the visual state of the message
+  }
+}, false);
+form.addEventListener("submit", function (event) {
+  // Each time the user tries to send the data, we check
+  // if the email field is valid.
+  if (!email.validity.valid) {
+    
+    // If the field is not valid, we display a custom
+    // error message.
+    error.innerHTML = "I expect an e-mail, darling!";
+    error.className = "error active";
+    // And we prevent the form from being sent by canceling the event
+    event.preventDefault();
+  }
+}, false);
+```
+
+#### 3rd party library validation
+
+- [Validate.js](http://rickharrison.github.io/validate.js/)
+- [jQuery plug-in](https://jqueryvalidation.org/)
 
 Find more: [MDN Constraint Validation](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation)
+
+
 ### References
 - [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
 - [Sensible Forms: A Form Usability Checklist](http://alistapart.com/article/sensibleforms)
