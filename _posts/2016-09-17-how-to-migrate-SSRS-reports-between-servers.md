@@ -9,6 +9,9 @@ tags:
   - Sql Server
   - Database
 toc: true
+toc_label: "My Table of Contents"
+toc_icon: "cog"
+classes: wide
 ---
 ---
 >Watch my [Youtube video](https://youtu.be/1knwXRIbVNw) to get details!

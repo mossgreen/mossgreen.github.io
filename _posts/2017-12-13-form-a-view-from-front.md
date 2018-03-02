@@ -5,6 +5,8 @@ tags:
   - HTML
   - FORM
 toc: true
+toc_label: "My Table of Contents"
+toc_icon: "cog"
 classes: wide
 ---
 
@@ -39,13 +41,15 @@ In this demo, the form will send 2 pieces of data named `user_name` and `user_em
   - `<form action="#">`: before `HTML5`, `action` is required. It indicates data send to current page
 
 2. `method="GET"` 
-    1. `method` by default is "GET"
-    2. Data is appended to the URL 
-    3. Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
+    - `method` by default is "GET"
+    - Data is appended to the URL 
+    - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
+    - `enctype` attribute will be ignored
   
 3. `method="POST"` 
-    1. Data provided in the body of the HTTP request 
-    2. No data appened to URL, following the above demo, data should be like:
+    - Data provided in the body of the HTTP request 
+    - No data appened to URL
+    - `enctype` attribute by default is `application/x-www-form-urlencoded`
   
 ```yaml
 POST / HTTP/1.1
@@ -54,8 +58,7 @@ Content-Type: application/x-www-form-urlencoded
 Content-Length: 38
 
 user_name=moss&user_mail=haha@haha.com
-```
-
+```    
 ### 3. Attributes for `<label>` 
 
 ```html
@@ -77,9 +80,7 @@ It is especially useful for radio buttons and checkboxes.
 - hidden: not displayed, but value is submitted to the server
 - password: Use the `maxlength` and `minlength` attributes to specify
 - range: `HTML5` number range
-
-**NOTE**
-- datetime: `HTML5` will be removed, don't use
+- ~~datetime: `HTML5` will be removed, don't use~~
 
 See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
 
@@ -89,10 +90,82 @@ See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/
 - `type="reset"` : A click will reset data in form
 - `type="button"` : A click does nothing! It's useful when customizing buttons with JavaScript
 
-`<input type="submit" />` will also produce a button, however it only allows plain text as its label
+`<button>` VS `<input>`
+- `type` attribute specifies what kind of button is displayed
+- `<input type="submit" />` produces a button, however it only allows plain text as its label
+
+```html
+<!-- full html support-->
+<button type="submit">
+    This a <br><strong>submit button</strong>
+</button>
+
+<!-- only allows plain text -->
+<input type="submit" value="This is a submit button">
+```
+
+### 6. AJAX
+
+```html
+<button type="button" onclick="sendData({test:'ok'})">Click Me!</button>
+```
+
+```javascript
+function sendData(data) {
+  var XHR = new XMLHttpRequest();
+  var urlEncodedData = "";
+  var urlEncodedDataPairs = [];
+  var name;
+
+  // Turn the data object into an array of URL-encoded key/value pairs.
+  for(name in data) {
+    urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
+  }
+
+  // Combine the pairs into a single string and replace all %-encoded spaces to 
+  // the '+' character; matches the behaviour of browser form submissions.
+  urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+
+  // Define what happens on successful data submission
+  XHR.addEventListener('load', function(event) {
+    alert('Yeah! Data sent and response loaded.');
+  });
+
+  // Define what happens in case of error
+  XHR.addEventListener('error', function(event) {
+    alert('Oups! Something goes wrong.');
+  });
+
+  // Set up our request
+  XHR.open('POST', 'https://example.com/cors.php');
+
+  // Add the required HTTP header for form data POST requests
+  XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+  // Finally, send our data.
+  XHR.send(urlEncodedData);
+}
+```
+
+### 7. FormData Object
+
+`FormData` sends a set of key/value pairs using `XMLHttpRequest`
+
+```javascript
+var formElement = document.querySelector("form");
+var formData = new FormData(formElement);
+var request = new XMLHttpRequest();
+request.open("POST", "submitform.php");
+formData.append("serialnumber", serialNumber++);
+request.send(formData);
+```
+### 8.  `HTML5` Validation Attributes 
 
 
 
+
+
+Find more: [MDN Constraint Validation](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation)
 ### References
 - [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
 - [Sensible Forms: A Form Usability Checklist](http://alistapart.com/article/sensibleforms)
