@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Java Operators and Statements
+Java Operators and Statements.
 
 ## Unary Operators
 `x++` vs. `++x`

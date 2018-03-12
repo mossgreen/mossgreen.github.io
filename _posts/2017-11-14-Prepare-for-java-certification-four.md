@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-String and some common APIs.  
+Methods and Encapsulation.  
 
 ## Methods
 
