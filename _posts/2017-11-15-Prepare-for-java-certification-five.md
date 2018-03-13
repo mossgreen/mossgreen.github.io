@@ -102,5 +102,5 @@ Design classes.
     - if it has static, in method it will call parent variable
     - if don't have static, in will call instance variable
 11. Inheriting Variables
-    - **Hiding Variables**: you defi ne a variable with the same name as a variable in a parent class.
+    - **Hiding Variables**: you define a variable with the same name as a variable in a parent class.
     - explicit use of the `super` keyword to reference a hidden variable
