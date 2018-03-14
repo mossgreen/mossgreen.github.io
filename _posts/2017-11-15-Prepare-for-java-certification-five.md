@@ -104,3 +104,72 @@ Design classes.
 11. Inheriting Variables
     - **Hiding Variables**: you define a variable with the same name as a variable in a parent class.
     - explicit use of the `super` keyword to reference a hidden variable
+
+## Abstract Classes  
+**abstract class** marked with the _abstract_ keyword and cannot be instantiated.
+**abstract method** marked with the _abstract_ keyword defined in an abstract class, no implementation is provided in the class
+
+1.  abstract class vs. abstract method
+  - An abstract class is **not required** to include any abstract methods.
+  - An abstract class **may include nonabstract** methods and variables.
+  - abstract class **cannot be marked as final**, because it must be extended.
+  - An abstract method may only be defined in an abstract class.
+  - An abstract method defined within an nonabstract class will cause complie error.
+  - A method may not be marked as both abstract and private. Private method cannot be accessed by child.
+
+2. Concreate Class  
+A concrete class is the **first nonabstract subclass** that extends an abstract class.
+A concrete class is **required** to implement all inherited abstract methods.
+
+3. Extending an Abstract Class with Another Abstract
+  - Abstract clases can extend other abstract classes are **not required to implement any** abstract method.
+  - A concrete class that extends an abstract **must implement all** inherited abstract methods.
+  - A concreate class is not required to implement an abstract  method, if an intermediate abstract class provides implementation.
+  
+    ```java
+    public abstract class Animal { public abstract String getName(); }
+    
+    public abstract class BigCat extends Animal { 
+      public String getName() {return "BigCat";}
+      public abstract void roar();
+    }
+    
+    public class Lion extends BigCat { 
+      //getName() is no longer abstract by the time it reaches here
+      public void roar() { System.out.println("The Lion lets out a loud ROAR!"); } 
+    }
+    ```
+    
+## Interfaces  
+
+1. Definating an interface
+  - An interface is defined with _interface_ keyword. 
+  - Classes invokes it using _implements_ keyword.
+  - Interfaces cannot be instantiated directly.
+  - An interface is not required to have any methods.
+  - Marking an **interface** as private, protected, or final will trigger a **compiler error**
+  - Marking a **interface method** as private, protected, or final will trigger compiler errors
+
+2. Inheriting an Interface
+    1. An interface **extends** another interface
+    2. An abstract class **implements** an interface
+    3. An abstract class implements interface will inherits all abstracts method as its own abstract method
+    4. The first concrete class that implements an interface, or extends that abstract class, **must** provide an implementation for all inherited abstract methods.
+3. Multiple Inheritance
+    - If two methods with **same signature** appear in two interfaces and implemented by a class, only need to implement once.
+    - If two methods have different signature but input **parameters are different**, just implement seperately. It's method overloading.
+    - **Unfortunately**, if the method name and input parameters are the same but the return types are different, won't compile.
+4. Interface Variables
+    - interface variables are constant, assumed to be **public satic final**.
+    - Making it private or protected will trigger a compiler error.
+    - The value of an interface variable **must be set** when it is declared since it is marked as final.
+5. Default Interface Methods
+    - A default method is defined within an interface with the **default** keyword.
+    - A default method may **only be** declared within an interface and **not** within a class or abstract class.
+    - If a method is marked as default, it **must** provide a method body.
+    - A default method is **not assumed to be** static, final, or abstract, as it may be used or overridden by a class that implements the interface
+    - Classes have the **option to override** the default method if they need to, but they are **not required to**.
+    - If the class doesn’t override the method, the default implementation will be used.
+6. Static Interface Methods
+    - A static method defined in an interface is not inherited in any classes that implement the interface.
+    - Use interface name to refer this method
