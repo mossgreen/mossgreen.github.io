@@ -173,3 +173,81 @@ A concrete class is **required** to implement all inherited abstract methods.
 6. Static Interface Methods
     - A static method defined in an interface is not inherited in any classes that implement the interface.
     - Use interface name to refer this method
+    
+## Polymorphism
+
+1. Definition
+  - **Polymorphism** An object can be accessed using a reference of itself, or a super class, or an interface.
+  - A cast is **not required** if object is being reassigned to a super type or interface of the object.
+  - In polymorphism, **only one object** is created.
+  - Once this object is assigned a new type, it **only** can access members of that reference type.
+  - Depending on the type of the reference, we may **only** have access to certain methods.
+  - **Changing reference** type could allow you access new properties
+
+2. Casting Objects
+  - Once we changed the reference type, we **lost access** to more specific methods in that object
+  - We **reclaim** reference by casting object back
+  - We **explicitly** cast object to a subclass
+  - **Doesn't require** explicit cast if it's from subclass to a superclass
+  - **Compile error** if casts to unrelated types
+  - **Runtime fail** `ClassCastException` if casts to related types, but object isn't an instance of that class
+      
+    ```java
+    public class Bird {}
+    public class Animal {}
+
+    public class Fish extents Animal { 
+      public static void main(String[] args) { 
+        Fish fish = new Fish(); 
+        Bird bird = (Bird)fish; // DOES NOT COMPILE, not related
+        
+        Animal animal = new Animal();
+        Bird bird = (Bird) bird; //WILL COMPILE, throw ClassCastException.
+        //reason is: basicly, this object is an Animal, nothing to do with a bird
+      } 
+    }
+    ```
+    
+    we should perform cast only if the `isntanceof` operator returns true
+    {: .notice--warning} 
+      
+3. Virtual Methods 
+  - **Most important feature** of polymorphism is to support virtual methods.
+  - A virtual method is a method in which the specific implementation is not determined **until runtime**.
+  - All non-final, non-static, and non-private Java methods are considered virtual methods, since any of them can be **overridden at runtime**.
+  - It's **special**! If you call a method on an object taht overrides a method, you get the overriden method. Even if the call to the method is on a parent reference, or within the parent class.
+    
+    ```java
+    public class Bird {
+      public String getName() { 
+        return "Unknown"; 
+      } 
+      
+      public void displayInformation() {
+        System.out.println("The bird name is: "+getName()); 
+      }
+    }
+    ```
+    
+    ```java
+    public class Peacock extends Bird {
+      public String getName() { return "Peacock"; } 
+      
+      public static void main(String[] args) {
+        Bird bird = new Peacock();
+        bird.displayInformation(); //The bird name is: Peacock
+      }
+    }
+    ```
+      
+    1. `new Peacock()`,means it's a Peacock object. It has members: `getName()` from parent, `displayInfomation()` from parent and `getName()` from it self. 
+    2. It can reach parent's `getName()`, by `super.getName()`.
+    3. `Bird bird = new Peacock();` means the reference is a bird type
+    4. `bird.displayInfomation()` will call this method in parent. However, it also triggers `getName()`
+    5. this object is a Peacock, it has it's own `getName()`, so this one is being used
+    6. what if peacock doesn't have this method? it will print: The bird name is: Unknown
+
+
+
+
+
