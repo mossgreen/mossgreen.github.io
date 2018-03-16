@@ -247,7 +247,25 @@ A concrete class is **required** to implement all inherited abstract methods.
     5. this object is a Peacock, it has it's own `getName()`, so this one is being used
     6. what if peacock doesn't have this method? it will print: The bird name is: Unknown
 
-
+4. Polymorphic Parameters  
+    One of the **most useful** applications of polymorphism is the ability to pass instances of a subclass or interface to a method
+    ```java
+    public class Reptile                    { public String getName() { return "Reptile"; } }
+    public class Alligator extends Reptile  { public String getName() { return "Alligator"; } }
+    public class Crocodile extends Reptile { public String getName() { return "Crocodile"; } }
+    
+    public class ZooWorker {
+      public static void feed(Reptile reptile) { 
+        System.out.println("Feeding reptile "+reptile.getName()); 
+      }
+      
+      public static void main(String[] args) { 
+        feed(new Alligator());  //Feeding: Alligator 
+        feed(new Crocodile());  //Feeding: Crocodile 
+        feed(new Reptile());    //Feeding: Reptile
+      }
+    }
+    ```
 
 
 
