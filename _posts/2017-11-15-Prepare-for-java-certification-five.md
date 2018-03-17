@@ -266,6 +266,13 @@ A concrete class is **required** to implement all inherited abstract methods.
       }
     }
     ```
+5. Method Overriding
 
+    ```java
+    public class Animal { public String getName() { return "Animal"; } }
+ 
+    // DOES NOT COMPILE, beacause weaker access privileges
+    public class Gorilla extends Animal { protected String getName() { return "Gorilla"; } }
+    ```
 
 
