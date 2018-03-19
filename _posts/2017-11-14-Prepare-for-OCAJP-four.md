@@ -1,5 +1,5 @@
 ---
-title: Prepare for JAVA Certification, (4)
+title: Prepare for OCAJP, (4)
 search: true
 tags: 
   - JAVA
