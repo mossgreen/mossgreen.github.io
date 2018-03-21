@@ -1,5 +1,5 @@
 ---
-title: Prepare for OCAJP, (6)
+title: How to Pass OCAJP Swiftly
 search: true
 tags: 
   - JAVA
@@ -8,7 +8,7 @@ tags:
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: wide
+classes: single
 ---
 I have no idea. It takes efforts.
 
