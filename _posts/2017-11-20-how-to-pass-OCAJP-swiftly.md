@@ -4,7 +4,6 @@ search: true
 tags: 
   - JAVA
   - OCAJP
-  - OCP
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
