@@ -6,17 +6,16 @@ tags:
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: wide
+classes: single
 ---
 
 > Live long and prosper!
 
-1. How to select DOM elements
----
+## 1. How to select DOM elements
 
 the basic design concept of JQ is that it selects an element from DOM and manipulate it directly.
 
-### 1. the select expression can be CSS selectors
+the select expression can be CSS selectors
 
 ```javascript
 $(document) // to select whole document object
@@ -25,7 +24,7 @@ $('div.myClass') // to select the element whose class is myclass
 $('input[name=first]') // the input element whose name attribute is 'first'
 ```
 
-### 2. the select expression can also be JQ expression
+the select expression can also be JQ expression
 	
 ```javascript
 $('a:first') // to select the first element in the page
@@ -36,8 +35,7 @@ $('div:gt(2)') //to select all div elements except the first three (index starts
 $('div:animated') // to select those elements that is currently animating
 ```
 
-2. Manipulate the result sets
----
+## 2. Manipulate the result sets
 
 jQ provides various of filter so that you can filter the result set to get your data.
 
@@ -59,8 +57,7 @@ $('div').children(); //select all child elements of div
 $('div').siblings(); //select all div elements with same level
 ```
 
-3. Chainning 
----
+## 3. Chainning 
 
 After selecting your target element from DOM, you can also manipulate it. Like `$('div').find('h3').eq(2).html('hello');`, to be specific:
 
@@ -85,8 +82,8 @@ $('div')
         .html('world');
 ```
 
-4. DOM manipulating: get and set values
----
+## 4. DOM manipulating: get and set values
+
 Parameters will decide whether it is to set or get value.
 
 ```javascript
@@ -105,11 +102,25 @@ $('h1').html('Hello'); //It will set value "Hello" to h1
 ** if there are multipul elements in the result set, setting values will set to everty element.
 ** However, we only the first element's value. Exception is `.text()` it gets all elements text content 
 
+## 5. DOM manipulating: position
 
+Two ways to update element's position, first is to move this element directly and second is to move other elements.
+If we want to move a div, make it in the end of p element: 
 
+```javascript
+//first way, just move div after p. Returns div element
+$('div').insertAfter($('p'));
 
+//second way, move p in front of div. Returns p element
+$('p').after($('div'));
+```
 
-5. DOM manipulating: movement
+```javascript
+.insertAfter() vs. .after() 
+.insertBefore() vs. .before()
+.appendTo() vs. .append()
+.prependTo() vs. .prepend()
+```
 6. DOM manipulating: copy and create  elements
 7. Tools
 8. Event
