@@ -27,12 +27,12 @@ $('input[name=first]') // the input element whose name attribute is 'first'
 the select expression can also be JQ expression
 	
 ```javascript
-$('a:first') // to select the first element in the page
-$('tr:odd') // to select odd rows
+$('a:first')        // to select the first element in the page
+$('tr:odd')         // to select odd rows
 $('#myform :input') // to select input element in the form
-$('div:visible') // to select visible elements
-$('div:gt(2)') //to select all div elements except the first three (index starts from 0)   
-$('div:animated') // to select those elements that is currently animating
+$('div:visible')    // to select visible elements
+$('div:gt(2)')      //to select all div elements except the first three (index starts from 0)   
+$('div:animated')   // to select those elements that is currently animating
 ```
 
 ## 2. Manipulate the result sets
@@ -40,21 +40,21 @@ $('div:animated') // to select those elements that is currently animating
 jQ provides various of filter so that you can filter the result set to get your data.
 
 ```javascript
-$('div').has('p'); // select div elements have p 
-$('div').not('.myClass'); // select classes the don't have myClass
+$('div').has('p');          // select div elements have p 
+$('div').not('.myClass');   // select classes the don't have myClass
 $('div').filter('.myClass'); //select class = myClass
-$('div').fist(); //fist div
-$('div').eq(5); //select 6th div element
+$('div').fist();            //fist div
+$('div').eq(5);             //select 6th div element
 ```
 
 Sometimes, we need to start from the result set and move to our target data. jQ also provides methods to move on the DOM tree.
 
 ```javascript
-$('div').next('p'); //select first p after div
-$('div').parent(); //select div's parent element
+$('div').next('p');     //select first p after div
+$('div').parent();      //select div's parent element
 $('div').closet('form');//select the form parent element nearest div
-$('div').children(); //select all child elements of div
-$('div').siblings(); //select all div elements with same level
+$('div').children();    //select all child elements of div
+$('div').siblings();    //select all div elements with same level
 ```
 
 ## 3. Chainning 
@@ -62,9 +62,9 @@ $('div').siblings(); //select all div elements with same level
 After selecting your target element from DOM, you can also manipulate it. Like `$('div').find('h3').eq(2).html('hello');`, to be specific:
 
 ```javascript
-$('div') //find div elements
-    .find('h3')//select the h3 elements
-    .eq(2) //the 3rd h3 element
+$('div')        //find div elements
+    .find('h3') //select the h3 elements
+    .eq(2)      //the 3rd h3 element
     .html('hello'); //change its content to hello
 ```
 
@@ -87,8 +87,8 @@ $('div')
 Parameters will decide whether it is to set or get value.
 
 ```javascript
-$('h1').html(); //no parameters, it will get value of h1
-$('h1').html('Hello'); //It will set value "Hello" to h1
+$('h1').html();         //no parameters, it will get value of h1
+$('h1').html('Hello');  //It will set value "Hello" to h1
 ```
 ```javascript
 .html()     //set or get html values
@@ -116,12 +116,25 @@ $('p').after($('div'));
 ```
 
 ```javascript
-.insertAfter() vs. .after() 
+.insertAfter()  vs. .after() 
 .insertBefore() vs. .before()
-.appendTo() vs. .append()
-.prependTo() vs. .prepend()
+.appendTo()     vs. .append()
+.prependTo()    vs. .prepend()
 ```
-6. DOM manipulating: copy and create  elements
+## 6. DOM manipulating: copy and create  elements
+
+- Clone element: `.clone`
+- Delete element:   
+    `.remove()` will delete element  
+    `.detach()` will retain element, can insert to other places
+- Empty element: `.empty()`
+- Create element
+  ```javascript
+  $('<p>Hello</p>');
+  $('<li class="new">new list item</li>');
+  $('ul').append('<li>list item</li>');
+  ```
+
 7. Tools
 8. Event
 9. Special effect
