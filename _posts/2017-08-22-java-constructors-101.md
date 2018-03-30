@@ -235,8 +235,8 @@ b. pass in property parameter in `super([parameter]);` of subclass.
 
 Rules
 1. `super();` always be the first line of a constructor
-2. `supert() and this()` cannot co-exist
-3. If parent class doesn't have a constructor
+2. `supert()` and `this()` cannot co-exist
+3. If parent class doesn't have a constructor, you cannot not non-arg `super()`
 
 
 
