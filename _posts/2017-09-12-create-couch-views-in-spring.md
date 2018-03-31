@@ -162,3 +162,36 @@ protected void init() {
     }
 }
 ```
+
+## Use couch views
+
+```java
+public Job getJobById(String id) {
+
+  Job j = this.dbClient.find(Job.class,id);
+  return j;
+}
+
+public void deleteJobById(String id) {
+
+  Job job = this.getJobById(id);
+  try { deleteJobZipAttachement(job); } catch(Exception e) {} //if not found no problem
+
+  JsonObject json = this.dbClient.find(JsonObject.class, id);
+  this.dbClient.remove(json.get("_id").getAsString(), json.get("_rev").getAsString());
+}
+
+public Job getJobByGeneratedid(String id) {
+  
+  List<JsonObject> jsons = this.dbClient.view("jobs/bygeneratedid")
+      .includeDocs(true)
+      .key(id)
+      .query(JsonObject.class);
+  
+  if(jsons == null || jsons.size()!=1) {
+    throw new NoDocumentException("Failed to get exactly one document back by generated id");
+  }
+  
+  return this.getJobById(jsons.get(0).get("_id").getAsString());
+}
+```
