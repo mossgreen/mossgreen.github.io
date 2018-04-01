@@ -19,7 +19,7 @@ CouchDB has a lots of benefits, I won't list here `:)`
 
 ## Import Couch in Project
 
-The reason we also import **GOOGLE GSON** package is that we can transfer an object to json using GSON
+We also import **GOOGLE GSON** package because we use it to transfer an object to json
 ```groovy
 dependencies {
   compile("org.lightcouch:lightcouch:0.1.8")
@@ -96,6 +96,8 @@ public class DemoRepository{
 }
 ```
 ## Create Document Model
+
+Model object can be stored in Couch
 ```java
 public class Job {
 
@@ -164,6 +166,8 @@ protected void init() {
 ```
 
 ## Use couch views
+
+Couch privides metho to manipulate documents in it
 
 ```java
 public Job getJobById(String id) {
