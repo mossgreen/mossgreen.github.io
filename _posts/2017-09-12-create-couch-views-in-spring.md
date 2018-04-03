@@ -29,7 +29,7 @@ dependencies {
 }
 ```
 
-## Create a Factory Method
+## Create a Factory Method of DbClient
 
 ```java
 import org.lightcouch.CouchDbClient;
@@ -92,6 +92,42 @@ public class DemoRepository{
 	@PostConstruct
 	private void setupViews() {
 		init(); // Set up views here
+	}
+}
+```
+
+## Couch view method
+
+```java
+import java.util.HashMap;
+
+import org.lightcouch.Document;
+
+public class CouchView extends Document {
+	private String language; 
+	private HashMap<String,Object> views;
+	
+	public CouchView(String name) {
+		this.setLanguage("javascript");
+		this.setViews(null);
+		String id = "_design/" + name; 
+		this.setId(id); 
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public HashMap<String,Object> getViews() {
+		return views;
+	}
+
+	public void setViews(HashMap<String,Object> views) {
+		this.views = views;
 	}
 }
 ```
