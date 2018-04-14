@@ -40,13 +40,20 @@ An immutable object is one that will not change state after it is instantiated.
 
 ## Two ways of declaring String object
 
-1. String Pool, aka. interning  
-Because String Object is immutable, JVM can store one copy of literal in pool. 
+1. Create a String via constructor  
+When we crate a _String_ via new constructor, JVM creates a new object and sotre it in **heap** seperated with other strings.
 
+```java
+String s1 = new String("a");
+```
+2. Crate it in string Pool, aka. interning  
+  
+Because String Object is immutable, JVM can store one copy of literal in pool.  
 When we create a String variable and assign a value to it, JVM firstly try to find it in string pool. If found, will return the reference. Otherwise, an object will be added to the pool and reference being returned.
 
-2. Create a String via constructor  
-When we crate a _String_ via new constructor, JVM creates a new object and sotre it in **heap** seperated with other strings.
+```java
+String s2 = "a";
+```
 
 3. Manual Intering  
 If we crate a _String_ object, however we want it being stored in string pool, we can manually interning.
@@ -70,3 +77,25 @@ assetTrue(s2 == s3);
 - s3 is in string pool
 
 The `String#intern()` method places the string into the pool of strings (interns the string), and returns the reference to the interned version.
+
+## StringBuilder vs. StringBuffer
+
+Because _String_ is immutable, Java uses String Builder and String Buffer to hold mutable sequence of charactors. E.g., 
+
+```java
+String immutable = "moss";
+immutable + ", how are you";
+
+Print(immutable); // "moss"
+immutable = immutable + ", are you ok?";
+
+Print(immutable); //moss, are you ok?
+```
+
+For short, StringBuilder was introduced in Java 1.5 as a replacement for StringBuffer. I recommand to use StringBuilder all the time. However their differences are:
+
+1. StringBuffer is synchronized and therefore thread-safe. StringBuilder is compatible with StringBuffer API but with no guarantee of synchronization.
+
+2. Theoritically, StringBuilder is faster. In small iterations, the performance difference is insignificant.
+
+
