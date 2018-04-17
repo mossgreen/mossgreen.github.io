@@ -98,33 +98,22 @@ For short, StringBuilder was introduced in Java 1.5 as a replacement for StringB
 
 2. Theoritically, StringBuilder is faster. In small iterations, the performance difference is insignificant.
 
-## What did the JVM say
 
-1. Decompile
 
-Given _Student.java_
-```java
-public class Student {
 
-    public static void main(String[] args) {
 
-        String a = "a" + "b" + "c";
+## JDBC template sql statement concatenation
 
-        String b = new StringBuilder("a").append("b").append("c").toString();
-    }
-}
-```
-
-in _Student.class_
+In my company, a database table could have as many as 100 fileds. When we create a row from API, we need to specify, like, 100 fileds one by one. 
 
 ```java
-public class Student
-{
-  public static void main(String[] paramArrayOfString)
-  {
-    String str1 = "abc";
-    
-    String str2 = "a" + "b" + "c";
-  }
-}
+String sql = "INSERT INTO table_name (col_01 " +  
+" ,col_02 " +  
+" ,col_03 " +  
+" ,....,col_99 )" +  
+" VALUES(?, ?,?,?)";
 ```
+
+In this case, we should not use StringBuilder.
+
+
