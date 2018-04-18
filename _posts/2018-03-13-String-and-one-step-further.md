@@ -1,5 +1,5 @@
 ---
-title: String, and one step further
+title: String, and One Step Further
 search: true
 tags: 
   - HTML
@@ -9,23 +9,14 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-String sometimes blow people's mind
-
-TODOS
----
-1. Immutable class
-2. Declare String
-3. String Builder vs. String Builder
-4. JVM
-5. Spring JDBC Template
-
+> Behavior of String literals is very confusing.
 
 ## String is immuatable
 
-**What is immuatable**
+**What is immuatable**  
 An immutable object is one that will not change state after it is instantiated. 
 
-**How to declare a immutable class**
+**How to declare a immutable class**  
 - Declare class final
 - Make the fields final and initialize them in the constructor
 - Only getters no setters
@@ -34,33 +25,30 @@ An immutable object is one that will not change state after it is instantiated.
   - don't share references outside of the class
   - return **deep copy** of the object, so taht original contents remain the same
 
-**Advantages**: Thread safe, or say concurrency
+**Advantages**:  
+Thread safe, or say concurrency
 
-**Drawbacks**: To ensure immutability, methods in immutable classes may end-up creating numerous copies of the objects.
+**Drawbacks**:  
+To ensure immutability, methods in immutable classes may end-up creating numerous copies of the objects.
 
 ## Two ways of declaring String object
 
 1. Create a String via constructor  
 When we crate a _String_ via new constructor, JVM creates a new object and sotre it in **heap** seperated with other strings.
-
-```java
-String s1 = new String("a");
-```
+  ```java
+  String s1 = new String("a");
+  ```
 2. Crate it in string Pool, aka. interning  
-  
 Because String Object is immutable, JVM can store one copy of literal in pool.  
 When we create a String variable and assign a value to it, JVM firstly try to find it in string pool. If found, will return the reference. Otherwise, an object will be added to the pool and reference being returned.
-
-```java
-String s2 = "a";
-```
-
+  ```java
+  String s2 = "a";
+  ```
 3. Manual Intering  
 If we crate a _String_ object, however we want it being stored in string pool, we can manually interning.
-
-```java
-String inPool = new String("Moss will in pool").intern();
-```
+  ```java
+  String inPool = new String("Moss will in pool").intern();
+  ```
 
 **Demo**
 
@@ -80,7 +68,7 @@ The `String#intern()` method places the string into the pool of strings (interns
 
 ## StringBuilder vs. StringBuffer
 
-Because _String_ is immutable, Java uses String Builder and String Buffer to hold mutable sequence of charactors. E.g., 
+Because _String_ is immutable, Java uses _StringBuilder_ and _StringBuffer_ to hold mutable sequence of charactors. E.g., 
 
 ```java
 String immutable = "moss";
@@ -92,14 +80,162 @@ immutable = immutable + ", are you ok?";
 Print(immutable); //moss, are you ok?
 ```
 
-For short, StringBuilder was introduced in Java 1.5 as a replacement for StringBuffer. I recommand to use StringBuilder all the time. However their differences are:
+For short, _StringBuilder_ was introduced in Java 1.5 as a replacement for _StringBuffer_. I recommand to use _StringBuilder_ all the time. However their differences are:
 
-1. StringBuffer is synchronized and therefore thread-safe. StringBuilder is compatible with StringBuffer API but with no guarantee of synchronization.
+1. _StringBuffer_ is synchronized and therefore thread-safe. _StringBuilder_ is compatible with _StringBuffer_ API but with no guarantee of synchronization.
 
-2. Theoritically, StringBuilder is faster. In small iterations, the performance difference is insignificant.
+2. Theoritically, _StringBuilder_ is faster. In small iterations, the performance difference is insignificant.
 
 
+## String concatenation
 
+To be clear, here is the result:
+
+1. Declare a string, you can `"+"` as many as you want, as long as that string is a final or effectively final, it's the fastest way. Becase when it compiled, there will be only one String object, in string pool. E.g., 
+    ```java
+    String s1 = "a"+"b"+"c"+...+"ccc";
+    ```
+
+2. If you declare multiple strings and use "+" concatenating them together. No good! it craetes same amount of strings in string pool.
+    ```java
+    String a = "a";
+    String b = "b";
+    String c = "c";
+    String s2 = a + b + c; 
+    ```
+
+3. In above case, if you declare String varialbes as **final**, after compiling, s2 will be one string object in string pool.  
+  ```java
+  final String a = "a";
+  final String b = "b";
+  final String c = "c";
+  String s2 = a + b + c; 
+  // in compiled file: s2 = "abc"
+  ```
+4. If you declare a StringBuilder, append a lot of times, `toString()` in the end, it's ok. Only one StringBuilder object is created, and a String object is in string pool. 
+    ```java
+    StringBuilder sb = new StringBuilder();
+    sb.append("a").append("c")....append("ccc");
+    sb.toString();
+    ```
+
+5. If you need to concatenate strings in a loop, **don't use** `"+"`. It creates different string objects in each loop in string pool.
+
+6. If you concatenamte strings in a loop, **use** StringBuilder. It creates only one StringBuilder object and one string object in string pool.
+
+
+**Demo1** Shall use `"+"` to concatenate plain strings, or say effectively final strings
+
+in **.java** file
+```java
+String s1 = "a" + "b" + "c";
+
+String s2 = new StringBuilder("a").append("b").append("c").toString();
+```
+
+in **.class** file
+```java
+String s1 = "abc";
+String s2 = "a" + "b" + "c";
+```
+TODO: Research, what does "+" in JIT do? Will s1 and s2 behave differently in JIT code?
+
+**Demo2** Performance testing without loop
+
+```java
+import java.util.Date;
+
+public class Main {
+
+    private final static Long many_times = 10000L;
+
+    public static void main(String[] args)
+    {
+        String a = "a";
+        String b = "b";
+        String c = "c";
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < many_times; i++) {
+            String string = "a"+"b"+"c";
+            if (string.equals("abc")) {}
+        }
+        System.out.println("String+ inline cost time:" + (System.currentTimeMillis() - start) + "ms");
+
+         start = System.currentTimeMillis();
+        for (int i = 0; i < many_times; i++) {
+            String string = a + b + c;
+            if (string.equals("abc")) {}
+        }
+        System.out.println("string+ assign cost time:" + (System.currentTimeMillis() - start) + "ms");
+
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < many_times; i++) {
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(a);
+            stringBuffer.append(b);
+            stringBuffer.append(c);
+            String string = stringBuffer.toString();
+            if (string.equals("abc")) {}
+        }
+        System.out.println("stringbuffer cost time:" + (System.currentTimeMillis() - start) + "ms");
+    }
+}
+```
+
+Result:
+```java
+// in 10000 times
+//String+ inline cost time:1ms
+//string+ assign cost time:7ms
+//stringbuffer cost time:6ms
+```
+
+**Demo3** Performance testing in loop
+
+```java
+import java.util.Date;
+public class Main {
+    private final static Long many_times = 10000L;
+    private static String sbDemo()
+    {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<many_times;i++) {
+            sb.append("*");
+        }
+        return sb.toString();
+    }
+
+    private static String sDemo()
+    {
+        String s = "";
+        for(int i=0;i<many_times;i++){
+            s+="*";
+        }
+        return s;
+    }
+
+    public static void main(String[] args) {
+        long now = System.currentTimeMillis();
+        sbDemo();
+        System.out.println("sb elapsed " + (System.currentTimeMillis() - now) + " ms");
+
+        now = System.currentTimeMillis();
+        sDemo();
+        System.out.println("s elapsed " + (System.currentTimeMillis() - now) + " ms");
+    }
+}
+```
+
+Result: 
+
+```java
+// in 10000 times
+//sb elapsed 3 ms
+//s elapsed 201 ms
+
+```
 
 
 ## JDBC template sql statement concatenation
@@ -114,6 +250,15 @@ String sql = "INSERT INTO table_name (col_01 " +
 " VALUES(?, ?,?,?)";
 ```
 
-In this case, we should not use StringBuilder.
+In this case, we should not use String "+" concatenation. However, if we need to do logic in a loop, then we shall use StringBuilder.
+
+
+## References
+
+1. [Oracle Java Documentation](https://docs.oracle.com/javase/tutorial/java/data/strings.html)
+2. [Guide to Java String Pool](http://www.baeldung.com/java-string-pool)
+3. [StringBuilder and StringBuffer in Java](http://www.baeldung.com/java-string-builder-string-buffer)
+4. [Concatenating Strings Efficiently](http://jonskeet.uk/csharp/stringbuilder.html)
+
 
 
