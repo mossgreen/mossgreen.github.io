@@ -7,7 +7,7 @@ tags:
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: wide
+classes: single
 ---
 > How difficult it is to make app cross-platform?
 
