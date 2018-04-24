@@ -247,7 +247,7 @@ String sql = "INSERT INTO table_name (col_01 " +
 " VALUES(?, ?,?,?)";
 ```
 
-In this case, we should not use String "+" concatenation. However, if we need to do logic in a loop, then we shall use StringBuilder.
+In this case, we should use String "+" concatenation. However, if we need to do logic in a loop, then we shall use StringBuilder.
 
 
 ## References
@@ -255,7 +255,6 @@ In this case, we should not use String "+" concatenation. However, if we need to
 1. [Oracle Java Documentation](https://docs.oracle.com/javase/tutorial/java/data/strings.html)
 2. [Guide to Java String Pool](http://www.baeldung.com/java-string-pool)
 3. [StringBuilder and StringBuffer in Java](http://www.baeldung.com/java-string-builder-string-buffer)
-4. [Concatenating Strings Efficiently](http://jonskeet.uk/csharp/stringbuilder.html)
 
 
 

@@ -99,13 +99,25 @@ touch [256_charactors_here] //File name too long
 touch [255_charactors_here_including_extension] //File created
 ```
 
-## Conclusion:
+## Research result:
 
 1. Most restrict rule is known as **8.3**, which shall always work on any platform.
 2. Avoid using "special" non-alphanumeric characters, they may be reserved for special purposes depending on the OS.
 3. Avoid using white space characters such as **spaces**, **tabs**, **new lines** and **embedded returns**.
-4. Directory and file names should not be too long, **140 is recommand**.
-5. Using filename extension, like `.jpg` and `.doc`
+4. Filenames must not lead with `.(dot)`, `-`
+5. Directory and file names should not be too long, **140 is recommand**.
+6. Using filename extension, like `.jpg` and `.doc`
+
+
+## Java implementation
+
+### Replace replace everything but [a-zA-Z0-9.-] 
+
+```java
+myString = myString.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+```
+
+
 
 ## References
 
