@@ -107,7 +107,7 @@ touch [255_charactors_here_including_extension] //File created
 4. Filenames must not lead with `.(dot)`, `-`
 5. Directory and file names should not be too long, **140 is recommand**.
 6. Using filename extension, like `.jpg` and `.doc`
-
+7. Must not use periods in directory (folder) names
 
 ## Java implementation
 
