@@ -11,21 +11,18 @@ classes: single
 ---
 Unit Testing in JavaScript
 
-This blog is my note of Traversy's online course.
-
 ## Set up 
 
 - `npm init -y`
 
 - `npm i -D jest`  
-`-d` will save it as dependency
-
-- in **package.json**| scripts, add `"test":"jest"`
-- "testwatch":"jest --watchAll", `npm run testwatch`
+  `-d` will save it as dependency
+- in **package.json**, scripts, add `"test":"jest"`
+- `"testwatch":"jest --watchAll"`, `npm run testwatch`
 
 ## Write a simple unit test
 
-1. Add a file `function.js` with following:  
+1. Add a file _function.js_ with following:  
     ```javascript
     const functions = {
       add: (num1, num2)=> num1+num2
@@ -33,34 +30,34 @@ This blog is my note of Traversy's online course.
     
     module.exports = functions;
     ```
-2. Add a test file: `functions.test.js`
-```javascript
-const functions = require('./functions');
-
-test('Adds 2 + 2 to equal 4', () => {
-  expect(functions.add(2,3)).toBe(4); // will fail
-});
-```
+2. Add a test file: _functions.test.js_  
+    ```javascript  
+    const functions = require('./functions');
+    
+    test('Adds 2 + 2 to equal 4', () => {
+      expect(functions.add(2,3)).toBe(4); // will fail
+    });
+    ```
 
 3. run test: `npm test` will trigger jest
 
 ## Write other unit tests
 
-### Not statement
+### Not
 
 1. Declare it in test name
-2. use `not.toBe()`
-
-_functions.test.js_
-```javascript
-const functions = require('./functions');
-
-test('Adds 2 + 2 to NOT equal 5', () => {
-  expect(functions.add(2,2)).not.toBe(5);
-});
-```
+2. use `not.toBe()`  
+_functions.test.js_    
+    ```javascript
+      const functions = require('./functions');
+      
+      test('Adds 2 + 2 to NOT equal 5', () => {
+        expect(functions.add(2,2)).not.toBe(5);
+      });
+    ```
 
 ### Asset null
+
 ```javascript
 const functions = {
   add: (num1, num2)=> num1+num2,
@@ -300,41 +297,44 @@ test('Chunk an array of 10 values with length of 2', () => {
 });
 ```
 
-### Lifecycle thingees
+## Lifecycle thingees
 
-1. run fucntions before and after each test
-```javascript
-const initDB = () => console.log('db initialized');
-const closeDB = () => console.log('db closed');
+1. run fucntions before and after each test  
+    ```javascript
+    const initDB = () => console.log('db initialized');
+    const closeDB = () => console.log('db closed');
+    
+    beforeEach(() => initDB());
+    afterEach(() => close());
+    ````
 
-beforeEach(() => initDB());
-afterEach(() => close());
-```
+2. run fucntions before all and after all tests  
+    ```javascript
+    const initDB = () => console.log('db initialized');
+    const closeDB = () => console.log('db closed');
+    
+    beforeAll(() => initDB());
+    afterAll(() => close());
+    ```
 
-2. run fucntions before all and after all tests
-```javascript
-const initDB = () => console.log('db initialized');
-const closeDB = () => console.log('db closed');
-
-beforeAll(() => initDB());
-afterAll(() => close());
-```
-
-3. Run beforeEach inside of a functon
-```javascript
-const nameCheck = () => console.log('checking names...');
-
-describ('Checking names', () => {
-  beforeEach(() => nameCheck());
-  
-  test('user is jeff', () => {
-    const user = 'jeff';
-    expect(user).toBe('Jeff');
-  });
-  
-  test('user is moss', () => {
-    const user = 'moss';
-    expect(user).toBe('moss');
-  });
-});
-```
+3. Run beforeEach inside of a functon    
+    ```javascript
+    const nameCheck = () => console.log('checking names...');
+    
+    describ('Checking names', () => {
+      beforeEach(() => nameCheck());
+      
+      test('user is jeff', () => {
+        const user = 'jeff';
+        expect(user).toBe('Jeff');
+      });
+      
+      test('user is moss', () => {
+        const user = 'moss';
+        expect(user).toBe('moss');
+      });
+    });
+    ```
+    
+## Notes
+This blog is my note from: [Jest Crash Course - Unit Testing in JavaScript](https://www.youtube.com/watch?v=7r4xVDI2vho){:target="_blank"}.
