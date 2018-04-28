@@ -11,6 +11,18 @@ classes: single
 ---
 Unit Testing in JavaScript
 
+## Overview
+> Use Jest for unit and integration tests and TestCafe for UI tests.
+
+- **[Jest](https://facebook.github.io/jest/)** is a testing framework by **Facebook**.
+- Set up is easy
+- Jest finds your tests automatically
+- Jest runs in parallel
+- Jest looks simple, like plain English
+- Jest can be debugged just like any other Node.JS module
+- Jest is watching
+
+
 ## Set up 
 
 - `npm init -y`
@@ -338,3 +350,7 @@ test('Chunk an array of 10 values with length of 2', () => {
     
 ## Notes
 This blog is my note from: [Jest Crash Course - Unit Testing in JavaScript](https://www.youtube.com/watch?v=7r4xVDI2vho){:target="_blank"}.
+
+## References
+- [An Overview of JavaScript Testing in 2018](https://medium.com/welldone-software/an-overview-of-javascript-testing-in-2018-f68950900bc3)
+- [Facebook Jest, the JS testing tool for people who hate writing tests](https://blog.cloudboost.io/first-run-facebook-jest-the-js-testing-tool-for-people-who-hate-writing-tests-30b5bc4b9dd2)
