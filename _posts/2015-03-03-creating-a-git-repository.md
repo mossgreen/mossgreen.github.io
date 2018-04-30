@@ -24,6 +24,7 @@ There are at least two ways to create a Github repository, one is pushing, anoth
 4. Run `git add .` and `git commit -m ""`
 5. Go to your Github page,  create a new repository, select **Push an existing repository**, get your **repo address**
 6. In your local, run `git remote add origin https://github.com/username/new_repo`
+7. Push your code: `git push origin YOUR_BRANCH` 
 
 ## References: 
 - [Start a new git repository](http://kbroman.org/github_tutorial/pages/init.html)
