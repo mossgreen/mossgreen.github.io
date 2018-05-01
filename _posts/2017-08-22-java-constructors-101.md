@@ -9,12 +9,12 @@ toc_icon: "cog"
 classes: single
 ---
 
-The method that constructs your object.
+> The method that constructs your object.
 
-## Basic rules
+## Basic concepts
 
 - **Does not** have a return type, not even void
-- Name has be the **same as class name**
+- The name has to be the exact same as **class name**
 
 Here is the basic format of a constructor
 ```java
@@ -22,10 +22,19 @@ public ClassName (parameter_list) [throws exception] {
   //code goes here
 }
 ```
+## Rules
+- The compiler gives you a default no-arg constructor if you don't specify one.
+- If you write your own a constructor, the compiler won't give you a default no-arg constructor then.
+- `this([args])` enables constructor chaining
+- `this([args])` shall always in the first line of a constructor
+-  If a class has multiple constructors, at least one of them should not have  `this([args])`, which is the last one get called
+- `super([args])` always be the first line of a constructor
+- `super([arg])` and `this([arg])` cannot co-exist
+- If parent class doesn't have a constructor, you cannot call no-arg `super()`
 
 ## Default constructor
 
-If you don't specify a constructor, compiler will give you one.
+If you don't specify a constructor, the compiler will give you one.
 
 E.g., your code
 ```java
@@ -36,12 +45,12 @@ Code in compiler
 ```java
 public class Person {
    Person() {
-      super; //will talk about it later
+     /*super; *///will talk about it later
    }
 }
 ```
 
-##  no-arg constructor
+##  No-arg constructor
 
 You specify a constructor, without args. 
 
@@ -62,11 +71,11 @@ It's compiled to the same code as the default constructor
 - **Not allowed modifiers**:  
   abstract, final, native, static, or synchronized.
 
-If a class only has static methods, you may want its cosntructor to be `private`, in order to make it cannot create new instance.
+If a class only has static methods, you may want its constructor to be `private`, in order to make it cannot create a new instance.
 
-## Parametered types
+##  Constructors with parameters
 
-If you want your object being constructed with some values, you could initialized it in constructor
+If you want your object being constructed with some values, you could initialize it in a constructor.
 
 E.g., you have a **Person** class, want to initialize it with **name** 
 ```java
@@ -82,7 +91,7 @@ public class Person {
 
 Note that, if you specify a constructor, compiler hence won't create a default one for you.   
 
-Following code doesn't compile because a non-arg constructor is needed.
+Following code doesn't compile because a no-arg constructor is needed.
 
 ```java
 class Person {
@@ -101,9 +110,9 @@ class Person {
 
 ## this(): chaining constructors
 
-`this` enbales constructors chaining.
+`this` enables constructors chaining.
 
-E.g., if you want to have three constructors, one doesn't have parameter, one takes in `name`, one takes in `name` and `age`.
+E.g., if you want to have three constructors, one doesn't have any parameter, one takes in `name`, one takes in `name` and `age`.
 
 ```java
 public class Person {
@@ -161,7 +170,7 @@ public class Person {
 }
 ```
 
-Task: find an error here
+**Task: find an error here**
 
 ```java
 public Person(String name) {
@@ -185,17 +194,16 @@ Rules:
 
 ## super(): find your parent
 
-Compiler inserts a `super();` statement at the beginning of child class constructor. Just like `this`, it's also part of **constructor chaining**. 
+The compiler inserts a `super();` statement at the beginning of child class constructor. Just like  `this([args])`, it's also part of **constructor chaining**. 
 
-When you create an object, if it doesn't have a parent class, then an implicit `super();` points to the `Object class`. If it does have a parent class, `super([args]);` points to the coresponding constructors.
+When you create an object, if it doesn't have a parent class, then an implicit `super();` points to the `Object class`. If it does have a parent class, `super([args]);` points to the corresponding constructors.
 
-See following example, **Student** class extends **Person** class. `Person` class has an implicit constructor. **Student** class has a non-arg constructor, in which exists an implici `super();`, will call the default constructor in **Person**.
+See following example, **Student** class extends **Person** class. `Person` class has an implicit constructor. **Student** class has a no-arg constructor, in which exists an implicit `super();`, will call the default constructor in **Person**.
 
 ```java
 class Person {
     public Integer age;
-
-    //default constructor, inserted by compiler
+    //default constructor, inserted by the compiler
 }
 
 public class Student {
@@ -208,7 +216,7 @@ public class Student {
 }
 ```
 
-However, if we give **Person** a parametered constructor, following code won't compile. Because parent class lost its default no-arg constructor. When subclass call `super()`, there is no such constructor in parent class. SAD!
+However, if we give **Person** a parameterized constructor, following code won't compile. Because parent class lost its default no-arg constructor. When subclass call `super()`, there is no such constructor in the parent class. SAD!
 
 ```java
 class Person {
@@ -229,14 +237,14 @@ public class Student extends  Person{
 }
 ```
 
-In order to make above code compile, you can either   
+In order to make above code compile, you can either 
 a. add a default constructor in parent
 b. pass in property parameter in `super([parameter]);` of subclass.
 
 Rules
 1. `super();` always be the first line of a constructor
-2. `supert()` and `this()` cannot co-exist
-3. If parent class doesn't have a constructor, you cannot not non-arg `super()`
+2. `super()` and `this()` cannot co-exist
+3. If parent class doesn't have a constructor, you cannot no-arg `super()`
 
 
 
