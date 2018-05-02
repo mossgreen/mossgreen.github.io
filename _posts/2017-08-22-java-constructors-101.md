@@ -23,14 +23,11 @@ public ClassName (parameter_list) [throws exception] {
 }
 ```
 ## Rules
-- The compiler gives you a default no-arg constructor if you don't specify one.
-- If you write your own a constructor, the compiler won't give you a default no-arg constructor then.
-- `this([args])` enables constructor chaining
-- `this([args])` shall always in the first line of a constructor
--  If a class has multiple constructors, at least one of them should not have  `this([args])`, which is the last one get called
-- `super([args])` always be the first line of a constructor
-- `super([arg])` and `this([arg])` cannot co-exist
-- If parent class doesn't have a constructor, you cannot call no-arg `super()`
+1. Constructor chaining is always happening
+2. `this([args])` chains inside of classes
+3. `super([args])` chains to the parent class
+4. `this([args])` and `super([args])` cannot co-exist
+5. All constructors that don't have a `this([args])` will have a `super([args])`
 
 ## Default constructor
 
@@ -244,7 +241,7 @@ b. pass in property parameter in `super([parameter]);` of subclass.
 Rules
 1. `super();` always be the first line of a constructor
 2. `super()` and `this()` cannot co-exist
-3. If parent class doesn't have a constructor, you cannot no-arg `super()`
+3. If parent class doesn't have a no-arg constructor, you cannot call no-arg `super()`
 
 
 
