@@ -107,7 +107,7 @@ class Person {
 
 ## this(): chaining constructors
 
-`this` enables constructors chaining.
+`this` enables constructors chaining inside one class.
 
 E.g., if you want to have three constructors, one doesn't have any parameter, one takes in `name`, one takes in `name` and `age`.
 
@@ -185,9 +185,10 @@ public Person(Integer age) {
 
 Rules:
 
-1. `this()` always be the first line
-2. At least one constructor doesn't have `this()`, which is the last one get called
-3. Constructors' order doesn't matter
+1. `this()` is an explicit constructor invocation
+2. `this()` always be the first line
+3. At least one constructor couldn't have `this()`, becasue at least one constructer needs to call parent class's constructer
+4. Constructors' order doesn't matter
 
 ## super(): find your parent
 
