@@ -14,9 +14,9 @@ classes: wide
 
 - **ORM**: Object-Relation Mapping. The process of mapping object-oriented entities to entity-relationship models.
 
-- **JPA**: Java Persistence API. It's a Java specification for accessing, persiting and managing data between Java objects and relational databases.
+- **JPA**: Java Persistence API. It's a Java specification for accessing, presenting and managing data between Java objects and relational databases.
 
-- **Spring Data JPA**: It aims to significantly improve the implementation of data access layers by reducing the effort to the amount that’s actually needed. As a developer you write your repository interfaces, including custom finder methods, and Spring will provide the implementation automatically.
+- **Spring Data JPA**: It aims to significantly improve the implementation of data access layers by reducing the effort to the amount that’s actually needed. As a developer, you write your repository interfaces, including custom finder methods, and Spring will provide the implementation automatically.
 
 
 ## Set up Dev environment
@@ -36,9 +36,9 @@ classes: wide
     
     //The last two properties on the code snippet above were added to suppress an annoying exception that occurs when JPA (Hibernate) tries to verify PostgreSQL CLOB feature.
     ```
-3. Create table in database
+3. Create a table in the database
 
-## Set up entity
+## Set up an entity
 
 1. Set up _Model_, aka., _Entity_
     - Add `@Entity` annotation to the class
@@ -52,11 +52,11 @@ classes: wide
     - `@NotNull` avoid persisting empty data for these fields.
     
 2. Set up **ManyToOne** Model Relationships
-  - `@ManyToOne` indicates many-to-many relationship.  
-    E.g., many questions can exist ToOne exam.
-  - `@JoinColumn` indicates that, in the on-to-many relationship, in the **One** side, it exists a field like `One_id` in **Many** side as a _foreign key_.  
+  - `@ManyToOne` indicates a many-to-many relationship.  
+    E.g., many questions can exist in one exam.
+  - `@JoinColumn` indicates that, in the one-to-many relationship, in the **One** side, it exists a field like `One_id` in **Many** side as a _foreign key_.  
   E.g., in **Question Model** there will be a column called `exam_id`, in the table that supports Question, to reference the **exam** that owns this question.
-3. Set up **One To Many** Model Relationships  
+3. Set up **one-to-many** Model Relationships  
 Assume a _Person_ class has a list of _Addresses_ of type _Address_:
     ```java
     @Entity
@@ -91,7 +91,7 @@ Assume a _Person_ class has a list of _Addresses_ of type _Address_:
     ```
 
 - `save(blog)`:  
-save the entry to database. It will create a new record if a new **blog** item is supplied and update an existing one if anexiting item is supplied
+save the entry to the database. It will create a new record if a new **blog** item is supplied and update an existing one if an existing item is supplied
     ```sql
     INSERT INTO blog(ttile,content) VALUES (blog.title, blog.content)  
     
@@ -105,7 +105,7 @@ save the entry to database. It will create a new record if a new **blog** item i
 ## Custom JPA Queries
 
 - The “findBy” clause is the main query keyword. What follows is the “Column Name” then the query “Constrain” such as Contains, Containing, GreatherThan, LessThan etc.
-- “And” and “Or” are used as conjunction to join two or more query criteria similar to MySQL’s “AND” and “OR”
+- “And” and “Or” are used as a conjunction to join two or more query criteria similar to MySQL’s “AND” and “OR”
 
 
 ## References 
