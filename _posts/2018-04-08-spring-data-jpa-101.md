@@ -3,7 +3,8 @@ title: Spring Data JPA 101
 search: true
 tags: 
   - JAVA
-  - Spring
+  - JPA
+  - Database
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
@@ -38,7 +39,7 @@ classes: wide
     ```
 3. Create a table in the database
 
-## Set up an entity
+## Set up entities
 
 1. Set up _Model_, aka., _Entity_
     - Add `@Entity` annotation to the class
@@ -50,13 +51,15 @@ classes: wide
       private String title; 
       ```
     - `@NotNull` avoid persisting empty data for these fields.
+
     
-2. Set up **ManyToOne** Model Relationships
-  - `@ManyToOne` indicates a many-to-many relationship.  
+## Set up **ManyToOne** Model Relationships
+  - `@ManyToOne` indicates a many-to-one relationship.  
     E.g., many questions can exist in one exam.
   - `@JoinColumn` indicates that, in the one-to-many relationship, in the **One** side, it exists a field like `One_id` in **Many** side as a _foreign key_.  
   E.g., in **Question Model** there will be a column called `exam_id`, in the table that supports Question, to reference the **exam** that owns this question.
-3. Set up **one-to-many** Model Relationships  
+
+## Set up **one-to-many** Model Relationships  
 Assume a _Person_ class has a list of _Addresses_ of type _Address_:
     ```java
     @Entity
@@ -71,11 +74,6 @@ Assume a _Person_ class has a list of _Addresses_ of type _Address_:
     - person
     - address
     - person_addresses
-
-
-4. Creating a Repository Class
-  - Create an interface extends JpaRepository
-  - Add `@Repository` annotation to this interface
   
 ## @JoinTable, many-to-many 
 In this part, we use a differenct case, projects vs. tasks. If we want to have join table like **Project_Tasks**, in which contains **project_id** and **task_id**, we need to use `@JoinTable`
@@ -130,8 +128,47 @@ private List<Task> tasks;
 ![02-07-2015-10.jpg](https://i.loli.net/2018/05/06/5aeec522e32c9.jpg =480x852)
 
 
+## Map one entity to two tables
+Do this in two steps:
+
+1. Annotate our entity with `@Table` and `@SecondaryTable` and alse provide names of those tables in _name_ parameters
+
+2. Annotate each attribute which you want to map to the secondary table with `@Column` and set the name of the secondary table as the value of the table attribute
+
+```java
+@Entity
+@Table(name = "author")
+@SecondaryTable(name = "author_details", pkJoinColumns = @PrimaryKeyJoinColumn(name = "authorId", referencedColumnName = "id"))
+public class Author {
  
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private Long id;
+ 
+    @Version
+    private int version;
+ 
+    private String firstName;
+ 
+    private String lastName;
+ 
+    @Column(table = "author_details")
+    private String pseudonym;
+ 
+    @Column(table = "author_details")
+    private Category category;
+ 
+    ...
+}
+```
+
 ## JPA CRUD
+
+
+- Creating a Repository Class
+  - Create an interface extends JpaRepository
+  - Add `@Repository` annotation to this interface
 
 - `findAll()`
     ```sql
@@ -172,3 +209,6 @@ save the entry to the database. It will create a new record if a new **blog** it
 - [Building a Spring Boot REST API — Part III: Integrating MySQL Database and JPA](https://medium.com/@salisuwy/building-a-spring-boot-rest-api-part-iii-integrating-mysql-database-and-jpa-81391404046a)
 
 - [JPA “@JoinTable” annotation](https://stackoverflow.com/questions/5478328/jpa-jointable-annotation)
+
+- [Hibernate Tips: How to map an entity to multiple tables](https://www.thoughts-on-java.org/hibernate-tips-how-to-map-an-entity-to-multiple-tables/)
+
