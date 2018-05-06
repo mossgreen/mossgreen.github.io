@@ -77,7 +77,60 @@ Assume a _Person_ class has a list of _Addresses_ of type _Address_:
   - Create an interface extends JpaRepository
   - Add `@Repository` annotation to this interface
   
-  
+## @JoinTable, many-to-many 
+In this part, we use a differenct case, projects vs. tasks. If we want to have join table like **Project_Tasks**, in which contains **project_id** and **task_id**, we need to use `@JoinTable`
+
+**Project** entity
+```java
+@Entity
+public class Project {
+
+    @Id
+    @GeneratedValue
+    private Long pid;
+
+    private String name;
+
+    @JoinTable
+    @OneToMany
+    private List<Task> tasks;
+}
+```
+**Task** entity:
+```java
+@Entity
+public class Task {
+
+    @Id
+    @GeneratedValue
+    private Long tid;
+
+    private String name;
+```
+
+![02-07-2015-03.jpg](https://i.loli.net/2018/05/06/5aeec465c0bb3.jpg =480x852)
+
+customize joined table. In **project** entity, tasks property
+
+```java
+@JoinTable(
+        name = "MY_JT",
+        joinColumns = @JoinColumn(
+                name = "PROJ_ID",
+                referencedColumnName = "PID"
+        ),
+        inverseJoinColumns = @JoinColumn(
+                name = "TASK_ID",
+                referencedColumnName = "TID"
+        )
+)
+@OneToMany
+private List<Task> tasks;
+```
+![02-07-2015-10.jpg](https://i.loli.net/2018/05/06/5aeec522e32c9.jpg =480x852)
+
+
+ 
 ## JPA CRUD
 
 - `findAll()`
@@ -117,3 +170,5 @@ save the entry to the database. It will create a new record if a new **blog** it
 - [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
 
 - [Building a Spring Boot REST API — Part III: Integrating MySQL Database and JPA](https://medium.com/@salisuwy/building-a-spring-boot-rest-api-part-iii-integrating-mysql-database-and-jpa-81391404046a)
+
+- [JPA “@JoinTable” annotation](https://stackoverflow.com/questions/5478328/jpa-jointable-annotation)
