@@ -238,3 +238,9 @@ include_once 'hints.inc.php';
 
 ```
 
+## References
+
+- [Editing 360 Photos & Injecting Metadata](https://www.facebook.com/notes/eric-cheng/editing-360-photos-injecting-metadata/10156930564975277)
+
+- [HTML5 WebGL 360 degrees panorama viewer with Three.js](http://www.emanueleferonato.com/2014/12/10/html5-webgl-360-degrees-panorama-viewer-with-three-js/)
+
