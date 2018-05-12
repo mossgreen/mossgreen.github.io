@@ -20,7 +20,9 @@ classes: wide
 - **Spring Data JPA**: It aims to significantly improve the implementation of data access layers by reducing the effort to the amount that’s actually needed. As a developer, you write your repository interfaces, including custom finder methods, and Spring will provide the implementation automatically.
 
 
-## Set up Dev environment
+## Set up Spring boot project
+
+0. create sprint boot project
 
 1. Add dependencies in _build.gradle_
 
@@ -196,6 +198,26 @@ save the entry to the database. It will create a new record if a new **blog** it
 
 - The “findBy” clause is the main query keyword. What follows is the “Column Name” then the query “Constrain” such as Contains, Containing, GreatherThan, LessThan etc.
 - “And” and “Or” are used as a conjunction to join two or more query criteria similar to MySQL’s “AND” and “OR”
+
+## Q&A
+
+1. What is difference between CrudRepository and JpaRepository interfaces in Spring Data JPA?
+
+
+JpaRepository extends PagingAndSortingRepository which in turn extends CrudRepository.
+
+Their main functions are:
+
+- CrudRepository mainly provides CRUD functions.
+- PagingAndSortingRepository provide methods to do pagination and sorting records.
+- JpaRepository provides some JPA related method such as flushing the persistence context and delete record in a batch.
+
+Because of the inheritance mentioned above,  JpaRepository will have all the functions of CrudRepository and PagingAndSortingRepository. So if you don't need the repository to have the functions provided by JpaRepository and PagingAndSortingRepository , use CrudRepository.
+
+
+Resource: 
+- [stackoverflow](https://stackoverflow.com/questions/14014086/what-is-difference-between-crudrepository-and-jparepository-interfaces-in-spring/14025100)
+
 
 
 ## References 
