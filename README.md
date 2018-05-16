@@ -15,3 +15,4 @@ Coming topics:
 - GSON
 - OCPJP
 - Unit Tests - JUnit
+- Build your own user authentication 
