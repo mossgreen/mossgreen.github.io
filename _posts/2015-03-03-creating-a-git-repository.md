@@ -10,7 +10,7 @@ categories:
 
 ## Two ways of creating a GitHub repository
 
-There are at least two ways to create a Github repository, one is pushing, another is pulling.
+There are two ways to create a Github repository. One is pushing fro local, another is pulling to local.
 
 ###  Create a repo on Github and Clone it to local
 1. Create a repo on Github

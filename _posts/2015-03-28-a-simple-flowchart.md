@@ -8,7 +8,7 @@ classes: wide
 ---
 > A simple flowchart representing a process for dealing with a non-functioning lamp.
 
-I saw flowcharts are very commonly used in product prototype documents. They're very helpful for me to understand the process.  This is a simple article that how I understand **Flowchart**.
+**Flowcharts** are very commonly used in product prototype documents. They're very helpful for me to understand the process.  This is a simple article that how I understand Flowchart.
 
 ## Elements
 
@@ -31,4 +31,4 @@ Most important elements in flow charts are:
 
 Here is a simple demo I made. It's lunchtime now. Are you hungry? If no, you can wait for 30 minutes, and ask whether you're hungry again. If yes, you're hungry, you can choose to go to restaurant or cook by yourself. After having lunch, you will be full.
 
-![a-simple-flowchart](https://i.loli.net/2018/05/19/5afff0761ab1e.jpg =720x540)
+![a-simple-flowchart](https://i.loli.net/2018/05/19/5afff0761ab1e.jpg)

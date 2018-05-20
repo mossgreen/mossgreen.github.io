@@ -1,7 +1,7 @@
 ---
 title: SQL Server Configuration
 tags: 
-  - Sql Server
+  - SQL Server
   - Database
 toc: true
 ---

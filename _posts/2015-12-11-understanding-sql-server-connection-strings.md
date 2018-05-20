@@ -1,7 +1,7 @@
 ---
-title: Understanding Sql Server Connection Strings
+title: Understanding SQL Server Connection Strings
 tags: 
-  - Sql Server
+  - SQL Server
   - Database
 toc: true
 ---
@@ -13,7 +13,7 @@ What is connection string?
 
 A connection string is a string version of the initialization properties needed to connect to a data store and enables you to easily store connection information within your application or to pass it between applications. Without a connection string, you would be required to store or pass a complex array of structures to access data.
 
-Key words in connection string
+Keywords in the connection string
 ---
 
 **Data Source**
