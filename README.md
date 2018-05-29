@@ -16,10 +16,5 @@ Coming topics:
 - OCPJP
 - Unit Tests - JUnit
 - Build your own user authentication 
-- JSON Manipulation using JS
-  - What is, why
-  - get key and value from JSON
-  - get keys from objects
-  - get keys from array
-  - get values from objects
-  - get values from array
+- In the middle of OCAJP and OCPJP
+  
