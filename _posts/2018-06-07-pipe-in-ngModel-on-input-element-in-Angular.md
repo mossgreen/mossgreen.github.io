@@ -31,7 +31,7 @@ However, I got an error: Cannot have a pipe in an action expression.
 
 ## A Stackoverflow solution:
 
-```
+```html
 <input [ngModel]="item.value | somePipeMethod" (ngModelChange)="item.value=$event" />
 ```
 
@@ -43,15 +43,16 @@ This solution works well. But it has some drawbacks.
 
 ## My workaround
 
+```html
+<input value="{\\{node.startDate | date: 'yyyy' }\\}" 
+      (blur)="saveProjectYear(node, startYear.value)" >
 ```
-<input value="{{node.startDate | date: 'yyyy' }}"
-       (blur)="saveProjectYear(node, startYear.value)" >
-```
+
 
 1. In order to show current format, we only use value attribute so that we could pipe it with the right format
 2. Onblur, we save this object using a method. It's almost the same as the one 
 
 
-##References
+## References
 
 [Using Pipes within ngModel on INPUT Elements in Angular](https://stackoverflow.com/questions/39642882/using-pipes-within-ngmodel-on-input-elements-in-angular)
