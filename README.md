@@ -17,4 +17,7 @@ Coming topics:
 - Unit Tests - JUnit
 - Build your own user authentication 
 - In the middle of OCAJP and OCPJP
+  - Lambda
+  - Stream
+  - NIO
   
