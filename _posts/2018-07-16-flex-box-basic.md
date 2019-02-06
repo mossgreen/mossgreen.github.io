@@ -10,7 +10,7 @@ toc_icon: "cog"
 classes: single
 ---
 
-Flex layout saves you some time.
+Get out of nightmare that positioning elements with CSS.
 
 ## What is Flexbox Layout
 
@@ -35,9 +35,11 @@ Start of main axis is **main start**, end of the main axis is **main end**.
 1. The direction of rows is controlled by **flex-direction**
 2. Keep the row won't break, using `flex-wrap: nowrap;`
 3. `flex-flow` is a shorthand of **flex-direction** and **flex-wrap**.
-    ```
+
+    ```html
     flex-flow: <‘flex-direction’> || <‘flex-wrap’>
     ```
+
 4. `justify-content` defines the alignment along the main axis
 5. `align-items` is for cross-axis alignment
 6. Similar to how `justify-content` aligns individual items within the main-axis, `align-content` aligns space in the cross-axis

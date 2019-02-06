@@ -16,7 +16,7 @@ return early and give up single exit point
 I'd like to return early and give up single exit point in my code.
 
 ## Demo goes first
-```
+```java
 public bool singleExitPoint(bool someCondition)
 {
     if (someCondition)

@@ -171,7 +171,7 @@ analytics:
 author:
   name             : "Moss GU"
   avatar           : "/assets/images/bio-photo.jpg"
-  bio              : "Simplicity is the Ultimate Sophistication"
+  bio              : "Be Serious."
   location         : "Auckland, New Zealand"
   email            : "mossgu@outlook.com"
   uri              : "https://mossgreen.github.io"
@@ -182,7 +182,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : "https://github.com/mossgreen"
   gitlab           :
   google_plus      :
   keybase          :
