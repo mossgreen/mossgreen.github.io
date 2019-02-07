@@ -35,18 +35,15 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
     .thenAnswer(new Answer<List<User>>() {
         @Override
         public List<User> answer(InvocationOnMock invocation) throws Throwable {
-            List<User> attributes = (List)invocation.getArguments()[0];
+            List<User> users = (List)invocation.getArguments()[0];
 
-            AttributeOption newOption = attributes
-                    .get(0)
-                    .getAttributeOptions().stream()
-                    .filter(option -> option.getId() == null)
+            User user = users
+                    .filter(user -> user.getId() == null)
                     .findFirst()
                     .get();
 
-            newOption.setId(999L);
-
-            return attributes;
+            user.setId(999L);
+            return users;
         }
     });
 ```
