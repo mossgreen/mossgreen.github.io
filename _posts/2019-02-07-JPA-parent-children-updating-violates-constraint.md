@@ -1,0 +1,39 @@
+---
+title: Delete and Create Records Violates Constraints in Spring Data JPA
+search: true
+tags: 
+  - JPA
+  - Sprint Boot
+  - SQL
+toc: true
+toc_label: "My Table of Contents"
+toc_icon: "cog"
+classes: wide
+---
+
+Scenario: I have an **Attribute** entity, which has multipul children **Options**. Option has its unique keys, say, label.
+When I delete an Option with label "AAA", with Id 1, then add a new Option without Id, but the same label. Then, hit save.
+
+What I expect is that JPA with handle this, delete the old record in Database and insert a new record. It doesn't work.
+
+What I tried is to run a delete method annotated `@Transactional`, then implement the insert. It doesn't work.
+
+Also tried, after the deleting, run `repository.flush()`. Doesn't work.
+
+What saved me:
+```sql
+ALTER TABLE options
+  ADD CONSTRAINT your_constraint_name UNIQUE (id, label) DEFERRABLE INITIALLY DEFERRED;
+```
+
+Explain:
+
+JPA preference is to instert before deleting so when we have parent child contraints it will not work, so we added the deferred constraint so it will delete and insert then apply the contraint rules. This will only work for prostgress and Oracle future dbs be aware.
+
+
+
+## References
+
+- [Delete then create records are causing a duplicate key violation with Spring Data JPA](https://stackoverflow.com/questions/42124030/delete-then-create-records-are-causing-a-duplicate-key-violation-with-spring-dat)
+
+- [JPA: foreign key violation during parent entity deletion](https://groups.google.com/forum/#!topic/play-framework/4DgwtuNYs10)
