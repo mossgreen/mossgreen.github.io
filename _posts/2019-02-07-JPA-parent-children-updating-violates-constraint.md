@@ -11,14 +11,20 @@ toc_icon: "cog"
 classes: wide
 ---
 
+
+
 Scenario: I have an **Attribute** entity, which has multipul children **Options**. Option has its unique keys, say, label.
 When I delete an Option with label "AAA", with Id 1, then add a new Option without Id, but the same label. Then, hit save.
 
-What I expect is that JPA with handle this, delete the old record in Database and insert a new record. It doesn't work.
+What I've tried, however doesn't work:
 
-What I tried is to run a delete method annotated `@Transactional`, then implement the insert. It doesn't work.
+1. A normal implementation, what I expect is that JPA with handle this, delete the old record in Database and insert a new record.
 
-Also tried, after the deleting, run `repository.flush()`. Doesn't work.
+2. Run a delete method before inserting.
+
+3. Annotated the delete mehtod with `@Transactional`, then implement the insert.
+
+3. After deleting, run `repository.flush()`.
 
 What saved me:
 ```sql
