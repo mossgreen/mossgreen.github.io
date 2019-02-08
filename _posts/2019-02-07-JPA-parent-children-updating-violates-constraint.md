@@ -43,3 +43,5 @@ JPA preference is to instert before deleting so when we have parent child contra
 - [Delete then create records are causing a duplicate key violation with Spring Data JPA](https://stackoverflow.com/questions/42124030/delete-then-create-records-are-causing-a-duplicate-key-violation-with-spring-dat)
 
 - [JPA: foreign key violation during parent entity deletion](https://groups.google.com/forum/#!topic/play-framework/4DgwtuNYs10)
+
+- [Advanced Database Constraints: Don’t Look for a Second](https://dzone.com/articles/advanced-database-constraints-0)
