@@ -97,6 +97,11 @@ Just like its name
 4. build 
 In order to crate a self-contained executable jar file, we archives all compiled classes along with all jar dependencies. We add `spring-boot-maven-plugin`.
 
+
+## Exception in thread “main” java.lang.AbstractMethodError
+
+If you use `Sprint IO` to manage Spring Jar package version control, `spring-boot-starter-parent` causes this issue.
+
 ## (to be continued...)
 
 
