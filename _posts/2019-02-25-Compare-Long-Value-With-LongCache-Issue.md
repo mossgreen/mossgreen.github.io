@@ -15,8 +15,7 @@ LongCache[-128,127]. The same with Integer.
 2. Another way is to use `longA.compareTo(longB) == 0`
 
 3. LongCache[-128,127], which means Long value between -128 to 127 would return same object, because it run `Long.valueOf(String)` internally.
-
-  ```
+  ```java
   public static Long  valueOf(long l) {
       final int offset = 128;
       if (l >= -128 && l <= 127) { // will cache
@@ -26,16 +25,17 @@ LongCache[-128,127]. The same with Integer.
   }
   ```
 4. Same reason, it has IntegerCache
-  ```
+  ```java
   public static Integer valueOf(int i) {
-    if(i >= -128 && i <= IntegerCache.high)
-        return IntegerCache.cache[i + 128];
-    else
-        return new Integer(i);
+      if(i >= -128 && i <= IntegerCache.high)
+          return IntegerCache.cache[i + 128];
+      else
+          return new Integer(i);
   }
   ```
 
-Conclusion: use `.equals()` as much as possible for Objects comparing; leave `>=<` to primitive types.
+Conclusion:  
+use `.equals()` as much as possible for Objects comparing; leave `>=<` to primitive types.
 
 ## References
 
