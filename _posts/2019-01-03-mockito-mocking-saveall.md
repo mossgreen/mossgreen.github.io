@@ -1,5 +1,5 @@
 ---
-title: Mockito Mocking SaveAll() method
+title: Mocking Batch Saving in Mockito
 search: true
 tags: 
   - Mockito
