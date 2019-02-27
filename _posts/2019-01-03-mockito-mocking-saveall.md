@@ -11,7 +11,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-The Answer in Mockito is the real answer.
+In Mockito Answer, we mock the process.
 
 ## Mock a single saving  
 Saving a new User object, means service accept a user without Id and will return a user with id to the front end. When we mockito it, we would do it this way:

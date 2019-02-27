@@ -1,5 +1,5 @@
 ---
-title: Learn Java Bean Life Cycle from a Minimum Spring Boot App
+title: Have a Look at A Minimum Spring Boot App
 search: true
 tags: 
   - Maven
