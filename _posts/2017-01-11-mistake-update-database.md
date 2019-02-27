@@ -1,5 +1,5 @@
 ---
-title: What You Should Do After Updating Database by Mistake?
+title: What I Did After Updating Database by Mistake?
 tags: 
   - Sql Server
   - Database
@@ -8,7 +8,7 @@ author: Moss GU
 
 So sorry that I falsely updated the database with the following script:
 
-```
+```sql
 update dbo.country
 set country = 'Australia'
  -- where countryID = 'AU'
