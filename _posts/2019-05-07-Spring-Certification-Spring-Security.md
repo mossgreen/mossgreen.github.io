@@ -1,16 +1,17 @@
 ---
-title: Spring Security for Spring Certification
+title: Spring Security in Spring Certification
 search: true
 tags: 
   - Java
   - Spring
+  - Spring Security
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
-Spring Security is worth 6% of the certification.
+Spring Security is worth 6% of the professional certification, only.
 
 ### What are authentication and authorization? Which must come first?  
  - Authentication: who are you?

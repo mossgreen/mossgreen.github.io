@@ -3,7 +3,7 @@ title: Java Long Value Comparing with Long Cache
 search: true
 tags: 
   - Java
-toc: true
+toc: false
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
