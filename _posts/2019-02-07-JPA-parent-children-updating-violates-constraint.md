@@ -2,7 +2,7 @@
 title: Delete and Create Records Violates Constraints in Spring Data Jpa
 search: true
 tags: 
-  - JPA
+  - Spring Data JPA
   - Sprint Boot
   - SQL
 toc: true

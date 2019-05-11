@@ -11,7 +11,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Spring Security is worth 6% of the professional certification, only.
+Spring Security is worth 6% of the professional certification.
 
 ### What are authentication and authorization? Which must come first?  
  - Authentication: who are you?
