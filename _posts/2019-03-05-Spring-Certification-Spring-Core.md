@@ -227,6 +227,136 @@ BeanFactoryPostProcessor is an interface that allows for customizing Spring bean
 
 It's invoked after container is initialized, and bean definition is read, before anybean is initialized.
 
+## Why would you define a static @Bean method?
+
+- Static @Bean methods are called without creating their containing configuration class as an instance. 
+- E.g., **post-processor beans**, like `BeanFactoryPostProcessor`, and `BeanPostProcessor` are supposed to initialized early
+- Calls to static @Bean methods never get intercepted by the container, because **CGLIB subclassing** can override only non-static methods
+
+
+## What is a ProperySourcesPlaceholderConfigurer used for?
+It is a BeanFactoryPostProcessor that resolves property placeholders, on the `${PROPERTY_NAME}` format, in Spring bean properties and Spring bean properties annotated with the `@Value`. When such a placeholder is encountered the corresponding value from the Spring environment and its property sources, it's injected into the property.
+
+Using property placeholders, Spring bean configuration can be externalized into property files. This allows for changing for example the database server used by an application without having to rebuild and redeploy the application.
+
+## What is a BeanPostProcessor and how is it different to a BeanFactoryPostProcessor? What do they do? When are they called?
+
+- A **BeanFactoryPostProcessor** is an interface that defines callback methods that allow for implementation of code that **modify bean definitions**, bean metadata, but it may not instantiate beans.
+  - E.g., `PropertyPlaceholderConfigurer` Allows for using property placeholders in Spring bean properties and replaces these with actual values, typically from a property file.
+
+- A **BeanPostProcessor** is an interface that defines callback methods that allow for **modification of bean instances**. A BeanPostProcessor may even replace a bean instance with, for instance, an AOP proxy.
+  - BeanPostProcessors can be registered programmatically using the `addBeanPostProcessor()` method as defined in the `ConfigurableBeanFactory` interface.
+  - E.g., `AutowiredAnnotationBeanPostProcessor` Implements support for dependency injection with the `@Autowired` annotation.
+
+## What is an initialization method and how is it declared on a Spring bean?
+
+An initialization method is invoked **after** all properties on the bean have been populated **before** the bean is taken into use.
+
+In the order, different ways to declare:
+1. Implementing the `InitializingBean` interface and implementing the `afterPropertiesSet()` method in the bean class.(not recommanded)
+2. Annotate it `@PostConstruct`. It may have any visibility, **may not** take any parameters and may only have the **void** return type.
+3. Use the `initMethod` element of the @Bean annotation.
+
+![IMAGE](https://i.loli.net/2019/05/13/5cd92794f0ebc77453.jpg =779x756)
+
+## What is a destroy method, how is it declared and when is it called?
+
+A destroy method will be invoked when the application context is about to close. 
+In the order, different ways to declare:
+1. Implementing the `DisposableBean` interface and implementing the `destroy()` method in the bean class.(not recommanded, coupling with Spring)
+2. `@PreDestroy` annotation.
+3. `destroyMethod` element of the @Bean annotation.
+
+## Consider how you enable JSR-250 annotations like @PostConstruct and @PreDestroy? When/how will they get called?
+
+When a Spring App uses **annotation-based configuration**, a default `CommonAnnotationBeanPostProcessor` is automatically registered in the application context and **no additional configuration is necessary** to enable `@PostConstruct` and `@PreDestroy`.
+
+## How else can you define an initialization or destruction method for a Spring bean? 
+
+Three ways to initialize and three ways of destruction. See above.
+
+
+## What does component-scanning do?
+Component, or classpath, scanning is the process using which the Spring container searches the classpath for classes annotated with stereotype annotations and registers bean definitions in the Spring container for such classes.
+
+## What is the behavior of the annotation @Autowired with regards to field injection, constructor injection and method injection?
+
+@Autowired tries to find a matching bean **by type** and inject it at the place on annotation - that may be a constructor, a method (not only setter, but usually setter) and field.
+
+1. Container examines the type of field
+2. Container searches for a bean that matches the type
+3. If multiple matching, `@Primary` bean is injected
+4. If multiple matching, `@Qualifier` bean might be used
+5. If multiple matching, try to **match bean name and filed name**
+6. Exception throws if no unique matching
+
+
+## What do you have to do, if you would like to inject something into a private field? How does this impact testing?
+
+- For private fields: 
+   1. private fields and setters can be annotated as `@Autowired` and `@Value`
+   2. use Constructor to initialize
+
+- For testing:
+  1. `@TestPropertySource` allows using either a test-specific property file or customizing individual property values. 
+  2. Spring framework provides `ReflectionTestUtils`
+
+## How does the @Qualifier annotation complement the use of @Autowired?
+`@Qualifier` used at 3 locations: 
+
+1. Inject Points. The most basic use of the @Qualifier annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
+2. Bean Definitions. This will assign a qualifier to the bean and the same qualifier can later be used at an injection point to inject the bean in question.
+3. Annotation Definition. To create custom qualifier annotations.
+
+
+## What is a proxy object and what are the two different types of proxies Spring can create?
+
+>**A proxy object** is an object that have the same methods, at least the public methods, as the object it proxies.   
+**The purpose** of this is to make the proxy indistinguishable from the object it proxies. The proxy object contains a reference to the object it proxies. 
+**When** a reference to the original, proxied, object is requested, a reference to the proxy object is supplied. 
+**When** another object wants to invoke a method on the original object, it will invoke the same method on the proxy object. The proxy object may perform some processing before, optionally, invoking the (same) method on the original object.
+
+Spring framework is able to create two types of proxy objects:
+- **JDK Dynamic Proxy** - **default**: Creates a proxy object that implements all the interfaces
+- **CGLIB Proxy**: Creates a subclass of the class
+
+## What are the limitations of these proxies (per type)?
+### Limitations of JDK Dynamic Proxies
+1. Requires the proxied object to implement at least one interface.
+2. Only methods found in the implemented interface(s) will be available in the proxy object.
+3. Proxy objects must be referenced using an interface type and cannot be referenced using a type of a superclass of the proxied object type.
+4. Does not support self-invocations.
+
+### Limitations of CGLIB Proxies
+1. Requires the class of the proxied object to be non-final.
+2. Requires methods in the proxied object to be non-final.
+3. Does not support self-invocations.
+4. Requires a third-party library.(However, it's in Spring Framework)
+
+## What is the power of a proxy object and where are the disadvantages?
+### What is the power of a proxy object?
+- Add behavior to existing beans. E.g., Transaction management, logging, security.
+- Separate concerns. E.g., logging, security etc from business logic.
+### Disadvantage of proxy object?
+- Proxies can only work from the outside
+- proxied objects must be instantiated by the Spring container(not new keyword)
+- proxies are not serializable
+
+
+## What are the advantages of Java Config? What are the limitations?
+**advantages of Java Config**
+- Type safe assured by IDEs
+- Support more complex scenarios compares to XML and annotation based config
+
+**Disadvantages**
+- Cannot dynamically change the config you must rebuild the project
+- Configuration classes cannot be final. Configuration classes are subclassed by the Spring container using CGLIB and final classes cannot be subclassed.
+
+
+
+
 ## References
 
-- 1. [what-are-not-2-long-variables-equal-with-operator-to-compare-in-java](https://stackoverflow.com/questions/19485818/what-are-not-2-long-variables-equal-with-operator-to-compare-in-java)
+1. [what-are-not-2-long-variables-equal-with-operator-to-compare-in-java](https://stackoverflow.com/questions/19485818/what-are-not-2-long-variables-equal-with-operator-to-compare-in-java)
+2. [Spring Notes from Giberson Brendan](https://quizlet.com/266872659/container-dependency-and-ioc-flash-cards/)
+
