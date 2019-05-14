@@ -3,7 +3,7 @@ title: Spring Core in Spring Certification
 search: true
 tags: 
   - Java
-toc: false
+toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
@@ -15,7 +15,7 @@ Each software component provides a service to other components, and linking the 
 
 In Spring, it creates the objects, manages them, wiring them together, configures them, as also manages their complete lifecycle.
 
-### Advantages:
+### Advantages
 1. Code is cleaner 
 2. Decoupling is more effective (IOC containers support eager instantiation and lazy loading of services)
 3. Easier to test (no singletons or JNDI lookup mechanisms are required in unit tests)
@@ -257,7 +257,7 @@ In the order, different ways to declare:
 2. Annotate it `@PostConstruct`. It may have any visibility, **may not** take any parameters and may only have the **void** return type.
 3. Use the `initMethod` element of the @Bean annotation.
 
-![IMAGE](https://i.loli.net/2019/05/13/5cd92794f0ebc77453.jpg =779x756)
+![IMAGE](https://i.loli.net/2019/05/13/5cd92794f0ebc77453.jpg)
 
 ## What is a destroy method, how is it declared and when is it called?
 
@@ -352,7 +352,148 @@ Spring framework is able to create two types of proxy objects:
 - Cannot dynamically change the config you must rebuild the project
 - Configuration classes cannot be final. Configuration classes are subclassed by the Spring container using CGLIB and final classes cannot be subclassed.
 
+## What does the @Bean annotation do?
+`@Bean` method will instantiate, configure and initialize an object that is to be managed by the Spring container.
 
+### What is the default bean id if you only use @Bean?  How can you override this? 
+
+- Method name is default bean name, or say, **Bean Id**.
+- Override it by using `name` or `value` on `@Bean`
+
+```java
+ @Bean(name="overrideName")
+ public MyBean myBeanDefaultId() {
+     return new MyBean();
+ }
+```
+
+## Why are you not allowed to annotate a final class with @Configuration
+JavaConfig requires CGLIB subclassing of each configuration class at runtime, so that @Configuration classes and their factory methods **must not** be marked as `final` or `private`.
+
+### How do @Configuration annotated classes support singleton beans?
+It only creates one instance of that bean.
+
+### Why can’t @Bean methods be final either?
+CGlib proxying cannot proxy a final class.
+
+## How do you configure profiles? 
+**Annotation Type Profile** allows for registering different beans depending on differenct conditions. E.g., rewrite `dataSource` configuration.
+
+```java
+@Configuration
+@Profile("default") //@Profile({"dev", "qa"}) 
+public class DefaultDataConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.HSQL)
+            .addScript("classpath:com/bank/config/sql/schema.sql")
+            .build();
+    }
+}
+```
+
+### Activating Profiles
+- **Most straightforward**, set via `Environment` API
+- `spring.profiles.active` property, like
+    ```yaml
+    -Dspring.profiles.active="profile1,profile2"
+    ```
+- In Integration Tests, use `@ActiveProfiles` in `spring-test` module
+
+
+```java
+// Environment API
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ctx.getEnvironment().setActiveProfiles("development");
+// ctx.getEnvironment().setActiveProfiles("profile1", "profile2"); //works with multi profiles
+ctx.register(SomeConfig.class, StandaloneDataConfig.class, JndiDataConfig.class);
+ctx.refresh();
+```
+
+### What are possible use cases where profiles might be useful? Can you use @Bean together with @Profile? Can you use @Component together with @Profile?
+
+- On Class, along with `@Configuration`, inner beans only create when `@profile` conditon is met
+- On Class, along with `@Component`, inner beans create when condition met
+- On method, along with `@Bean`, bean crates when condition met
+- As meta-annotaion, to create custom annotations.
+
+### How many profiles can you have?
+`setActiveProfiles()` accepts `String…` varargs, which is a `String[]`.
+In Java, arrays internally use integers for index, the max size is **Integer.MAX_VALUE**.
+So theoretically it is **2^31-1 = 2147483647**.
+
+## How do you inject scalar/literal values into Spring beans?
+use `@Value` annotation at constructor arguments, over properties and at setter methods.
+
+
+### What is @Value used for?
+> The @Autowired, @Inject, **`@Value`**, and @Resource annotations are handled by Spring BeanPostProcessor implementations.   
+This means that you **cannot** apply these annotations within your own BeanPostProcessor or BeanFactoryPostProcessor types (if any). 
+These types **must be** 'wired up' explicitly by using XML or a Spring @Bean method.
+
+- Setting (default) values of bean fields, method parameters and constructor parameters.
+- Injecting environment variable values into bean fields, method parameters and constructor parameters.
+- Evaluate expressions and inject the result.
+
+```java
+@Configuration
+@ImportResource("classpath:/com/acme/properties-config.xml")
+public class AppConfig {
+
+    @Value("${jdbc.url}")
+    private String url;
+    
+    @Value("#{systemProperties['pop3.port'] ?: 25}")
+    private int prot;
+
+    @Value("#{ systemProperties['user.region'] }")
+    private String defaultLocale;
+    
+    @Autowired
+    public void configure(MovieFinder movieFinder,
+            @Value("#{ systemProperties['user.region'] }") String defaultLocale) {
+        this.movieFinder = movieFinder;
+        this.defaultLocale = defaultLocale;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        return new DriverManagerDataSource(url, username, password);
+    }
+}
+```
+
+## What is Spring Expression Language (SpEL for short)?
+SpEL is an **expression language** that allows for querying and manipulating an object graph at runtime. 
+E.g.,` @Value("#{otherBean.someField}")`
+
+### What can you reference using SpEL?
+- Static methods and static properties/fields
+- Properties and methods in Spring beans: `@mySuperComponent.injectedValue`
+- Properties and methods in Java objects: `#javaObject.firstName`
+- (JVM) System properties: `@systemProperties['os.name']`
+- System environment properties: `@systemEnvironment['KOTLIN_HOME']`
+- Spring application environment: `@environment['defaultProfiles'][0]`
+
+### What is the difference between $ and # in @Value expressions?
+
+- With `$`, reference a property name in the application’s environment.  
+expressions are evaluated by the **PropertySourcesPlaceholderConfigurer** Spring bean prior to bean creation and can **only be** used in `@Value` annnotations.
+- With `#`, SpEL
+
+## What is the Environment abstraction in Spring?
+- The environment interface represents spring abstraction for the environment. 
+- Environment deals with profiles and properties from different sources.
+- The Spring `ApplicationContext` interface extends the `EnvironmentCapable` interface, which contain one single method namely the `getEnvironment()`, which returns an object implementing the Environment interface. Thus a Spring application context has a relation to one single Environment object.
+
+![IMAGE](https://i.loli.net/2019/05/14/5cda919f103bd21180.jpg)
+
+
+### Where can properties in the environment come from – there are many sources for properties – check the documentation if not sure. Spring Boot adds even more.
+
+see image above.
 
 
 ## References
