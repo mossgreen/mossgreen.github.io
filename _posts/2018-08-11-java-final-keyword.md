@@ -62,9 +62,7 @@ public static void main(String[] args) {
 }
 ```
 
-
-
-## Other question
+## Question and Answer
 
 1. Improve performance?  
 Not always, not really.
@@ -72,10 +70,17 @@ Not always, not really.
 2. Why use `final`?  
 Should use final based on clear design and readability.
 
+3. When must use?
+> You have to mark something final so you can access it from within an anonymous inner class.
+
+4. Benefits
+> At first, it kind of looks awkward to see a lot of final keywords in your code, but pretty soon you'll stop noticing the word itself and will simply think, that-thing-will-never-change-from-this-point-on.
+
 
 
 ## References
 
-- [Why would one mark local variables and method parameters as “final” in Java?](https://stackoverflow.com/questions/316352/why-would-one-mark-local-variables-and-method-parameters-as-final-in-java)
-
-- [The “final” Keyword in Java](https://www.baeldung.com/java-final)
+1. [Why would one mark local variables and method parameters as “final” in Java?](https://stackoverflow.com/questions/316352/why-would-one-mark-local-variables-and-method-parameters-as-final-in-java)
+2. [The “final” Keyword in Java](https://www.baeldung.com/java-final)
+3. [Using the “final” modifier whenever applicable in Java](https://stackoverflow.com/questions/137868/using-the-final-modifier-whenever-applicable-in-java)
+3. [When should one use final for method parameters and local variables](https://stackoverflow.com/questions/154314/when-should-one-use-final-for-method-parameters-and-local-variables)
