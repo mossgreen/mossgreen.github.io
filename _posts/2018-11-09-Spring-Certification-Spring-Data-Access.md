@@ -1,5 +1,5 @@
 ---
-title: Spring Data Management in Spring Certification
+title: Spring Data Access in Spring Certification
 search: true
 tags: 
   - Java
@@ -10,7 +10,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Security is worth 14% of the professional certification.
+Spring Data Access is worth 14% of the professional certification.
 
 ## What is the difference between checked and unchecked exceptions?
 
@@ -71,7 +71,7 @@ public DataSource dataSource() {
 ```
 
 **In SpringBoot**
-```
+```yaml
 spring.datasource.jndi-name=java:comp/env/jdbc/MyDatabase
 ```
 
@@ -84,7 +84,7 @@ spring.datasource.jndi-name=java:comp/env/jdbc/MyDatabase
   - handling excetions
   - clean up and release resource
 
-###what is the JDBC template?
+### what is the JDBC template?
 The Spring JdbcTemplate simplifies the use of JDBC by implementing common workflows for **querying**, **updating**, **statement execution** etc. Benefits are:
 - Simplification: reduces boilerplate code for operations
 - Handle exceptions
@@ -100,19 +100,19 @@ A callback is code or reference to a piece of code that is passed as an argument
 (You would not have to remember the interface names in the exam, but you should know what they do if you see them in a code sample).
 
 The three callback interfaces that can be used with queries to extract result data are:
-1. ResultSetExtractor: processes multiple rows, `extractData()` returns an object.
-2. RowCallbackHandle: processes row by row, `processRow()` is void.
-3. Rowmapper: processes row by row, `mapRow()`returns an object.
+1. `ResultSetExtractor`: processes multiple rows, `extractData()` returns an object.
+2. `RowCallbackHandle`: processes row by row, `processRow()` is void.
+3. `Rowmapper`: processes row by row, `mapRow()`returns an object.
 
 ## Can you execute a plain SQL statement with the JDBC template?
 Yes. With following methods:
 - batchUpdate()
-- execute
-- query
-- queryForList
-- queryForObject
-- queryForRowSet
-- update
+- execute()
+- query()
+- queryForList()
+- queryForObject()
+- queryForRowSet()
+- update()
 
 ## When does the JDBC template acquire (and release) a connection - for every method called or once per template? Why?
 **Per method called**.
@@ -209,7 +209,7 @@ In Spring, there are five isolation values that are defined in the  `org.springf
 
 Higher isolation levels is a reduction of the ability of multiple users and systems concurrently accessing to the resources.
 
-● What is @EnableTransactionManagement for?
+## What is @EnableTransactionManagement for?
 Both `@EnableTransactionManagement` and `<tx:annotation-driven ../>` enable all infrastructure beans necessary **for supporting transactional execution**.
 
 Components registered when the @EnableTransactionManagement annotation is used are:
@@ -254,4 +254,5 @@ Declarative transaction management means that the methods which need to be execu
 
 ## References
 
-1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+1. [Spring Framework Reference - Data Access](https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html)
+2. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
