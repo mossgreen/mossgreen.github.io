@@ -32,7 +32,7 @@ Run it
 
 - Run your Jekyll site locally on 'watch mood': 
 
-    ```yaml
+    ```bash
     $ bundle exec Jekyll serve --watch
     ```
 
