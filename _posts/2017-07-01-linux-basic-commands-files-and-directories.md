@@ -11,7 +11,7 @@ Essential commands to manipulate files and directories in Linux, and Mac.
 
 ### 1. Create VS Delete
 
-```yaml
+```bash
 # Create a file
 $ touch test.txt
 $ mkdir -p ./testfolder/ && touch ./testfolder/test2.txt
@@ -31,7 +31,7 @@ $ rm -rf ./testfolder3 # recursively, force
 
 ### 2. Copy VS Move
 
-```yaml
+```bash
 # Copy file
 $ cp file.txt testfolder/file0.txt
 $ cp file.txt file.txt # A and B are identical (not copied).
@@ -46,7 +46,7 @@ $ mv file1.copy.txt file2.copy.txt # RENAME
 
 ### 3. Link Files and Directories
     
-```yaml
+```bash
 # link directory
 $ ln ./originalfolder ./anotherfolder/somenamehere # ERRPR, should from "/" root folder
 $ ln /homedir/originalfolder /homedir/anotherfolder/somenamehere
@@ -54,7 +54,7 @@ $ ln /homedir/originalfolder /homedir/anotherfolder/somenamehere
 
 ### 4. Read and Concatenate files
     
-```yaml
+```bash
 # Read 
 $ cat testfolder/file0.txt
 
