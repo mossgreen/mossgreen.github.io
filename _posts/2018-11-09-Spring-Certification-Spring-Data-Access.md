@@ -251,8 +251,127 @@ As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean 
 ## What does declarative transaction management mean?
 Declarative transaction management means that the methods which need to be executed in the context of a transaction and the transaction properties for these methods **are declared, as opposed to implemented**, like connecting to a JTA (Java Transaction API).
 
+##  What is the default rollback policy? How can you override it?
+- Default rollback policy: **only** when a `RuntimeException` is thrown.
+- Override  it by using `rollbackFor` or `noRollbackFor`.
+- E.g., use `rollbackFor`rollback can be triggered for checked exceptions as well.
+
+```java
+@Transactional(rollbackFor = MailSendingException.class) 
+public int updatePassword(Long userId, String newPass) throws MailSendingException { 
+  User u = userRepo.findById(userId); 
+  String email = u.getEmail(); 
+  sendEmail(email); 
+  return userRepo.updatePassword(userId, newPass); 
+}
+
+private void sendEmail(String email) throws MailSendingException {
+  ... // checked exception
+}
+```
+
+## What is the default rollback policy in a JUnit test? 
+When you use the @RunWith(SpringJUnit4ClassRunner.class) in JUnit 4 or @ExtendWith(SpringExtension.class) in JUnit 5, and annotate your @Test annotated method with @Transactional?
+
+- Test-methods will be executed in a transaction, **and** will roll back after completion.
+- The rollback policy of a test can be changed using the `@Rollback` set to false.
+
+## Why is the term "unit of work" so important and why does JDBC AutoCommit violate this pattern?
+- The unit of work describes the atomicity of transactions. 
+- **JDBC AutoCommit** will cause each individual SQL statement as to be executed in its own transaction, which makes it impossible to perform operations that consist of multiple SQL statements as a unit of work.
+- JDBC AutoCommit **can be disabled** by calling the `setAutoCommit()` to false on a JDBC connection.
+
+## What does JPA stand for - what about ORM?
+JPA: **Java Persistence API**.
+
+ORM: **Object-Relational Mapping**. Mappingg a java entity to SQL database table.
+
+## What is the idea behind an ORM? What are benefits/disadvantages or ORM?
+
+**Idea**: Developers only work on objects and no need to care about how to maintain the relationship and how they persist.
+
+**ORM Duties**:
+  - Data type convertion
+  - Maintaining relations between objects
+  - JAP Query language to handle vendor spedific SQL
+
+**Benefits**  
+  - Developer no need to care about data persistence
+  - Facilitates implementing domain model pattern
+  - Caching. Reduce load and improve performance
+  - Lazy loading of data. Reduce memory usage nad increase ferformance.
+  - Keep track of changes
+  - Reduce code (and develop time)
+  
+**Disadvantage**
+  - Generated SQL Query low performance
+  - Complexity, requires more knowledge
+  - Deal with legacy database is difficult
+  
+
+## What is a PersistenceContext and what is an EntityManager. What is the relationship between both?
+> “A persistence context is a set of entity instances in which for any persistent entity identity there is a unique entity instance. Within the persistence context, the entity instances and their lifecycle are managed.”
+
+- A **PersistenceContext** is essentially a Cache, containing a set of domain objects/entities in which for every persistent entity there is a unique entity instance.
+  - Default persistence context duration is one single transaction
+  - Can be configured 
+- An **EntityManager** represents a PersistenceContext. The entity manager provides an API for managing a persistence context and interacting with the entities in the persistence context.
+  - It does creation, update, querying, deletion
+- An **EntityManagerFactory** creates and EntityManager and therefore a  PersistenceContext/Cache.
+  - Thread safe, shareable, represent a single datasource and persistence context. 
+
+```java
+@Repository 
+public class JpaUserRepo implements UserRepo {
+  private EntityManager entityManager;
+  
+  @PersistenceContext
+  void setEntityManager(EntityManager entityManager) { 
+    this.entityManager = entityManager; 
+  }
+}
+```
+## Why do you need the @Entity annotation. Where can it be placed?
+
+ `@Entity` marks classes as templates for domain objects, also called entities to database tables.
+
+The `@Entity` annotation can be applied **only** at class level.
+
+```java
+@Entity 
+@Table(name="P_USER") 
+public class User extends AbstractEntity { }
+```
+## What do you need to do in Spring if you would like to work with JPA?
+
+1. Declare **dependencies**: ORM dependency, db driver dependency, transaction manager dependency.
+2. `@Entity` classes
+3. Define an **EntityManagerFactory** bean.
+    - Simplest:  `LocalEntityManagerFactoryBean`
+    - Obtain an `EntityManagerFactory` using JNDI, use **when** app ran in Java EE server
+    - Full JPA capabilities: `LocalContainerEntityManagerFactoryBean`
+4. Define a `DataSource` bean
+5. Define a `TransactionManager` bean
+6. Implement repositories
+
+## Are you able to participate in a given transaction in Spring while working with JPA?
+
+Yes you can.
+
+The Spring **JpaTransactionManager** supports direct DataSource access within one and the same transaction allowing for mixing plain JDBC code that is unaware of JPA with code that use JPA. 
+
+If the Spring application is to be deployed to a **JavaEE server**, then `JtaTransactionManager` can be used in the Spring application. 
+
+## Which PlatformTransactionManager(s) can you use with JPA?
+
+First, any JTA transaction manager can be used with JPA since JTA transactions are global transactions, that is they can span multiple resources such as databases, queues etc. Thus JPA persistence becomes just another of these resources that can be involved in a transaction.
+
+When using JPA with one single entity manager factory, the Spring Framework `JpaTransactionManager` is the recommended choice. This is also the **only** transaction manager that is JPA entity manager factory aware.
+
+If the application has **multiple** JPA entity manager factories that are to be transactional, then a JTA transaction manager is **required**.
 
 ## References
 
 1. [Spring Framework Reference - Data Access](https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html)
-2. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+2. [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html)
+3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
