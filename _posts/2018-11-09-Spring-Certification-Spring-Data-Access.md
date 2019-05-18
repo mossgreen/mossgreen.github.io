@@ -370,6 +370,69 @@ When using JPA with one single entity manager factory, the Spring Framework `Jpa
 
 If the application has **multiple** JPA entity manager factories that are to be transactional, then a JTA transaction manager is **required**.
 
+## What does @PersistenceContext do?
+> “Expresses a dependency on a container-managed EntityManager and its associated persistence context.”
+
+The @PersistenceContext annotation is applied to a instance variable of the type EntityManager or a setter method, taking a single parameter of the EntityManager type, into which an entity manager is to be injected.
+
+This field does not need to be autowired, since the @PersistenceContext annotation is picked up by an infrastructure Spring bean postprocessor bean of type org.springframework.
+
+## What do you have to configure to use JPA with Spring? How does Spring Boot make this easier?
+
+see: **What do you need to do in Spring if you would like to work with JPA?**
+
+To use Spring Data components in a JPA project, a dependency on the package spring-data-jpa **must** be introduced.
+
+### JPA in SpringBoot
+1. SpringBoot provides a default set fo **dependencies** needed for JPA in starter.
+2. Provides all default **Spring beans** needed to use JPA.
+3. Provides a number of **default properties** related to persistence and JPA.
+
+## What is an "instant repository"? 
+(hint: recall Spring Data)
+
+An instant repository, also known as a **Spring Data repository**.
+
+Because they can be created **instantly** by extending one of the Spring-specialized interfaces
+
+When a custom repository interface extends `JpaRepository`, it will automatically be enriched with functionality to save entities, search them by ID, retrieve all of them from the database, delete entities, flush, etc.
+
+## How do you define an “instant” repository? Why is it an interface not a class?
+Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. 
+
+Any additional functionality that is not provided by default can be easily implemented by defining a method skeleton and providing the desired functionality using annotations.
+
+## What is the naming convention for finder methods?
+
+`find`**(First[count])**`By`**[property expression][comparison operator][ordering operator]**
+
+## How are Spring Data repositories implemented by Spring at runtime?
+For a Spring Data repository a **JDK dynamic proxy** is created which intercepts all calls to the repository. 
+
+The default behavior is to route calls to the default repository implementation, which in Spring Data JPA is the SimpleJpaRepository class.
+
+## What is `@Query` used for?
+
+`@Query` allows for specifying a query to be used with a Spring Data JPA repository method.
+
+```java
+public interface UserRepo extends JpaRepository<User, Long> {
+
+  @Query("select u from User u where u.username like %?1%") 
+  List<User> findAllByUserName(String username);
+  
+  // using named parameters
+  @Query("select u from User u where u.username= :un") 
+  User findOneByUsername(@Param("un") String username);
+  
+  @Query("select u.username from User u where u.id= :id") 
+  String findUsernameById(Long id);
+  
+  @Query("select count(u) from User u") 
+  long countUsers();
+}
+```
+
 ## References
 
 1. [Spring Framework Reference - Data Access](https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html)
