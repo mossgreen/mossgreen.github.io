@@ -8,7 +8,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Core in Spring Certification.
+Spring AOP in Spring Certification.
 
 ## What is the concept of AOP? 
 AOP is **A**spect **O**riented **P**rogramming, which refers to a type of programming that aims to increase modularity by allowing the separation of cross-cutting concerns.
