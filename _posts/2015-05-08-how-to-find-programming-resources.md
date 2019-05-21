@@ -8,8 +8,8 @@ classes: wide
 ---
 
 
-1. [All IT eBooks](http://www.allitebooks.org/) | [All IT eBooks](http://www.allitebooks.in/)
-2. [IT Books](http://it-ebooks.info/) 
+1. [All IT eBooks](http://www.allitebooks.org/) 
+2. [All IT eBooks](http://www.allitebooks.in/)
 3. [droppdf](http://droppdf.com/) 
 4. [Ebook all](http://ebook-dl.com/) 
 5. [awesome-programming-books](https://github.com/jobbole/awesome-programming-books) 
@@ -20,3 +20,4 @@ classes: wide
 10. [salttiger](https://salttiger.com/archives/) 
 11. [booklid](http://en.booklid.org/) 
 12. [kindle.51nazhun](https://kindle.51nazhun.pub/) 
+13. [IT Books](http://it-ebooks.info/) 
