@@ -38,7 +38,8 @@ A **cross-cutting concern** is a functionality that is tangled with business cod
 ## AOP Terminology, what is a pointcut, a join point, an advice, an aspect, weaving?
 
 ### Join point 
-A point during the execution of a program. In Spring AOP, a joint point is always a **method execution**. Basically, the join point marks the execution point where aspect behavior and base behavior join.
+In Spring AOP, a joint point is always a **method execution**. 
+The join point marks the execution point **where aspect behavior and base behavior join**.
 
 **Spring AOP only** supports public method invocation join points. 
 Compare to **AspectJ** which supports **all** of the above listed join point types and more.
@@ -68,18 +69,20 @@ public void beforeUpdate(JoinPoint joinPoint) throws Throwable { }
 ```
 
 ### Advice
-Advice is the additional behavior, typically a cross cutting concern, that is to be executed at certain places (at join points) in a program.
+- Advice is the additional behavior, typically a cross cutting concern, that is to be executed at certain places (at join points) in a program.
+- Specifies **what** to do, **where** to do it.
 
 ### Aspect
-
-An aspect brings together one or more pointcuts with one or more advice. Typically one aspect encapsulates one cross cutting concern, as to adhere to the single responsibility principle.
-
+An aspect brings together one or more pointcuts with one or more advice. 
+Typically one aspect encapsulates one cross cutting concern, as to adhere to the single responsibility principle.
 
 ### Weaving 
-The process that aspects and (application) code is combined as to enable execution of cross cutting concerns at the join points specified by the pointcuts in the aspects.
+Adding `Advices` to the target class.
 - Compile time weaving: AspectJ
 - Loading time weaving
 - Runtime weaving: Spring AOP
+
+![spring-aop-diagram.jpg](https://i.loli.net/2019/05/20/5ce25f018b90c60842.jpg)
 
 ## How does Spring solve (implement) a cross cutting concern?
 Spring uses proxy objects to implement the method invocation interception part of AOP. Such proxy objects wrap the original Spring bean and intercepts method invocations as specified by the set of pointcuts defined by the cross cutting concern.
@@ -194,3 +197,4 @@ The basic structure of a pointcut expression consists of **two parts**; a pointc
 1. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 2. [Spring Notes from Giberson Brendan](https://quizlet.com/266872659/container-dependency-and-ioc-flash-cards/)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+4. [howtodoinjava - Spring AOP Tutorial Example](https://howtodoinjava.com/spring-aop-tutorial/)
