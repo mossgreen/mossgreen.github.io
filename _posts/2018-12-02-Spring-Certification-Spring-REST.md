@@ -228,7 +228,7 @@ annotated correctly?
 
 
 
-● If you saw an example using RestTemplate would you understand what it is doing?
+## If you saw an example using RestTemplate would you understand what it is doing?
 
 
 ## References
