@@ -230,6 +230,19 @@ annotated correctly?
 
 ## If you saw an example using RestTemplate would you understand what it is doing?
 
+```java
+String uriTemplate = "http://example.com/hotels/{hotel}";
+URI uri = UriComponentsBuilder.fromUriString(uriTemplate).build(42);
+
+RequestEntity<Void> requestEntity = RequestEntity.get(uri)
+        .header(("MyRequestHeader", "MyValue")
+        .build();
+
+ResponseEntity<String> response = template.exchange(requestEntity, String.class);
+
+String responseHeader = response.getHeaders().getFirst("MyResponseHeader");
+String body = response.getBody();
+```
 
 ## References
 
