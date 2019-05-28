@@ -87,7 +87,7 @@ public void setMovieFinder(MovieFinder movieFinder) { this.movieFinder = movieFi
 }
 ```
 
-### comparsion
+### comparison
 
 - The Spring team generally advocates constructor injection as it enables one to implement application components as **immutable objects** and to ensure that **required dependencies are not null**. 
 - Furthermore constructor-injected components are always returned to client (calling) code in a **fully initialized state**. 
@@ -111,42 +111,8 @@ public void setMovieFinder(MovieFinder movieFinder) { this.movieFinder = movieFi
 
 
 ## What are the IoC containers in Spring?
+see my blog: Spring Core in Spring Certification
 
-The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
-
-The **BeanFactory** provides the configuration framework and basic functionality, and the **ApplicationContext** adds more enterprise-specific functionality.
-
-### ApplicationContext
-- `ApplicationContext` is a **subinterface of BeanFactory**.
-- Implementations in standalone applications
-  - ClassPathXmlApplicationContext 
-  - FileSystemXmlApplicationContext
-- It adds easier integration with Spring’s AOP features; 
-  - message resource handling (for use in internationalization), 
-  - event publication; and 
-  - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
-  
-### BeanFactory
-- The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
-- application-layer specific contexts: `WebApplicationContext`
-- Use an `ApplicationContext` **unless** you have a good reason for not doing so.
-- Spring makes heavy use of the `BeanPostProcessor` extension point (**to effect proxying** and so on
-- To explicitly register a BeanFactoryPostProcessor when using a BeanFactory implementation
-    ```java
-    DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-    reader.loadBeanDefinitions(new FileSystemResource("beans.xml"));
-    
-
-    // bring in some property values from a Properties file 
-    PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
-    cfg.setLocation(new FileSystemResource("jdbc.properties"));
-
-    // now actually do the replacement cfg.postProcessBeanFactory(factory); 
-    
-    ```
-    
----
 
 ## By default a bean is lazily loaded. <-- False
 
@@ -165,15 +131,6 @@ The **BeanFactory** provides the configuration framework and basic functionality
 
 4. RDBMS Objects including **MappingSqlQuery**, **SqlUpdate** and **StoredProcedure** requires you to create reusable and thread-safe objects during initialization of your data access layer.
 
-## What is true about cross-cutting concerns?
-
-√ The functions that span multiple points of an application are called cross cutting concerns.
-
-X Cross-cutting concerns are conceptually separate from the application's business logic.
-
-X Logging is one of the examples of cross cutting concerns.
-
-
 ## Which class can be extended to create custom event in spring? ApplicationEvent.
 
 1. the event should extend ApplicationEvent
@@ -188,5 +145,221 @@ public class CustomEvent extends ApplicationEvent{
    public String toString(){
       return "My Custom Event";
    }
+}
+```
+
+
+## What is Spring’s XML-based configuration? 
+
+Inject data/value to `<property/>` and `<constructorarg/>`
+
+### Straight values (primitives, Strings, and so on)
+
+```xml
+<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"> 
+  <!-- results in a setDriverClassName(String) call --> 
+  <property name="driverClassName" value="com.mysql.jdbc.Driver"/> 
+  <property name="url" value="jdbc:mysql://localhost:3306/mydb"/> 
+  <property name="username" value="root"/> 
+  <property name="password" value="masterkaoli"/> 
+</bean>
+```
+
+### idref element  
+Pass the id (string value - not a reference) of another bean in the container to a `<constructor-arg/>` or `<property/>` element.
+
+```xml
+<bean id="theTargetBean" class="..."/>
+
+<bean id="theClientBean" class="..."> 
+  <property name="targetName"> 
+    <idref bean="theTargetBean" /> 
+  </property>
+</bean>
+```
+
+### Inner beans
+
+```xml
+<bean id="outer" class="..."> 
+  <!-- instead of using a reference to a target bean, simply define the target bean inline --> 
+  <property name="target"> 
+    <bean class="com.example.Person"> <!-- this is the inner bean --> 
+      <property name="name" value="Fiona Apple"/> 
+      <property name="age" value="25"/> 
+    </bean> 
+  </property> 
+</bean>
+```
+### Collections
+
+- `<list/>`, type **List**
+- `<set/>`, type **Set**
+- `<map/>`, and type **Map**
+- `<props/>` type **Properties**
+
+**Inject properteis**
+```xml
+<bean id="moreComplexObject" class="example.ComplexObject"> 
+  <!-- results in a setAdminEmails(java.util.Properties) call --> 
+  <property name="adminEmails"> 
+    <props> 
+      <prop key="administrator">administrator@example.org</prop> 
+      <prop key="support">support@example.org</prop> 
+      <prop key="development">development@example.org</prop> 
+    </props> 
+  </property>
+</bean>
+```
+
+### Null and empty string values
+
+- Spring treats empty arguments for properties and the like as empty Strings. 
+The following configurations are equal.
+
+    ```xml
+    <bean class="ExampleBean"> 
+      <property name="email" value=""/> 
+    </bean>
+    ```
+    ```java
+    exampleBean.setEmail("");
+    ```
+- The **`<null/>`** element handles null values.   
+The following configurations are equal.
+
+    ```xml
+    <bean class="ExampleBean"> 
+      <property name="email"> 
+        <null/> 
+      </property> 
+    </bean>
+    ```
+    ```java
+    exampleBean.setEmail(null);
+    ```
+
+
+## What is XML-based Autowire?
+
+Four types: **no**, **byName**, **byType**, **constructor**.
+
+1. **`no`**. 
+  - **Default**
+  - No autowiring. 
+  - Bean references **must** be defined via a ref element. 
+  - Changing the default setting is **not recommended** for larger deployments, because specifying collaborators explicitly gives greater control and clarity. 
+  - To some extent, it documents the structure of a system
+  
+2. **`byName`**
+  - Autowiring by property name. 
+  - Spring looks for a bean with the same name as the property that needs to be autowired.
+  For example, if a bean definition is set to autowire by name, and it contains a master property (that is, it has a setMaster(..) method), Spring looks for a bean definition named master, and uses it to set the property
+
+3. **`byType`**
+  - Allows a property to be autowired **if exactly** one bean of the property type exists in the container. 
+  - If more than one exists, a fatal exception is thrown, which indicates that you may not use byType autowiring for that bean. 
+  - If there are no matching beans, nothing happens; the property is not set.
+  - Can wire arrays and **typed-collections**. In such cases all autowire candidates within the container that match the expected type are provided to satisfy the dependency.
+  
+4. **`constructor`**   
+  - Analogous to `byType`, **but** applies to constructor arguments. 
+  - If there is not exactly one bean of the constructor argument type in the container, a fatal **error** is raised
+  
+
+- **Excluding** a bean from autowiring, by setting its `autowire-candidate` attributes to false as described in the next section.
+
+
+## What is A-O-P stands for in Spring?
+
+**Spring IoC container **does not** depend on AOP.**
+
+**Aspect**: 
+- a modularization of a concern that cuts across multiple classes. 
+- Transaction management is a good example of a crosscutting concern in enterprise Java applications. 
+- In Spring AOP, aspects are implemented using regular classes (the schema-based approach) or regular classes annotated with the @Aspect annotation (the @AspectJ style).
+
+**Join point**:
+- a point **during the execution of a program**, such as the execution of a method or the handling of an exception. 
+- In Spring AOP, a join point **always represents a method execution**.
+
+**Advice**: 
+- **action** taken by an aspect at a particular join point. 
+- Many AOP frameworks, including Spring, model an advice as an interceptor, maintaining a chain of interceptors around the join point. 
+- Typese of advice:
+  - Before advice
+  - After returning advice
+  - After throwing advice
+  - After (finally) advice
+  - Around advice
+
+**Pointcut**: 
+- a predicate that matches join points. 
+- Advice is associated with a pointcut expression and runs at any join point matched by the pointcut (for example, the execution of a method with a certain name). 
+- The concept of join points as matched by **pointcut expressions is central to AOP**, and Spring uses the AspectJ pointcut expression language by default.
+    ```java
+    execution(public * com.ps.repos.*.JdbcTemplateUserRepo+.findById(..))
+    ```
+
+**Introduction**:
+- declaring additional methods or fields on behalf of a type. 
+- Spring AOP allows you to introduce new interfaces (and a corresponding implementation) to any advised object. For example, you could use an introduction to make a bean implement an IsModified interface, to simplify caching.
+  > An introduction allows you to add new methods or attributes to existing classes.
+
+**Target object**: 
+- object being advised by one or more aspects. 
+- object to which the aspect applies.
+- Also referred to as the advised object. 
+- Since Spring AOP is implemented using runtime proxies, this object will **always be a proxied object**.
+
+**AOP proxy**: 
+- an object created by the AOP framework in order to implement the aspect contracts (advise method executions and so on). 
+- In the Spring Framework, an AOP proxy will be a **JDK dynamic proxy** or a **CGLIB proxy**.
+
+**Weaving**: 
+- linking aspects with other application types or objects to create an advised object. 
+- This can be done at **compile time (using the AspectJ compiler**, for example), load time, or at runtime. 
+- **Spring AOP**, like other pure Java AOP frameworks, performs **weaving at runtime**.
+
+
+```java
+@Repository("userTemplateRepo") 
+public class JdbcTemplateUserRepo implements UserRepo { 
+
+  @Override
+  public int updateUsername(Long userId, String username) { 
+    String sql = "update p_user set username=? where ID = ?"; 
+    updateDependencies(userId); 
+    return jdbcTemplate.update(sql, username, userId); 
+  }
+  
+  @Override 
+  public int updateDependencies(Long userId) {
+    //mock method to test the proxy nature
+    return 0; 
+  }
+}
+```
+
+**Pointcutcontainer.java**
+```java
+public class PointcutContainer {
+
+  @Pointcut("execution( * com.ps.repos.*.*UserRepo+.update*(..))") 
+  public void proxyBubu() {}
+}
+```
+
+**UserRepoMonitor.java**
+```java
+@Aspect 
+@Component 
+public class UserRepoMonitor { 
+
+  @Before("com.ps.aspects.PointcutContainer.proxyBubu()")
+  public void bubuHappens(JoinPoint joinPoint) throws Throwable {
+    String methodName = joinPoint.getSignature().getName();
+    String className = joinPoint.getSignature().getDeclaringTypeName();
+  } 
 }
 ```
