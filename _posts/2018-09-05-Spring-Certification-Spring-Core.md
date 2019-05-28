@@ -15,7 +15,7 @@ Each software component provides a service to other components, and linking the 
 
 In Spring, it creates the objects, manages them, wiring them together, configures them, as also manages their complete lifecycle.
 
-### Advantages
+**Advantages**
 1. Code is cleaner 
 2. Decoupling is more effective (IOC containers support eager instantiation and lazy loading of services)
 3. Easier to test (no singletons or JNDI lookup mechanisms are required in unit tests)
@@ -36,9 +36,12 @@ In Spring, it creates the objects, manages them, wiring them together, configure
 
 Interfaces cannot be instantiated and it's a way of implementing multiple inheritance (polymorphism).
 
-Advantages include providing different implementations at runtime, the ability to inject dependencies, and polymorphism.
+Advantages
+- providing different implementations at runtime, 
+- the ability to inject dependencies, and 
+- polymorphism.
 
-### Why Interfaces are recommended for Spring beans?
+**Why Interfaces are recommended for Spring beans?**
 Spring beans are recommended to be defiend as Interfaces. In the application, they can be implemented by the classes impleting them.
 
 - Increased testability, by mocking or stubbing
@@ -46,14 +49,47 @@ Spring beans are recommended to be defiend as Interfaces. In the application, th
 - Easy dependency injection
 
 ## What is meant by “application-context?   
-- The **BeanFactory** interface provides an advanced configuration mechanism capable of managing any type of object. 
-- **ApplicationContext** is a sub-interface of BeanFactory
-- BeanFactory provides the configuration framework and basic functionality, and the ApplicationContext adds more **enterprise-specific** functionality.
+I'd like to illustrate it by comparing with BeanFactory.
+
+The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
+
+The **BeanFactory** provides the configuration framework and basic functionality, and the **ApplicationContext** adds more enterprise-specific functionality.
+
+### BeanFactory
+- The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
+- application-layer specific contexts: `WebApplicationContext`
+- Use an `ApplicationContext` **unless** you have a good reason for not doing so.
+- Spring makes heavy use of the `BeanPostProcessor` extension point (**to effect proxying** and so on
+- To explicitly register a BeanFactoryPostProcessor when using a BeanFactory implementation
+
+### ApplicationContext
+- `ApplicationContext` is a **subinterface of BeanFactory**.
+- Implementations in standalone applications
+  - `ClassPathXmlApplicationContext`
+  - `FileSystemXmlApplicationContext`
+- It adds easier integration with Spring’s AOP features; 
+  - message resource handling (for use in internationalization), 
+  - event publication; and 
+  - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
+  
+**Implement BeanFactory**
+```java
+DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+reader.loadBeanDefinitions(new FileSystemResource("beans.xml"));
+
+// bring in some property values from a Properties file 
+PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
+cfg.setLocation(new FileSystemResource("jdbc.properties"));
+
+// now actually do the replacement 
+cfg.postProcessBeanFactory(factory); 
+```
 
 ## What is the concept of a “container” and what is its lifecycle?
 - A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
 - Spring container provides an environment for Spring beans, managing their lifecycle and supplying the services.
--ApplicationContext interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
+- `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
 
 ### Container Lifecycle
 1. Spring container is **created** as the application is started.
@@ -72,8 +108,8 @@ Spring beans are recommended to be defiend as Interfaces. In the application, th
 
 ## How are you going to create a new instance of an ApplicationContext?
 
-- Non web applications: AnnotationConfigApplicationContext
-- Web Applications: Web Application Initializers, XmlWebApplicationContext, AnnotationConfigWebApplicationContext
+- **Non web applications**: `AnnotationConfigApplicationContext`
+- **Web Applications**: Web Application Initializers, `XmlWebApplicationContext`, `AnnotationConfigWebApplicationContext`
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
 1. Spring bean configuration is read and metadata in the form of a **BeanDefinition** object is created for each bean.
@@ -185,8 +221,8 @@ public @interface RestController {}
 
 ## Scopes for Spring beans? What is the default scope?
 
-- Singleton scope: per container, **default bean scope**
-- Prototype: each time a bean is request
+- Singleton scope: per container, **default bean scope**, **stateless**
+- Prototype: each time a bean is request, **stateful**
 - Request: per http request, web-aware contexts only
 - Session: per http session, web-aware contexts only
 - Application: per ServletContext, web-aware contexts only
@@ -195,8 +231,8 @@ public @interface RestController {}
 ## Are beans lazily or eagerly instantiated by default? How do you alter this behavior?   
 Eager instantiation and by default loads the bean immediately while lazy loads it on demand.
 
-- Singleton beans are **eagerly instantiated by default**. 
-- Prototype beans are typically created lazily when requested.
+- **Singleton** beans are **eagerly instantiated by default**. 
+- **Prototype** beans are typically created **lazily** when requested.
 - Use `@Lazy` annotation to override
 
 ## What is a property source? How would you use @PropertySource?
@@ -270,6 +306,7 @@ In the order, different ways to declare:
 ## Consider how you enable JSR-250 annotations like @PostConstruct and @PreDestroy? When/how will they get called?
 
 When a Spring App uses **annotation-based configuration**, a default `CommonAnnotationBeanPostProcessor` is automatically registered in the application context and **no additional configuration is necessary** to enable `@PostConstruct` and `@PreDestroy`.
+
 
 ## How else can you define an initialization or destruction method for a Spring bean? 
 
@@ -477,7 +514,7 @@ E.g.,` @Value("#{otherBean.someField}")`
 - System environment properties: `@systemEnvironment['KOTLIN_HOME']`
 - Spring application environment: `@environment['defaultProfiles'][0]`
 
-### What is the difference between $ and # in @Value expressions?
+### What is the difference between `$` and `#` in @Value expressions?
 
 - With `$`, reference a property name in the application’s environment.  
 expressions are evaluated by the **PropertySourcesPlaceholderConfigurer** Spring bean prior to bean creation and can **only be** used in `@Value` annnotations.
@@ -500,4 +537,3 @@ see image above.
 
 1. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 2. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
-3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
