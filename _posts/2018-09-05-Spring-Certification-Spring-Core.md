@@ -91,20 +91,21 @@ cfg.postProcessBeanFactory(factory);
 - Spring container provides an environment for Spring beans, managing their lifecycle and supplying the services.
 - `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
 
-### Container Lifecycle
+**Container Lifecycle**
 1. Spring container is **created** as the application is started.
 2. The container **reads configuration** data.
 3. Bean definitions are created from the configuration data.
 4. Bean factory **post-processors** processes the bean definitions.
 5. Spring **beans are instantiated** by the container using the bean definitions.
 6. Spring **beans are configured** and assembled. Property values and dependencies are injected into the beans by the container.
-7. **Bean post-processors** processes the beans in the container and any initialization **callbacks** are invoked on the beans.
-
-    Bean post-processors are called both before and after any initialization callbacks are invoked on the bean. See API documentation for the BeanPostProcessor interface for more information.
+7. **Bean post-processors** processes the beans in the container and any initialization **callbacks** are invoked on the beans. Bean post-processors are called both **before** and **after** any initialization callbacks are invoked on the bean. 
 8. The application runs.
 9. Application shut down is initialized.
 10. The Spring container is closed.
 11. **Destruction callbacks** are invoked on the singleton Spring beans in the container.
+
+![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
+
 
 ## How are you going to create a new instance of an ApplicationContext?
 
@@ -112,18 +113,33 @@ cfg.postProcessBeanFactory(factory);
 - **Web Applications**: Web Application Initializers, `XmlWebApplicationContext`, `AnnotationConfigWebApplicationContext`
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
+
 1. Spring bean configuration is read and metadata in the form of a **BeanDefinition** object is created for each bean.
+
 2. All instances of **BeanFactoryPostProcessor** are invoked in sequence and are allowed an opportunity to alter the bean metadata.
-3. For each bean in the container:
-    3.1 Bean instance is created based on bean metadata
-    3.2 Bean properties and dependencies are set
-    3.3 BeanPostProcessor run: `@PostConstruct`, `afterpropertiesSet()`, `<init-method>`in `<bean>`
-    3.4 Bean is ready
+
+3. For each bean in the container, **starts creation phase**
+    
+    1. The beans are **instantiated**: the bean factory is calling the **constructor** of each bean. If the bean is created using constructor dependency injection, the dependency bean is created first and then injected where needed.
+    
+    2. **dependencies are injected**. For beans that are defined having dependencies injected via setter, this stage is separate from the instantiation stage.
+    
+    3. bean post process beans are invoked **before initialization**.
+    
+    4. beans are initialized
+    
+    5. bean post process beans are invoked after initialization. `@PostConstruct`
+
 4. Beans are being used
+
 5. Spring application context is to shut down, the beans in it will receive destruction callbacks in this order:
-  5.1 `@PreDestroy` method
-  5.2 Bean implemented `DisposableBean` interface
-  5.3 `destroy-method` in `<bean>`
+    1. `@PreDestroy` method
+    2. Bean implemented `DisposableBean` interface
+    3. `destroy-method` in `<bean>`
+
+![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
+
+
 
 ## How are you going to create an ApplicationContext in an integration test test?
 
@@ -149,10 +165,21 @@ public class JUnit4SpringTest {
 
 ###  What is the preferred way to close an application context? Does Spring Boot do this for you?
 
-### Standalone Non-Web App
--  Registering a shutdown-hook by calling `registerShutdownHook()`, also implemented in the **AbstractApplicationContext** class.
-- `close()`, will close immediately
+Destruction callbacks in Spring are not fired automatically; you need to call `AbstractApplicationContext.destroy()` before your application is closed.
 
+
+### Standalone Non-Web App
+**In a stand-alone application**, use **AbstractApplicationContext**’s `registerShutdownHook()` method. The method automatically instructs Spring to register a shutdown hook of the underlying JVM runtime. When the `registerShutdownHook` is added, and calls to ctx.destroy() or close() will be removed. 
+
+  ```java
+  public class DestructiveBeanWithHook {
+    public static void main(String... args) {
+      GenericApplicationContext ctx = new AnnotationConfigApplicationContext( DestructiveBeanConfig.class);
+      
+      ctx.getBean(DestructiveBeanWithJSR250.class); ctx.registerShutdownHook();
+    }
+  }
+  ```
 
 ### Web App
 In a web application, closing of the Spring application context is taken care of by the **ContextLoaderListener**, which implements the **ServletContextListener** interface. The ContextLoaderListener will receive a ServletContextEvent when the web container stops the web application.
@@ -162,23 +189,62 @@ In a web application, closing of the Spring application context is taken care of
 - SpringBoot also uses **ContextLoaderListener**
 
 ## Describe dependency injection using Java configuration?
-One bean method should call another bean method.
+
+In Spring, there are two types of dependency injection 
+- **specific to XML**: 
+  - the factory bean is used to inject dependencies.
+  - via constructor and 
+  - via setters, 
+  - field injection is **not** supported in XML
+- annotations and **Java Configuration**: 
+  - `org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor` bean is used to autowire dependencies
+  - `@Autowire` can be used on 
+    - **fields**, 
+    - constructors, 
+    - setters, and even 
+    - **methods**.
+
 ```java
-@Bean
-public Foo foo() {
-  return new Foo(bar());
+@Repository("requestRepo")
+public class JdbcRequestRepo extends JdbcAbstractRepo<Request> implements RequestRepo {
+
+  private void init(){ 
+    logger.info(" ... initializing requestRepo ..."); 
+  } 
+  
+  private void destroy(){
+    logger.info(" ... destroying requestRepo ..."); 
+  }
 }
 
-@Bean
-public Bar bar() {
-  return new Bar();
+//java configuration class 
+@Configuration 
+@Import(DataSourceConfig.class) 
+@ComponentScan(basePackages = "com.ps") 
+public class RequestRepoConfig {
+
+  @Bean (initMethod = "init", destroyMethod = "destroy") 
+  public RequestRepo anotherRepo(){ 
+    return new JdbcRequestRepo(); 
+  }
 }
 ```
 
+Above code is basically equivalent to this:
+```xml
+<beans ...> 
+  <bean id="anotherRepo" class="com.ps.repos.impl.JdbcRequestRepo" init-method="init", destroy-method="destroy" /> 
+</beans>
+```
+
+
 ## Describe dependency injection using annotations (@Component, @Autowired)? 
 - `@Component` marks the class as a Java Bean and Spring picks that up and pulls it into the Application context so that it can be injected into @Autowired instances.
-- `@Autowired` can be applied to constructors, methods, parameters and properties of a class.
-- If a bean class contains one single constructor, `@Autowired` is not required.
+
+- `@Autowire` is the short version for automatic dependency injection. **how does Spring know what to inject?**
+  1. Spring will try to autowire by type, because rarely in an application is there need for more than one bean of a type. Spring will inspect the type of dependency necessary and will inject the bean with that exact type.
+  2. By default, if Spring cannot decide which bean to autowire based on type (because there are more beans of the same type in the application), it defaults to autowiring by name. The name considered as the criterion for searching the proper dependency is the name of the field being autowired.
+
 
 ## Describe Component scanning
 - To **enable** component scanning, annotate a configuration class in your Spring application with the `@ComponentScan`. 
@@ -236,11 +302,15 @@ Eager instantiation and by default loads the bean immediately while lazy loads i
 - Use `@Lazy` annotation to override
 
 ## What is a property source? How would you use @PropertySource?
-Property source: Abstract base class that represents a source of name value property pairs. E.g.,
-  - Spring system properties of the JVM: `System.getProperties()`
-  - System environment variables: `System.getenv()`.
 
-`@PropertySource` can be used to add a property source to the Spring environment.
+**Property source**: Abstract base class that represents a source of name value property pairs. 
+
+- `@PropertySource` can be used to add a property source to the Spring environment.
+-  it is specific to properties files, **YaML files can not be loaded** via the `@PropertySource` annotation.
+- Spring system properties of the JVM: `System.getProperties()`
+- System environment variables: `System.getenv()`.
+
+
 ```java 
 @Configuration
 @PropertySource("classpath:/com/myco/app.properties")
@@ -259,7 +329,15 @@ public class AppConfig {
 ```
 
 ## What is a BeanFactoryPostProcessor and what is it used for? When is it invoked?
+
+**@BeanFactoryPostProcessor vs BeanPostProcessor**
+
+- The **BeanPostProcessor** interface defines **callback** methods that you can implement to provide your own (or override the container’s default) instantiation logic, dependency-resolution logic, and so forth. If you want to implement some custom logic after the Spring container finishes instantiating, configuring, and initializing a bean, you can plug in one or more BeanPostProcessor implementations.
+
+- **BeanFactoryPostProcessor** operates on the bean configuration metadata; that is, the Spring IoC container allows a BeanFactoryPostProcessor to read the configuration metadata and potentially change it before the container instantiates any beans other than BeanFactoryPostProcessors.
 BeanFactoryPostProcessor is an interface that allows for customizing Spring bean meta-data prior to instantiation of the beans in a container.
+
+The BeanFactoryPostProcessor contains a single method definition that must be implemented, `postprocess(BeanFactory)`.
 
 It's invoked after container is initialized, and bean definition is read, before anybean is initialized.
 
@@ -274,6 +352,7 @@ It's invoked after container is initialized, and bean definition is read, before
 It is a BeanFactoryPostProcessor that resolves property placeholders, on the `${PROPERTY_NAME}` format, in Spring bean properties and Spring bean properties annotated with the `@Value`. When such a placeholder is encountered the corresponding value from the Spring environment and its property sources, it's injected into the property.
 
 Using property placeholders, Spring bean configuration can be externalized into property files. This allows for changing for example the database server used by an application without having to rebuild and redeploy the application.
+
 
 ## What is a BeanPostProcessor and how is it different to a BeanFactoryPostProcessor? What do they do? When are they called?
 
