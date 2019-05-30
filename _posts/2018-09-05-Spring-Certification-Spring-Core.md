@@ -95,7 +95,7 @@ cfg.postProcessBeanFactory(factory);
 1. Spring container is **created** as the application is started.
 2. The container **reads configuration** data.
 3. Bean definitions are created from the configuration data.
-4. Bean factory **post-processors** processes the bean definitions.
+4. **Bean factory post-processors** processes the bean definitions. **NB: not bean post processor**
 5. Spring **beans are instantiated** by the container using the bean definitions.
 6. Spring **beans are configured** and assembled. Property values and dependencies are injected into the beans by the container.
 7. **Bean post-processors** processes the beans in the container and any initialization **callbacks** are invoked on the beans. Bean post-processors are called both **before** and **after** any initialization callbacks are invoked on the bean. 
@@ -332,20 +332,20 @@ public class AppConfig {
 
 **@BeanFactoryPostProcessor vs BeanPostProcessor**
 
-- The **BeanPostProcessor** interface defines **callback** methods that you can implement to provide your own (or override the container’s default) instantiation logic, dependency-resolution logic, and so forth. If you want to implement some custom logic after the Spring container finishes instantiating, configuring, and initializing a bean, you can plug in one or more BeanPostProcessor implementations.
-
 - **BeanFactoryPostProcessor** operates on the bean configuration metadata; that is, the Spring IoC container allows a BeanFactoryPostProcessor to read the configuration metadata and potentially change it before the container instantiates any beans other than BeanFactoryPostProcessors.
 BeanFactoryPostProcessor is an interface that allows for customizing Spring bean meta-data prior to instantiation of the beans in a container.
 
+- The **BeanPostProcessor** interface defines **callback** methods that you can implement to provide your own (or override the container’s default) instantiation logic, dependency-resolution logic, and so forth. If you want to implement some custom logic after the Spring container finishes instantiating, configuring, and initializing a bean, you can plug in one or more BeanPostProcessor implementations.
+
 The BeanFactoryPostProcessor contains a single method definition that must be implemented, `postprocess(BeanFactory)`.
 
-It's invoked after container is initialized, and bean definition is read, before anybean is initialized.
+It's invoked after container is initialized, and bean definition is read, **before anybean is initialized**.
 
 ## Why would you define a static @Bean method?
 
 - Static @Bean methods are called without creating their containing configuration class as an instance. 
-- E.g., **post-processor beans**, like `BeanFactoryPostProcessor`, and `BeanPostProcessor` are supposed to initialized early
-- Calls to static @Bean methods never get intercepted by the container, because **CGLIB subclassing** can override only non-static methods
+- This makes particular sense when defining postprocessor beans, e.g. of type `BeanFactoryPostProcessor` or `BeanPostProcessor`, since such beans will get initialized early in the container lifecycle and should avoid triggering other parts of the configuration at that point.
+- Calls to **static `@Bean`** methods never get intercepted by the container, because **CGLIB subclassing** can override only non-static methods
 
 
 ## What is a ProperySourcesPlaceholderConfigurer used for?
@@ -365,12 +365,32 @@ Using property placeholders, Spring bean configuration can be externalized into 
 
 ## What is an initialization method and how is it declared on a Spring bean?
 
-An initialization method is invoked **after** all properties on the bean have been populated **before** the bean is taken into use.
+An initialization method is invoked **after** all properties on the bean have been populated **before** the bean is taken into use. Different ways to declare:
 
-In the order, different ways to declare:
-1. Implementing the `InitializingBean` interface and implementing the `afterPropertiesSet()` method in the bean class.(not recommanded)
-2. Annotate it `@PostConstruct`. It may have any visibility, **may not** take any parameters and may only have the **void** return type.
-3. Use the `initMethod` element of the @Bean annotation.
+1. Using the attribute `init-method` on a `<bean/>` XML definition to define a method to be called for initialization.
+
+2. Implementing the `org.springframework.beans.factory.InitializingBean` interface and providing an implementation for the method `afterPropertiesSet()` (**not recommended !!!**, since it couples the application code with Spring infrastructure).
+
+3. Annotating with `@PostConstruct` the method that is **called right after** the bean is instantiated and dependencies injected.
+    1. The method **must be** invoked before the bean is used, and, 
+    2. like any other initialization method chosen, **may be called only once** during a bean lifecycle. 
+    ```java
+    public class Bar {
+
+      @PostConstruct 
+      public void init() throws Exception { 
+        System.out.println("init method is called"); 
+      }
+      
+      @PreDestroy 
+      public void destroy() throws RuntimeException { 
+        System.out.println("destroy method is called"); 
+      }
+    }
+    ```
+
+4. The equivalent of the `init-method` attribute when using **Java Configuration** `@Bean(initMethod="...")`
+
 
 ![IMAGE](https://i.loli.net/2019/05/13/5cd92794f0ebc77453.jpg)
 
@@ -420,9 +440,33 @@ Component, or classpath, scanning is the process using which the Spring containe
 ## How does the @Qualifier annotation complement the use of @Autowired?
 `@Qualifier` used at 3 locations: 
 
-1. Inject Points. The most basic use of the @Qualifier annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
-2. Bean Definitions. This will assign a qualifier to the bean and the same qualifier can later be used at an injection point to inject the bean in question.
-3. Annotation Definition. To create custom qualifier annotations.
+1. **Inject Points**. The most basic use of the @Qualifier annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
+
+2. **Bean Definitions**. This will assign a qualifier to the bean and the same qualifier can later be used at an injection point to inject the bean in question.
+
+3. **Annotation Definition**. To create custom qualifier annotations.
+
+```java
+public class MovieRecommender {
+  @Autowired
+  @Qualifier("main") 
+  private MovieCatalog movieCatalog;
+}
+
+// use qualifier
+public class MovieRecommender {
+
+  private MovieCatalog movieCatalog;
+  
+  private CustomerPreferenceDao customerPreferenceDao;
+  
+  @Autowired 
+  public void prepare(@Qualifier("main") MovieCatalog movieCatalog, CustomerPreferenceDao customerPreferenceDao) {
+  
+  this.movieCatalog = movieCatalog;
+  this.customerPreferenceDao = customerPreferenceDao; }
+}
+```
 
 
 ## What is a proxy object and what are the two different types of proxies Spring can create?
@@ -483,7 +527,7 @@ Spring framework is able to create two types of proxy objects:
  }
 ```
 
-## Why are you not allowed to annotate a final class with @Configuration
+## Why are you not allowed to annotate a final class with `@Configuration`
 JavaConfig requires CGLIB subclassing of each configuration class at runtime, so that @Configuration classes and their factory methods **must not** be marked as `final` or `private`.
 
 ### How do @Configuration annotated classes support singleton beans?
@@ -513,7 +557,7 @@ public class DefaultDataConfig {
 ### Activating Profiles
 - **Most straightforward**, set via `Environment` API
 - `spring.profiles.active` property, like
-    ```yaml
+    ```properties
     -Dspring.profiles.active="profile1,profile2"
     ```
 - In Integration Tests, use `@ActiveProfiles` in `spring-test` module
@@ -523,6 +567,7 @@ public class DefaultDataConfig {
 // Environment API
 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
 ctx.getEnvironment().setActiveProfiles("development");
+
 // ctx.getEnvironment().setActiveProfiles("profile1", "profile2"); //works with multi profiles
 ctx.register(SomeConfig.class, StandaloneDataConfig.class, JndiDataConfig.class);
 ctx.refresh();
@@ -586,6 +631,7 @@ SpEL is an **expression language** that allows for querying and manipulating an 
 E.g.,` @Value("#{otherBean.someField}")`
 
 ### What can you reference using SpEL?
+
 - Static methods and static properties/fields
 - Properties and methods in Spring beans: `@mySuperComponent.injectedValue`
 - Properties and methods in Java objects: `#javaObject.firstName`
@@ -600,19 +646,50 @@ expressions are evaluated by the **PropertySourcesPlaceholderConfigurer** Spring
 - With `#`, SpEL
 
 ## What is the Environment abstraction in Spring?
-- The environment interface represents spring abstraction for the environment. 
-- Environment deals with profiles and properties from different sources.
+
+The Environment is an abstraction integrated in the container that models two key aspects of the application environment: profiles and properties.
+
+**profiles**
+A profile is a named, logical group of bean definitions to be registered with the container only if the given profile is active.
+
+
+**properties**
+Properties may originate from a **variety of sources**: 
+- JVM system properties
+- Operating system environment variables
+- Command-line arguments
+- Application property configuration files
+
 - The Spring `ApplicationContext` interface extends the `EnvironmentCapable` interface, which contain one single method namely the `getEnvironment()`, which returns an object implementing the Environment interface. Thus a Spring application context has a relation to one single Environment object.
 
-![IMAGE](https://i.loli.net/2019/05/14/5cda919f103bd21180.jpg)
+```java
+ApplicationContext ctx = new GenericApplicationContext(); 
+Environment env = ctx.getEnvironment(); 
+boolean containsFoo = env.containsProperty("foo"); 
+System.out.println("Does my environment contain the 'foo' property? " + containsFoo);
+
+// obtain Environment instance, and set the active profile
+ConfigurableEnvironment environment = applicationContext.getEnvironment(); environment.setActiveProfiles("dev");
+```
+
+![IMAGE](https://i.loli.net/2019/05/30/5cef836f25c7d51500.jpg)
 
 
 ### Where can properties in the environment come from – there are many sources for properties – check the documentation if not sure. Spring Boot adds even more.
 
 see image above.
 
+- properties files, 
+- JVM system properties, 
+- system environment variables, 
+- JNDI, 
+- servlet context parameters, 
+- ad-hoc Properties objects, 
+- Maps, and so on.
+
 
 ## References
 
 1. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
-2. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+2. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
+3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
