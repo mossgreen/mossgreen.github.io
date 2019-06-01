@@ -1,5 +1,5 @@
 ---
-title: Spring Data Access in Spring Certification
+title: Spring Data Management in Spring Certification
 search: true
 tags: 
   - Java
@@ -10,7 +10,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Data Access is worth 14% of the professional certification.
+Spring Data Management in Spring Professional Certification.
 
 ## What is the difference between checked and unchecked exceptions?
 

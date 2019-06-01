@@ -3,6 +3,8 @@ title: Spring AOP in Spring Certification
 search: true
 tags: 
   - Java
+  - Spring
+  - AOP
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
