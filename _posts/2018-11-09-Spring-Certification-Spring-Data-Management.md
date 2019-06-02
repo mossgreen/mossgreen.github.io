@@ -22,58 +22,135 @@ Checked exceptions reqires handling, result in **cluttered code** and **unnecess
 E.g., when `SQLException` happens, nothing you can do. 
 
 ### What is the data access exception hierarchy?
-`DataAccessException` and sub classes are unchecked exception.
 
-The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
+Each data access technology has its own exception types, such as 
+- **SQLException** for direct JDBC access, 
+- **HibernateException** used by native Hibernate, or 
+- **EntityException** used by JPA 
+
+what Spring does is to handle technology‐specific exceptions and translate them into its own exception hierarchy. The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
+
+Spring's `DataAccessException` and sub classes are unchecked exception. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
+
+1. **non-transient** exceptions, `org.springframework.dao.NonTransientDataAccessException`
+    - which means that retrying the operation will fail unless the originating cause is fixed.
+    - The most obvious example here is searching for an object that does not exist.
+
+2. `RecoverableDataAccessException`
+    - when a previously failed operation might succeed if some recovery steps are performed, 
+    - usually closing the current connection and using a new one.
+    - E.g., a temporary network hiccup
+
+3. **transient** exception, `springframework.dao.TransientDataAccessException`.
+    - which means that retrying the operation might succeed without any intervention. 
+    - These are **concurrency or latency exceptions**. 
+    - For example, when the database becomes unavailable because of a bad network connection in the middle of the execution of a query, an exception of type `QueryTimeoutException` is thrown. The developer can treat this exception by **retrying the query**. 
+
 
 ## How do you configure a DataSource in Spring? Which bean is very useful for development/test databases?
 
-### DataSource in a standalone app
-```java
-@Configuration
-public class DataSourceConfig {
+Spring offers several options for configuring data-source beans in your Spring application, including these:
+1. Data sources that are defined by a **JDBC driver**
+2. Data sources that are looked up by **JNDI**
+3. Data sources that pool connections
 
-  @Bean public DataSource dataSource() {
-    final BasicDataSource theDataSource = new BasicDataSource();
-    
-    theDataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-    theDataSource.setUrl("jdbc:hsqldb:hsql://localhost:1234/mydatabase");
-    theDataSource.setUsername("demo");
-    theDataSource.setPassword("secret"); 
-    
-    return theDataSource;
-  }
-}
-```
-**In SpringBoot**
-No need to declare the data source bean. Configure it using `application.properties`
-```yaml
-spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase spring.datasource.username=ivan spring.datasource.password=secret
-```
 
-### DataSource in an App that deployed to Server
-Use JDNI lookup
+### DataSource in an App that deployed to Server, Use JDNI lookup
+
+Benefits:
+1. they can be managed completely external to the application, allowing the application to ask for a data source when it’s ready to access the database. Moreover, 
+2. data sources managed in an application server are often pooled for greater performance and can be hot-swapped by system administrators.
+
+You can use `JndiObjectFactoryBean` to look up the DataSource from JNDI:
 
 ```xml
 <beans>
-    <jee:jndi-lookup id="myDataSource" jndi-name="java:comp/env/jdbc/myds"/>
+    <jee:jndi-lookup id="dataSource" jndi-name="/jdbc/SpitterDS" resource-ref="true" />
 </beans>
 ```
 
 ```java
 @Bean 
-public DataSource dataSource() { 
-  final JndiDataSourceLookup theDataSourceLookup = new JndiDataSourceLookup(); 
-  final DataSource theDataSource = theDataSourceLookup.getDataSource("java:comp/env/jdbc/MyDatabase");
+public JndiObjectFactoryBean dataSource() { 
+  JndiObjectFactoryBean jndiObjectFB = new JndiObjectFactoryBean();
+  jndiObjectFB.setJndiName("jdbc/SpittrDS"); 
+  jndiObjectFB.setResourceRef(true); 
+  jndiObjectFB.setProxyInterface(javax.sql.DataSource.class); 
   
-  return theDataSource; 
+  return jndiObjectFB; 
+}
+```
+
+**In SpringBoot, obtain a DataSource from JNDI**
+```properties
+spring.datasource.jndi-name=java:jdbc/customers
+```
+
+### Configure a pooled data source directly in Spring
+Although Spring doesn’t provide a pooled data source, plenty of suitable ones are available, including the following open source options:
+
+```java
+@Bean public BasicDataSource dataSource() {
+  BasicDataSource ds = new BasicDataSource(); 
+  ds.setDriverClassName("org.h2.Driver"); 
+  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
+  ds.setUsername("sa"); 
+  ds.setPassword(""); 
+  ds.setInitialSize(5); //the pool to start with five connections
+  ds.setMaxActive(10); 
+  return ds;
+}
+```
+
+**In SpringBoot, configure the datasource**
+```properties
+spring.datasource.hikari.maximum-pool-size=5 
+spring.datasource.hikari.minimum-idle=2 
+spring.datasource.hikari.leak-detection-threshold=20000
+```
+
+### Using JDBC driver-based data sources
+- It's simple
+- great for **small** applications and running in **development**
+- it **doesn’t work well in multithreaded applications** and is best limited to use in testing
+- compared to the pooling data-source beans, it doesn’t provide a connection pool, there are no pool configuration properties to set.
+
+```java
+@Bean 
+public DataSource dataSource() { 
+  DriverManagerDataSource ds = new DriverManagerDataSource(); 
+  ds.setDriverClassName("org.h2.Driver"); 
+  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
+  ds.setUsername("sa"); 
+  ds.setPassword(""); 
+  return ds; 
 }
 ```
 
 **In SpringBoot**
-```yaml
-spring.datasource.jndi-name=java:comp/env/jdbc/MyDatabase
+No need to declare the data source bean. Configure it using `application.properties`
+```properties
+spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase 
+spring.datasource.username=haha spring.datasource.password=secret
 ```
+
+### Using an embedded data source
+- An embedded database runs as part of your application instead of as a separate database server that your application connects to. 
+- Although it’s **not very useful in production** settings, an embedded database is a perfect choice for development and testing purposes. 
+- That’s because it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+
+```java
+@Bean 
+public DataSource dataSource() { 
+
+  return new EmbeddedDatabaseBuilder() 
+    .setType(EmbeddedDatabaseType.H2) 
+    .addScript("classpath:schema.sql") 
+    .addScript("classpath:test-data.sql") 
+    .build(); 
+}
+```
+
 
 ## What is the Template design pattern.
 - Use abstract methods for the different steps, subclasses define all steps
@@ -439,3 +516,4 @@ public interface UserRepo extends JpaRepository<User, Long> {
 2. [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
+
