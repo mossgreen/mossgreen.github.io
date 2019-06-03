@@ -206,27 +206,54 @@ Override load method with various parameters. E.g., queryForList() has 7 types.
 ## What is a transaction? 
 **Transaction**: operate serveral tasks as one unit. Run them all successfully, or reverted. 
 Tansaction enforces ACID principle:
-- Atomicity: all or nothing
-- Consistency
-- Isolation
-- Durability
+- **Atomicity**: Several operations might be performed over data in any transaction. Those operations must all succeed or commit, or, if something goes wrong, none of them should be persisted; in other words, they all must be rolled back. Atomicity is also known as **unit of work**.
+
+- **Consistency**: For a system to have consistency, at the end of an active transaction the underlying database can never be in an inconsistent state. For example, if order items cannot exist without an order, the system won’t let you add order items without first adding an order.
+
+- **Isolation**: Isolation defines how protected your uncommitted data is to other concurrent transactions. Isolation levels range from least protective, which offers access to uncommitted data, to most protective, at which no two transactions work at the same time. **Isolation is closely related to concurrency and consistency.** If you increase the level of isolation, you get more consistency but lose concurrency—that is, performance. On the other hand, if you decrease the level, your transaction performance increases, but you risk losing consistency.
+
+- **Durability**: A system has durability when you receive a successful commit message, and you can be sure that your changes are reflected to the system and will survive any system failure that might occur after that time. Basically, when you commit, your changes are permanent and won’t be lost.
 
 ### What is the difference between a local and a global transaction?
 - **Local transation** plays one single resource: db, or message broker
-- **Global transaction** allows to span multiple transactional resources.
+- **Global transaction** allows to span multiple transactional resources, like distributed transaction management.
   - Global transactions requires a dedicated transaction manager.
 
 ## Is a transaction a cross cutting concern? How is it implemented by Spring?
 Yes, transaction management is a cross-cutting concern. 
+
 - **Spring AOP uses Declarative** transaction management, it's **non-invasive**.
+
 - Spring support **Programmatic** transaction management, use **only if** you have a small number of transactional operations. Two ways:
   - `PlatformTransactionManager` implemetation directly
   - `TransactionTemplate`
   
 ## How are you going to define a transaction in Spring?
-1. Declare a `PlatformTransactionManager` bean.
-2. `@EnableTransactionManagement` on `@Configuration` class.
-3. `@Transactional` to declare transaction boundaries.
+
+1. **Configure transaction management support**: add a declaration of a bean of type `org.springframework.jdbc.datasource.DataSourceTransactionManager`.
+
+```java
+public class TestDataConfig {
+
+  @Bean 
+  public PlatformTransactionManager txManager(){ 
+    return new DataSourceTransactionManager(dataSource()); 
+  } 
+}
+```
+
+2. And we activate it with the `@EnableTransactionManagement` on `@Configuration` class.
+
+```java
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration 
+@EnableTransactionManagement 
+@ComponentScan(basePackages = {"com.ps.repos.impl", "com.ps.services.impl"}) 
+public class AppConfig { }
+```
+
+3. Declare transactional methods using `@Transactional` 
 
 ```java
 @Configuration
