@@ -33,13 +33,22 @@ TESTING
 
 ## How can you create a shared application context in a JUnit integration test?
 
-- The `WebApplicationContext` and `MockServletContext` are both cached **across the test** suite, whereas
-- the other mocks are managed **per test method** by the ServletTestExecutionListener.
+The core class of this module is `org.springframework.test.context.junit4.SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**.
 
+1. Annotate the test class with `@RunWith(SpringJUnit4ClassRunner.class)`.
 
-To create shared application context you have to annotate a JUnit 4 based test class with
-- `@RunWith(SpringJUnit4ClassRunner.class)` **or** `@RunWith(SpringRunner.class)`.
-- You need to use `@ContextConfiguration` to point `@Configuration` classes.
+2. annotate the class with `@ContextConfiguration` in order to tell the runner class where the bean definitions come from.
+```java
+// bean definitions are provided by class AllRepoConfig 
+@ContextConfiguration(classes = {AllRepoConfig.class}) 
+public class GenericQualifierTest {...} 
+
+// bean definitions are loaded from file all-config.xml 
+@ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
+public class GenericQualifierTest {...}
+```
+
+3. use `@Autowired` to inject beans to be tested.
 
 
 ## When and where do you use @Transactional in testing?
@@ -64,12 +73,15 @@ Mock objects have the **advantage over stubs** in that they are created dynamica
 > @ContextConfiguration defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
 
 ```java
-@RunWith(SpringJUnit4ClassRunner.class) @ContextConfiguration(classes={KindergartenConfig.class, HighschoolConfig.class}) @ActiveProfiles("kindergarten") public class ProfilesJavaConfigTest {
+@RunWith(SpringJUnit4ClassRunner.class) 
+@ContextConfiguration(classes={KindergartenConfig.class, HighschoolConfig.class}) @ActiveProfiles("kindergarten") 
+public class ProfilesJavaConfigTest {
 
   @Autowired 
   FoodProviderService foodProviderService;
 }
 ```
+
 
 ## How does Spring Boot simplify writing tests?
 
@@ -86,6 +98,7 @@ Mock objects have the **advantage over stubs** in that they are created dynamica
 6. `spring-boot-test-autoconfigure` that includes a number of annotations that for instance enables selecting which auto-configuration classes to load and which not to load when creating the application context for a test, thus avoiding to load all auto-configuration classes for a test.
 
 7. Auto-configuration for tests related to several technologies that can be used in Spring Boot applications. Some examples are: JPA, JDBC, MongoDB, Neo4J and Redis.
+
 
 ## What does @SpringBootTest do? How does it interact with @SpringBootApplication and
 @SpringBootConfiguration?
