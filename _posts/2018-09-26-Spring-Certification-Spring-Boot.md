@@ -14,14 +14,17 @@ Spring Boot in Spring professional certification.
 
 ## What is Spring Boot?
 
-The main goal of Spring Boot is to quickly create **Spring-based** applications without requiring developers to write the same boilerplate configuration again and again. 
+Spring Boot is an opinionated framework that helps developers build Spring-based applications quickly and easily. **The main goal of Spring Boot** is to quickly create Spring-based applications without requiring developers to write the same boilerplate configuration again and again. The key Spring Boot features include:
 
-The key Spring Boot features include:
-- Spring Boot starters   
-- Spring Boot autoconfiguration.
+- Spring Boot starters, easy dependency management
+
+- Spring Boot autoconfiguration, with sensible defaults
+
 - Elegant configuration management
-- Spring Boot actuator. 
-- Easy-to-use embedded servlet container support.
+
+- Spring Boot actuator
+
+- Easy-to-use embedded servlet container support
 
 
 ## What are the advantages of using Spring Boot?
@@ -148,7 +151,7 @@ spring.xxx.yyy=somevalue
 
 ## What does @EnableAutoConfiguration do?
 
-The `@EnableAutoConfiguratio`n annotation enables the autoconfiguration of Spring ApplicationContext by:
+It's a Spring Boot specific annotation. It enables the autoconfiguration of Spring ApplicationContext by:
 1. scanning the classpath components and 
 2. registering the beans that match various conditions. 
 
@@ -158,26 +161,39 @@ Spring Boot provides various autoconfiguration classes in `spring-boot-autoconfi
 
 
 ## What about @SpringBootApplication?
-`@SpringBootApplication` enables the following three annotations:
-  1. @EnableAutoConfiguration: enable Spring Boot’s auto-configuration mechanism
-  2. @ComponentScan: enable @Component scan on the package where the application is located
-  3. @Configuration: allow to register extra beans in the context or import additional configuration classes
+It's a convenience annotation that equivalent to declaring the following three:
+
+1. `@EnableAutoConfiguration`: enable Spring Boot’s auto-configuration mechanism
+
+2. `@ComponentScan`: enable @Component scan on the package where the application is located
+
+3. `@Configuration`: allow to register extra beans in the context or import additional configuration classes
 
 
 ## Does Spring Boot do component scanning? Where does it look by default?
 
 - `@ComponentScan` or `@SpringBootApplication` enables component scanning.
+
+- If no component scanning attribute defined, it will scan only the package in which the class annotated.
+
 - The base package(s) which to scan for components can be specified using the **basePackages element** in the `@ComponentScan` annotation or by specifying one or more classes that are located in the base package(s)
 
 ```java
-
-@Configuration @EnableJpaRepositories(
-  basePackages = "com.apress.demo.orders.repositories",
-  entityManagerFactoryRef = "ordersEntityManagerFactory",
-  transactionManagerRef = "ordersTransactionManager" ) 
+@SpringBootApplication(scanBasePackageClasses = HelloWorld.class)
 public class OrdersDBConfig {}
 ```
 
+```java
+@Configuration 
+@EnableAutoConfiguration 
+@ComponentScan(basePackages = "com.mycompany.myproject") 
+@EntityScan(basePackageClasses=Person.class) 
+public class Application {
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  } 
+}
+```
 
 ## What is a Spring Boot starter POM? Why is it useful?
 **Starter POMs** are that all the dependencies needed to get started with a certain technology have been gathered. 
@@ -208,9 +224,15 @@ environments:
 
 ## Can you control logging with Spring Boot? How?
 
-```
-// todo
-```
+- Spring Boot uses **Commons Logging** internally by default, but it leaves the underlying implementation open. 
+
+- By default, ERROR, WARN, and INFO level messages are logged. In `application.properties` add: `debug=true` to enable debug level logging.
+
+- Logging is initialized **before** the application context, so it is **impossible** to control logging from using `@PropertySources` in `@Configuration` classes.
+
+- **System properties** and conventional Spring Boot **external configuration files** should be used. Depending on the logging system that is used, Spring Boot will look for the specific configuration files.
+
+- The logfile name to use by default by Spring Boot can be configured using the `logging.file` Spring Environment variable.
 
 
 ## References
@@ -218,5 +240,7 @@ environments:
 1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
+4. [Pro Spring Boot](https://www.apress.com/br/book/9781484214312/)
+
 
 
