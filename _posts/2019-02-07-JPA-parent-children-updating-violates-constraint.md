@@ -5,6 +5,8 @@ tags:
   - Spring Data JPA
   - Sprint Boot
   - SQL
+  - Spring
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"

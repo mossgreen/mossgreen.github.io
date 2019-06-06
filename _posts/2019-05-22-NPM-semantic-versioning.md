@@ -1,16 +1,16 @@
 ---
-title: Update Git Tag the NPM Way
+title: NPM Semantic Versioning
 search: true
 tags: 
   - npm
-  - versioning
+  - git
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
-Let's git tag the NPM way.
+We should tag projects like NPM does.
 
 ## NPM Semantic Versioning Rules
 1. **Starting** your package version at `1.0.0`.

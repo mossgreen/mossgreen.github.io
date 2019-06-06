@@ -1,5 +1,5 @@
 ---
-title: Spring OAuth2 Tutorial Notes
+title: Spring OAuth2 Notes
 search: true
 tags: 
   - Java

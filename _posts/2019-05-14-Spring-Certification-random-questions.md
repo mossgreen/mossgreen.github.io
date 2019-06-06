@@ -1,5 +1,5 @@
 ---
-title: Random Questions for Spring Professional Certification
+title: Preparing for Spring Professional Certification 
 search: true
 tags: 
   - Java

@@ -1,5 +1,5 @@
 ---
-title: Java Long Value Comparing with Long Cache
+title: Java Long Value Cacheing
 search: true
 tags: 
   - Java
