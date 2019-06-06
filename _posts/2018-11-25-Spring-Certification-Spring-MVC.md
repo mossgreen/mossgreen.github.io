@@ -25,6 +25,16 @@ Spring MVC in Spring professional certification.
 - decoupling among MVC
 - reuse of model and controllers with different views
 
+**Spring MVC Request Life Cycle**
+
+1. **Filter**: The filter applies to every request. There are everal commonly used filters.
+2. **Dispatcher servlet**: The servlet analyzes the requests and dispatches them to the appropriate controller for processing. This is where DispatcherServlet implement **Front Controller design pattern**.
+3. **Common services**: The common services will apply to every request to provide supports including i18n, theme, and file upload. Their configuration is defined in the DispatcherServlet’s WebApplicationContext.
+4. **Handler mapping**: This maps incoming requests to handlers (a method within a Spring MVC controller class). Spring MVC will automatically register a HandlerMapping implementation maps handlers based on HTTP paths expressed through the `@RequestMappin`g annotation at the **type or method level** within controller classes.
+5. **Handler interceptor**: In Spring MVC, you can register interceptors for the handlers for implementing common checking or logic. For example, a handler interceptor can check to ensure that only the handlers can be invoked during office hours.
+6. **Handler exception resolver**: to deal with unexpected exceptions thrown during request processing by handlers. 
+7. **View Resolver**: Spring MVC’s ViewResolver interface supports view resolution based on a logical name returned by the controller.
+
 
 ![IMAGE](https://i.loli.net/2019/05/21/5ce3b21f89bd264516.jpg)
 
@@ -38,6 +48,8 @@ Spring MVC in Spring professional certification.
 
 ## What is the DispatcherServlet and what is it used for?
 
+> **Front controller pattern** stands for a single servlet delegates responsibility for a request to other components of an application, to perform actual processing. 
+
 Following **front controller pattern**, **DispatcherServlet** is the central `Servlet`, the **entry point** of the application, the heart of Spring Web MVC that coordinates all request handling operations.
 
 A Spring web application may define **multiple** dispatcher servlets, each of which has its own namespace, its own Spring application context and its own set of mappings and handlers.
@@ -47,24 +59,86 @@ A Spring web application may define **multiple** dispatcher servlets, each of wh
 - Resolve views by mapping view-names to view instances
 - Resolves exceptions
 
+**Use Java to configure DispatcherServlet in the servlet container**
+```java
+public class DemoWebAppInitializer 
+  extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+  @Override 
+  protected String[] getServletMappings() { 
+    return new String[] { "/" }; // Map DispatcherServlet to /
+  }
+  
+  @Override 
+  protected Class<?>[] getRootConfigClasses() { 
+    return new Class<?>[] { SecurityConfig.class, DataServiceConfig.class }; 
+  }
+  
+  @Override 
+  protected Class<?>[] getServletConfigClasses() { // Specify configuration class
+    return new Class<?>[] { WebConfig.class }; 
+  }
+  
+  @Override 
+  protected Filter getServletFilters() { 
+    CharacterEncodingFilter cef = new CharacterEncodingFilter(); 
+    cef.setEncoding("UTF-8");
+    cef.setForceEncoding(true); 
+    return new Filter{ new HiddenHttpMethodFilter(), cef}; 
+  }
+}
+```
+- Any class that extends `AbstractAnnotationConfigDispatcherServletInitializer` will automatically be used to configure `DispatcherServlet` and the Spring application context in the application’s servlet context.
+- This initializer create a DispatcherServlet and a ContextLoaderListener.
+
+- `getServletMappings()` identifies one or more paths that DispatcherServlet will be mapped to. It will handle all requests coming into the application.
+
+- `getRootConfigClasses()` is called internally, and the configuration classes are used to create the root application context, which will become the parent ApplicationContext that contains bean definitions shared by all child (DispatcherServlet) contexts.
+
+
 ## Is the DispatcherServlet instantiated via an application context?
 
-- The DispatcherServlet is **not** instantiated via an application context. 
-- It is instantiated **before any** application context is created.
+In short: the DispatcherServlet is **not** instantiated via an application context. It is instantiated **before any** application context is created.
 
-In a Servlet 3.0 environment, the container looks for any classes in the classpath that implement the `javax.servlet.ServletContainerInitializer` interface; if any are found, they’re used to configure the servlet container.
+**Spring MVC WebApplicationContext Hierarchy**
+
+**Parent ApplicationContext** 
+- It is also called **RootApplicationContext**. 
+- Iin a web application is usually created using `org.springframework.web.context.ContextLoaderListener`.
+- it includes the application-level configurations such as the back-end data source, security, and service and persistence layer configuration.
+- Say, it contains all non-web beans.
+- It's available to all servlet-level WebApplicationContexts.
+
+**Child ApplicationContext**
+- It is also called the web context or the DispatcherServletContext.
+- It is created by Spring MVC DispatcherServlet. 
+- Beans in the web context can access the beans in the parent context, but not conversely.
+
+We can have **two DispatcherServlet** instances in an application. 
+- One servlet supports the user interface (called the **application servlet**), and 
+- the other provides services in the form of RESTful-WS to other applications (called the **RESTful servlet**).
+
+![IMAGE](https://i.loli.net/2019/06/06/5cf8dc6740e2245169.jpg)
+
 
 `DispatcherServlet` can be instantiated in 2 different ways and in both it is initialized by the servlet container:
 - XML
 - Java bean
 
-The `DispatcherServlet` creates a separate “servlet” application context containing all specific web beans (controller, views, view resolvers). This context is also called the web context or the `DispatcherServletContext`.
+![IMAGE](https://i.loli.net/2019/06/06/5cf8d62c15ddb15068.jpg)
+
 
 ## What is a web application context? What extra scopes does it offer?
 
-Web application context is a Spring application context for a web applications. 
+**WebApplicationContext** is a Spring application context for web applications. 
 
-It has all the properties of a regular Spring application context, given that the `WebApplicationContext` interface extends the `ApplicationContext` interface, and **add** a method for retrieving the standard Servlet API `ServletContext` for the web application.
+
+**Comparing to ApplicationContext**
+1. WebApplicationContext has all the properties of a regular Spring application contex, given that the `WebApplicationContext` interface extends the `ApplicationContext` interface
+
+2. WebApplicationContext can access the Servlet Context. 
+
+3. You can always look up the WebApplicationContext using static methods **from ServletContext**.
 
 In addition to the standard Spring bean scopes singleton and prototype, there are three additional scopes available in a web application context:
 - **request**: each http request
@@ -80,6 +154,7 @@ In addition to the standard Spring bean scopes singleton and prototype, there ar
 
 ## How is an incoming request mapped to a controller and mapped to a method?
 When a request is issued to the application:
+
 - DispatcherServlet of the application **receives** the request.
 - DispatcherServlet **maps** the request to a method in a controller.
 - DispatcherServlet **holds** a list of classes implementing the `HandlerMapping` interface.
@@ -249,4 +324,3 @@ public class HomeControllerTest {
 1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
-
