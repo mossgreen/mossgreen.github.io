@@ -58,6 +58,11 @@ Safe methods are HTTP methods that do not modify resources. These are:
 - OPTIONS
 - TRACE
 
+Not Safe:
+- Two identical POST requests will result in two identical resources being created or errors at application level.
+- PUT modifies the state on the server
+- DELETE
+
 
 ## What are idempotent operations? Why is idempotency important?
 **Idempotent** meansyou can **repeat** these operations over and over again, but the end result should be the **same**.
@@ -92,6 +97,7 @@ The ability to exchange and make use of information.
 
 
 ## What is an HttpMessageConverter?
+The `@ResponseBody` is also used to facilitate understanding of the REST message format between client and server.
 
 The `HttpMessageConverter` interface specifies the properties of a converter that can perform the following conversions:
 - Convert a `HttpInputMessage` to an object of specified type.
@@ -128,7 +134,7 @@ Yes, it is. Each request is independent, which improves scalability.
 
 ## What does @RequestMapping do?
 
-1. Annotate both class and handler methods.
+1. Annotate both **class** and handler **methods**.
 2. `@RequestMapping` mehtods are **handler method**, it provides information regarding when method should be called.
 3. Has various attributes to match by:
     - URL, 
@@ -182,10 +188,31 @@ What is a stereotype annotation? What does that mean?
 
 ## When do you need @ResponseStatus?
 
-1. Annotate **exception** classes in order to specify the HTTP response status and reason.
-2. On controller handler methods in order to **override** the original response status.
+1. Annotate **exception classes** in order to specify the HTTP response status and reason.
+2. On controller **handler methods** 
+    - will stop the DispatcherServlet from trying to find a view to render.
+    - will override the original response status.
+    - void method will just return a response with an empty body, E.g., DELETE method
 
- 
+**On Exception class**
+```java
+@ResponseStatus(HttpStatus.NOT_FOUND) 
+public class ResourceNotFoundException extends RuntimeException {
+
+  public ResourceNotFoundException() { this("Resource not found!"); 
+}
+```
+
+**On Method**
+```java
+@ResponseStatus(HttpStatus.CREATED) 
+@PostMapping("/") 
+public Post createPost(@RequestBody Post post) { 
+  return postRepository.save(post); 
+}
+```
+
+
 ## Where do you need @ResponseBody? What about @RequestBody? Try not to get these muddled up!
 
 ### `@RequestBody`
@@ -199,11 +226,56 @@ What is a stereotype annotation? What does that mean?
 
 
 ## If you saw example Controller code, would you understand what it is doing? Could you tell if it was
-annotated correctly?
 
+An example
+
+```java
+@RestController 
+@RequestMapping(value = "/singer") 
+public class SingerController { 
+
+  final Logger logger = LoggerFactory.getLogger(SingerController.class);
+  
+  @Autowired 
+  private SingerService singerService;
+
+  @ResponseStatus(HttpStatus.OK) 
+  @GetMapping(value = "/listdata") 
+  public List<Singer> listData() { 
+    return singerService.findAll(); 
+  }
+  
+  @ResponseStatus(HttpStatus.OK) 
+  @GetMapping(value = "/{id}") 
+  public Singer findSingerById(@PathVariable Long id) { 
+    return singerService.findById(id); 
+  }
+  
+  @ResponseStatus(HttpStatus.CREATED) 
+  @PostMapping(value="/") 
+  public Singer create(@RequestBody Singer singer) {
+  
+    logger.info("Creating singer: " + singer);
+    singerService.save(singer);
+    logger.info("Singer created successfully with info: " + singer);
+    return singer; 
+  }
+  
+  @PostMapping 
+  public Book create(@RequestBody Book book, UriComponentsBuilder uriBuilder) {
+  
+    Book created = bookService.create(book);
+    URI newBookUri = uriBuilder
+      .path("/books/{isbn}")
+      .build(created.getIsbn());
+    
+    return ResponseEntity
+      .created(newBookUri)
+      .body(created); 
+  }
+}
 ```
-// todo add a complex example here
-```
+
 
 ## Do you need Spring MVC in your classpath?
 
@@ -249,4 +321,5 @@ String body = response.getBody();
 1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
+4. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
 
