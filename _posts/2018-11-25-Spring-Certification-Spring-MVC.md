@@ -248,11 +248,14 @@ supporting different types of views:
 ## How is the right View chosen when it comes to the rendering phase?
 
 View Resolution Sequence
-1. Controller returns logical view name to DispatcherServlet
-2. ViewResolvers are asked in sequence (based on their Order)
+1. Controller returns logical view name to `DispatcherServlet`
+2. `ViewResolvers` are asked in sequence (based on their Order)
 3. If ViewResolver matches the logical view name then returns which View should be used to render the output. If not, it returns null and the chain continues to the next ViewResolver
 4. Dispatcher Servlet passes the model to the Resolved View and it renders the output
 5. If the view-name cannot be resolved, then an exception.
+
+![IMAGE](https://i.loli.net/2019/06/07/5cfa26b5972fb76643.jpg)
+
 
 ## What is the Model?
 - An instance of an object that implements the Model interface from the Spring framework
@@ -309,18 +312,24 @@ public class HomeControllerTest {
 - The core view resolver provided by Spring is the `InternalResourceViewResolver`; it is the default view resolver. 
 
 ```java
-@Bean InternalResourceViewResolver viewResolver(){ 
-  InternalResourceViewResolver resolver = new InternalResourceViewResolver(); 
-  resolver.setPrefix("/WEB-INF/views"); 
-  resolver.setSuffix(".jspx" ); 
-  resolver.setRequestContextAttribute("requestContext"); 
-  return resolver; 
+@Configuration 
+@ComponentScan(basePackages = {"com.haha.hoho.hengheng"}) 
+public class AppConfig {
+
+  @Bean InternalResourceViewResolver viewResolver(){ 
+    InternalResourceViewResolver resolver = new InternalResourceViewResolver(); 
+    resolver.setPrefix("/WEB-INF/views"); 
+    resolver.setSuffix(".jspx" ); 
+    resolver.setRequestContextAttribute("requestContext"); 
+    
+    return resolver; 
+  }
 }
 ```
-
 
 ## References
 
 1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
+
