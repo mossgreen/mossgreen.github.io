@@ -12,33 +12,63 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Spring Security is worth 6% of the professional certification.
+Spring Security in Spring Professional Certification.
 
 ### What are authentication and authorization? Which must come first?  
- - Authentication: who are you?
- - Authorization: what are you allowed to do?
+ - Authentication is the process of verifying the validity of the principal’s credentials. **Who are you?**
+ - Authorization is the process of making a decision whether an authenticated user is allowed to perform a certain action within the application. **What are you allowed to do?**
  - Authentication is the first step of authorization so always comes first.	
 
 ### Is security a cross cutting concern? How is it implemented internally?  
 - The cross-cutting concern is a concern which is applicable throughout the application and it affects the entire application. For example: logging, security and transactions.
 - Yes, security is a cross-cutting concern.
 
+Spring Security tackles security from two angles. 
+
+1. To **secure web requests** and restrict access at the URL level, Spring Security uses servlet filters. 
+2. Spring Security can also **secure method invocations** using Spring AOP, proxying objects and applying advice to ensure that the user has the proper authority to invoke secured methods.
+
+![IMAGE](https://i.loli.net/2019/06/08/5cfb89f9a75c570368.jpg)
 ### What is the delegating filter proxy?
 
 - Spring Security is a single physical Filter but delegates processing to a chain of internal filters.
 - `DelegatingFilterProxy` is a servlet filter registered with the web container that delegates the requests to a Filter implementation on the Spring context side.
 - `DelegatingFilterProxy` does not have to be a Spring @Bean.
+- The `DelegatingFilterProxy` will look up a bean of the type Filter for the specified targetBeanName.
+
+`AbstractSecurityWebApplicationInitializer` implements `WebApplicationInitializer`, so it will be discovered by Spring and be used to register `DelegatingFilterProxy` with the web container.
+
+```java
+@Configuration 
+@EnableWebSecurity 
+public class SecurityConfig extends WebSecurityConfigurerAdapter { }
+```
+
+![IMAGE](https://i.loli.net/2019/06/08/5cfb80575a44e95751.jpg)
+
 
 ### What is the security filter chain?
 
 - The `DelegatingFilterProxy` delegates to a `FilterChainProxy` usually with a fixed name  `springSecurityFilterChain.
--  The `FilterChainProxy` contains all the security logic arranged internally as a chain (or chains) of filters. 
--  `FilterChainProxy` is always a @Bean.
+- The `FilterChainProxy` contains all the security logic arranged internally as a chain (or chains) of filters. 
+- `FilterChainProxy` is always a @Bean.
 -  A chain of filters that is customizable by pulling in and taking out some filters as well as customizing them.
+
+This chain of filters has the following key responsibilities:
+
+- driving authentication
+- enforcing authorization
+- managing logout
+- maintaining SecurityContext in HttpSession
+
+```java
+// Empty class needed to register the springSecurityFilterChain bean 
+public class SecurityInitializer extends AbstractSecurityWebApplicationInitializer { }
+```
 
 ### What is a security context?
 
-- `SecurityContext holds security information about the current thread of execution. 
+- `SecurityContext` holds security information about the current thread of execution. 
 - This information includes details about the principal. 
 - Context is held in the `SecurityContextHolder`.
 
@@ -149,4 +179,5 @@ Spring Security **Taglibs** provides basic support for accessing security inform
 3. [Introduction to Spring Security Taglibs](https://www.baeldung.com/spring-security-taglibs)
 4. [Spring Security Notes from tonnguyen](https://quizlet.com/304129018/security-flash-cards/)
 5. [Difference between Authentication and Authorization](http://www.differencebetween.net/technology/difference-between-authentication-and-authorization/)
+
 
