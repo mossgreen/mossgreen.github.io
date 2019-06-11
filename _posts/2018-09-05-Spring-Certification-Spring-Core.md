@@ -50,7 +50,7 @@ Spring beans are recommended to be defiend as Interfaces. In the application, th
 - JDK dynamic proxying
 - Easy dependency injection
 
-## What is meant by “application-context?   
+## What is meant by “application-context"?   
 I'd like to illustrate it by comparing with BeanFactory.
 
 The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
@@ -60,40 +60,67 @@ The **BeanFactory** provides the configuration framework and basic functionality
 ### BeanFactory
 - The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
 - application-layer specific contexts: `WebApplicationContext`
-- Use an `ApplicationContext` **unless** you have a good reason for not doing so.
-- Spring makes heavy use of the `BeanPostProcessor` extension point (**to effect proxying** and so on
-- To explicitly register a BeanFactoryPostProcessor when using a BeanFactory implementation
+- Spring makes heavy use of the `BeanPostProcessor` extension point (**to effect proxying** and so on)
+- To explicitly register a `BeanFactoryPostProcessor` when using a BeanFactory implementation
+- Use an `ApplicationContext` **unless** you have a good reason for not doing so. 
+  - E.g., the resources of an application are restricted, such as when running Spring for an applet or a mobile device.
+  - When using third-party libraries that only allow creating objects using a factory class.
 
 ### ApplicationContext
-- `ApplicationContext` is a **subinterface of BeanFactory**.
+- `ApplicationContext` is a **sub-interface of BeanFactory**.
 - Implementations in standalone applications
   - `ClassPathXmlApplicationContext`
   - `FileSystemXmlApplicationContext`
-- It adds easier integration with Spring’s AOP features; 
-  - message resource handling (for use in internationalization), 
-  - event publication; and 
+  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation. With this class you can load the Java config file.
+- An ApplicationContext implementation provides the following:
+  - access to beans using bean factory methods
+  - ability to load file resources in a generic way
+  - ability to publish events to registered listeners
+  - ability to resolve messages and support internationalization (most used in international web applications)
   - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
-  
-**Implement BeanFactory**
+
+
+**Use AnnotationConfigApplicationContext**
 ```java
-DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
-reader.loadBeanDefinitions(new FileSystemResource("beans.xml"));
+@Configuration 
+public class HelloWorldConfiguration {
 
-// bring in some property values from a Properties file 
-PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
-cfg.setLocation(new FileSystemResource("jdbc.properties"));
+  @Bean 
+  public MessageProvider provider() { 
+    return new HelloWorldMessageProvider(); 
+  }
 
-// now actually do the replacement 
-cfg.postProcessBeanFactory(factory); 
+  @Bean 
+  public MessageRenderer renderer(){
+
+    MessageRenderer renderer = new StandardOutMessageRenderer();
+    renderer.setMessageProvider(provider());
+    return renderer; 
+  }
+}
+
+public class HelloWorldSpringAnnotated {
+
+  public static void main(String... args) { 
+    ApplicationContext ctx = new AnnotationConfigApplicationContext (HelloWorldConfiguration.class);
+    MessageRenderer mr = ctx.getBean("renderer", MessageRenderer.class);
+
+    mr.render(); 
+  }
+}
 ```
 
 ## What is the concept of a “container” and what is its lifecycle?
 - A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
-- Spring container provides an environment for Spring beans, managing their lifecycle and supplying the services.
+- **Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services.
 - `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
 
 **Container Lifecycle**
+
+// todo
+**The lifecycle would be difference depends on whether the contains is benfactory or applicationcontext**
+**However, I assum here we're taling about applicationContext**
+
 1. Spring container is **created** as the application is started.
 2. The container **reads configuration** data.
 3. Bean definitions are created from the configuration data.
@@ -111,8 +138,12 @@ cfg.postProcessBeanFactory(factory);
 
 ## How are you going to create a new instance of an ApplicationContext?
 
+// todo
+
 - **Non web applications**: `AnnotationConfigApplicationContext`
-- **Web Applications**: Web Application Initializers, `XmlWebApplicationContext`, `AnnotationConfigWebApplicationContext`
+- **Web Applications**:   
+In short, **parent ApplicationContext** in a web application is usually created using `org.springframework.web.context.ContextLoaderListener`, and **child ApplicationContext** is created by Spring MVC DispatcherServlet. DispatcherServlet identifies the ApplicationContext instance created by the ContextLoaderListener if it's available, and it uses it as the parent ApplicationContext during its own ApplicationContext instance creation.
+
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
 
@@ -156,7 +187,16 @@ public class JUnit4SpringTest {
   @Autowired protected ApplicationContext mApplicationContext;
   @Autowired protected WebApplicationContext mWebApplicationContext;
   
-  @Test public void contextLoads() {
+  private MockMvc mockMvc;
+
+  @Before 
+  public void init() {
+    executeSqlScript("classpath:/bank.sql", true); 
+    jdbcTemplate.update( "INSERT INTO ACCOUNT (ACCOUNT_NO, BALANCE) VALUES (?, ?)", TEST_ACCOUNT_NO, 100); mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+  }
+  
+  @Test 
+  public void contextLoads() {
     final String theMessage = mMyBean.getMessage();
     
     System.out.println("Message from my bean is: " + theMessage);
@@ -164,6 +204,12 @@ public class JUnit4SpringTest {
   }
 }
 ```
+
+`@WebAppConfiguration` is a class-level annotation that is used to declare that the `ApplicationContext` loaded for an integration test should be a `WebApplicationContext`.
+
+The mere presence of `@WebAppConfiguration` on a test class ensures that a WebApplicationContext will be loaded for the test, using the default value of "file:src/main/ webapp" for the path to the root of the web application
+
+Note that `@WebAppConfiguration` **must be used in conjunction with `@ContextConfiguration`**, either within a single test class or within a test class hierarchy.
 
 ###  What is the preferred way to close an application context? Does Spring Boot do this for you?
 
@@ -191,8 +237,11 @@ In a web application, closing of the Spring application context is taken care of
 - SpringBoot also uses **ContextLoaderListener**
 
 ## Describe dependency injection using Java configuration?
+//todo maybe have a compare among all four types include grooooovy?
 
-In Spring, there are two types of dependency injection 
+XML: Constructor, Setter injection
+annotations and Java Configuration:  Constructor, Setter injection and field injection.
+
 - **specific to XML**: 
   - the factory bean is used to inject dependencies.
   - via constructor and 
