@@ -17,15 +17,28 @@ Each software component provides a service to other components, and linking the 
 
 In Spring, it creates the objects, manages them, wiring them together, configures them, as also manages their complete lifecycle.
 
+DI exists in two major variants, 
+**Constructor-based**
+  - mandatory dependencies
+  - The **Spring team generally advocates constructor injection** as it enables one to implement application components as immutable objects and to ensure that required dependencies are not null.
+  - constructor-injected components are always returned to client (calling) code in a fully initialized state
+
+**Setter-based** dependency injection
+  - optional dependencies
+  - use of the `@Required` annotation on a setter method can be used to make the property a required dependency.
+  - setter methods make objects of that class amenable to reconfiguration or re-injection later.
+
+
+
 **Advantages**
-1. Code is cleaner 
+1. Reduced glue boilerplate code, so code is cleaner. 
 2. Decoupling is more effective (IOC containers support eager instantiation and lazy loading of services)
 3. Easier to test (no singletons or JNDI lookup mechanisms are required in unit tests)
 4. Better applications design with DI
 5. Increased module reusability.
 6. Increased maintainability.
 7. Standardizes parts of application development.
-8. Reduces boilerplate code.
+
 
 ## What is a pattern and an anti-pattern?  
 - A software design **pattern** is a general, reusable solution to a commonly occurring problem within a given context in software design.
@@ -33,6 +46,7 @@ In Spring, it creates the objects, manages them, wiring them together, configure
 - An **anti-pattern** is a commonly used template that attempts to solve a type of problem but turns out to be counterproductive and inefficient.
 
 - Both DI and IOC are design patterns
+
 
 ## What is an interface and what are the advantages of making use of them in Java?
 
@@ -50,14 +64,15 @@ Spring beans are recommended to be defiend as Interfaces. In the application, th
 - JDK dynamic proxying
 - Easy dependency injection
 
+
 ## What is meant by “application-context"?   
 I'd like to illustrate it by comparing with BeanFactory.
 
-The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
+Both `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
 
 The **BeanFactory** provides the configuration framework and basic functionality, and the **ApplicationContext** adds more enterprise-specific functionality.
 
-### BeanFactory
+**BeanFactory**
 - The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
 - application-layer specific contexts: `WebApplicationContext`
 - Spring makes heavy use of the `BeanPostProcessor` extension point (**to effect proxying** and so on)
@@ -66,12 +81,10 @@ The **BeanFactory** provides the configuration framework and basic functionality
   - E.g., the resources of an application are restricted, such as when running Spring for an applet or a mobile device.
   - When using third-party libraries that only allow creating objects using a factory class.
 
-### ApplicationContext
+
+**ApplicationContext**
 - `ApplicationContext` is a **sub-interface of BeanFactory**.
-- Implementations in standalone applications
-  - `ClassPathXmlApplicationContext`
-  - `FileSystemXmlApplicationContext`
-  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation. With this class you can load the Java config file.
+
 - An ApplicationContext implementation provides the following:
   - access to beans using bean factory methods
   - ability to load file resources in a generic way
@@ -79,6 +92,94 @@ The **BeanFactory** provides the configuration framework and basic functionality
   - ability to resolve messages and support internationalization (most used in international web applications)
   - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
 
+- Implementations in standalone applications
+  - `ClassPathXmlApplicationContext`: looks for `xxx.xml` **anywhere in the classpath (including JAR files)**.
+  - `FileSystemXmlApplicationContext`: looks for `xxx.xml` **in a specific location** within the filesystem.
+  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation.
+
+- In Web Application, 
+  - `AnnotationConfigWebApplicationContext`: Loads a Spring web application context from one or more Java-based configuration classes
+  - `XmlWebApplicationContext`: Loads context definitions from one or more XML files contained in a web application
+
+
+## What is the concept of a “container” and what is its lifecycle?
+- A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
+- **Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services.
+- `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
+
+**Container Lifecycle**
+A Spring application has a lifecycle composed of three phases:
+
+1. **Initialization**. After this phase is complete, the application can be used.
+    1. The application context is initialized. 
+    
+    2. The container reads the bean definitions (configuration data)(from the spring/test-db01-config.xml in this case).
+    
+    3. The bean definitions are processed (in our case a bean of type PropertyPlaceholderConfigurer is created and used to read the properties from datasource.properties, which are then added to the dataSource bean definition).
+    
+    4. Beans creation and processing.
+        1. In the first stage, the beans are instantiated vis contructor. This basically means that the **bean factory is calling the constructor of each bean.** If the bean is created using constructor dependency injection, the dependency bean is created first and then injected where needed. For beans that are defined in this way, the instantiation stage coincides with the dependency injection stage.
+        2. In the second stage, dependencies are injected. For beans that are defined having dependencies **injected via setter**, this stage is separate from the instantiation stage.
+        3. The next stage is the one in which **bean post process beans are invoked before initialization**.
+        4. In this stage, beans are initialized.
+        5. The next stage is the one in which **bean post process beans are invoked after initialization**.
+
+2. **Use**. Beans are used.
+
+3. **Destruction**: The context is being shut down, resources are released, and beans are handed over to the garbage collector.
+    1. Application shut down is initialized.
+    2. The Spring container is closed.
+    3. Destruction callbacks are invoked on the singleton Spring beans in the container.
+
+
+```xml
+<!-- test-db01-config.xml contents--> 
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans ...>
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+    <property name="locations" value="classpath:db/datasource.properties"/> 
+  </bean>
+  
+  <bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+    <property name="driverClassName" value="${driverClassName}"/> 
+    <property name="url" value="${url}"/> 
+    <property name="username" value="${username}"/> 
+    <property name="password" value="${password}"/> 
+  </bean> 
+</beans>
+```
+```java
+public class ApplicationContextTest {
+
+  private Logger logger = LoggerFactory.getLogger(ApplicationContextTest.class);
+  
+  @Test 
+  public void testDataSource1() {
+  
+    ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/test-db01-config.xml"); 
+    logger.info(" >> init done."); 
+    DataSource dataSource1 = ctx.getBean("dataSource1", DataSource.class); 
+    assertNotNull(dataSource1); 
+    logger.info(" >> usage done."); 
+    
+    ctx.close();
+  }
+}
+```
+
+![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
+
+
+## How are you going to create a new instance of an ApplicationContext?
+
+- Implementations in standalone applications
+  - `ClassPathXmlApplicationContext`
+  - `FileSystemXmlApplicationContext`
+  - **`AnnotationConfigApplicationContext`**
+
+- In Web Application, 
+  - `AnnotationConfigWebApplicationContext`
+  - `XmlWebApplicationContext`
 
 **Use AnnotationConfigApplicationContext**
 ```java
@@ -110,40 +211,38 @@ public class HelloWorldSpringAnnotated {
 }
 ```
 
-## What is the concept of a “container” and what is its lifecycle?
-- A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
-- **Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services.
-- `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
+**Use AnnotationConfigWebApplicationContext** 
+```java
+public class CourtServletContainerInitializer implements ServletContainerInitializer {
 
-**Container Lifecycle**
+  @Override 
+  public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+  
+    AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(); 
+    applicationContext.register(CourtConfiguration.class);
+  
+    DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
+  
+    ServletRegistration.Dynamic courtRegistration = ctx.addServlet("court", dispatcherServlet); 
+    courtRegistration.setLoadOnStartup(1); courtRegistration.addMapping("/");
+  }
+}
+```
 
-// todo
-**The lifecycle would be difference depends on whether the contains is benfactory or applicationcontext**
-**However, I assum here we're taling about applicationContext**
+**Use XmlWebApplicationContext**
+```java
+public class WebInitializer implements WebApplicationInitializer {
 
-1. Spring container is **created** as the application is started.
-2. The container **reads configuration** data.
-3. Bean definitions are created from the configuration data.
-4. **Bean factory post-processors** processes the bean definitions. **NB: not bean post processor**
-5. Spring **beans are instantiated** by the container using the bean definitions.
-6. Spring **beans are configured** and assembled. Property values and dependencies are injected into the beans by the container.
-7. **Bean post-processors** processes the beans in the container and any initialization **callbacks** are invoked on the beans. Bean post-processors are called both **before** and **after** any initialization callbacks are invoked on the bean. 
-8. The application runs.
-9. Application shut down is initialized.
-10. The Spring container is closed.
-11. **Destruction callbacks** are invoked on the singleton Spring beans in the container.
-
-![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
-
-
-## How are you going to create a new instance of an ApplicationContext?
-
-// todo
-
-- **Non web applications**: `AnnotationConfigApplicationContext`
-- **Web Applications**:   
-In short, **parent ApplicationContext** in a web application is usually created using `org.springframework.web.context.ContextLoaderListener`, and **child ApplicationContext** is created by Spring MVC DispatcherServlet. DispatcherServlet identifies the ApplicationContext instance created by the ContextLoaderListener if it's available, and it uses it as the parent ApplicationContext during its own ApplicationContext instance creation.
-
+  @Override 
+  public void onStartup(ServletContext servletContext) throws ServletException { 
+    XmlWebApplicationContext appContext = new XmlWebApplicationContext(); 
+    appContext.setConfigLocation("/WEB-INF/spring/mvc-config.xml"); 
+    ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", new DispatcherServlet(appContext)); 
+    registration.setLoadOnStartup(1); 
+    registration.addMapping("/"); 
+  }
+}
+```
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
 
@@ -170,8 +269,7 @@ In short, **parent ApplicationContext** in a web application is usually created 
     2. Bean implemented `DisposableBean` interface
     3. `destroy-method` in `<bean>`
 
-![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
-
+![IMAGE](https://i.loli.net/2019/06/12/5d0092044c0cf74240.jpg)
 
 
 ## How are you going to create an ApplicationContext in an integration test test?
@@ -211,81 +309,90 @@ The mere presence of `@WebAppConfiguration` on a test class ensures that a WebAp
 
 Note that `@WebAppConfiguration` **must be used in conjunction with `@ContextConfiguration`**, either within a single test class or within a test class hierarchy.
 
-###  What is the preferred way to close an application context? Does Spring Boot do this for you?
+##  What is the preferred way to close an application context? Does Spring Boot do this for you?
 
-Destruction callbacks in Spring are not fired automatically; you need to call `AbstractApplicationContext.destroy()` before your application is closed.
+**In Standalone Non-Web App**
+- **Destruction callbacks** in Spring are not fired automatically; you need to call `AbstractApplicationContext.destroy()` before your application is closed.
 
+- **Shutdown hook**, which is a thread that is executed just before the application shuts down. 
+    ```java
+    public class DestructiveBeanWithHook {
 
-### Standalone Non-Web App
-**In a stand-alone application**, use **AbstractApplicationContext**’s `registerShutdownHook()` method. The method automatically instructs Spring to register a shutdown hook of the underlying JVM runtime. When the `registerShutdownHook` is added, and calls to ctx.destroy() or close() will be removed. 
-
-  ```java
-  public class DestructiveBeanWithHook {
-    public static void main(String... args) {
-      GenericApplicationContext ctx = new AnnotationConfigApplicationContext( DestructiveBeanConfig.class);
+      public static void main(String... args) {
       
-      ctx.getBean(DestructiveBeanWithJSR250.class); ctx.registerShutdownHook();
+        GenericApplicationContext ctx = new AnnotationConfigApplicationContext( DestructiveBeanConfig.class);
+        
+        ctx.getBean(DestructiveBeanWithJSR250.class); 
+        
+        ctx.registerShutdownHook();// no need to call ctx.destroy() or close()
+      }
     }
-  }
-  ```
+    ```
 
-### Web App
-In a web application, closing of the Spring application context is taken care of by the **ContextLoaderListener**, which implements the **ServletContextListener** interface. The ContextLoaderListener will receive a ServletContextEvent when the web container stops the web application.
+**IN Web App**
+In a web application, closing of the Spring application context is taken care of by the **ContextLoaderListener**, which implements the **ServletContextListener** interface. The ContextLoaderListener will receive a `ServletContextEvent` when the web container stops the web application.
 
-### SpringBoot
+**SpringBoot**
 - SpringBoot registers **shutdown-hook**
 - SpringBoot also uses **ContextLoaderListener**
 
 ## Describe dependency injection using Java configuration?
-//todo maybe have a compare among all four types include grooooovy?
 
-XML: Constructor, Setter injection
-annotations and Java Configuration:  Constructor, Setter injection and field injection.
+//todo
 
-- **specific to XML**: 
-  - the factory bean is used to inject dependencies.
-  - via constructor and 
-  - via setters, 
-  - field injection is **not** supported in XML
-- annotations and **Java Configuration**: 
-  - `org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor` bean is used to autowire dependencies
-  - `@Autowire` can be used on 
-    - **fields**, 
-    - constructors, 
-    - setters, and even 
-    - **methods**.
+1. Configuration metadata is traditionally supplied in **XML** format.
+2. Spring 2.5 introduced support for **annotation-based** configuration metadata.
+3. Spring 3.0, many features provided by the Spring **JavaConfig** project became part of the core Spring Framework. see the  @Configuration  ,  @Bean ,   @Import  and  @DependsOn   annotations. 
+
+**Java configuration typically uses `@Bean` annotated methods within a `@Configuration` class.**
 
 ```java
-@Repository("requestRepo")
-public class JdbcRequestRepo extends JdbcAbstractRepo<Request> implements RequestRepo {
-
-  private void init(){ 
-    logger.info(" ... initializing requestRepo ..."); 
-  } 
-  
-  private void destroy(){
-    logger.info(" ... destroying requestRepo ..."); 
-  }
-}
-
-//java configuration class 
 @Configuration 
-@Import(DataSourceConfig.class) 
-@ComponentScan(basePackages = "com.ps") 
-public class RequestRepoConfig {
+public class ServiceConfig {
 
-  @Bean (initMethod = "init", destroyMethod = "destroy") 
-  public RequestRepo anotherRepo(){ 
-    return new JdbcRequestRepo(); 
+  @Autowired 
+  private AccountRepository accountRepository;
+
+  @Bean 
+  public TransferService transferService() { 
+    return new TransferServiceImpl(accountRepository); 
   }
 }
-```
 
-Above code is basically equivalent to this:
-```xml
-<beans ...> 
-  <bean id="anotherRepo" class="com.ps.repos.impl.JdbcRequestRepo" init-method="init", destroy-method="destroy" /> 
-</beans>
+@Configuration 
+public class RepositoryConfig {
+
+  private final DataSource dataSource;
+
+  @Autowired //not necessary, since target bean defines only one constructor
+  public RepositoryConfig(DataSource dataSource) { 
+    this.dataSource = dataSource; 
+  }
+
+  @Bean 
+  public AccountRepository accountRepository() { 
+    return new JdbcAccountRepository(dataSource); 
+  }
+}
+
+@Configuration 
+@Import({ServiceConfig.class, RepositoryConfig.class}) 
+public class SystemTestConfig {
+
+  @Bean 
+  public DataSource dataSource() { 
+    // return new DataSource 
+  }
+}
+
+public static void main(String[] args) { 
+
+  // everything wires up across configuration classes...
+  ApplicationContext ctx = new AnnotationConfigApplicationContext(SystemTestConfig.class); 
+
+  TransferService transferService = ctx.getBean(TransferService.class); 
+  transferService.transfer(100.00, "A123", "C456"); 
+}
 ```
 
 
@@ -476,6 +583,22 @@ Component, or classpath, scanning is the process using which the Spring containe
 4. If multiple matching, `@Qualifier` bean might be used
 5. If multiple matching, try to **match bean name and filed name**
 6. Exception throws if no unique matching
+
+```java
+public class MovieRecommender {
+
+  private final CustomerPreferenceDao customerPreferenceDao; 
+  
+  @Autowired 
+  @Qualifier("main")
+  private MovieCatalog movieCatalog;  //@Autowired to fields
+  
+  @Autowired // to constructors
+  public MovieRecommender(@Qualifier("second")CustomerPreferenceDao customerPreferenceDao) { 
+    this.customerPreferenceDao = customerPreferenceDao; 
+  } 
+}
+```
 
 
 ## What do you have to do, if you would like to inject something into a private field? How does this impact testing?
@@ -744,3 +867,4 @@ see image above.
 1. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 2. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+4. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
