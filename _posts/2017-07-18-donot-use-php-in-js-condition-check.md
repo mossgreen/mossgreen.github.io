@@ -9,7 +9,6 @@ toc: true
 
 Don't use PHP in JS Condition Check.
 
-
 ```javascript
 <script>
 
@@ -57,6 +56,32 @@ Above code alerts "hi". That's alright.
 </script>
 ```
 Above code alerts "hi".
+
+
+```javascript
+<script>
+
+      <?php $demo = "true"; ?>
+
+      if (<?php $demo ; ?>) {
+          alert("hi");
+      }
+  </script>
+```
+no alert
+
+```javascript
+<script>
+
+    <?php $demo = "true"; ?>
+
+    if (<?php echo $demo ; ?>) {
+        alert("hi");
+    }
+</script>
+```
+Alert !
+
 
 Conclusion:
 1. Try not to use php in js
