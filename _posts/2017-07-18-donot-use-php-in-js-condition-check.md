@@ -7,6 +7,12 @@ tags:
 toc: true
 ---
 
+// todo
+
+1. php true vs false echo in js
+2. check if it's true in php, with null, bool string object
+2. js if() with null, bool, string, int, object
+
 Don't use PHP in JS Condition Check.
 
 ```javascript
