@@ -202,7 +202,7 @@ Both of them has the same limitation: **Invocation of advised methods on self**.
 
 A proxy implements the advice which is executed prior to invoking the method on a Spring bean. The Spring bean being proxied is not aware of the proxy and when a calling a method on itself, the proxy will not be invoked.
 
-### JDK Dynamic Proxies (Spring AOP)
+### JDK Dynamic Proxies
 - Must implement an interface.
 - Only public methods will be proxied.
 - Aspects can be applied only to Spring Beans.
@@ -264,13 +264,13 @@ public Object monitorFind(ProceedingJoinPoint joinPoint) throws Throwable {
 **In order to use aspects in Spring App:**
 1. `spring-aop` as a dependency
 
-2. declare an` @Aspect` class and declare it as a bean as well (using @Component or @Bean or XML typical bean declaration element)
+2. declare an` @Aspect` class and declare it as a bean as well (using `@Component` or `@Bean` or `XML` typical bean declaration element)
 
 3. declare an **@Advice method** , with `@Before` and **pointcut expression**
 
 4. **enable aspects support** by annotating a configuration class with `@EnableAspectJAutoProxy`
 
-5. (optional) add CGLIB as a dependency and enable aspects support using subclassed proxies by annotating a configuration class with `@EnableAspectJAutoProxy(proxyTa rgetClass = true)`
+5. (optional) add CGLIB as a dependency and enable aspects support using subclassed proxies by annotating a configuration class with `@EnableAspectJAutoProxy(proxyTargetClass = true)`
 
 
 ## If shown pointcut expressions, would you understand them?
@@ -321,4 +321,5 @@ public class UserRepoMonitor {
 2. [Spring Notes from Giberson Brendan](https://quizlet.com/266872659/container-dependency-and-ioc-flash-cards/)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [howtodoinjava - Spring AOP Tutorial Example](https://howtodoinjava.com/spring-aop-tutorial/)
+
 
