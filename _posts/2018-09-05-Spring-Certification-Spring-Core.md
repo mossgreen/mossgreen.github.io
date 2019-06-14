@@ -338,8 +338,6 @@ In a web application, closing of the Spring application context is taken care of
 
 ## Describe dependency injection using Java configuration?
 
-//todo
-
 1. Configuration metadata is traditionally supplied in **XML** format.
 2. Spring 2.5 introduced support for **annotation-based** configuration metadata.
 3. Spring 3.0, many features provided by the Spring **JavaConfig** project became part of the core Spring Framework. see the  @Configuration  ,  @Bean ,   @Import  and  @DependsOn   annotations. 
@@ -397,22 +395,70 @@ public static void main(String[] args) {
 
 
 ## Describe dependency injection using annotations (@Component, @Autowired)? 
-- `@Component` marks the class as a Java Bean and Spring picks that up and pulls it into the Application context so that it can be injected into @Autowired instances.
 
-- `@Autowire` is the short version for automatic dependency injection. **how does Spring know what to inject?**
-  1. Spring will try to autowire by type, because rarely in an application is there need for more than one bean of a type. Spring will inspect the type of dependency necessary and will inject the bean with that exact type.
-  2. By default, if Spring cannot decide which bean to autowire based on type (because there are more beans of the same type in the application), it defaults to autowiring by name. The name considered as the criterion for searching the proper dependency is the name of the field being autowired.
+`@Component` marks the class as a Java Bean and Spring picks that up and pulls it into the Application context so that it can be injected into `@Autowired` instances.
 
-//todo add example
+`@Autowire` is kind of Annotation-based container configuration, is the short version for automatic dependency injection.
+
+**how does Spring know what to inject?**
+1. `@Autowired` matches **by type** by default. Additional `@qualifier` will be used among selected cadidates only.
+2. JSR-250 `@Resource` annotation, which is semantically defined to identify a specific target component **by its unique name** rather than `@Autowired`.
+
+**`@Autowired` Injection types**
+1. constructor
+2. setter
+3. field injection
+4. field injection of an array of that type
+5. for interfaces that are well-known resolvable dependencies:   
+  `BeanFactory`, `ApplicationContext`, `Environment`, `ResourceLoader`, `ApplicationEventPublisher`, and `MessageSource`. These interfaces and their extended interfaces, such as ConfigurableApplicationContext or ResourcePatternResolver, are automatically resolved, with **no special setup necessary**.
+
+```java
+public class MovieRecommender {
+
+  private Set<MovieCatalog> movieCatalogs;
+  
+  private final CustomerPreferenceDao customerPreferenceDao;
+  
+  @Autowired 
+  private ApplicationContext context;
+  
+  @Autowired 
+  private MovieCatalog movieCatalog;
+  
+  @Autowired 
+  private MovieCatalog[] movieCatalogs;
+  
+  @Autowired 
+  public MovieRecommender(CustomerPreferenceDao customerPreferenceDao) { 
+    this.customerPreferenceDao = customerPreferenceDao; 
+  }
+  
+  @Autowired 
+  public void setMovieCatalogs(Set<MovieCatalog> movieCatalogs) { 
+    this.movieCatalogs = movieCatalogs; 
+  }
+}
+```
+
 
 ## Describe Component scanning
-- To **enable** component scanning, annotate a configuration class in your Spring application with the `@ComponentScan`. 
-- `@Configuration` annotation is annotated with the @Component annotation and thus are Spring Java configuration classes also candidates for auto-detection using component scanning.
-- Filtering configuration can be added to the @ComponentScan annotation as to include or exclude certain classes.
-- **basePackages**
-- **basePackageClasses**
-- **includeFilters**
-- **includeFilters**
+
+Spring attacks automatic wiring from two angles:
+1. Component scanning—Spring automatically discovers beans to be created in the application context.
+2. Autowiring—Spring automatically satisfies bean dependencies
+3. In Spring Boot, automatic configuration has gone well **beyond** component scanning and autowiring.
+
+Component scanning isn’t turned on by default. **To enable component scanning**:
+1. annotate a configuration class in your Spring application with the `@ComponentScan`. 
+2. It works the same way as `<context:component-scan />` for XML.
+
+`@Configuration` classes are meta-annotated with `@Component`, so they are candidates for component-scanning!
+
+Filtering configuration can be added to the `@ComponentScan` annotation as to include or exclude certain classes.
+  - **basePackages**
+  - **basePackageClasses**
+  - **includeFilters**
+  - **includeFilters**
 
 ```java
 @ComponentScan( 
@@ -496,6 +542,7 @@ public class JdbcPetRepo extends JdbcAbstractRepo<Pet> implements PetRepo {
   } 
 }
 ```
+
 
 
 ## What is a property source? How would you use @PropertySource?
