@@ -47,19 +47,20 @@ The join point marks the execution point **where aspect behavior and base behavi
 **Spring AOP only** supports public method invocation join points. 
 Compare to **AspectJ** which supports **all** of the above listed join point types and more.
 
-Only public Join Points can be advised.
-
-> Crosscutting concerns can happen at different program execution points called join points. Because of the variety of join points, you need a powerful expression language to help match them.
-
+> Crosscutting concerns can happen at different program execution points called join points. 
+Because of the variety of join points, you need a powerful expression language to help match them.
 
 ### Pointcut 
 
-- It represents a point in the code where new behavior will be injected. This allows for business logic agnostic code to be separated from the code, avoiding code cluttering.
-- A pointcut is an expression to match a set of join points,
+- A pointcut is an **expression to match a set of join points**,
+
+- It represents a point in the code where new behavior will be injected. 
+
+- This allows for business logic agnostic code to be separated from the code, avoiding code cluttering.
 
 - Pointcuts can be combined using the logical operators `&&` (and), `||` (or) and `!` (not).
 
-pointcut expression: 
+**pointcut expression: **
 `execution( [Modifiers] [ReturnType] [FullClassName].[MethodName] ([Arguments]) throws [ExceptionType])`
   
 - The `[ReturnType]` is **mandatory**
@@ -117,7 +118,8 @@ public class UserRepoMonitor {
 ```
 
 ### Aspect
-- An aspect is a Java class that modularizes a set of concerns (e.g., logging or transaction management) that cuts across multiple types and objects.
+
+- An aspect is a Java class that modularizes **a set of concerns** (e.g., logging or transaction management) that cuts **across multiple types and objects**.
 
 - Typically one aspect encapsulates one cross cutting concern, as to adhere to the single responsibility principle.
 
@@ -136,9 +138,14 @@ public class UserRepoMonitor {
 ```
 
 ### Advice
+
 - Advice is associated with a pointcut expression, and runs **before**, **after**, or **around** method executions matched by the pointcut.
-- Advice is the additional behavior, typically a cross cutting concern, that is to be executed at certain places (at join points) in a program.
+
+- Advice is the **additional behavior**, typically a cross cutting concern, that is to be executed at certain places (at join points) in a program.
+
 - Specifies **what** to do, **where** to do it.
+
+- I'ld like to understand it as "Enhancement"
 
 ```java
 @Around("execution(public * com.ps.repos.*.*Repo+.find*(..))")
@@ -162,21 +169,25 @@ public Object monitorFind(ProceedingJoinPoint joinPoint) throws Throwable {
 Weaving is the process of applying aspects to your target advice objects.
 
 - Spring AOP: happens at **runtime** through dynamic proxies.
-- AspectJ framework: supports both **compile-time** and **loadtime** weaving.
+
+- AspectJ: supports both **compile-time** and **loadtime** weaving.
 
 
 ### Introduction
+
 By using introductions, you can **introduce new functionality** to an existing object dynamically.
 
-It allows you not only to extend the functionality of existing methods but to extend the set of interfaces and object implementations dynamically.
+It allows you not only to** extend the functionality** of existing methods but to **extend the set of interface**s and object implementations dynamically.
 
 ![spring-aop-diagram.jpg](https://i.loli.net/2019/05/20/5ce25f018b90c60842.jpg)
 
 ## How does Spring solve (implement) a cross cutting concern?
+
 Spring uses proxy objects to implement the method invocation interception part of AOP. Such proxy objects wrap the original Spring bean and intercepts method invocations as specified by the set of pointcuts defined by the cross cutting concern.
 
-Two proxy techniques:
-### JDK dynamic proxies
+**Two proxy techniques:**
+
+JDK dynamic proxies
 
 - JDK dynamic proxies uses technology found in the Java runtime environment and thus **require no additional libraries**. Proxies are created at runtime by generating a class that implements all the interfaces that the target object implements.
 
@@ -184,7 +195,7 @@ Two proxy techniques:
 
 - JDK dynamic proxies is the **default** proxy mechanism used by Spring AOP.
 
-### CGLIB proxies
+CGLIB proxies
 
 - CGLIB is a third-party library.
 
@@ -198,26 +209,33 @@ Two proxy techniques:
 
 
 ## Which are the limitations of the two proxy-types?
-Both of them has the same limitation: **Invocation of advised methods on self**.
 
+Both of them has the same limitation: **Invocation of advised methods on self**.     
 A proxy implements the advice which is executed prior to invoking the method on a Spring bean. The Spring bean being proxied is not aware of the proxy and when a calling a method on itself, the proxy will not be invoked.
 
-### JDK Dynamic Proxies
+**JDK Dynamic Proxies**
+
 - Must implement an interface.
 - Only public methods will be proxied.
 - Aspects can be applied only to Spring Beans.
 - Even if Spring AOP is not set to use CGLIB proxies, if a Join Point is in a class that does not implement an interface, Spring AOP will try to create a CGLIB proxy.
 - If a method in the proxy calls another method in the proxy, and both match the pointcut expression of an advice, the advice will be executed only for the first method. This is the proxy’s nature: it executes the extra behavior only when the caller calls the target method.
 
-### CGLIB
+**CGLIB**
+
 - Class and Methods cannot be final
 - Only public and protected methods can be proxied
+- It takes more time to create a proxy object, althrought it has better performance
 
 ## What visibility must Spring bean methods have to be proxied using Spring AOP?
+
 - **Only public methods** of Spring beans will be proxied
+
 - **Additionally** the call to the public method must originate from outside of the Spring bean.
 
+
 ## How many advice types does Spring support. Can you name each one?  What are they used for?
+
 - **Before**: always proceed to the join point unless an execution is thrown from within the advice code
   - Access control, security
   - Statistics
@@ -259,33 +277,45 @@ public Object monitorFind(ProceedingJoinPoint joinPoint) throws Throwable {
 }
 ```
 
+
 ## What do you have to do to enable the detection of the @Aspect annotation? What does @EnableAspectJAutoProxy do?
 
 **In order to use aspects in Spring App:**
+
 1. `spring-aop` as a dependency
 
-2. declare an` @Aspect` class and declare it as a bean as well (using `@Component` or `@Bean` or `XML` typical bean declaration element)
+2. declare an `@Aspect` class and declare it as a bean as well (using `@Component` or `@Bean` or `XML` typical bean declaration element)
 
 3. declare an **@Advice method** , with `@Before` and **pointcut expression**
 
 4. **enable aspects support** by annotating a configuration class with `@EnableAspectJAutoProxy`
 
-5. (optional) add CGLIB as a dependency and enable aspects support using subclassed proxies by annotating a configuration class with `@EnableAspectJAutoProxy(proxyTargetClass = true)`
+5. (optional) **add CGLIB as a dependency** and enable aspects support using subclassed proxies by annotating a configuration class with `@EnableAspectJAutoProxy(proxyTargetClass = true)`
 
 
 ## If shown pointcut expressions, would you understand them?
 
-For example, in the course we matched getter methods on Spring Beans, what would be the correct pointcut expression to match both getter and setter methods?
+**For example, in the course we matched getter methods on Spring Beans, what would be the correct pointcut expression to match both getter and setter methods?**
 
-The basic structure of a pointcut expression consists of **two parts**; a pointcut **designator** and an **pattern** that selects join points of the type determined by the pointcut designator.
+The basic structure of a pointcut expression consists of **two parts**:
 
-`execution(void set*(*)) || execution(* get*())`  
-- Method execution of methods which name starts with “set” and that return void and takes one single parameter.
+- a pointcut **designator** and 
+- an **pattern** that selects join points of the type determined by the pointcut designator.
 
-- Method execution of methods which name starts with “get” and that returns arbitrary type and takes no parameters.
+**Pointcut expression to match both getter and setter methods**
+```java
+execution(void set*(*)) || execution(* get*())
+```
+
+- Method execution of methods which name starts with “**set**” and that return void and takes one single parameter.
+
+- Method execution of methods which name starts with “**get**” and that returns arbitrary type and takes no parameters.
+
 
 ## What is the JoinPoint argument used for?
+
 - The parameter must, if present, be the first parameter of the advice method.
+
 - When the advice is invoked, the parameter will hold a reference to an object that holds static information about the join point as well as state information.
 
 ```java
@@ -293,8 +323,6 @@ The basic structure of a pointcut expression consists of **two parts**; a pointc
 @Component
 public class UserRepoMonitor { 
 
-  private static final Logger logger = Logger.getLogger(UserRepoMonitor.class);
-  
   @Before("com.ps.aspects.PointcutContainer.serviceUpdate()") 
   public void beforeServiceUpdate(JoinPoint joinPoint) throws Throwable {
   
@@ -306,13 +334,38 @@ public class UserRepoMonitor {
     }
   }
 }
-
 ```
+
+
 ## What is a ProceedingJoinPoint? When is it used?
 
-- `ProceedingJoinPoint` class is a parameter to an **around advice**. 
+- `ProceedingJoinPoint` class is a parameter to an **around advice, only**. 
+
 - This type is used as the first parameter of a method implementing an around advice.
 
+- When it’s ready to pass control to the advised method, it will call `ProceedingJoinPoint’s proceed()` method, whch is used to execute the actual method.
+
+```java
+@Aspect public class Audience {
+
+  @Pointcut("execution(** concert.Performance.perform(..))") 
+  public void performance() {}
+
+  @Around("performance()") 
+  public void watchPerformance(ProceedingJoinPoint jp) { 
+      try { 
+        System.out.println("Silencing cell phones"); 
+        System.out.println("Taking seats");
+        
+        jp.proceed();  //it’s crucial that you remember to call
+        
+        System.out.println("CLAP CLAP CLAP!!!"); 
+      } catch (Throwable e) { 
+        System.out.println("Demanding a refund"); 
+      }
+  }
+}
+```
 
 ## References
 
@@ -321,5 +374,3 @@ public class UserRepoMonitor {
 2. [Spring Notes from Giberson Brendan](https://quizlet.com/266872659/container-dependency-and-ioc-flash-cards/)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [howtodoinjava - Spring AOP Tutorial Example](https://howtodoinjava.com/spring-aop-tutorial/)
-
-
