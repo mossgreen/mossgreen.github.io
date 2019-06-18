@@ -15,7 +15,7 @@ Spring AOP in Spring Certification.
 ## What is the concept of AOP? 
 AOP is **A**spect **O**riented **P**rogramming, which refers to a type of programming that aims to increase modularity by allowing the separation of cross-cutting concerns.
 
-**Which problem does it solve?** 
+**What problems does it solve?** 
 Aims to help with separation of cross-cutting concerns to increase modularity.
 
 - Avoid **tangling**: mixing business logic and cross cutting concerns
@@ -60,7 +60,7 @@ Because of the variety of join points, you need a powerful expression language t
 
 - Pointcuts can be combined using the logical operators `&&` (and), `||` (or) and `!` (not).
 
-**pointcut expression: **
+**pointcut expression**
 `execution( [Modifiers] [ReturnType] [FullClassName].[MethodName] ([Arguments]) throws [ExceptionType])`
   
 - The `[ReturnType]` is **mandatory**
@@ -181,9 +181,13 @@ It allows you not only to** extend the functionality** of existing methods but t
 
 ![spring-aop-diagram.jpg](https://i.loli.net/2019/05/20/5ce25f018b90c60842.jpg)
 
+
 ## How does Spring solve (implement) a cross cutting concern?
 
 Spring uses proxy objects to implement the method invocation interception part of AOP. Such proxy objects wrap the original Spring bean and intercepts method invocations as specified by the set of pointcuts defined by the cross cutting concern.
+
+
+## Which are the limitations of the two proxy-types?
 
 **Two proxy techniques:**
 
@@ -191,15 +195,13 @@ JDK dynamic proxies
 
 - JDK dynamic proxies uses technology found in the Java runtime environment and thus **require no additional libraries**. Proxies are created at runtime by generating a class that implements all the interfaces that the target object implements.
 
-- Thus **any methods** found in the target object but not in any interface implemented by the target object cannot be proxied.
-
 - JDK dynamic proxies is the **default** proxy mechanism used by Spring AOP.
 
 CGLIB proxies
 
 - CGLIB is a third-party library.
 
-- CGLIB proxies are created by generating a subclass of the class implementing the target object. This makes it possible to proxy not only methods implemented in interfaces, but in fact **all public methods** of the class.
+- CGLIB proxies are created by generating a **subclass** of the class implementing the target object.
 
 - The CGLIB proxy mechanism will be **used** by Spring AOP when the Spring bean for which to create a proxy does **not implement any interfaces**.
 
@@ -207,25 +209,26 @@ CGLIB proxies
 
 - Spring Java configuration classes, annotated with `@Configuration`, will **always** be proxied using CGLIB.
 
-
-## Which are the limitations of the two proxy-types?
+**Limitations**
 
 Both of them has the same limitation: **Invocation of advised methods on self**.     
-A proxy implements the advice which is executed prior to invoking the method on a Spring bean. The Spring bean being proxied is not aware of the proxy and when a calling a method on itself, the proxy will not be invoked.
 
-**JDK Dynamic Proxies**
+If a method in the proxy calls another method in the proxy, and both match the pointcut expression of an advice, the advice will be executed only for the first method. This is the proxy’s nature: it executes the extra behavior only when the caller calls the target method.
+
+JDK Dynamic Proxies Limitations
 
 - Must implement an interface.
 - Only public methods will be proxied.
+- **any methods** found in the target object but not in any interface implemented by the target object cannot be proxied.
 - Aspects can be applied only to Spring Beans.
 - Even if Spring AOP is not set to use CGLIB proxies, if a Join Point is in a class that does not implement an interface, Spring AOP will try to create a CGLIB proxy.
 - If a method in the proxy calls another method in the proxy, and both match the pointcut expression of an advice, the advice will be executed only for the first method. This is the proxy’s nature: it executes the extra behavior only when the caller calls the target method.
 
-**CGLIB**
+CGLIB Limitations
 
-- Class and Methods cannot be final
-- Only public and protected methods can be proxied
-- It takes more time to create a proxy object, althrought it has better performance
+- Class and Methods **cannot be `final`**
+- **Only public and protected methods** can be proxied
+- **It takes more time to create a proxy object**, althrought it has better performance
 
 ## What visibility must Spring bean methods have to be proxied using Spring AOP?
 
@@ -235,6 +238,8 @@ A proxy implements the advice which is executed prior to invoking the method on 
 
 
 ## How many advice types does Spring support. Can you name each one?  What are they used for?
+
+**Advice: action taken by an aspect at a join point.**
 
 - **Before**: always proceed to the join point unless an execution is thrown from within the advice code
   - Access control, security
@@ -255,6 +260,14 @@ A proxy implements the advice which is executed prior to invoking the method on 
 - **Around**: Around advice can be used for all of the use-cases for AOP.
  
 ![IMAGE](https://i.loli.net/2019/06/01/5cf1f4f78070020870.jpg)
+
+Other than above types, there are also:
+
+- **Pointcut**: a predicate **used to identify join points**. Advice definitions are associated with a pointcut expression and the advice will execute on any join point matching the pointcut expression. Pointcut expressions are defined using AspectJ Pointcut Expression Language.
+
+- **Introduction:** declaring **additional** methods, fields, interfaces being implemented, annotations on behalf of another type. Spring AOP allows this using a suite of AspectJ `@Declare*` annotations that are part of the `aspectjrt` library.
+
+- **AOP proxy**: the object created by AOP to implement the aspect contracts. In Spring, proxy objects can be JDK dynamic proxies or CGLIB proxies. By default, the proxy objects will be JDK dynamic proxies
 
 
 ## Which two advices can you use if you would like to try and catch exceptions?
@@ -295,12 +308,66 @@ public Object monitorFind(ProceedingJoinPoint joinPoint) throws Throwable {
 
 ## If shown pointcut expressions, would you understand them?
 
-**For example, in the course we matched getter methods on Spring Beans, what would be the correct pointcut expression to match both getter and setter methods?**
-
 The basic structure of a pointcut expression consists of **two parts**:
 
 - a pointcut **designator** and 
 - an **pattern** that selects join points of the type determined by the pointcut designator.
+
+
+Spring AOP only supports **method execution** join points for beans declared in its IoC container. Otherwise, throw `IllegalArgumentException`.
+
+- Use Method Signature Patterns
+    ```java
+    execution(* com.apress.springrecipes.calculator.ArithmeticCalculator.*(..))
+    
+    execution(public double ArithmeticCalculator.*(..))
+    
+    execution(public double ArithmeticCalculator.*(double, ..))
+    ```
+
+- Use Type Signature Patterns
+    ```java
+    within(com.apress.springrecipes.calculator.*)
+    
+    within(com.apress.springrecipes.calculator.ArithmeticCalculatorImpl)
+    ```
+- Combine Pointcut Expressions
+    ```java
+    // matches the join points within classes that implement either the ArithmeticCalculator or UnitCalculator interface
+    within(ArithmeticCalculator+) || within(UnitCalculator+)
+    ```
+- Declare Pointcut Parameters
+    ```java
+    @Aspect public class CalculatorLoggingAspect { 
+      @Before("execution(* *.*(..)) && target(target) && args(a,b)") 
+      public void logParameter(Object target, double a, double b) { 
+        log.info("Target class : {}", target.getClass().getName()); 
+        log.info("Arguments : {}, {}", a,b); 
+      } 
+    }
+    ```
+    
+    ```java
+    @Aspect 
+    public class CalculatorPointcuts {
+      @Pointcut("execution(* *.*(..)) && target(target) && args(a,b)")
+      public void parameterPointcut(Object target, double a, double b) {} 
+    }
+    
+    @Aspect 
+    public class CalculatorLoggingAspect {
+
+      @Before("CalculatorPointcuts.parameterPointcut(target, a, b)") 
+      public void logParameter(Object target, double a, double b) { 
+        log.info("Target class : {}", target.getClass().getName()); 
+        log.info("Arguments : {}, {}"a,b); 
+      } 
+    }
+    
+    ```
+    
+    
+## What would be the correct pointcut expression to match both getter and setter methods?
 
 **Pointcut expression to match both getter and setter methods**
 ```java
