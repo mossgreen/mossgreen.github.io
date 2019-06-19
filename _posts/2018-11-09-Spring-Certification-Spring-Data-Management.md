@@ -49,7 +49,11 @@ Spring's `DataAccessException` and sub classes are unchecked exception. They are
 
 ## How do you configure a DataSource in Spring? Which bean is very useful for development/test databases?
 
-Spring offers several options for configuring data-source beans in your Spring application, including these:
+You can use Spring to manage the database connection for you by providing a bean that implements `javax. sql.DataSource`. The difference between a **DataSource** and a **Connection** is that a **DataSource** provides and manages Connections.
+
+`DriverManagerDataSource` is the simplest implementation of a DataSource, it **doesn’t support database connection pooling** makes this class unsuitable for anything other than testing.
+
+Spring offers several options for configuring data-source beans in your Spring application, including:
 1. Data sources that are defined by a **JDBC driver**
 2. Data sources that are looked up by **JNDI**
 3. Data sources that pool connections
@@ -64,6 +68,7 @@ Benefits:
 You can use `JndiObjectFactoryBean` to look up the DataSource from JNDI:
 
 ```xml
+<!--using the jee namespace (datasource-jee.xml)-->
 <beans>
     <jee:jndi-lookup id="dataSource" jndi-name="/jdbc/SpitterDS" resource-ref="true" />
 </beans>
@@ -136,7 +141,7 @@ spring.datasource.username=haha spring.datasource.password=secret
 
 ### Using an embedded data source
 - An embedded database runs as part of your application instead of as a separate database server that your application connects to. 
-- Although it’s **not very useful in production** settings, an embedded database is a perfect choice for development and testing purposes. 
+- Although it’s **not very useful in production** settings, an embedded database is a perfect choice **for development and testing** purposes. 
 - That’s because it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
 
 ```java
@@ -149,6 +154,16 @@ public DataSource dataSource() {
     .addScript("classpath:test-data.sql") 
     .build(); 
 }
+```
+
+**In SpringBoot, obtain a DataSource from embedded data source**
+
+```xml
+<dependency> 
+  <groupId>org.apache.derby</groupId> 
+  <artifactId>derby</artifactId> 
+  <scope>runtime</scope> 
+</dependency>
 ```
 
 
@@ -543,4 +558,3 @@ public interface UserRepo extends JpaRepository<User, Long> {
 2. [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
-
