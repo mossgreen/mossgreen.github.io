@@ -188,16 +188,21 @@ The Spring JdbcTemplate simplifies the use of JDBC by implementing common workfl
 ## What is a callback? 
 A callback is code or reference to a piece of code that is passed as an argument to a method that, at some point during the execution of the methods, will call the code passed as an argument.
 
+Spring **converts contents of a ResultSet into domain objects** using a callback approach.
+
 ### What are the three JdbcTemplate callback interfaces that can be used with queries? What is each used for?  
 (You would not have to remember the interface names in the exam, but you should know what they do if you see them in a code sample).
 
 The three callback interfaces that can be used with queries to extract result data are:
 1. `ResultSetExtractor`: processes multiple rows, `extractData()` returns an object.
-2. `RowCallbackHandle`: processes row by row, `processRow()` is void.
+2. `RowCallbackHandler`: processes row by row, `processRow()` is void. Use when no value should be returned.
 3. `Rowmapper`: processes row by row, `mapRow()`returns an object.
 
+
 ## Can you execute a plain SQL statement with the JDBC template?
+
 Yes. With following methods:
+
 - batchUpdate()
 - execute()
 - query()
@@ -218,14 +223,17 @@ Override load method with various parameters. E.g., queryForList() has 7 types.
 - `queryForMap()`
 - `queryForList()`
 
-## What is a transaction? 
+
+## What is a transaction?
+
 **Transaction**: operate serveral tasks as one unit. Run them all successfully, or reverted. 
 Tansaction enforces ACID principle:
-- **Atomicity**: Several operations might be performed over data in any transaction. Those operations must all succeed or commit, or, if something goes wrong, none of them should be persisted; in other words, they all must be rolled back. Atomicity is also known as **unit of work**.
+
+- **Atomicity**: **It is the main attribute of a transaction.** Several operations might be performed over data in any transaction. Those operations must all succeed or commit, or, if something goes wrong, none of them should be persisted; in other words, they all must be rolled back. Atomicity is also known as **unit of work**.
 
 - **Consistency**: For a system to have consistency, at the end of an active transaction the underlying database can never be in an inconsistent state. For example, if order items cannot exist without an order, the system won’t let you add order items without first adding an order.
 
-- **Isolation**: Isolation defines how protected your uncommitted data is to other concurrent transactions. Isolation levels range from least protective, which offers access to uncommitted data, to most protective, at which no two transactions work at the same time. **Isolation is closely related to concurrency and consistency.** If you increase the level of isolation, you get more consistency but lose concurrency—that is, performance. On the other hand, if you decrease the level, your transaction performance increases, but you risk losing consistency.
+- **Isolation**: Isolation defines how protected your uncommitted data is **to other concurrent transactions**. Isolation levels range from least protective, which offers access to uncommitted data, to most protective, at which no two transactions work at the same time. **Isolation is closely related to concurrency and consistency.** If you increase the level of isolation, you get more consistency but lose concurrency—that is, performance. On the other hand, if you decrease the level, your transaction performance increases, but you risk losing consistency.
 
 - **Durability**: A system has durability when you receive a successful commit message, and you can be sure that your changes are reflected to the system and will survive any system failure that might occur after that time. Basically, when you commit, your changes are permanent and won’t be lost.
 
@@ -237,12 +245,15 @@ Tansaction enforces ACID principle:
 ## Is a transaction a cross cutting concern? How is it implemented by Spring?
 Yes, transaction management is a cross-cutting concern. 
 
-- **Spring AOP uses Declarative** transaction management, it's **non-invasive**.
+- **Spring AOP** uses **Declarative** transaction management, it's **non-invasive**. The AOP proxies use two infrastructure beans for this:
+    - `org.springframework.transaction.interceptor. TransactionInterceptor` 
+    - in conjunction with **an implementation** of `org.springframework.transaction.PlatformTransactionManager`.
 
-- Spring support **Programmatic** transaction management, use **only if** you have a small number of transactional operations. Two ways:
-  - `PlatformTransactionManager` implemetation directly
-  - `TransactionTemplate`
+Under the hood: an internal infrastructure Spring-specific bean of type `org.springframework.aop.framework. autoproxy.InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
   
+![IMAGE](https://i.loli.net/2019/06/20/5d0b36d0c34cc92426.jpg)
+
+
 ## How are you going to define a transaction in Spring?
 
 1. **Configure transaction management support**: add a declaration of a bean of type `org.springframework.jdbc.datasource.DataSourceTransactionManager`.
@@ -301,19 +312,78 @@ public class AppConfig implements TransactionManagementConfigurer {
 
 ## What does `@Transactional` do? 
 `@Transactional` is metadata that specifies that an **interface**, **class**, or **method** **must** have transactional semantics.
+
+A list of attributes of `@Transactional`:
+
+1. The **transactionManager** attribute value defines the transaction manager used to manage the transaction in the context of which the annotated method is executed
+
+2. The **readOnly** attribute should be used for transactions that involve operations that **do not modify** the database (example: searching, counting records). **Defalt FALSE**. 
+
+3. The **propagation** attribute can be used to define behavior of the target methods: if they should be executed in an existing or new transaction, or no transaction at all. There are seven propagation types. **Default: PROPAGATION_REQUIRED**.
+
+4. The **isolation** attribute value defines how data modified in a transaction affects other simultaneous transactions. As a general idea, transactions should be isolated. A transaction should not be able to access changes from another uncommitted transaction. There are four levels of isolation, but every database management system supports them differently. **In Spring, there are five isolation values**. DEFAULT: the default isolation level of the DBMS.
+
+5. **timeout**. By default, the value of this attribute is defined by the transaction manager provider, but it can be changed by setting a different value in the annotation: `@Transactional(timeout=3600)` by milliseconds.
+
+6. **rollbackFor** attribute values should be one or more exception classes, subclasses of Throwable. When this type of exception is thrown during the execution of a transactional method, the transaction is rolled back. By default, a transaction is rolled back only when a RuntimeException is thrown. In using this attribute, the rollback can be triggered for checked exceptions as well.
+
+7. **noRollbackFor** attribute values should be one or more exception classes, subclasses of Throwable. When this type of exception is thrown during the execution of a transactional method, the transaction is not rolled back. By default, a transaction is rolled back only when a RuntimeException is thrown. Using this attribute, rollback of a transaction can be avoided for a RuntimeException as well. 
+
 Default settings for **@Transactional**:
+
 - Propagation setting is `PROPAGATION_REQUIRED`.
 - Isolation level is `ISOLATION_DEFAULT`.
-- Transaction is `read/write`.
+- Transaction is `read/write`, which is  read only = FALSE.
 - Transaction timeout defaults to the default timeout of the underlying transaction system, or to none if timeouts are not supported.
 - Any RuntimeException triggers rollback, and any checked Exception does not.
 
 
 ## What is the PlatformTransactionManager?
-**PlatformTransactionManager** is the base interface for all transaction managers that can be used in the Spring framework’s transaction infrastructure.
+Spring’s core transaction management abstraction is based on the interface **PlatformTransactionManager**.
+
+- It is the base interface for all transaction managers that can be used in the Spring framework’s transaction infrastructure.
+- It encapsulates a set of technology-independent methods for transaction management. 
+- Remember that a transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose in Spring. The PlatformTransactionManager interface provides three methods for working with transactions:
+
+    1. `TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException`
+
+    2. `void commit(TransactionStatus status) throws TransactionException;`
+
+    3. `void rollback(TransactionStatus status) throws TransactionException;`
+
+Scenarios to use: 
+1. Deal with only a single data source in your application and access it with JDBC.
+
+2. If you are using an object-relational mapping framework to access a database, you should choose a corresponding transaction manager for this framework, such as HibernateTransactionManager or JpaTransactionManager.
+
+3. If you are using JTA for transaction management on a Java EE application server, you should use JtaTransactionManager to look up a transaction from the application server. Additionally, JtaTransactionManager is appropriate for distributed transactions (transactions that span multiple resources). Note that while it’s common to use a JTA transaction manager to integrate the application server’s transaction manager, there’s nothing stopping you from using a stand-alone JTA transaction manager such as Atomikos.
+
+**Using the PlatformTransactionManager**
+1. pass the implementation of the PlatformTransactionManager you are using to your bean through a bean reference. 
+2. Then, using the TransactionDefinition and TransactionStatus objects you can initiate transactions, roll back, and commit.
+
+```java
+DefaultTransactionDefinition def = new DefaultTransactionDefinition(); 
+// explicitly setting the transaction name is something that can only be done programmatically 
+def.setName("SomeTxName"); 
+
+def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); 
+TransactionStatus status = txManager.getTransaction(def); 
+  try {
+    // execute your business logic here 
+  } catch (MyException ex) {
+    txManager.rollback(status);
+    throw ex; 
+  } 
+  txManager.commit(status);
+```
+
 
 ## Is the JDBC template able to participate in an existing transaction?
+
 Yes, both declarative and programmatic ways, by wrapping the **DataSource** using a `TransactionAwareDataSourceProxy`.
+
+This is a proxy for a target DataSource, which wraps the target DataSource to add awareness of Spring-managed transactions.
 
 ## What is a transaction isolation level? How many do we have and how are they ordered?
 
@@ -331,9 +401,9 @@ Higher isolation levels is a reduction of the ability of multiple users and syst
 ## What is @EnableTransactionManagement for?
 Both `@EnableTransactionManagement` and `<tx:annotation-driven ../>` enable all infrastructure beans necessary **for supporting transactional execution**.
 
-Components registered when the @EnableTransactionManagement annotation is used are:
+Components registered when the `@EnableTransactionManagement` annotation is used are:
 - A TransactionInterceptor: calls to @Transactional methods
-- A JDK Proxy or AspectJ advice, intercepts methods annotated with @Transactional
+- A JDK Proxy or AspectJ advice, intercepts methods annotated with `@Transactional`
 
 ## What does transaction propagation mean?
 It is to define behavior of the target methods: if they should be executed in an existing or new transaction, or no transaction at all.
@@ -367,7 +437,13 @@ As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean 
 - `@Transactional` on interface works only using interface-based proxies.
 - In Spring AOP proxies, **only public** @Transactional methods work. Protect or private method won't work, however no error thrown.
 
+In this case, **all the methods in the class become transactional**, and all properties defined for the transaction are inherited from the @Transactional class level definition, but they can be overridden by a @Transactional defined at the method level.
+
 ## What does declarative transaction management mean?
+// todo P 217 book cert
+Transactional behavior can be added to any method of any bean as long as the method is public, because declarative transaction behavior is implemented in Spring using AOP
+
+
 Declarative transaction management means that the methods which need to be executed in the context of a transaction and the transaction properties for these methods **are declared, as opposed to implemented**, like connecting to a JTA (Java Transaction API).
 
 ##  What is the default rollback policy? How can you override it?
