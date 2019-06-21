@@ -245,14 +245,57 @@ Tansaction enforces ACID principle:
 ## Is a transaction a cross cutting concern? How is it implemented by Spring?
 Yes, transaction management is a cross-cutting concern. 
 
-- **Spring AOP** uses **Declarative** transaction management, it's **non-invasive**. The AOP proxies use two infrastructure beans for this:
-    - `org.springframework.transaction.interceptor. TransactionInterceptor` 
-    - in conjunction with **an implementation** of `org.springframework.transaction.PlatformTransactionManager`.
+**Declarative transaction management**.  
+**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. It's **non-invasive**.
+- `org.springframework.transaction.interceptor. TransactionInterceptor` 
+- in conjunction with **an implementation** of `org.springframework.transaction.PlatformTransactionManager`.
 
 Under the hood: an internal infrastructure Spring-specific bean of type `org.springframework.aop.framework. autoproxy.InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
   
-![IMAGE](https://i.loli.net/2019/06/20/5d0b36d0c34cc92426.jpg)
+**Programmatic transaction management**   
+Although it's a little more tedious to use, it **gives you full control** over the transaction management code. 
+Spring Framework provides two ways of implemeting Programmatic Transaction:
 
+1. `TransactionTemplate` class, you just have to encapsulate your code block in a callback class that implements the TransactionCallback<T> interface and pass it to the TransactionTemplate’s execute method for execution.
+2. Using a PlatformTransactionManager implementation directly.
+
+```java
+public class TransactionalJdbcBookShop extends JdbcDaoSupport implements BookShop {
+
+  private PlatformTransactionManager transactionManager;
+
+  public void setTransactionManager(PlatformTransactionManager transactionManager) { 
+  this.transactionManager = transactionManager; 
+  }
+  
+  public void purchase(final String isbn, final String username) { 
+  
+    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+  
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+  
+      protected void doInTransactionWithoutResult( TransactionStatus status) {
+  
+        int price = getJdbcTemplate().queryForObject( "SELECT PRICE FROM BOOK WHERE ISBN = ?", Integer.class, isbn);
+    
+        getJdbcTemplate().update( "UPDATE BOOK_STOCK SET STOCK = STOCK - 1 WHERE ISBN = ?", isbn );
+    
+        getJdbcTemplate().update( "UPDATE ACCOUNT SET BALANCE = BALANCE - ? WHERE USERNAME = ?", price, username);
+      }
+    });
+  }
+}
+```
+
+```
+DefaultTransactionDefinition def = new DefaultTransactionDefinition(); // explicitly setting the transaction name is something that can only be done programmatically def.setName("SomeTxName"); def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); TransactionStatus status = txManager.getTransaction(def); try {
+
+// execute your business logic here } catch (MyException ex) {
+
+txManager.rollback(status);
+
+throw ex; } txManager.commit(status);
+```
 
 ## How are you going to define a transaction in Spring?
 
@@ -343,40 +386,53 @@ Spring’s core transaction management abstraction is based on the interface **P
 
 - It is the base interface for all transaction managers that can be used in the Spring framework’s transaction infrastructure.
 - It encapsulates a set of technology-independent methods for transaction management. 
-- Remember that a transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose in Spring. The PlatformTransactionManager interface provides three methods for working with transactions:
+- Remember that a transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose in Spring. 
 
-    1. `TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException`
+The PlatformTransactionManager interface provides three methods for working with transactions:
 
-    2. `void commit(TransactionStatus status) throws TransactionException;`
+```java
+Public interface PlatformTransactionManager(){  
+    // Return a currently active transaction or create a new one, according to the specified propagation behavior
+    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; 
+    
+    // Commit the given transaction, with regard to its status
+    Void commit(TransactionStatus status) throws TransactionException;  
+    
+    // Perform a rollback of the given transaction
+    Void rollback(TransactionStatus status) throws TransactionException;  
+    } 
+```
 
-    3. `void rollback(TransactionStatus status) throws TransactionException;`
+Spring has several built-in implementations of this interface for use with different transaction management APIs.
 
-Scenarios to use: 
-1. Deal with only a single data source in your application and access it with JDBC.
+1. Deal with only a single data source in your application and access it with JDBC, use `DataSourceTransactionManager`
 
-2. If you are using an object-relational mapping framework to access a database, you should choose a corresponding transaction manager for this framework, such as HibernateTransactionManager or JpaTransactionManager.
+```java
+@Bean 
+public DataSourceTransactionManager transactionManager() {
+
+  DataSourceTransactionManager transactionManager = new DataSourceTransactionManager()
+  
+  transactionManager.setDataSource(dataSource());
+  
+  return transactionManager; 
+}
+```
+
+2. If you are using an object-relational mapping framework to access a database, you should choose a corresponding transaction manager for this framework, such as `HibernateTransactionManager` or `JpaTransactionManager`.
+
+```java
+@Bean
+public PlatformTransactionManager transactionManager() {
+    JpaTransactionManager transactionManager = new JpaTransactionManager();
+    transactionManager.setDataSource(dataSource());
+    return transactionManager;
+}
+```
 
 3. If you are using JTA for transaction management on a Java EE application server, you should use JtaTransactionManager to look up a transaction from the application server. Additionally, JtaTransactionManager is appropriate for distributed transactions (transactions that span multiple resources). Note that while it’s common to use a JTA transaction manager to integrate the application server’s transaction manager, there’s nothing stopping you from using a stand-alone JTA transaction manager such as Atomikos.
 
-**Using the PlatformTransactionManager**
-1. pass the implementation of the PlatformTransactionManager you are using to your bean through a bean reference. 
-2. Then, using the TransactionDefinition and TransactionStatus objects you can initiate transactions, roll back, and commit.
-
-```java
-DefaultTransactionDefinition def = new DefaultTransactionDefinition(); 
-// explicitly setting the transaction name is something that can only be done programmatically 
-def.setName("SomeTxName"); 
-
-def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); 
-TransactionStatus status = txManager.getTransaction(def); 
-  try {
-    // execute your business logic here 
-  } catch (MyException ex) {
-    txManager.rollback(status);
-    throw ex; 
-  } 
-  txManager.commit(status);
-```
+![spring-aop-diagram.jpg](https://i.loli.net/2019/06/21/5d0ca922340f859820.jpg)
 
 
 ## Is the JDBC template able to participate in an existing transaction?
