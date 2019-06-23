@@ -329,7 +329,7 @@ Note that `@WebAppConfiguration` **must be used in conjunction with `@ContextCon
     }
     ```
 
-**IN Web App**
+**in Web App**
 In a web application, closing of the Spring application context is taken care of by the **ContextLoaderListener**, which implements the **ServletContextListener** interface. The ContextLoaderListener will receive a `ServletContextEvent` when the web container stops the web application.
 
 **SpringBoot**

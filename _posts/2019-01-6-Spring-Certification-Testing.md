@@ -5,13 +5,12 @@ tags:
   - Restful
   - Spring
   - Spring REST
-  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring test in Spring professional certification.
+Spring test in Spring professional certification (4%).
 
 
 TESTING

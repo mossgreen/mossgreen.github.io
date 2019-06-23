@@ -1,5 +1,5 @@
 ---
-title: How to find free programming resources
+title: How to Find Free Programming Resources
 search: true
 toc: false
 toc_label: "My Table of Contents"

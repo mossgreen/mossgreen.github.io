@@ -10,7 +10,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Data Management in Spring Professional Certification.
+Spring Data Management in Spring Professional Certification (16%).
 
 ## What is the difference between checked and unchecked exceptions?
 
