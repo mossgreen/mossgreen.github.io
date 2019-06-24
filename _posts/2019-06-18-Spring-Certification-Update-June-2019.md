@@ -1,5 +1,5 @@
 ---
-title: Spring Professional Certification Update May 2019
+title: Spring Professional Certification Update June 2019
 search: true
 tags: 
   - Java
@@ -10,4 +10,6 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
+
+Spring Professional Certification Update June 2019.
 

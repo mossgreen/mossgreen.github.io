@@ -10,7 +10,9 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Boot in Spring professional certification.
+Spring Boot in Spring professional certification. 
+
+Updated: 24 Jun 2019
 
 - Spring Boot Intro (8%)
 - Spring Boot Auto Configuration (8%)
@@ -480,10 +482,35 @@ info.app.version=1.0.0
 
 
 ## How do you change logging level of a package using loggers endpoint?
-todo 
+
+Spring Boot Actuator includes the ability to view and configure the log levels of your application at runtime. You can view either the entire list or an individual logger’s configuration, which is made up of both the explicitly configured logging level as well as the effective logging level given to it by the logging framework.
+- TRACE
+- DEBUG
+- INFO
+- WARN
+- ERROR
+- FATAL
+- OFF
+- null,  indicates that there is no explicit configuration.
+
+To configure a given logger, POST a partial entity to the resource’s URI, as shown in the following example:
+```json
+{ 
+  "configuredLevel": "DEBUG"
+}
+```
+
+To “reset” the specific level of the logger (and use the default configuration instead), you can pass a value of null as the configuredLevel.
 
 ## How do you access an endpoint using a tag?
+
 todo
+
+Common tags are generally used for dimensional drill-down on the operating environment like host, instance, region, stack, etc. Commons tags are applied to all meters and can be configured as shown in the following example:
+```properties
+management.metrics.tags.region=us-east-1 
+management.metrics.tags.stack=prod
+```
 
 
 ## What is metrics for?
@@ -495,6 +522,15 @@ One of the important features about this endpoint is that it has some counters a
 
 ## How do you create a custom metric with or without tags?
 todo
+To register custom metrics, inject MeterRegistry into your component,
+```java
+class Dictionary { 
+  private final List<String> words = new CopyOnWriteArrayList<>(); 
+  Dictionary(MeterRegistry registry) { 
+    registry.gaugeCollectionSize("dictionary.size", Tags.empty(), this.words); 
+  } 
+}
+```
 
 ## What is Health Indicator?
 
@@ -505,9 +541,17 @@ todo
 
 ## What are the Health Indicator statuses that are provided out of the box
 
+- DOWN SERVICE_UNAVAILABLE (503)
+
+- OUT_OF_SERVICE SERVICE_UNAVAILABLE (503)
+
+- UP No mapping by default, so http status is 200
+
+- UNKNOWN No mapping by default, so http status is 200
+
 ## How do you change the Health Indicator status severity order?
 
-## Why do you want to leverage 3 rd -party external monitoring system?
+## Why do you want to leverage 3rd party external monitoring system?
 
 ---
 # Spring Boot Testing
@@ -530,3 +574,6 @@ todo
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
 4. [Pro Spring Boot](https://www.apress.com/br/book/9781484214312/)
+
+
+
