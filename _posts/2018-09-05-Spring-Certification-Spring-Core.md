@@ -5,6 +5,7 @@ tags:
   - Java
   - Spring
   - Spring Core
+  - Spring Professional
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
