@@ -49,14 +49,28 @@ Spring's `DataAccessException` and sub classes are unchecked exception. They are
 
 ## How do you configure a DataSource in Spring? Which bean is very useful for development/test databases?
 
-You can use Spring to manage the database connection for you by providing a bean that implements `javax. sql.DataSource`. The difference between a **DataSource** and a **Connection** is that a **DataSource** provides and manages Connections.
+Spring obtains a connection to the database through a `DataSource`. 
 
-`DriverManagerDataSource` is the simplest implementation of a DataSource, it **doesn’t support database connection pooling** makes this class unsuitable for anything other than testing.
+- A DataSource is part of the **JDBC specification** and is a generalized connection factory. 
+- It allows a container or a framework to hide connection pooling and transaction management issues from the application code. Implementations in the Spring distribution are meant **only for testing purposes and do not provide pooling**.
+- The difference between a **DataSource** and a **Connection** is that a **DataSource** provides and manages Connections.
 
 Spring offers several options for configuring data-source beans in your Spring application, including:
 1. Data sources that are defined by a **JDBC driver**
 2. Data sources that are looked up by **JNDI**
 3. Data sources that pool connections
+
+```
+Some DataSources:
+1. DataSourceUtils: is a convenient and powerful helper class that provides static methods to obtain connections from JNDI and close connections if necessary.
+2. SmartDataSource: use when you know that you will reuse a connection.
+3. AbstractDataSource: you extend the AbstractDataSource class if you are writing your own DataSource implementation.
+4. SingleConnectionDataSource: wraps a single Connection that is **not closed after each use**. Obviously, this is **not multi-threading capable**.
+5. The DriverManagerDataSource class is an implementation of the standard DataSource interface that configures a plain JDBC driver through bean properties, and returns a new Connection every time.
+
+`DriverManagerDataSource` is the simplest implementation of a DataSource, it **doesn’t support database connection pooling** makes this class unsuitable for anything other than testing.
+```java
+DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.hsqldb.jdbcDriver"); dataSource.setUrl("jdbc:hsqldb:hsql://localhost:"); dataSource.setUsername("sa"); dataSource.setPassword("");
 
 
 ### DataSource in an App that deployed to Server, Use JDNI lookup
@@ -446,11 +460,16 @@ This is a proxy for a target DataSource, which wraps the target DataSource to ad
 **Transaction Isolation** is the isolation of one transactions from another. Anwsers the question: are transactions affect each other?
 
 In Spring, there are five isolation values that are defined in the  `org.springframework.transaction.annotation.Isolation` enum:
-- DEFAULT: DB default
-- READ_UNCOMMITED: dirty reads
-- READ_COMMITED: default for most dbs. 
-- REPEATABLE_READ: no dirty reads, and **repeatable read**
-- SERIALIZABLE: most restrictive, read and write locks.
+
+- `ISOLATION_DEFAULT`: DB default
+
+- `ISOLATION_READ_UNCOMMITED`: It allows this transaction to see data modified by other uncommitted transactions. **Dirty reads**. 
+
+- `ISOLATION_READ_COMMITED`: Default for most dbs. It ensures that other transactions are not able to read data that has not been committed by other transactions. However, the data that was read by one transaction can be updated by other transactions.
+
+- `ISOLATION_REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **No dirty reads**, and **can repeatable read**
+
+- `ISOLATION_SERIALIZABLE`: most restrictive, read and write locks.
 
 Higher isolation levels is a reduction of the ability of multiple users and systems concurrently accessing to the resources.
 
@@ -554,6 +573,38 @@ JPA: **Java Persistence API**.
 
 ORM: **Object-Relational Mapping**. Mappingg a java entity to SQL database table.
 
+JPA-based applications use an implementation of EntityManagerFactory to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
+
+1. **Application-managed** — Entity managers are created when an application directly requests one from an entity manager factory. This type of entity manager is most appropriate for use in standalone applications that don’t run in a Java EE container.
+
+2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The container is responsible for configuring the entity manager factories. This type of entity manager is most appropriate for use by a Java EE container that wants to maintain some control over JPA configuration beyond what’s specified in persistence.xml.
+
+Both kinds of entity manager implement the same `EntityManager` interface.
+
+- `LocalEntityManagerFactoryBean` produces an application-managed EntityManagerFactory.
+    ```java
+    @Bean 
+    public LocalEntityManagerFactoryBean entityManagerFactoryBean() {   
+      LocalEntityManagerFactoryBean emfb = new LocalEntityManagerFactoryBean(); 
+      emfb.setPersistenceUnitName("spitterPU"); 
+        return emfb; 
+    }
+    ```
+
+- `LocalContainerEntityManagerFactoryBean` produces a container-managed EntityManagerFactory.
+    ```java
+    @Bean 
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory( DataSource dataSource, JpaVendorAdapter jpaVendorAdapter) { 
+      LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean(); 
+      emfb.setDataSource(dataSource); 
+      emfb.setJpaVendorAdapter(jpaVendorAdapter); 
+      return emfb; 
+    }
+    ```
+
+See "Spring in Action" 4th, 11.2.
+
+
 ## What is the idea behind an ORM? What are benefits/disadvantages or ORM?
 
 **Idea**: Developers only work on objects and no need to care about how to maintain the relationship and how they persist.
@@ -621,13 +672,18 @@ public class User extends AbstractEntity { }
 ## What do you need to do in Spring if you would like to work with JPA?
 
 1. Declare **dependencies**: ORM dependency, db driver dependency, transaction manager dependency.
+
 2. `@Entity` classes
+
 3. Define an **EntityManagerFactory** bean.
-    - Simplest:  `LocalEntityManagerFactoryBean`
+    - Simplest:  `LocalEntityManagerFactoryBean`. It produces an application-managed EntityManagerFactory.
     - Obtain an `EntityManagerFactory` using JNDI, use **when** app ran in Java EE server
     - Full JPA capabilities: `LocalContainerEntityManagerFactoryBean`
+
 4. Define a `DataSource` bean
+
 5. Define a `TransactionManager` bean
+
 6. Implement repositories
 
 ## Are you able to participate in a given transaction in Spring while working with JPA?
