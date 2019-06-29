@@ -573,11 +573,11 @@ JPA: **Java Persistence API**.
 
 ORM: **Object-Relational Mapping**. Mappingg a java entity to SQL database table.
 
-JPA-based applications use an implementation of EntityManagerFactory to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
+JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
 
-1. **Application-managed** — Entity managers are created when an application directly requests one from an entity manager factory. This type of entity manager is most appropriate for use in standalone applications that don’t run in a Java EE container.
+1. **Application-managed** — Entity managers are created when an application directly requests one from an entity manager factory. This type of entity manager is most appropriate for use in standalone applications that **don’t run in a Java EE container**.
 
-2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The container is responsible for configuring the entity manager factories. This type of entity manager is most appropriate for use by a Java EE container that wants to maintain some control over JPA configuration beyond what’s specified in persistence.xml.
+2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The **container is responsible for configuring the entity manager factories**. This type of entity manager is most appropriate for use by a Java EE container that wants to maintain some control over JPA configuration beyond what’s specified in `persistence.xml`.
 
 Both kinds of entity manager implement the same `EntityManager` interface.
 
@@ -603,6 +603,15 @@ Both kinds of entity manager implement the same `EntityManager` interface.
     ```
 
 See "Spring in Action" 4th, 11.2.
+
+JPA has two annotations to obtain container‐managed `EntityManagerFactory` or `EntityManager` instances within Java EE environments.
+
+1. The `@PersistenceUnit` annotation expresses a dependency on an `EntityManagerFactory`, 2. `@PersistenceContext` expresses a dependency on a containermanaged `EntityManager` instance.
+
+- You need to configure: `PersistenceAnnotationBeanPostProcessor` or xml to enalbe
+- Both @PersistenceContext and @PersistenceUnit annotations can be used at either the **field** or **method** level. 
+- Visibility of those fields and methods doesn’t matter.
+
 
 
 ## What is the idea behind an ORM? What are benefits/disadvantages or ORM?
