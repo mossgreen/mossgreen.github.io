@@ -34,6 +34,7 @@ A **cross-cutting concern** is a functionality that is tangled with business cod
 - Error detection and correction
 - Memory management
 - Performance monitoring
+- Measuring statistics
 - Synchronization
 
 ## AOP Terminology, what is a pointcut, a join point, an advice, an aspect, weaving?

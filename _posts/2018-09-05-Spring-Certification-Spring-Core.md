@@ -281,12 +281,67 @@ public class WebInitializer implements WebApplicationInitializer {
     3. `destroy-method` in `<bean>`
 
 **Lifecycle callbacks**
-To interact with the container’s management of the bean lifecycle, you can implement the Spring `InitializingBean` and `DisposableBean` interfaces.
 
-- In `InitializingBean`, container calls `afterproperteisSet()`. Not recommended. 
-- In `DisposableBean`, container calls`destroy()`. Not recommended.
+Beans can define callback methods, which can be invoked by the container at specific points during their lifetime.
+1. XML based
+2. JSR-250 Annotation
+3. Special interfaces. (not recommended)
+
+**XML‐based configuration** `<bean>` elements have `init‐method` and `destroy‐method` attributes that accept method names in the bean class as attribute values.
+- The `init` method is invoked by the container **after** the bean is created, and its **properties are injected**.
+- The destroy method is invoked just before the end of a bean's lifetime.
+- Prototype‐scoped beans, on the other hand, are not tracked after their instantiation; therefore, their destroy methods cannot be invoked.
+- **Method names can be anything**. There is no restriction; however, methods should **return void** and **accept nothing as input arguments**. **They can throw any type of exception.**
+```java
+public class Foo {
+
+  public void init() { 
+    System.out.println("init method is called"); 
+  }
+  
+  public void destroy() { 
+    System.out.println("destroy method is called"); 
+  }
+}
+```
+```xml
+<bean id="foo" class="com.haha.Foo" init-method="init" destroy-method="destroy"/>
+```
 
 The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best practice for receiving lifecycle callbacks in a modern Spring application
+```java
+public class Bar {
+
+  @PostConstruct 
+  public void init() throws Exception { 
+    System.out.println("init method is called"); 
+  }
+  
+  @PreDestroy 
+  public void destroy() throws RuntimeException { 
+    System.out.println("destroy method is called"); 
+  }
+}
+```
+
+Implement the Spring `InitializingBean` and `DisposableBean` interfaces.
+
+- In `InitializingBean`, container calls `afterproperteisSet()`. 
+- In `DisposableBean`, container calls`destroy()`. 
+```java
+public class Baz implements InitializingBean, DisposableBean {
+
+  @Override 
+  public void afterPropertiesSet() throws Exception { 
+    System.out.println("init method invoked"); 
+  }
+
+  @Override 
+  public void destroy() throws Exception { 
+    System.out.println("destroy method invoked"); 
+  }
+}
+```
 
 ![IMAGE](https://i.loli.net/2019/06/12/5d0092044c0cf74240.jpg)
 

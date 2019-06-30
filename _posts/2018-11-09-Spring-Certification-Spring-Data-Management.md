@@ -60,7 +60,6 @@ Spring offers several options for configuring data-source beans in your Spring a
 2. Data sources that are looked up by **JNDI**
 3. Data sources that pool connections
 
-```
 Some DataSources:
 1. DataSourceUtils: is a convenient and powerful helper class that provides static methods to obtain connections from JNDI and close connections if necessary.
 2. SmartDataSource: use when you know that you will reuse a connection.
@@ -70,8 +69,10 @@ Some DataSources:
 
 `DriverManagerDataSource` is the simplest implementation of a DataSource, it **doesn’t support database connection pooling** makes this class unsuitable for anything other than testing.
 ```java
-DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.hsqldb.jdbcDriver"); dataSource.setUrl("jdbc:hsqldb:hsql://localhost:"); dataSource.setUsername("sa"); dataSource.setPassword("");
-
+DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.hsqldb.jdbcDriver"); dataSource.setUrl("jdbc:hsqldb:hsql://localhost:"); 
+dataSource.setUsername("sa"); 
+dataSource.setPassword("");
+```
 
 ### DataSource in an App that deployed to Server, Use JDNI lookup
 
@@ -382,7 +383,7 @@ A list of attributes of `@Transactional`:
 
 5. **timeout**. By default, the value of this attribute is defined by the transaction manager provider, but it can be changed by setting a different value in the annotation: `@Transactional(timeout=3600)` by milliseconds.
 
-6. **rollbackFor** attribute values should be one or more exception classes, subclasses of Throwable. When this type of exception is thrown during the execution of a transactional method, the transaction is rolled back. By default, a transaction is rolled back only when a RuntimeException is thrown. In using this attribute, the rollback can be triggered for checked exceptions as well.
+6. **rollbackFor**. When this type of exception is thrown during the execution of a transactional method, the transaction is rolled back. By default, i's rolled back only when a **RuntimeException** or **Errors** is thrown. In using this attribute, the rollback can be triggered for checked exceptions as well.
 
 7. **noRollbackFor** attribute values should be one or more exception classes, subclasses of Throwable. When this type of exception is thrown during the execution of a transactional method, the transaction is not rolled back. By default, a transaction is rolled back only when a RuntimeException is thrown. Using this attribute, rollback of a transaction can be avoided for a RuntimeException as well. 
 
@@ -419,7 +420,7 @@ Public interface PlatformTransactionManager(){
 
 Spring has several built-in implementations of this interface for use with different transaction management APIs.
 
-1. Deal with only a single data source in your application and access it with JDBC, use `DataSourceTransactionManager`
+1. Deal with only a single data source in your application and access it with **JDBC**, use `DataSourceTransactionManager`
 
 ```java
 @Bean 
@@ -755,6 +756,10 @@ The default behavior is to route calls to the default repository implementation,
 ## What is `@Query` used for?
 
 `@Query` allows for specifying a query to be used with a Spring Data JPA repository method.
+
+When the name of the named parameter is the same as the name of the argument in the method annotated with `@Query`, the `@Param` annoation is not needed. 
+
+But if the method argument has a different name, the `@Param` annotation is needed to tell Spring that the value of this argument is to be injected in the named parameter in the query.
 
 ```java
 public interface UserRepo extends JpaRepository<User, Long> {
