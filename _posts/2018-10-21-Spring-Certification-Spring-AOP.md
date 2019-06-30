@@ -2,7 +2,6 @@
 title: Spring AOP in Spring Certification
 search: true
 tags: 
-  - Java
   - Spring
   - AOP
 toc: true
@@ -10,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring AOP in Spring Certification.
+Spring AOP in Spring Certification(8%).
 
 ## What is the concept of AOP? 
 AOP is **A**spect **O**riented **P**rogramming, which refers to a type of programming that aims to increase modularity by allowing the separation of cross-cutting concerns.
@@ -199,7 +198,7 @@ JDK dynamic proxies
 
 CGLIB proxies
 
-- CGLIB is a third-party library.
+- It's included in the `spring-core` JAR.
 
 - CGLIB proxies are created by generating a **subclass** of the class implementing the target object.
 

@@ -1,8 +1,7 @@
 ---
-title: Spring MVC in Spring Certification
+title: Spring MVC in Spring Professional Certification
 search: true
 tags: 
-  - Java
   - Spring
   - Spring MVC
 toc: true
@@ -104,14 +103,14 @@ In short: the DispatcherServlet is **not** instantiated via an application conte
 
 **Parent ApplicationContext** 
 - It is also called **RootApplicationContext**. 
-- Iin a web application is usually created using `org.springframework.web.context.ContextLoaderListener`.
+- In a web application, parent ApplicationContext is usually created using `org.springframework.web.context.ContextLoaderListener`.
 - it includes the application-level configurations such as the back-end data source, security, and service and persistence layer configuration.
 - Say, it contains all non-web beans.
 - It's available to all servlet-level WebApplicationContexts.
 
 **Child ApplicationContext**
 - It is also called the web context or the DispatcherServletContext.
-- It is created by Spring MVC DispatcherServlet. 
+- It is created by Spring MVC `DispatcherServlet`. 
 - Beans in the web context can access the beans in the parent context, but not conversely.
 
 We can have **two DispatcherServlet** instances in an application. 
@@ -332,4 +331,3 @@ public class AppConfig {
 1. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
-

@@ -256,7 +256,7 @@ public class WebInitializer implements WebApplicationInitializer {
 ```
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
-**Important**
+
 1. Spring bean configuration is read and metadata in the form of a **BeanDefinition** object is created for each bean.
 
 2. All instances of **BeanFactoryPostProcessor** are invoked in sequence and are allowed an opportunity to alter the bean metadata.
@@ -279,6 +279,14 @@ public class WebInitializer implements WebApplicationInitializer {
     1. `@PreDestroy` method
     2. Bean implemented `DisposableBean` interface
     3. `destroy-method` in `<bean>`
+
+**Lifecycle callbacks**
+To interact with the container’s management of the bean lifecycle, you can implement the Spring `InitializingBean` and `DisposableBean` interfaces.
+
+- In `InitializingBean`, container calls `afterproperteisSet()`. Not recommended. 
+- In `DisposableBean`, container calls`destroy()`. Not recommended.
+
+The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best practice for receiving lifecycle callbacks in a modern Spring application
 
 ![IMAGE](https://i.loli.net/2019/06/12/5d0092044c0cf74240.jpg)
 
@@ -462,15 +470,20 @@ public class MovieRecommender {
 ## Describe Component scanning
 
 Spring attacks automatic wiring from two angles:
-1. Component scanning—Spring automatically discovers beans to be created in the application context.
-2. Autowiring—Spring automatically satisfies bean dependencies
-3. In Spring Boot, automatic configuration has gone well **beyond** component scanning and autowiring.
+
+1. **Component scanning** — Spring automatically discovers beans to be created in the application context.
+
+2. **Autowiring** — Spring automatically satisfies bean dependencies.
+
+In Spring Boot, automatic configuration has gone well **beyond** component scanning and autowiring.
 
 Component scanning isn’t turned on by default. **To enable component scanning**:
+
 1. annotate a configuration class in your Spring application with the `@ComponentScan`. 
+
 2. It works the same way as `<context:component-scan />` for XML.
 
-`@Configuration` classes are meta-annotated with `@Component`, so they are candidates for component-scanning!
+`@Configuration` classes are meta-annotated with `@Component`, so they are candidates for component-scanning. NB, it's not a sterotype tho!
 
 Filtering configuration can be added to the `@ComponentScan` annotation as to include or exclude certain classes.
   - **basePackages**
@@ -521,6 +534,19 @@ public @interface RestController {}
 - Session: per http session, web-aware contexts only
 - Application: per ServletContext, web-aware contexts only
 - Websocket: per WebSocket, web-aware contexts only
+
+**Singleton beans with prototype-bean dependencies**
+
+Dependencies are resolved at instantiation time!!!
+
+- Inject prototype to singleton: a new prototype bean is instantiated and then dependency-injected into the singleton bean. The prototype instance is the sole instance that is ever supplied to the singletonscoped bean. that injection occurs only once, when the Spring container is instantiating the singleton bean and resolving and injecting its dependencies.
+
+- If you need a new instance of a prototype bean at runtime more than once, use **“Method injection”**. Make bean A aware of the container by implementing the ApplicationContextAware interface, and by making a getBean("B") call to the container ask for (a typically new) bean B instance every time bean A needs it.
+
+**Custom scopes**
+- As of Spring 3.0, a **thread scope** is available, but is not registered by default.
+- You need to implement the `org.springframework.beans.factory.config.Scope` interface.
+
 
 ## Are beans lazily or eagerly instantiated by default? How do you alter this behavior?   
 **Eager** instantiation and by default loads the bean immediately while **lazy** loads it on demand.

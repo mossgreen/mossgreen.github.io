@@ -2,9 +2,8 @@
 title: Spring Testing in Spring Certification
 search: true
 tags: 
-  - Restful
   - Spring
-  - Spring REST
+  - Spring Testing
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
@@ -33,23 +32,48 @@ TESTING
 
 ## How can you create a shared application context in a JUnit integration test?
 
-The core class of this module is `org.springframework.test.context.junit4.SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**.
+The core class of this module is `SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**.
 
 1. Annotate the test class with `@RunWith(SpringJUnit4ClassRunner.class)`.
 
-2. annotate the class with `@ContextConfiguration` in order to tell the runner class where the bean definitions come from.
-```java
-// bean definitions are provided by class AllRepoConfig 
-@ContextConfiguration(classes = {AllRepoConfig.class}) 
-public class GenericQualifierTest {...} 
-
-// bean definitions are loaded from file all-config.xml 
-@ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
-public class GenericQualifierTest {...}
-```
-
+2. Annotate the class with `@ContextConfiguration` in order to tell the runner class where the bean definitions come from.
+    1. bean definitions are provided **by class** `AllRepoConfig`
+        ```java
+        @ContextConfiguration(classes = {AllRepoConfig.class}) 
+        public class GenericQualifierTest {...} 
+        ```
+      
+    2. bean definitions are loaded from **file** all-config.xml
+        ```java
+        @ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
+        public class GenericQualifierTest {...}
+        ```
+    3. **If no attribute defined**: the default behavior of spring is to search for a file named {testClassName}-context.xml in the same location as the test class and load bean definitions from there if found.
+        
 3. use `@Autowired` to inject beans to be tested.
 
+
+**Another way** to access the application contect is by extending the **TestContext** support class specific to JUnit: `AbstractJUnit4SpringContextTests`. This class implements the `ApplicationContextAware` interface.
+
+NB:
+1. Delete the private field applicationContext and its setter method. 
+2. Note that if you extend this support class, you don’t need to specify `SpringRunner` in the `@RunWith` annotation because this annotation is inherited from the parent.
+
+```java
+@ContextConfiguration(classes = BankConfiguration.class) 
+public class AccountServiceJUnit4ContextTests extends AbstractJUnit4SpringContextTests {
+
+private static final String TEST_ACCOUNT_NO = "1234"; 
+private AccountService accountService;
+
+@Before 
+public void init() {
+  accountService = applicationContext.getBean(AccountService.class);
+  
+  accountService.createAccount(TEST_ACCOUNT_NO);
+  accountService.deposit(TEST_ACCOUNT_NO, 100); } 
+}
+```
 
 ## When and where do you use @Transactional in testing?
 
