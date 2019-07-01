@@ -226,6 +226,23 @@ Yes. With following methods:
 - queryForRowSet()
 - update()
 
+
+**DML**  
+DML stands for **Data Manipulation Language**, the commands SELECT, INSERT, UPDATE, and DELETE are database statements used to create, update, or delete data from existing tables.
+
+**DDL**   
+DDL stands for **Data Definition Language**, used to manipulate database objects: tables, views, cursors, etc. DDL database statements can be executed with JdbcTemplate using the execute method.
+```java
+public int createTable(String name) {
+
+  jdbcTemplate.execute("create table " + name + " (id integer, name varchar2)" );
+
+  String sql = "select count(*) from " + name;
+
+  return jdbcTemplate.queryForObject(sql, Integer.class); 
+}
+```
+
 ## When does the JDBC template acquire (and release) a connection - for every method called or once per template? Why?
 **Per method called**.
 A connection is acquired immediately before executing the operation at hand and released immediately after the operation has completed, be it successfully or with an exception thrown

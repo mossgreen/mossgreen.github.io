@@ -921,21 +921,23 @@ public class MovieRecommender {
 **When** another object wants to invoke a method on the original object, it will invoke the same method on the proxy object. The proxy object may perform some processing before, optionally, invoking the (same) method on the original object.
 
 Spring framework is able to create two types of proxy objects:
-- **JDK Dynamic Proxy** - **default**: Creates a proxy object that implements all the interfaces
-- **CGLIB Proxy**: Creates a subclass of the class
+1. **JDK Dynamic Proxy** - **default**: Creates a proxy object that implements all the interfaces
+
+2. **CGLIB Proxy**: Dynamically generates the bytecode for a new class **on runtime** for each proxy, reusing already generated classes wherever possible.
 
 ### What are the limitations of these proxies (per type)?
-**Limitations of JDK Dynamic Proxies**
+
+- **Limitations of JDK Dynamic Proxies**
 1. Requires the proxied object to implement at least one interface.
-2. Only methods found in the implemented interface(s) will be available in the proxy object.
+2. **Only public methods** found in the implemented interface(s) will be available in the proxy object.
 3. Proxy objects must be referenced using an interface type and cannot be referenced using a type of a superclass of the proxied object type.
 4. Does not support self-invocations.
 
-**Limitations of CGLIB Proxies**
+- **Limitations of CGLIB Proxies**
 1. Requires the class of the proxied object to be non-final.
 2. Requires methods in the proxied object to be non-final.
 3. Does not support self-invocations.
-4. Requires a third-party library.(However, it's in Spring Framework)
+4. Cannot proxy private methods. (public, protected and package-visible are ok)
 
 ### What is the power of a proxy object and where are the disadvantages?
 **power of a proxy object**
@@ -956,6 +958,7 @@ Spring framework is able to create two types of proxy objects:
 - Configuration classes cannot be final. Configuration classes are subclassed by the Spring container using CGLIB and final classes cannot be subclassed.
 
 ## What does the @Bean annotation do?
+
 `@Bean` method will instantiate, configure and initialize an object that is to be managed by the Spring container.
 
 ### What is the default bean id if you only use @Bean?  How can you override this? 
@@ -981,7 +984,6 @@ CGlib proxying cannot proxy a final class.
 
 ## How do you configure profiles? What are possible use cases where they might be useful?
 
-todo new
 **Annotation Type Profile** allows for registering different beans depending on differenct conditions. E.g., rewrite `dataSource` configuration.
 
 ```java
@@ -1019,15 +1021,18 @@ ctx.refresh();
 
 ## Can you use @Bean together with @Profile? 
 
-todo
-
 - On Class, along with `@Configuration`, inner beans only create when `@profile` conditon is met
 - On Class, along with `@Component`, inner beans create when condition met
 - On method, along with `@Bean`, bean crates when condition met
 - As meta-annotaion, to create custom annotations.
 
 ## Can you use @Component together with @Profile?
-todo
+
+```java
+@Repository
+@Profile("dev")
+public class UserDAOdb8Impl implements UserDAO {}
+```
 
 ### How many profiles can you have?
 `setActiveProfiles()` accepts `String…` varargs, which is a `String[]`.

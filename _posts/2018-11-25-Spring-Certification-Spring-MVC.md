@@ -209,6 +209,7 @@ Differences:
 - @RequestParam
 - @CookieValue
 - @RequestBody
+- @RequestHeader
 - @RequestPart: "multipart/form-data"
 - @ModelAttribute
 - @SessionAttribute

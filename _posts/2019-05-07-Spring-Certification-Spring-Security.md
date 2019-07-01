@@ -109,9 +109,50 @@ assert(authentication.isAuthenticated);
 
 (think of its purpose not its Java type.)
 
-Spring Security provides **method-level** security using the `@Secured` annotation. 
+To apply security to lower layers of an application, **Spring Security uses AOP**. The respective bean is wrapped in a proxy that before calling the target method, first checks the credentials of the user and calls the method only if the user is authorized to call it.
 
-You enable method-level security using the `@EnableGlobalMethodSecurity` annotation on any configuration class.
+Three ways of using method security:
+xml, Spring Security namespace, Java Configuration and annotations
+
+1. **`@Secured`**
+Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(secured Enabled = true)`. Methods must be secured by annotating them with Spring Security annotation `@Secured`.
+    ```java
+    @Configuration 
+    @EnableWebSecurity 
+    @EnableGlobalMethodSecurity(securedEnabled = true) 
+    public class SecurityConfig extends WebSecurityConfigurerAdapter { }
+    ```
+    ```java
+    @Service 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
+    public class UserServiceImpl implements UserService {
+    
+      @Secured("ROLE_ADMIN") 
+      public User findById(Long id) { 
+        return userRepo.findOne(id);
+      }
+    }
+    ```
+
+2. **`JSR-250` annotations**   
+Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(jsr250Enabled = true)`. Methods must be secured by annotating them with `JSR-250` annotations. The JSR 250 annotations are standards-based and **allow simple role-based constraints to be applied but do not have the power of Spring Security’s native annotations**.
+    ```java
+    @Configuration 
+    @EnableWebSecurity 
+    @EnableGlobalMethodSecurity(jsr250Enabled = true) 
+    public class SecurityConfig extends WebSecurityConfigurerAdapter { }
+    ```
+    
+    ```java
+    @Service 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
+    public class UserServiceImpl implements UserService {
+      @RolesAllowed("ROLE_ADMIN") 
+      public User findById(Long id) { 
+        return userRepo.findOne(id); 
+      }
+    }
+    ```
 
 Once you enable method-level security, you can annotate the SpringMVC controller
 - request-handling methods, 
@@ -120,31 +161,32 @@ Once you enable method-level security, you can annotate the SpringMVC controller
  
 with `@Secured`, `@PreAuthorize`, or `@RolesAllowed` in order to define your security restrictions.
 
+**@Secured, @PreAuthorize, or @RolesAllowed annotations at the class level as well!**
+
 - If we secure only the web layer there may be a way to access service layer in case we expose some REST endpoints. 
 - Method security provides protection at a more granular level.
 - It's common to combine Web security and method security. 
 - If the access is denied the caller will get an **AccessDeniedException**.
 
+**four annotations**
+`@PreAuthorize`, `@PreFilter`, `@PostAuthorize`, and `@PostFilter`.
+Have to set: `@EnableGlobalMethodSecurity(prePostEnabled = true)`
 ```java
-// enable method security
 @Configuration 
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true, 
-                            prePostEnabled=true, 
-                            jsr250Enabled=true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter
-}
+@EnableWebSecurity 
+@EnableGlobalMethodSecurity(prePostEnabled = true) 
+public class SecurityConfig extends WebSecurityConfigurerAdapter {}
+```
+```java
+@Service 
+@Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
+public class UserServiceImpl implements UserService {
 
-// use method security
-@Service
-public class MyService {
-
-  @Secured("ROLE_USER")
-  public String secure() {
-    return "Hello Security";
-  }
+  @PreAuthorize("hasRole(’USER’)") 
+  public void create(User user){}
 }
 ```
+
 
 ## What do @PreAuthorized and @RolesAllowed do? What is the difference between them?
 
@@ -159,7 +201,13 @@ public class MyService {
 
   ### In which security annotation are you allowed to use SpEL?
     `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, `@PostFilter`.
-
+  
+  ### In which security expressions are you allowed to use SpEL?
+  - `hasRole(role)`: Returns true if the current user has the specified role.
+  - `hasAnyRole(role1,role2)`: Returns true if the current user has any of the supplied roles.
+  - `isAnonymous()`: Returns true if the current user is an anonymous user.
+  - `isAuthenticated(): Returns true if the user is not anonymous.
+  - `isFullyAuthenticated()`: Returns true if the user is not an anonymous or Remember-Me user.
 ---
 # Old questions in Version 5 but removed since June 2019
 
