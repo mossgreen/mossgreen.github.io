@@ -32,7 +32,7 @@ TESTING
 
 ## How can you create a shared application context in a JUnit integration test?
 
-The core class of this module is `SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**.
+The core class of this module is `SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**. It's a JUnit annotation.
 
 1. Annotate the test class with `@RunWith(SpringJUnit4ClassRunner.class)`.
 
@@ -48,15 +48,15 @@ The core class of this module is `SpringJUnit4ClassRunner`, which is used to **c
         @ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
         public class GenericQualifierTest {...}
         ```
-    3. **If no attribute defined**: the default behavior of spring is to search for a file named {testClassName}-context.xml in the same location as the test class and load bean definitions from there if found.
+    3. **If no attribute defined**: the default behavior of spring is to search for a file named `{testClassName}-context.xml` in the same location as the test class and load bean definitions from there if found.
         
 3. use `@Autowired` to inject beans to be tested.
 
 
-**Another way** to access the application contect is by extending the **TestContext** support class specific to JUnit: `AbstractJUnit4SpringContextTests`. This class implements the `ApplicationContextAware` interface.
+**Another way** to access the application contect is by extending the **TestContext** support class specific to JUnit: `AbstractJUnit4SpringContextTests`. This class implements the `ApplicationContextAware` interface, so you can extend it to get access to the managed application context via the protected field `applicationContext`.
 
 NB:
-1. Delete the private field applicationContext and its setter method. 
+1. You have to delete the private field applicationContext and its setter method. 
 2. Note that if you extend this support class, you don’t need to specify `SpringRunner` in the `@RunWith` annotation because this annotation is inherited from the parent.
 
 ```java

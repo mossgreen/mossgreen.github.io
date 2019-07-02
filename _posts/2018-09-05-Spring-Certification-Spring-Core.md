@@ -350,8 +350,8 @@ public class Baz implements InitializingBean, DisposableBean {
 
 1. Add `JUnit` and `Spring test` dependencies.
 2. Enable Spring in Tests
-    1. any Spring enabled test will run with the help of @RunWith(SpringJUnit4ClassRunner.class); the runner is essentially the entry-point to start using the Spring Test framework.
-    2. also need the @ContextConfiguration annotations to load the context configuration
+    1. any Spring enabled test will run with the help of `@RunWith(SpringJUnit4ClassRunner.class)`, the runner is essentially the entry-point to start using the Spring Test framework.
+    2. also need the `@ContextConfiguration` annotations to load the context configuration
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -882,9 +882,12 @@ public class MovieRecommender {
   2. Spring framework provides `ReflectionTestUtils`
 
 ## How does the @Qualifier annotation complement the use of @Autowired?
+
+When you place the `@Qualifier` annotation together with the `@Autowired` and `@Bean` annotations, autowiring behavior turns into **byName** mode.
+
 `@Qualifier` used at 3 locations: 
 
-1. **Inject Points**. The most basic use of the @Qualifier annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
+1. **Inject Points**. The most basic use of the `@Qualifier` annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
 
 2. **Bean Definitions**. This will assign a qualifier to the bean and the same qualifier can later be used at an injection point to inject the bean in question.
 
@@ -893,11 +896,11 @@ public class MovieRecommender {
 ```java
 public class MovieRecommender {
   @Autowired
-  @Qualifier("main") 
+  @Qualifier("main")  // Inject Points
   private MovieCatalog movieCatalog;
 }
 
-// use qualifier
+// use qualifier as method parameter
 public class MovieRecommender {
 
   private MovieCatalog movieCatalog;

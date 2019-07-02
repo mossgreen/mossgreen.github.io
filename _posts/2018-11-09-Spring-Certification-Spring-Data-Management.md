@@ -183,6 +183,7 @@ public DataSource dataSource() {
 
 
 ## What is the Template design pattern.
+
 - Use abstract methods for the different steps, subclasses define all steps
 - Alternatively, the class may define default implementations of the different steps of the algorithm, allowing subclasses to customize only selected methods as desired.
 - In order to communicate with DB, some default methods includes:
@@ -191,7 +192,8 @@ public DataSource dataSource() {
   - handling excetions
   - clean up and release resource
 
-### what is the JDBC template?
+### What is the JDBC template?
+
 The Spring JdbcTemplate simplifies the use of JDBC by implementing common workflows for **querying**, **updating**, **statement execution** etc. Benefits are:
 - Simplification: reduces boilerplate code for operations
 - Handle exceptions
@@ -199,6 +201,18 @@ The Spring JdbcTemplate simplifies the use of JDBC by implementing common workfl
 - Avoids common mistake: release connections
 - Allows customization, it's template design pattern
 - Thread safe
+
+About JdbcTemplate
+
+- JdbcTemplate works with queries that specify parameters using the `'?'` placeholder.
+
+- Use `queryForObject` when it is expected that execution of the query will return a **single result**.
+
+- Use `RowMapper<T>` when each row of the ResultSet maps to a domain object.
+
+• Use `RowCallbackHandler` when **no value** should be returned.
+
+• Use `ResultSetExtractor<T>` when **multiple rows in the ResultSet map to a single object**.
 
 ## What is a callback? 
 A callback is code or reference to a piece of code that is passed as an argument to a method that, at some point during the execution of the methods, will call the code passed as an argument.
@@ -422,17 +436,19 @@ Spring’s core transaction management abstraction is based on the interface **P
 
 The PlatformTransactionManager interface provides three methods for working with transactions:
 
+1. `getTransaction()`: Return a currently active transaction or create a new one, according to the specified propagation behavior.
+2. `commit()`: Commit the given transaction, with regard to its status
+3. `rollback`: Perform a rollback of the given transaction
+
 ```java
 Public interface PlatformTransactionManager(){  
-    // Return a currently active transaction or create a new one, according to the specified propagation behavior
-    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; 
-    
-    // Commit the given transaction, with regard to its status
-    Void commit(TransactionStatus status) throws TransactionException;  
-    
-    // Perform a rollback of the given transaction
-    Void rollback(TransactionStatus status) throws TransactionException;  
-    } 
+
+  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException; 
+  
+  Void commit(TransactionStatus status) throws TransactionException;  
+  
+  Void rollback(TransactionStatus status) throws TransactionException;  
+} 
 ```
 
 Spring has several built-in implementations of this interface for use with different transaction management APIs.
@@ -481,11 +497,11 @@ In Spring, there are five isolation values that are defined in the  `org.springf
 
 - `ISOLATION_DEFAULT`: DB default
 
-- `ISOLATION_READ_UNCOMMITED`: It allows this transaction to see data modified by other uncommitted transactions. **Dirty reads**. 
+- `ISOLATION_READ_UNCOMMITED`: It allows this transaction to see data modified by other uncommitted transactions. **Dirty reads**, **NonRepeatable Read** and **Phantom Read**.
 
-- `ISOLATION_READ_COMMITED`: Default for most dbs. It ensures that other transactions are not able to read data that has not been committed by other transactions. However, the data that was read by one transaction can be updated by other transactions.
+- `ISOLATION_READ_COMMITED`: Default for most dbs. It ensures that other transactions are not able to read data that has not been committed by other transactions. However, the data that was read by one transaction can be updated by other transactions. **NonRepeatable Read** and **Phantom Read**.
 
-- `ISOLATION_REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **No dirty reads**, and **can repeatable read**
+- `ISOLATION_REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **Phantom Read**.
 
 - `ISOLATION_SERIALIZABLE`: most restrictive, read and write locks.
 

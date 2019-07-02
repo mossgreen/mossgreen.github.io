@@ -85,6 +85,26 @@ assert(authentication.isAuthenticated);
 
 `/admin/**` matches any path starting with `/admin`.
 
+The `antMatcher(…)` method is the equivalent of the `<intercept-url.../>` element from XML, and equivalent methods are available to replace the configuration for the login form, logout URL configuration, and CSRF token support.
+
+```xml
+<!--mvc-security.xml-->
+<http auto-config="true" use-expressions="true">
+  <intercept-url pattern="/users/show/*" access="hasRole(’ADMIN’)"/> 
+</http>
+```
+```java
+//or SecurityConfig.java 
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      .authorizeRequests() 
+      .antMatchers("/users/show/*")
+      .hasRole("ADMIN") ...
+  }
+}
+```
 
 ## Why is an mvcMatcher more secure than an antMatcher?
 
@@ -101,8 +121,9 @@ assert(authentication.isAuthenticated);
 
 ## Does Spring Security support password hashing? What is salting?
 
-- Spring Security uses **PasswordEncoder** for encoding passwords. This interface has a Md5PasswordEncoder that allows for obtaining hashes of the password - that will be persisted.
-- **Salting** is appending a  random string to the hash to prevent hackers from matching with a hash from the standard dictionary of hashes.
+Spring Security uses **PasswordEncoder** for encoding passwords. This interface has a `Md5PasswordEncoder` that allows for obtaining hashes of the password - that will be persisted.
+
+**Salting** is appending a  random string to the hash to prevent hackers from matching with a hash from the standard dictionary of hashes.
 
 
 ## Why do you need method security? What type of object is typically secured at the method level.
@@ -251,23 +272,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 Spring Security **Taglibs** provides basic support for accessing security information.
 
-```xml
-<-- before use, need to import the taglib at the top of our JSP file: -->
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+Enable it:
+1. Add `spring‐security‐taglibs` dependency.
+2. Declare it in the JSP page   
+    ```jsp
+    <-- before use, need to import the taglib at the top of our JSP file: -->
+    <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+    ```
+**Tags**
+1. Authorize Tag   
+The authorize tag is used to determine whether the content written between the `<sec:authorize>` tags should be evaluated by the JSP. It can be used to display individual HTML elements—such as buttons—in the page, according to the granted authorities of the current user.
+    - **url** attribute
+    - `ifAllGranted`, `ifNotGranted` and `ifAnyGranted` were recently **deprecated** in favor of access attribute.
+    ```jsp
+    <sec:authorize ifAllGranted="ROLE_EDITOR"> 
+      <a href="editor.jsp">Editors only</a> 
+    </sec:authorize>
+    
+    <sec:authorize access="!isAuthenticated()">
+      Login
+    </sec:authorize>
+    ```
 
-
-<sec:authorize access="!isAuthenticated()">
-  Login
-</sec:authorize>
-
-<sec:authorize access="hasRole('ADMIN')">
-  Manage Users
-</sec:authorize>
-
-<sec:authorize access="isAuthenticated()">
-    Welcome Back, <sec:authentication property="name"/>
-</sec:authorize>
-```
+2. authenticate tag is `authentication`
+The `authenticate` tag is used to access the contents of the current Authentication token in **SecurityContext**. It can be used to display information about the current user in the page.
+    ```jsp
+    <sec:authentication property="principal.username"/>
+    
+    <sec:authorize access="isAuthenticated()">
+        Welcome Back, <sec:authentication property="name"/>
+    </sec:authorize>
+    ```
 
 
 
