@@ -235,7 +235,7 @@ public class UserServiceImpl implements UserService {
 
 ## Why do you need the intercept-url?
 
-The paths defined as values for the pattern attribute are pieces of URLs defined using ANT style paths. The URLs that match them are secured and verified according to rules defined by the <intercept-url …/> elements.
+The paths defined as values for the pattern attribute are pieces of URLs defined using ANT style paths. The URLs that match them are secured and verified according to rules defined by the `<intercept-url …/>` elements.
 
 It is used to define a URL for the requests we want to have some security constraints.
 

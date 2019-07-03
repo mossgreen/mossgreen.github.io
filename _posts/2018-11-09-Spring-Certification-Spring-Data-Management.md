@@ -292,11 +292,17 @@ Tansaction enforces ACID principle:
 Yes, transaction management is a cross-cutting concern. 
 
 **Declarative transaction management**.  
-**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. It's **non-invasive**.
-- `org.springframework.transaction.interceptor. TransactionInterceptor` 
-- in conjunction with **an implementation** of `org.springframework.transaction.PlatformTransactionManager`.
+**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. It's **non-invasive**. AOP proxies use two infrastructure beans for this:
+1. `TransactionInterceptor` 
+2. An implementation of `PlatformTransactionManager` interface. E.g., 
+    1. DataSourceTransactionManager
+    2. HibernateTransactionManager
+    3. JpaTransactionManager
+    4. JtaTransactionManager
+    5. WebLogicJtaTransactionManager
+    6. etc
 
-Under the hood: an internal infrastructure Spring-specific bean of type `org.springframework.aop.framework. autoproxy.InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
+Under the hood: an internal infrastructure Spring-specific bean of type `InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
   
 **Programmatic transaction management**   
 Although it's a little more tedious to use, it **gives you full control** over the transaction management code. 
@@ -345,57 +351,41 @@ throw ex; } txManager.commit(status);
 
 ## How are you going to define a transaction in Spring?
 
-1. **Configure transaction management support**: add a declaration of a bean of type `org.springframework.jdbc.datasource.DataSourceTransactionManager`.
+1. **Configure transaction management support**
+    1. Using XML and activating it with `<tx:annotation-driven ../>` 
+    ```xml
+    <beans ...>
+      <bean id="transactionManager"  
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+        <property name="dataSource" ref="dataSource"/>
+      </bean>
+    </bean>
+    ```
+    2. Using Java Configuration and enable it with `@EnableTransactionManagement`
+    ```java
+    public class TestDataConfig {
+      @Bean 
+      public PlatformTransactionManager txManager(){ 
+        return new DataSourceTransactionManager(dataSource()); 
+      } 
+    }
+    ```
+    ```java
+    @Configuration 
+    @EnableTransactionManagement 
+    @ComponentScan(basePackages = {"com.ps.repos.impl", "com.ps.services.impl"}) 
+    public class AppConfig { }
+    ```
+2. Declare transactional methods using `@Transactional` 
 
 ```java
-public class TestDataConfig {
-
-  @Bean 
-  public PlatformTransactionManager txManager(){ 
-    return new DataSourceTransactionManager(dataSource()); 
+@Service 
+public class UserServiceImpl implements UserService { 
+  @Transactional(propagation = Propagation.REQUIRED, readOnly= true) 
+  @Override 
+  public User findById(Long id) { 
+    return userRepo.findById(id); 
   } 
-}
-```
-
-2. And we activate it with the `@EnableTransactionManagement` on `@Configuration` class.
-
-```java
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-@Configuration 
-@EnableTransactionManagement 
-@ComponentScan(basePackages = {"com.ps.repos.impl", "com.ps.services.impl"}) 
-public class AppConfig { }
-```
-
-3. Declare transactional methods using `@Transactional` 
-
-```java
-@Configuration
-@EnableTransactionManagement
-public class AppConfig implements TransactionManagementConfigurer {
-
-   @Bean
-   public FooRepository fooRepository() {
-       // configure and return a class having @Transactional methods
-       return new JdbcFooRepository(dataSource());
-   }
-
-   @Bean
-   public DataSource dataSource() {
-       // configure and return the necessary JDBC DataSource
-   }
-
-   @Bean
-   public PlatformTransactionManager txManager() {
-       return new DataSourceTransactionManager(dataSource());
-   }
-
-  // bigger applications requiring more than one datasource, multiple transaction manager beans need to be declared.
-   @Override
-   public PlatformTransactionManager annotationDrivenTransactionManager() {
-       return txManager();
-   }
 }
 ```
 
@@ -451,32 +441,38 @@ Public interface PlatformTransactionManager(){
 } 
 ```
 
-Spring has several built-in implementations of this interface for use with different transaction management APIs.
+Implementations of `PlatformTransactionManager` interface. E.g., 
+1. DataSourceTransactionManager
+2. HibernateTransactionManager
+3. JpaTransactionManager
+4. JtaTransactionManager
+5. WebLogicJtaTransactionManager
+6. etc
 
+**Examples**
 1. Deal with only a single data source in your application and access it with **JDBC**, use `DataSourceTransactionManager`
-
-```java
-@Bean 
-public DataSourceTransactionManager transactionManager() {
-
-  DataSourceTransactionManager transactionManager = new DataSourceTransactionManager()
-  
-  transactionManager.setDataSource(dataSource());
-  
-  return transactionManager; 
-}
-```
+    ```java
+    @Bean 
+    public DataSourceTransactionManager transactionManager() {
+    
+      DataSourceTransactionManager transactionManager = new DataSourceTransactionManager()
+      
+      transactionManager.setDataSource(dataSource());
+      
+      return transactionManager; 
+    }
+    ```
 
 2. If you are using an object-relational mapping framework to access a database, you should choose a corresponding transaction manager for this framework, such as `HibernateTransactionManager` or `JpaTransactionManager`.
 
-```java
-@Bean
-public PlatformTransactionManager transactionManager() {
-    JpaTransactionManager transactionManager = new JpaTransactionManager();
-    transactionManager.setDataSource(dataSource());
-    return transactionManager;
-}
-```
+    ```java
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setDataSource(dataSource());
+        return transactionManager;
+    }
+    ```
 
 3. If you are using JTA for transaction management on a Java EE application server, you should use JtaTransactionManager to look up a transaction from the application server. Additionally, JtaTransactionManager is appropriate for distributed transactions (transactions that span multiple resources). Note that while it’s common to use a JTA transaction manager to integrate the application server’s transaction manager, there’s nothing stopping you from using a stand-alone JTA transaction manager such as Atomikos.
 

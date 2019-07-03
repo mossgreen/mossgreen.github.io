@@ -521,7 +521,6 @@ public class MovieRecommender {
 }
 ```
 
-
 ## Describe Component scanning
 
 Spring attacks automatic wiring from two angles:
@@ -665,8 +664,8 @@ Abstract base class that represents a source of `name:value` property pairs.
 A convenient and declarative mechanism for adding a PropertySource to Spring’s Environment.
 
 In the following example:
-1. See if "my.placeholder" is present in one of the property sources
-2. If not, check "default/path"
+1. See if `my.placeholder` is present in one of the property sources
+2. If not, check `default/path`
 3. Otherwise throw `IllegalArgumentException`
 
 ```java 
