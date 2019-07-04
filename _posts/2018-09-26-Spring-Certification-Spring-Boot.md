@@ -220,6 +220,26 @@ An **embedded container** is packaged in the application **JAR-file** and will c
 
 A **WAR-file**e will need to be deployed to a **web container**, such as Tomcat, before it can be used. The web container to which the WAR-file is deployed may contain other applications.
 
+**Deployable WAR**
+1. The first thing you do is change the `packaging` type.
+    - `<packaging>war</packaging>` in Maven
+    - `apply plugin: 'war'` in Gradle
+
+2. you need to add `spring-boot-starter-tomcat` as the provided scope so that it won’t get packaged inside the WAR file.
+
+3. Finally, you need to provide a `SpringBootServletInitializer` sub-class and override its `configure()` method. You can simply make your application’s entry point class extend `SpringBootServletInitializer`.
+    ```java
+    @SpringBootApplication 
+    public class SpringbootWebDemoApplication extends SpringBootServletInitializer {
+
+      @Override 
+      protected SpringApplicationBuilder configure(SpringApplicationBuilder application) { 
+        return application.sources(SpringbootWebDemoApplication.class); 
+      }
+    }
+    ```
+Now running the Maven/Gradle build tool will produce a WAR file that can be deployed on an external server.
+
 
 ## What embedded containers does Spring Boot support?
 - Tomcat,
@@ -324,28 +344,28 @@ Spring Boot checks for the presence of a `META-INF/spring.factories` file within
 
 1. Create a class annotated as `@Configuration` and register it.
 
-```java
-@Configuration
-public class MySQLAutoconfiguration {
-    //...
-}
-```
+    ```java
+    @Configuration
+    public class MySQLAutoconfiguration {
+        //...
+    }
+    ```
 
-2. The next mandatory step is registering the class as an auto-configuration candidate, by adding the name of the class under the key `org.springframework.boot.autoconfigure.EnableAutoConfiguration` in the standard file `resources/META-INF/spring.factories`:
+2. The next mandatory step is registering the class as an auto-configuration candidate, by adding the name of the class under the key `EnableAutoConfiguration` in the standard file `resources/META-INF/spring.factories`:
 
-```properties
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.baeldung.autoconfiguration.MySQLAutoconfiguration
-```
+    ```properties
+    org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.project.MySQLAutoconfiguration
+    ```
 
-If we want our auto-configuration class to have priority over other auto-configuration candidates, we can add the @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE) annotation.
+If we want our auto-configuration class to have priority over other auto-configuration candidates, we can add the `@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)` annotation.
 
-Auto-configuration is designed using classes and beans marked with @Conditional annotations so that the auto-configuration or specific parts of it can be replaced.
+Auto-configuration is designed using classes and beans marked with `@Conditional` annotations so that the auto-configuration or specific parts of it can be replaced.
 
 Note that the auto-configuration is only in effect if the auto-configured beans are not defined in the application. If you define your bean, then the default one will be overridden.
 
-Example, Using @Conditional Based on System Properties. implement the MySQLDatabaseTypeCondition condition to check whether the dbType system property is MYSQL
+Example, Using `@Conditional` Based on System Properties. implement the `MySQLDatabaseTypeCondition` condition to check whether the dbType system property is MYSQL
 
-MySQLDatabaseTypeCondition.java 
+**MySQLDatabaseTypeCondition.java** 
 
 ```java
 public class MySQLDatabaseTypeCondition implements Condition { 
@@ -398,19 +418,19 @@ For example, you may want to register a bean when:
 - A specific property value is configured in a configuration file
 - A specific system property is present/absent
 
-@ConditionalOnBean: Matches when the specified bean classes and/or names are already registered.
+`@ConditionalOnBean`: Matches when the specified bean classes and/or names are already registered.
 
-@ConditionalOnMissingBean: Matches when the specified bean classes and/or names are not already registered.
+`@ConditionalOnMissingBean`: Matches when the specified bean classes and/or names are not already registered.
 
-@ConditionalOnClass: Matches when the specified classes are on the classpath.
+`@ConditionalOnClass`: Matches when the specified classes are on the classpath.
 
-@ConditionalOnMissingClass:  Matches when the specified classes are not on the classpath.
+`@ConditionalOnMissingClass`:  Matches when the specified classes are not on the classpath.
 
-@ConditionalOnProperty: Matches when the specified properties have a specific value.
+`@ConditionalOnProperty`: Matches when the specified properties have a specific value.
 
-@ConditionalOnResource: Matches when the specified resources are on the classpath.
+`@ConditionalOnResource`: Matches when the specified resources are on the classpath.
 
-@ConditionalOnWebApplication: Matches when the application context is a web application context.
+`@ConditionalOnWebApplication`: Matches when the application context is a web application context.
 
 
 # Spring Boot Actuator

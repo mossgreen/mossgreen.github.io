@@ -24,7 +24,6 @@ Aims to help with separation of cross-cutting concerns to increase modularity.
 A **cross-cutting concern** is a functionality that is tangled with business code, which usually cannot be separated from the business logic.
 
 **Name three typical cross cutting concerns**
-
 - Auditing
 - Security
 - Transaction management
@@ -229,6 +228,10 @@ CGLIB Limitations
 - Class and Methods **cannot be `final`**
 - **Only public and protected methods** can be proxied
 - **It takes more time to create a proxy object**, althrought it has better performance
+
+NB:
+`aspectjweaver` and `aspectjrt` must be added to the application classpath in order to use Spring AOP.
+
 
 ## What visibility must Spring bean methods have to be proxied using Spring AOP?
 

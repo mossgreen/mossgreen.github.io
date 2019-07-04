@@ -257,41 +257,43 @@ public class WebInitializer implements WebApplicationInitializer {
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
 
+It’s important to understand the lifecycle of a Spring bean, because you may want to take advantage of some of the opportunities that Spring offers to customize how a bean is created.
+
+**Combining lifecycle mechanisms**
+1. JSR-250 `@PostConstruct` and `@PreDestroy` annotations
+2. the `InitializingBean` and `DisposableBean`. Beans can define callback methods, which can be invoked by the container **BeanPostProcessor** at specific points during their lifetime.
+3. custom `init()` and `destroy()` methods; 
+
+**Orders**
 1. Spring bean configuration is read and metadata in the form of a **BeanDefinition** object is created for each bean.
 
 2. All instances of **BeanFactoryPostProcessor** are invoked in sequence and are allowed an opportunity to alter the bean metadata.
 
 3. For each bean in the container, **starts creation phase**
     
-    1. The beans are **instantiated**: the bean factory is calling the **constructor** of each bean. If the bean is created using constructor dependency injection, the dependency bean is created first and then injected where needed.
+    1. The beans are **instantiated**: the bean factory is calling the **constructor** of each bean. If the bean is created using **constructor dependency injection**, the dependency bean is created first and then injected where needed.
     
-    2. **dependencies are injected**. For beans that are defined having dependencies **injected via setter**, this stage is separate from the instantiation stage.
+    2. **dependencies are injected vis setter**.
     
-    3. Now that the beans exist and the dependencies were provided, the preinitialization BeanPostProcessor infrastructure beans are consulted to see whether they want to call anything from this bean. These are Spring-specific infrastructure beans that perform bean modifications after they are created. The @PostConstruct annotation is registered by CommonAnnotationBeanPostProcessor, so this bean will call the method found annotated with @PostConstruct. This method is executed right after the bean has been constructed and before the class is put into service, 1 before the actual initialization of the bean (before afterPropertiesSet and init-method).
+    3. From this point. Instantiation is completed. Now, bean post process beans are invoked before initialization. The preinitialization **BeanPostProcessor** infrastructure beans are consulted to see whether they want to call anything from this bean. These are Spring-specific infrastructure beans that perform bean modifications after they are created. The `@PostConstruct` annotation method is called, which is registered by CommonAnnotationBeanPostProcessor.
     
-    4. The InitializingBean’s afterPropertiesSet is executed right after the dependencies are injected. The afterPropertiesSet() method is invoked by a BeanFactory after it has set all the bean properties supplied and has satisfied BeanFactoryAware and ApplicationContextAware.
+    4. The InitializingBean’s `afterPropertiesSet()` method is invoked by a BeanFactory after it has set all the bean properties supplied and has satisfied BeanFactoryAware and ApplicationContextAware.
     
     5. The init-method attribute is executed last because this is the actual initialization method of the bean.
 
 4. Beans are being used
 
 5. Spring application context is to shut down, the beans in it will receive destruction callbacks in this order:
-    1. `@PreDestroy` method
-    2. Bean implemented `DisposableBean` interface
-    3. `destroy-method` in `<bean>`
-
-**Lifecycle callbacks**
-
-Beans can define callback methods, which can be invoked by the container at specific points during their lifetime.
-1. XML based
-2. JSR-250 Annotation
-3. Special interfaces. (not recommended)
+    1. `@PreDestroy`
+    2. `destroy()` as defined by the `DisposableBean` callback interface
+    3. A custom configured `destroy()` method
 
 **XML‐based configuration** `<bean>` elements have `init‐method` and `destroy‐method` attributes that accept method names in the bean class as attribute values.
-- The `init` method is invoked by the container **after** the bean is created, and its **properties are injected**.
-- The destroy method is invoked just before the end of a bean's lifetime.
-- Prototype‐scoped beans, on the other hand, are not tracked after their instantiation; therefore, their destroy methods cannot be invoked.
-- **Method names can be anything**. There is no restriction; however, methods should **return void** and **accept nothing as input arguments**. **They can throw any type of exception.**
+    - The `init` method is invoked by the container **after** the bean is created, and its **properties are injected**.
+    - The destroy method is invoked just before the end of a bean's lifetime.
+    - Prototype‐scoped beans, on the other hand, are not tracked after their instantiation; therefore, their destroy methods cannot be invoked.
+    - **Method names can be anything**. There is no restriction; however, methods should **return void** and **accept nothing as input arguments**. **They can throw any type of exception.**
+
 ```java
 public class Foo {
 
@@ -520,6 +522,12 @@ public class MovieRecommender {
   }
 }
 ```
+
+**Limitations and disadvantages of autowiring**
+1. Explicit dependencies in property and constructor-arg settings always override autowiring.
+2. Autowiring is less exact than explicit wiring.
+3. Wiring information may not be available to tools that may generate documentation from a Spring container.
+4. Multiple bean definitions within the container may match the type specified by the setter method or constructor argument to be autowired.
 
 ## Describe Component scanning
 
