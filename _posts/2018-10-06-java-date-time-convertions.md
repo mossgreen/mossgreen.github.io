@@ -1,5 +1,5 @@
 ---
-title: Converting Java Date Time 
+title: Convertiio Java Date Time 
 search: true
 tags: 
   - Java
@@ -8,10 +8,12 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Comes and goes with Java Date Time.
 
-## Date Time to long value
-1. Easy way
+Converting Java Date Time painlessly.
+
+## To Long value from anything
+
+1. Easiest way
     ```java
     System.currentTimeMillis();
     ```  
@@ -23,23 +25,35 @@ Comes and goes with Java Date Time.
     ```
 `new Date()`calls `System.currentTimeMillis()` inside.
 
-3. Calendar to long  
+3. Calendar to Long  
     ```java
     Calendar c = Calendar.getInstance();
     long timestamp = c.getTimeInMillis();
     ```
 
-4. Instant to long
+4. Instant to Long
+  - Since Java 8. 
+  - Returns the number of milliseconds since the epoch of 1970-01-01T00:00:00Z.
     ```java
     Instant.now().toEpochMilli();
     ```
-- Since Java 8. 
-- Returns the number of milliseconds since the epoch of 1970-01-01T00:00:00Z.
 
-5. Java 8 LocalDateTime
+5. Java 8 LocalDate
     ```java
-    LocalDateTime.now().toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();
+    LocalDate.now()
+      .atStartOfDay(ZoneId.systemDefault())
+      .toInstant()
+      .toEpochMilli();
     ```
+6. Java 8 LocalDateTime
+    ```java
+    LocalDateTime.now()
+      .toInstant(ZoneOffset.ofTotalSeconds(0))
+      .toEpochMilli();
+    ```
+7. Sql timestamp to Long
+
+//todo 
 
 ## Long value to Date Time
 
@@ -60,17 +74,19 @@ Comes and goes with Java Date Time.
   ```java
   Timestamp timestamp = new Timestamp(longValue) ;
   ```
-5. To java 8 LocalDateTime  
+5. To java 8 LocalDate  
+    ```java
+    LocalDate date = Instant.ofEpochMilli(longValue)
+      .atZone(ZoneId.systemDefault())
+      .toLocalDate();
+    ```
+6. To java 8 LocalDateTime  
     ```java
     LocalDateTime date = LocalDateTime
         .ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());
-    
-    LocalDate date = Instant.ofEpochMilli(longValue)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate();
     ```
 
-## Date Time to String
+## Date time to String
 
 1. Old way, use SimpleDateFormat
   ```java
@@ -123,7 +139,6 @@ System.out.println(day);
   int monthValue = LocalDate.now().getMonth().getValue();
   int dayOfMonth = LocalDate.now().getDayOfMonth();
   ```
-
 
 ## (to be continued...)
 - java.sql.Timestamp
