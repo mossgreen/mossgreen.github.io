@@ -15,22 +15,23 @@ Spring Data Management in Spring Professional Certification (16%).
 ## What is the difference between checked and unchecked exceptions?
 
 **Checked exceptions**: Java compiler **requires** to handle. E.g., `Exception`
-**Unchecked exceptions**: compiler not require to declare. E.g., `RuntimeException`
+**Unchecked exceptions**: compiler not require to declare. E.g., `RuntimeException`.
 
-### Why does Spring prefer unchecked exceptions?
+**Why does Spring prefer unchecked exceptions?**
+
 Checked exceptions reqires handling, result in **cluttered code** and **unnecessary coupling**. 
-E.g., when `SQLException` happens, nothing you can do. 
+Unchecked exceptions are non recoverable exceptions, should not let developer to handle. E.g., when `SQLException` happens, nothing you can do.
 
-### What is the data access exception hierarchy?
+**What is the data access exception hierarchy?**
 
 Each data access technology has its own exception types, such as 
 - **SQLException** for direct JDBC access, 
 - **HibernateException** used by native Hibernate, or 
 - **EntityException** used by JPA 
 
-what Spring does is to handle technology‐specific exceptions and translate them into its own exception hierarchy. The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
+What Spring does is to handle technology‐specific exceptions and translate them into its own exception hierarchy. The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
 
-Spring's `DataAccessException` and sub classes are unchecked exception. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
+Spring's `DataAccessException` and sub classes are **unchecked exceptions**. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
 
 1. **non-transient** exceptions, `org.springframework.dao.NonTransientDataAccessException`
     - which means that retrying the operation will fail unless the originating cause is fixed.
@@ -173,13 +174,7 @@ public DataSource dataSource() {
 
 **In SpringBoot, obtain a DataSource from embedded data source**
 
-```xml
-<dependency> 
-  <groupId>org.apache.derby</groupId> 
-  <artifactId>derby</artifactId> 
-  <scope>runtime</scope> 
-</dependency>
-```
+// todo
 
 
 ## What is the Template design pattern.
@@ -284,15 +279,16 @@ Tansaction enforces ACID principle:
 - **Durability**: A system has durability when you receive a successful commit message, and you can be sure that your changes are reflected to the system and will survive any system failure that might occur after that time. Basically, when you commit, your changes are permanent and won’t be lost.
 
 ### What is the difference between a local and a global transaction?
-- **Local transation** plays one single resource: db, or message broker
-- **Global transaction** allows to span multiple transactional resources, like distributed transaction management.
-  - Global transactions requires a dedicated transaction manager.
+- **Local transactions** are resource-specic, such as a transaction associated with a JDBC connection.
+- **Global transaction** allows to span multiple transactional resources, typically relational databases and message queues.
+- Spring resolves the disadvantages of global and local transactions. It lets application developers use a **consistent programming model in any environment**.
 
 ## Is a transaction a cross cutting concern? How is it implemented by Spring?
+
 Yes, transaction management is a cross-cutting concern. 
 
-**Declarative transaction management**.  
-**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. It's **non-invasive**. AOP proxies use two infrastructure beans for this:
+**Declarative transaction management** is **non-invasive**.
+**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. AOP proxies use two infrastructure beans for this:
 1. `TransactionInterceptor` 
 2. An implementation of `PlatformTransactionManager` interface. E.g., 
     1. DataSourceTransactionManager
@@ -378,18 +374,21 @@ throw ex; } txManager.commit(status);
     ```
 2. Declare transactional methods using `@Transactional` 
 
-```java
-@Service 
-public class UserServiceImpl implements UserService { 
-  @Transactional(propagation = Propagation.REQUIRED, readOnly= true) 
-  @Override 
-  public User findById(Long id) { 
-    return userRepo.findById(id); 
-  } 
-}
-```
+    ```java
+    @Service 
+    public class UserServiceImpl implements UserService { 
+      @Transactional(propagation = Propagation.REQUIRED, readOnly= true) 
+      @Override 
+      public User findById(Long id) { 
+        return userRepo.findById(id); 
+      } 
+    }
+    ```
 
 ## What does `@Transactional` do? 
+
+todo: Annotation driven transaction settings including: mode, proxyTargetClass, order
+
 `@Transactional` is metadata that specifies that an **interface**, **class**, or **method** **must** have transactional semantics.
 
 A list of attributes of `@Transactional`:
@@ -504,6 +503,7 @@ In Spring, there are five isolation values that are defined in the  `org.springf
 Higher isolation levels is a reduction of the ability of multiple users and systems concurrently accessing to the resources.
 
 ## What is @EnableTransactionManagement for?
+
 Both `@EnableTransactionManagement` and `<tx:annotation-driven ../>` enable all infrastructure beans necessary **for supporting transactional execution**.
 
 Components registered when the `@EnableTransactionManagement` annotation is used are:
@@ -513,6 +513,7 @@ Components registered when the `@EnableTransactionManagement` annotation is used
 `@EnableTransactionManagement` and `<tx:annotation-driven/>` only looks for `@Transactional` on beans **in the same application context they are defined in**. This means that, if you put annotation driven configuration in a `WebApplicationContext` for a `DispatcherServlet` it only checks for `@Transactional` beans **in your controllers, and not your services**.
 
 ## What does transaction propagation mean?
+
 It is to define behavior of the target methods: if they should be executed in an existing or new transaction, or no transaction at all.
 
 `Spring org.springframework. transaction.annotation.Propagation` enum:
@@ -536,15 +537,27 @@ public class UserServiceImpl implements UserService {
 ```
 
 ## What happens if one @Transactional annotated method is calling another @Transactional annotated method on the same object instance?
+
 As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean effectively bypasses the proxy, thus the second method will be excuted in the same transaction with the first. 
+
 
 ## Where can the @Transactional annotation be used? What is a typical usage if you put it at class level?
 
-- `@Transactional` can be used to interface, class and method. However, Spring rocommends using it only to concrete class or methods.
-- `@Transactional` on interface works only using interface-based proxies.
-- In Spring AOP proxies, **only public** @Transactional methods work. Protect or private method won't work, however no error thrown.
+**Class level**: 
+  1. default for **all methods** of the declaring class 
+  2. method level transactional can override some attributes
+  2. its **subclasses**
+  3. **does not** apply to ancestor classes up the class hierarchy
 
-In this case, **all the methods in the class become transactional**, and all properties defined for the transaction are inherited from the `@Transactional` class level definition, but they can be **overridden** by a `@Transactional` defined at the method level.
+**Method level**:
+  1. Only Public method
+  2. protected, private or package-visible methods with the @Transactional annotation, no error is raised, but the annotated method does not exhibit the congured transactional settings.
+  3. If you need to annotate non-public methods, consider using AspectJ
+
+**Interface**:
+  1. this works only as you would expect it to if you use interface-based proxies
+  2. recommends that you annotate only concrete classes and methods
+
 
 ## What does declarative transaction management mean?
 
@@ -599,8 +612,8 @@ When you use the `@RunWith(SpringJUnit4ClassRunner.class)` in JUnit 4 or `@Exten
 - JDBC AutoCommit **can be disabled** by calling the `setAutoCommit()` to false on a JDBC connection.
 
 ## What does JPA stand for - what about ORM?
-JPA: **Java Persistence API**.
 
+JPA: **Java Persistence API**.
 ORM: **Object-Relational Mapping**. Mappingg a java entity to SQL database table.
 
 JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
