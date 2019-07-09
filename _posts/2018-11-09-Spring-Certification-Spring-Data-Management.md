@@ -300,50 +300,18 @@ Yes, transaction management is a cross-cutting concern.
 
 Under the hood: an internal infrastructure Spring-specific bean of type `InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
   
-**Programmatic transaction management**   
-Although it's a little more tedious to use, it **gives you full control** over the transaction management code. 
+**Programmatic transaction management**
+
 Spring Framework provides two ways of implemeting Programmatic Transaction:
 
-1. `TransactionTemplate` class, you just have to encapsulate your code block in a callback class that implements the TransactionCallback<T> interface and pass it to the TransactionTemplate’s execute method for execution.
-2. Using a PlatformTransactionManager implementation directly.
+1. The TransactionTemplate. 
+    1. Spring team recommends.
+    2. TransactionTemplate adopts the same approach as other Spring templates, such as the JdbcTemplate.
+    3. It uses a callback approach. If there is no return value, use `TransactionCallbackWithoutResult`
 
-```java
-public class TransactionalJdbcBookShop extends JdbcDaoSupport implements BookShop {
-
-  private PlatformTransactionManager transactionManager;
-
-  public void setTransactionManager(PlatformTransactionManager transactionManager) { 
-  this.transactionManager = transactionManager; 
-  }
-  
-  public void purchase(final String isbn, final String username) { 
-  
-    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-  
-    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-  
-      protected void doInTransactionWithoutResult( TransactionStatus status) {
-  
-        int price = getJdbcTemplate().queryForObject( "SELECT PRICE FROM BOOK WHERE ISBN = ?", Integer.class, isbn);
-    
-        getJdbcTemplate().update( "UPDATE BOOK_STOCK SET STOCK = STOCK - 1 WHERE ISBN = ?", isbn );
-    
-        getJdbcTemplate().update( "UPDATE ACCOUNT SET BALANCE = BALANCE - ? WHERE USERNAME = ?", price, username);
-      }
-    });
-  }
-}
-```
-
-```
-DefaultTransactionDefinition def = new DefaultTransactionDefinition(); // explicitly setting the transaction name is something that can only be done programmatically def.setName("SomeTxName"); def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED); TransactionStatus status = txManager.getTransaction(def); try {
-
-// execute your business logic here } catch (MyException ex) {
-
-txManager.rollback(status);
-
-throw ex; } txManager.commit(status);
-```
+2. Using a `PlatformTransactionManager` implementation directly.
+    1. First, pass the implementation of the `PlatformTransactionManager` you use to your bean through a bean reference. 
+    2. Then, by using the `TransactionDefinition` and `TransactionStatus` objects, you can initiate transactions, roll back, and commit. 
 
 ## How are you going to define a transaction in Spring?
 
@@ -516,13 +484,20 @@ Components registered when the `@EnableTransactionManagement` annotation is used
 
 It is to define behavior of the target methods: if they should be executed in an existing or new transaction, or no transaction at all.
 
-`Spring org.springframework. transaction.annotation.Propagation` enum:
-1. REQUIRED: an existing transaction will be used or a new one will be **created** to execute the method annotated with `@Transactional(propagation = Propagation.REQUIRED)`
-2. REQUIRES_NEW: always new. If a current transaction exists, it will be **suspended**.
-3. NESTED. Use existing one. Otherwaise **create** a new one.
+Spring `Propagation` enum:
+
+1. `PROPAGATION_REQUIRED`: enforces a physical transaction. An existing transaction will be used or a new one will be **created** to execute.  `@Transactional(propagation = Propagation.REQUIRED)`
+
+2. `PROPAGATION_REQUIRES_NEW`: always new. If a current transaction exists, it will be **suspended**.
+
+3. `PROPAGATION_NESTED`. Use existing one. Otherwaise **create** a new one. This setting is typically mapped onto JDBC savepoints, so it works **only with JDBC** resource transactions. See Spring’s `DataSourceTransactionManager` .
+
 4. MANDATORY. Use existing one. Otherwaise throw **exception**.
+
 5. NEVER. **must not** be executed within a transaction. If a transaction exists, an exception will be thrown.
+
 6. NOT_SUPPORTED: no transaction is used.If a transaction exists, it will be **suspended**.
+
 7. SUPPORTS. If existing, use it. Otherwise, it's ok.
 
 ```java
@@ -561,13 +536,15 @@ As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean 
 
 ## What does declarative transaction management mean?
 
-For declarative transaction management, Spring only expects you to specify which methods of your Spring‐managed beans will be transactional. 
+Programmatic transaction management is a good idea only if:
+1. Has only a small number of transactional operations. For example, if you have a web application that requires transactions only for certain update operations, you may not want to set up transactional proxies by using Spring or any other technology.
+2. Being able to set the transaction name explicitly.
 
-You can do this via **Java annotations** or from within **XML** configuration files. 
+For declarative transaction management:
+1. It keeps transaction management out of business logic.
+2. Easy to configure. Use **Java annotations** or **XML** configuration files. 
 
 Basically, when those specified methods are called, Spring begins a new transaction, and when the method returns without any exception it commits the transaction; otherwise, it rolls back. Hence, you don’t have to write a single line of transaction demarcation code in your method bodies.
-
-Spring, with its declarative transaction management mechanism, actually helps you define those layers and separates them from each other while each layer solely focuses on its own job without exposing technology‐specific details to upper layers.
 
 **How It Works**
 1. The `@EnableTransactionManagement` annotation activates annotation‐based declarative transaction management.
