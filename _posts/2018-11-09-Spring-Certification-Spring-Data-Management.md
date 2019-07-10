@@ -53,22 +53,30 @@ Spring's `DataAccessException` and sub classes are **unchecked exceptions**. The
 Spring obtains a connection to the database through a `DataSource`. 
 
 - A DataSource is part of the **JDBC specification** and is a generalized connection factory. 
-- It allows a container or a framework to hide connection pooling and transaction management issues from the application code. Implementations in the Spring distribution are meant **only for testing purposes and do not provide pooling**.
-- The difference between a **DataSource** and a **Connection** is that a **DataSource** provides and manages Connections.
+- It allows a container or a framework to hide connection pooling and transaction management issues from the application code.
+- **DataSource** VS **Connection**: DataSource provides and manages Connections.
 
 Spring offers several options for configuring data-source beans in your Spring application, including:
 1. Data sources that are defined by a **JDBC driver**
 2. Data sources that are looked up by **JNDI**
-3. Data sources that pool connections
+3. Data sources that connection pool implementation. Popular implementations are Apache Jakarta Commons DBCP and C3P0
 
-Some DataSources:
-1. DataSourceUtils: is a convenient and powerful helper class that provides static methods to obtain connections from JNDI and close connections if necessary.
-2. SmartDataSource: use when you know that you will reuse a connection.
-3. AbstractDataSource: you extend the AbstractDataSource class if you are writing your own DataSource implementation.
-4. SingleConnectionDataSource: wraps a single Connection that is **not closed after each use**. Obviously, this is **not multi-threading capable**.
-5. The DriverManagerDataSource class is an implementation of the standard DataSource interface that configures a plain JDBC driver through bean properties, and returns a new Connection every time.
+**Some DataSources**:
+1. `DataSourceUtils`: is a convenient and powerful helper class that provides static methods to obtain connections from JNDI and close connections if necessary.
 
-`DriverManagerDataSource` is the simplest implementation of a DataSource, it **doesn’t support database connection pooling** makes this class unsuitable for anything other than testing.
+2. `SmartDataSource`: use when you know that you will **reuse a connection**.
+
+3. Extending `AbstractDataSource`: you extend the AbstractDataSource class if you are writing **your own DataSource implementation**.
+
+4. `SingleConnectionDataSource`: wraps a single Connection that is **not closed after each use**. Obviously, this is **not multi-threading capable**. In contrast to `DriverManagerDataSource`, it reuses the same connection all the time, avoiding excessive creation of physical connections.
+
+5. `DriverManagerDataSource`: an implementation of the standard DataSource interface that configures a plain JDBC driver through bean properties, and returns a new Connection every time.
+
+**DriverManagerDataSource**
+- the simplest implementation of a DataSource, 
+- it **doesn’t support database connection pooling** so it performs poorly when multiple requests for a connection are made
+- unsuitable for anything other than testing.
+
 ```java
 DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.hsqldb.jdbcDriver"); dataSource.setUrl("jdbc:hsqldb:hsql://localhost:"); 
 dataSource.setUsername("sa"); 
@@ -156,9 +164,15 @@ spring.datasource.username=haha spring.datasource.password=secret
 ```
 
 ### Using an embedded data source
-- An embedded database runs as part of your application instead of as a separate database server that your application connects to. 
-- Although it’s **not very useful in production** settings, an embedded database is a perfect choice **for development and testing** purposes. 
-- That’s because it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+
+The `org.springframework.jdbc.datasource.embedded` package provides support for embedded Java database engines. Support for **HSQL**, **H2**, and **Derby** is provided natively. 
+
+**Why use it?**
+An embedded database can be useful during the development phase of a project because of its lightweight nature. Benefits include ease of configuration, quick startup time, testability, and the ability to rapidly evolve your SQL during development. it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+
+**Creating an Embedded Database Programmatically**
+
+todo
 
 ```java
 @Bean 
@@ -197,7 +211,7 @@ The Spring JdbcTemplate simplifies the use of JDBC by implementing common workfl
 - Allows customization, it's template design pattern
 - Thread safe
 
-About JdbcTemplate
+**JdbcTemplate**
 
 - JdbcTemplate works with queries that specify parameters using the `'?'` placeholder.
 
@@ -208,6 +222,44 @@ About JdbcTemplate
 • Use `RowCallbackHandler` when **no value** should be returned.
 
 • Use `ResultSetExtractor<T>` when **multiple rows in the ResultSet map to a single object**.
+
+**NamedParameterJdbcTemplate**
+The NamedParameterJdbcTemplate class adds support for programming JDBC statements by using named parameters, as opposed to programming JDBC statements using only classic placeholder ( '?' ) arguments.
+
+```java
+public int countOfActorsByFirstName(String firstName) { 
+
+  String sql = "select count(*) from T_ACTOR where first_name = :first_name"; 
+  SqlParameterSource namedParameters = new MapSqlParameterSource("first_name", firstName); 
+  return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class);
+}
+
+//Map -based style
+public int countOfActorsByFirstName(String firstName) { 
+
+  String sql = "select count(*) from T_ACTOR where first_name = :first_name"; 
+  Map<String, String> namedParameters = Collections.singletonMap("first_name", firstName); 
+  return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class);
+}
+
+// BeanPropertySqlParameterSource
+public int countOfActors(Actor exampleActor) {
+
+  String sql = "select count(*) from T_ACTOR where first_name = :firstName and last_name = :lastName";
+  
+  SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(exampleActor);
+  
+  return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class); }
+```
+
+**SimpleJdbc Classes**
+1. fluid style
+2. easy of retrieving Auto-generated Keys
+3. able to call a Stored Procedure
+4. define SqlParameters
+5. calling a Stored Function
+
+
 
 ## What is a callback? 
 A callback is code or reference to a piece of code that is passed as an argument to a method that, at some point during the execution of the methods, will call the code passed as an argument.
