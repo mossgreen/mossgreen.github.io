@@ -165,30 +165,53 @@ spring.datasource.username=haha spring.datasource.password=secret
 
 ### Using an embedded data source
 
-The `org.springframework.jdbc.datasource.embedded` package provides support for embedded Java database engines. Support for **HSQL**, **H2**, and **Derby** is provided natively. 
+The `org.springframework.jdbc.datasource.embedded` package provides support for embedded Java database engines. Three **in-memory embedded database** that Spring supports: **HSQL**, **H2**, and **Derby**. 
 
-**Why use it?**
-An embedded database can be useful during the development phase of a project because of its lightweight nature. Benefits include ease of configuration, quick startup time, testability, and the ability to rapidly evolve your SQL during development. it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+**Why Use an Embedded Database?**
+1. During the **development phase** of a project, it's ease of configuration, quick startup time, testability
+
+2. The ability to rapidly **evolve your SQ**L during development. it allows you to populate your database with test data that’s reset **every time you restart** your application or run your tests.
 
 **Creating an Embedded Database Programmatically**
 
-todo
-
 ```java
-@Bean 
-public DataSource dataSource() { 
+@Configuration 
+public class DataSourceConfig {
 
-  return new EmbeddedDatabaseBuilder() 
-    .setType(EmbeddedDatabaseType.H2) 
-    .addScript("classpath:schema.sql") 
-    .addScript("classpath:test-data.sql") 
-    .build(); 
+  @Bean 
+  public DataSource dataSource() {
+  
+    return new EmbeddedDatabaseBuilder()
+      .generateUniqueName(true)
+      .setType(H2)
+      .setScriptEncoding("UTF-8")
+      .ignoreFailedDrops(true)
+      .addScript("schema.sql")
+      .addScripts("user_data.sql", "country_data.sql")
+      .build();
+  }
 }
 ```
 
 **In SpringBoot, obtain a DataSource from embedded data source**
+- Spring Boot detects that you have the H2 database library in your application’s classpath, it will automatically configure an embedded H2 database. 
+- If JdbcTemplate is in the classpath, then it will also configure a JdbcTemplate bean for you.
 
-// todo
+```java
+@Bean 
+public DataSource dataSource() { 
+  return new EmbeddedDatabaseBuilder()
+    .setType(EmbeddedDatabaseType.H2)
+    .addScripts('schema.sql', 'data.sql')
+    .build(); 
+}
+
+//use embedded data source
+@Bean 
+public JdbcTemplate jdbcTemplate(DataSource dataSource) { 
+  return new JdbcTemplate(dataSource); 
+}
+```
 
 
 ## What is the Template design pattern.
@@ -642,8 +665,8 @@ When you use the `@RunWith(SpringJUnit4ClassRunner.class)` in JUnit 4 or `@Exten
 
 ## What does JPA stand for - what about ORM?
 
-JPA: **Java Persistence API**.
-ORM: **Object-Relational Mapping**. Mappingg a java entity to SQL database table.
+**JPA**: Java Persistence API.
+**ORM**: Object-Relational Mapping. Mappingg a java entity to SQL database table.
 
 JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
 
@@ -674,7 +697,7 @@ Both kinds of entity manager implement the same `EntityManager` interface.
     }
     ```
 
-See "Spring in Action" 4th, 11.2.
+todo See "Spring in Action" 4th, 11.2.
 
 JPA has two annotations to obtain container‐managed `EntityManagerFactory` or `EntityManager` instances within Java EE environments.
 
@@ -696,12 +719,17 @@ JPA has two annotations to obtain container‐managed `EntityManagerFactory` or 
   - JAP Query language to handle vendor spedific SQL
 
 **Benefits**  
-  - Developer no need to care about data persistence
-  - Facilitates implementing domain model pattern
-  - Caching. Reduce load and improve performance
-  - Lazy loading of data. Reduce memory usage nad increase ferformance.
+  - Easier testing. It's easier to test each piece of persistence-related code in isolation.
+  - Common data access exceptions. In `DataAccessException` hierarchy.
+  - General resource management. Spring offers effcient, easy, and safe handling of persistence resources. E.g., Spring makes it easy to create and bind a Session to the current thread transparently, by exposing a current Session through the Hibernate SessionFactory .
+  - Integrated transaction management. Declarative, aspect-oriented programming (AOP) style method interceptor.
   - Keep track of changes
   - Reduce code (and develop time)
+  - Lazy loading. As object graphs become more complex, you sometimes don’t want to fetch entire relationships immediately.
+  - Eager fetching. Eager fetching allows you to grab an entire object graph in one query.
+  - Cascading. Sometimes changes to a database table should result in changes to other tables as well
+  - Save you literally thousands of lines of code and hours of development time. 
+  - Lets you switch your focus from writing error-prone SQL code to addressing your application’s requirements.
   
 **Disadvantage**
   - Generated SQL Query low performance
