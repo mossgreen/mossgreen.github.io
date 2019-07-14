@@ -73,7 +73,7 @@ POJO is an acronym for Plain Old Java Object. The term was coined by Martin Fowl
 
 ## Java Bean VS Spring Bean
 
-1. Java Bean is maintend by JVM, Spring bean is managed by Spring IOC.
+1. Spring bean is managed by Spring IOC, Java Bean is not.
 2. Java Bean is always serializeable, Spring Bean doesn't need to.
 3. Java Bean must have a default no-arg constructor, Spring Bean doesn't need to.
 4. A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
