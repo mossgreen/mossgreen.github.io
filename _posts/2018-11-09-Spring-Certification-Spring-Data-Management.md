@@ -829,6 +829,24 @@ To use Spring Data components in a JPA project, a dependency on the package spri
 2. Provides all default **Spring beans** needed to use JPA.
 3. Provides a number of **default properties** related to persistence and JPA.
 
+**Disable Spring Data Auto Configuration in SrpingBoot**
+
+It's useful in testing.
+
+1. Disable Using Annotation
+```java
+@SpringBootApplication(exclude = {
+  DataSourceAutoConfiguration.class, 
+  DataSourceTransactionManagerAutoConfiguration.class, 
+  HibernateJpaAutoConfiguration.class})
+```
+2. Disable Using Property File
+```properties
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,
+org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,
+org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+```
+
 ## What is an "instant repository"? 
 (hint: recall Spring Data)
 

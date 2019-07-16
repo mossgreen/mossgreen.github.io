@@ -111,11 +111,47 @@ public interface ServletContextAware extends Aware {
 - `AnnotationConfigWebApplicationContext`: Loads a Spring web application context from one or more Java-based configuration classes
 - `XmlWebApplicationContext`: Loads context definitions from one or more XML files contained in a web application
 
+**Get Beans from container**
+1. Retrieving Bean by Name
+    1. throw `NoSuchBeanDefinitionException`
+    2. we have to cast it to the desired type
+    ```java
+    Object obj = context.getBean("User");
+    User = (User) obj;
+    ```
+
+2. Retrieving Bean by Name and Type
+    ```java
+    User user = context.getBean("user", User.class);
+    ```
+3. Retrieving Bean by Type
+    - `NoUniqueBeanDefinitionException`
+    ```java
+    User user = context.getBean(User.class);
+    ```
+4. Retrieving Bean by Name with Constructor Parameters. **prototype scope only**
+    - `BeanDefinitionStoreException`
+    ```java
+    User user = = (User) context.getBean("haha", age);
+    ```
+5. Retrieving Bean by Type With Constructor Parameters. **prototype scope only**
+    ```java
+    User user = = (User) context.getBean(User.class, user.getName());
+    ```
+Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
+
 
 ## What is the concept of a “container” and what is its lifecycle?
 
 A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
-- **Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services.
+
+**Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services. Two main parts:
+1. `org.springframework.beans`
+2. `org.springframework.context`
+    1. The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
+    2. `ApplicationContext` is a sub-interface of `BeanFactory`.
+    3. In short, the `BeanFactory` provides the configuration framework and basic functionality, and the ApplicationContext adds more enterprise-specific functionality. 
+
 - `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
 
 **Container Lifecycle**
@@ -890,6 +926,10 @@ public class MovieRecommender {
 
 ## How does the @Qualifier annotation complement the use of @Autowired?
 
+`@Qualifier` may be used
+1. on a field or parameter as a qualifier for candidate beans when autowiring. 
+2. to annotate other custom annotations that can then in turn be used as qualifiers.
+
 When you place the `@Qualifier` annotation together with the `@Autowired` and `@Bean` annotations, autowiring behavior turns into **byName** mode.
 
 `@Qualifier` used at 3 locations: 
@@ -920,6 +960,17 @@ public class MovieRecommender {
   this.movieCatalog = movieCatalog;
   this.customerPreferenceDao = customerPreferenceDao; }
 }
+```
+
+NB: A scenario that use `@Qualifier` without `@Autowired`
+```java
+@Component("fooFormatter")
+public class FooFormatter { }
+
+
+@Component
+@Qualifier("fooFormatter")
+public class FooFormatter { }
 ```
 
 
