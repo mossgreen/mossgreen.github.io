@@ -708,7 +708,6 @@ JPA has two annotations to obtain container‐managed `EntityManagerFactory` or 
 - Visibility of those fields and methods doesn’t matter.
 
 
-
 ## What is the idea behind an ORM? What are benefits/disadvantages or ORM?
 
 **Idea**: Developers only work on objects and no need to care about how to maintain the relationship and how they persist.
@@ -737,7 +736,7 @@ JPA has two annotations to obtain container‐managed `EntityManagerFactory` or 
   - Deal with legacy database is difficult
   
 
-## What is a PersistenceContext and what is an EntityManager. What is the relationship between both?
+## What is a `PersistenceContext` and what is an `EntityManager`. What is the relationship between both?
 
 `@PersistenceUnit` and `@PersistenceContext` aren’t Spring annotations; they’re provided by the JPA specification.
 
@@ -788,12 +787,47 @@ public class User extends AbstractEntity { }
     - Simplest:  `LocalEntityManagerFactoryBean`. It produces an application-managed EntityManagerFactory.
     - Obtain an `EntityManagerFactory` using JNDI, use **when** app ran in Java EE server
     - Full JPA capabilities: `LocalContainerEntityManagerFactoryBean`
-
 4. Define a `DataSource` bean
 
 5. Define a `TransactionManager` bean
 
 6. Implement repositories
+
+```java
+@Configuration 
+@EnableJpaRepositories 
+@EnableTransactionManagement 
+class ApplicationConfig {
+
+  @Bean 
+  public DataSource dataSource() {
+    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(); 
+    return builder.setType(EmbeddedDatabaseType.HSQL).build();
+  }
+
+  @Bean 
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+
+    HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+    vendorAdapter.setGenerateDdl(true);
+
+    LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+    factory.setJpaVendorAdapter(vendorAdapter);
+    factory.setPackagesToScan("com.acme.domain"); 
+    factory.setDataSource(dataSource()); 
+    return factory;
+  }
+
+  @Bean 
+  public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+    JpaTransactionManager txManager = new JpaTransactionManager();
+    txManager.setEntityManagerFactory(entityManagerFactory); 
+    return txManager;
+  }
+}
+```
+You must create `LocalContainerEntityManagerFactoryBean` and **not** `EntityManagerFactory` directly, since the former also participates in exception translation mechanisms in addition to creating `EntityManagerFactory` .
+
 
 ## Are you able to participate in a given transaction in Spring while working with JPA?
 
@@ -856,6 +890,9 @@ Because they can be created **instantly** by extending one of the Spring-special
 
 When a custom repository interface extends `JpaRepository`, it will automatically be enriched with functionality to save entities, search them by ID, retrieve all of them from the database, delete entities, flush, etc.
 
+By default, repositories are instantiated eagerly unless explicitly annotated with `@Lazy`. LAZY is a decent choice for testing scenarios.
+
+
 ## How do you define an “instant” repository? Why is it an interface not a class?
 Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. 
 
@@ -864,6 +901,11 @@ Any additional functionality that is not provided by default can be easily imple
 ## What is the naming convention for finder methods?
 
 `find`**(First[count])**`By`**[property expression][comparison operator][ordering operator]**
+
+prefixes `find` also can be replaced:
+```java
+private static final String QUERY_PATTERN = "find|read|get|query|stream";
+```
 
 ## How are Spring Data repositories implemented by Spring at runtime?
 For a Spring Data repository a **JDK dynamic proxy** is created which intercepts all calls to the repository. 
