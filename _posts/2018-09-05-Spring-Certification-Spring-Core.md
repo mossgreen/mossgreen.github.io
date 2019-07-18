@@ -77,6 +77,7 @@ Both `org.springframework.beans` and `org.springframework.context` packages are 
 
 
 **ApplicationContext**
+`ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans.
 - `ApplicationContext` is a **sub-interface of BeanFactory**.
 - **ApplicationContext is eager initializer**, at the time of creating the IOC container itself it instantiate all the beans which scope is singleton.
 - An ApplicationContext implementation provides the following:
@@ -85,60 +86,6 @@ Both `org.springframework.beans` and `org.springframework.context` packages are 
   - ability to publish events to registered listeners
   - ability to resolve messages and support internationalization (most used in international web applications)
   - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
-
-- Implementations in standalone applications
-  - `ClassPathXmlApplicationContext`: looks for `xxx.xml` **anywhere in the classpath (including JAR files)**.
-  - `FileSystemXmlApplicationContext`: looks for `xxx.xml` **in a specific location** within the filesystem.
-  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation.
-
-- In Web Application, `WebApplicationContext` extended `ApplicationContext` which is designed to work with the standard `javax.servlet.ServletContext` so it's able to communicate with the container.
-
-```java
-public interface WebApplicationContext extends ApplicationContext {
-    ServletContext getServletContext();
-}
-```
-
-Beans, instantiated in `WebApplicationContext` will also be able to use `ServletContext` if they implement `ServletContextAware` interface
-
-```java
-package org.springframework.web.context;
-public interface ServletContextAware extends Aware { 
-     void setServletContext(ServletContext servletContext);
-}
-```
-
-- `AnnotationConfigWebApplicationContext`: Loads a Spring web application context from one or more Java-based configuration classes
-- `XmlWebApplicationContext`: Loads context definitions from one or more XML files contained in a web application
-
-**Get Beans from container**
-1. Retrieving Bean by Name
-    1. throw `NoSuchBeanDefinitionException`
-    2. we have to cast it to the desired type
-    ```java
-    Object obj = context.getBean("User");
-    User = (User) obj;
-    ```
-
-2. Retrieving Bean by Name and Type
-    ```java
-    User user = context.getBean("user", User.class);
-    ```
-3. Retrieving Bean by Type
-    - `NoUniqueBeanDefinitionException`
-    ```java
-    User user = context.getBean(User.class);
-    ```
-4. Retrieving Bean by Name with Constructor Parameters. **prototype scope only**
-    - `BeanDefinitionStoreException`
-    ```java
-    User user = = (User) context.getBean("haha", age);
-    ```
-5. Retrieving Bean by Type With Constructor Parameters. **prototype scope only**
-    ```java
-    User user = = (User) context.getBean(User.class, user.getName());
-    ```
-Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
 
 
 ## What is the concept of a “container” and what is its lifecycle?
@@ -178,6 +125,7 @@ A Spring application has a lifecycle composed of three phases:
     2. The Spring container is closed.
     3. Destruction callbacks are invoked on the singleton Spring beans in the container.
 
+Initialization lifecycle callback methods are called on all objects regardless of scope, **in the case of prototypes**, configured destruction lifecycle callbacks are not called.
 
 ```xml
 <!-- test-db01-config.xml contents--> 
@@ -216,17 +164,49 @@ public class ApplicationContextTest {
 
 ![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
 
+**Get Beans from container**
+1. Retrieving Bean by Name
+    1. throw `NoSuchBeanDefinitionException`
+    2. we have to cast it to the desired type
+    ```java
+    Object obj = context.getBean("User");
+    User = (User) obj;
+    ```
+
+2. Retrieving Bean by Name and Type
+    ```java
+    User user = context.getBean("user", User.class);
+    ```
+3. Retrieving Bean by Type
+    - `NoUniqueBeanDefinitionException`
+    ```java
+    User user = context.getBean(User.class);
+    ```
+4. Retrieving Bean by Name with Constructor Parameters. **prototype scope only**
+    - `BeanDefinitionStoreException`
+    ```java
+    User user = = (User) context.getBean("haha", age);
+    ```
+5. Retrieving Bean by Type With Constructor Parameters. **prototype scope only**
+    ```java
+    User user = = (User) context.getBean(User.class, user.getName());
+    ```
+Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
 
 ## How are you going to create a new instance of an ApplicationContext?
 
-- Implementations in standalone applications
-  - `ClassPathXmlApplicationContext`
-  - `FileSystemXmlApplicationContext`
-  - **`AnnotationConfigApplicationContext`**
 
-- In Web Application, 
-  - `AnnotationConfigWebApplicationContext`
-  - `XmlWebApplicationContext`
+**Implementations in standalone applications**
+  - `ClassPathXmlApplicationContext`: looks for `xxx.xml` **anywhere in the classpath (including JAR files)**.
+  - `FileSystemXmlApplicationContext`: looks for `xxx.xml` **in a specific location** within the filesystem.
+  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation.
+
+**Implementations in Web Application**   
+`WebApplicationContext` extended `ApplicationContext` which is designed to work with the standard `javax.servlet.ServletContext` so it's able to communicate with the container.
+
+- `AnnotationConfigWebApplicationContext`: Loads a Spring web application context from one or more Java-based configuration classes
+- `XmlWebApplicationContext`: Loads context definitions from one or more XML files contained in a web application
+
 
 **Use AnnotationConfigApplicationContext**
 ```java
@@ -628,10 +608,11 @@ public @interface RestController {}
 
 - Singleton scope: per container, **default bean scope**, **stateless**
 - Prototype: each time a bean is request, **stateful**
-- Request: per http request, web-aware contexts only
-- Session: per http session, web-aware contexts only
-- Application: per ServletContext, web-aware contexts only
-- Websocket: per WebSocket, web-aware contexts only
+- Request: Scopes a single bean definition to the lifecycle of an HTTP request, web-aware contexts only
+- Session: Scopes a single bean definition to the lifecycle of an HTTP Session, web-aware contexts only
+- Application: Scopes a single bean definition to the lifecycle of a ServletContext, web-aware contexts only
+- Websocket: Scopes a single bean definition to the lifecycle of a WebSocket, web-aware contexts only
+- As of Spring 3.0, a thread scope is available but is not registered by default.
 
 **Singleton beans with prototype-bean dependencies**
 
@@ -642,7 +623,6 @@ Dependencies are resolved at instantiation time!!!
 - If you need a new instance of a prototype bean at runtime more than once, use **“Method injection”**. Make bean A aware of the container by implementing the ApplicationContextAware interface, and by making a getBean("B") call to the container ask for (a typically new) bean B instance every time bean A needs it.
 
 **Custom scopes**
-- As of Spring 3.0, a **thread scope** is available, but is not registered by default.
 - You need to implement the `org.springframework.beans.factory.config.Scope` interface.
 
 
