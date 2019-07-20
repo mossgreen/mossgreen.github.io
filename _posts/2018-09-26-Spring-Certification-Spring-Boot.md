@@ -20,7 +20,20 @@ Spring Boot in Spring professional certification.
 
 ## What is Spring Boot?
 
-Spring Boot is an opinionated framework that helps developers build Spring-based applications quickly and easily. **The main goal of Spring Boot** is to quickly create Spring-based applications without requiring developers to write the same boilerplate configuration again and again. The key Spring Boot features include:
+Spring Boot is an opinionated framework that helps developers build stand-alone and  production-grade Spring-based applications quickly and easily. 
+
+**The main goal of Spring Boot**
+
+- Provide a radically faster and widely accessible getting-started experience for all Spring development.
+
+- Be opinionated out of the box but get out of the way quickly as requirements start to diverge from the defaults.
+
+- Provide a range of non-functional features that are common to large classes of projects (such as embedded servers, security, metrics, health checks, and externalized configuration).
+
+- Absolutely no code generation and no requirement for XML configuration.
+
+
+**The key features** include:
 
 - Spring Boot starters, easy dependency management
 
@@ -36,9 +49,10 @@ Spring Boot is an opinionated framework that helps developers build Spring-based
 ## What are the advantages of using Spring Boot?
 
 - Spring Boot starters   
-These starters are pre-configured with the most commonly used library dependencies so you don’t have to search for the compatible library versions and configure them manually. E.g., the `spring-boot-starter-data-jpa` starter module includes all the dependencies required to use Spring Data JPA, along with Hibernate library dependencies, as Hibernate is the most commonly used JPA implementation.
+  These starters are pre-configured with the most commonly used library dependencies so you don’t have to search for the compatible library versions and configure them manually. E.g., the `spring-boot-starter-data-jpa` starter module includes all the dependencies required to use Spring Data JPA, along with Hibernate library dependencies, as Hibernate is the most commonly used JPA implementation.
 
-- Spring Boot autoconfiguration. Spring Boot configures various components automatically, by registering beans based on various criteria. The criteria can be:
+- Spring Boot autoconfiguration. 
+  Spring Boot configures various components automatically, by registering beans based on various criteria. The criteria can be:
     - Availability of a particular class in a classpath
     - Presence or absence of a Spring bean
     - Presence of a system property
@@ -51,13 +65,14 @@ These starters are pre-configured with the most commonly used library dependenci
   -  Spring Boot uses densible defaults and powerful type-safe property binding to bean properties.
   -  Spring Boot supports having deparate configuration files for different profiles without requiring much configuration.
 
-- Spring Boot actuator. It provides a wide variety of such production-ready features:
+- Spring Boot actuator. 
+  It provides a wide variety of such production-ready features:
   - Can view the application bean configuration details
   - Can view the application URL mappings, environment details, and configuration parameter values
   - Can view the registered health check metrics
 
 - Easy-to-use embedded servlet container support.  
-It creates a JAR type module and embed the servlet container in the application to be a self-contained deployment unit.
+  It creates a JAR type module and embed the servlet container in the application to be a self-contained deployment unit.
 
 
 ## Why is it “opinionated”?
@@ -81,6 +96,11 @@ Spring Boot provides many custom `@Conditional` annotations to meet developers�
 - `@ConditionalOnNotWebApplication`
 
 **How does it work? How does it know what to configure?**
+
+Spring Boot auto-configuration attempts to automatically configure your Spring application **based on the jar dependencies** that you have added. 
+
+For example, if HSQLDB is on your classpath, and you have not manually configured any database connection beans, then Spring Boot auto-configures an in-memory database.
+
 Spring Boot configures various components automatically, by registering beans based on various criteria. The criteria can be:
     - Availability of a particular class in a classpath: `@ConditionalOnClass`, on the other hand `@ConditionalOnMissingBean`
     - Presence or absence of a Spring bean: `@ConditionalOnBean`, `@ConditionalOnMissingBean`
@@ -89,9 +109,12 @@ Spring Boot configures various components automatically, by registering beans ba
 
 
 ## What is a Spring Boot starter POM? Why is it useful?
+
 **Starter POMs** are that all the dependencies needed to get started with a certain technology have been gathered. 
 
 A developer can rest assured that there are no dependencies missing and that all the dependencies have versions that work well together.
+
+All official starters follow a similar naming pattern: `spring-boot-starter-*`, where `*` is a particular type of application.
 
 
 ## Spring Boot supports both Java properties and YML files. Would you recognize and understand them if you saw them?
@@ -119,7 +142,9 @@ environments:
 
 ## Can you control logging with Spring Boot? How?
 
-- Spring Boot uses **Commons Logging** internally by default, but it leaves the underlying implementation open. 
+Spring Boot uses **Commons Logging** internally by default, but it leaves the underlying implementation open. 
+
+- By default, if you use the “Starters”, **Logback is used for logging**.
 
 - By default, ERROR, WARN, and INFO level messages are logged. In `application.properties` add: `debug=true` to enable debug level logging.
 
@@ -134,15 +159,28 @@ environments:
 
 The **default properties** of a Spring Boot application are stores in the application’s JAR in a file named “**application.properties**”. When developing, this file is found in the `src/main/resources` directory.
 
+SpringApplication loads properties from `application.properties` files in the following locations and adds them to the Spring Environment:
+
+1. A `/config` subdirectory of the current directory.
+2. The current directory
+3. A classpath `/config` package
+4. The classpath root
+
+The list is **ordered by precedence** (properties defined in locations higher in the list override those defined in lower locations).
+
 
 ## How do you define profile specific property files?
 
 You can register multiple beans of the same type and associate them with one or more profiles. When you run the application, you can activate the desired profile(s). That way, only the beans associated with the activated profiles will be registered.
 
 Properties controlling the behavior of Spring Boot applications can be defined using:
+
 - Property files. A property file contains key-value pairs. Example: requestreceiver.timeout=5000
+
 - YAML files
+
 - Environment variables. Used to control application behavior in different environments.
+
 - Command-line arguments: Example: java -jar myspringbootapp.jar –server.port=8081
 
 Commonly, but** not always**, Spring Boot configuration properties use the following format:
@@ -157,22 +195,19 @@ spring.xxx.yyy=somevalue
 public class AppConfig {
 
   @Bean @Profile("DEV") 
-  public DataSource devDataSource() { 
-  // ...
-  }
+  public DataSource devDataSource() {  }
   
   @Bean @Profile("PROD") 
-  public DataSource prodDataSource() { 
-  //...
-  }
+  public DataSource prodDataSource() {  }
 }
 ```
+
 
 ## How do you access the properties defined in the property files?
 
 With the aboveconfiguration, you can specify the active profile using the `-Dspring.profiles.active=DEV` system property. This approach works fine for simple cases, such as when you’re enabling or disabling bean registrations based on activated profiles. But if you want to register beans based on some conditional logic, the profiles approach itself is not sufficient.
 
-Using the @Conditional approach, you can register a bean conditionally based on any arbitrary condition.
+Using the `@Conditional` approach, you can register a bean conditionally based on any arbitrary condition.
 
 
 ## What properties do you have to define in order to configure external MySQL?
@@ -207,11 +242,25 @@ spring.datasource.data=seed-data.sql
 
 ## What is a fat jar? How is it different from the original jar?
 
-Spring Boot, by default, generates a so-called **fat JAR**, **a JAR with all the compiled classes along with all of the jar dependencies that your code needs to run.**.
-
-To create an executable jar, we need to add the `spring-boot-maven-plugin` to our `pom.xml`.
+**Executable jars**, known as “fat jars”, are archives containing your compiled classes along with all of the jar dependencies that your code needs to run.
 
 In your project target directory, you should see `myproject-0.0.1-SNAPSHOT.jar`. This the far Jar. Inside of it, you would see `myproject-0.0.1-SNAPSHOT.jar.original`. This is the **original jar** file that Maven created before it was repackaged by Spring Boot.
+
+**Spring Boot Executable jars VS uber jars**
+
+- An **uber jar** packages all the classes from all the application’s dependencies **into one single archive**. The problem with this approach is that 
+    - it becomes hard to see which libraries are in your application. 
+    - It can also be problematic if the same filename is used (but with different content) in multiple jars.
+- Spring Boot lets you actually nest jars directly.
+
+**To create an executable jar**, we need to have the `spring-boot-maven-plugin` to our `pom.xml`.
+
+```xml
+<plugin>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-maven-plugin</artifactId>
+</plugin>
+```
 
 
 ## What is the difference between an embedded container and a WAR?
@@ -246,6 +295,25 @@ Now running the Maven/Gradle build tool will produce a WAR file that can be depl
 - Jetty,
 - Undertow servers.
 
+**Use Jettry rather than Tomcat**
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+</dependencies>
+```
 
 # Spring Boot Auto Configuration
 
