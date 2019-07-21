@@ -107,6 +107,21 @@ Spring Boot configures various components automatically, by registering beans ba
     - Presence of a system property
     - Absence of a configuration file  
 
+**ApplicationRunner or CommandLineRunner**
+
+If you need to run some specific code once the `SpringApplication` has started, you can implement the `ApplicationRunner` or `CommandLineRunner` interfaces. 
+
+Both interfaces work in the same way and offer a single `run` method, which is called just before `SpringApplication.run(…)` completes.
+```java
+@Component 
+public class MyBean implements CommandLineRunner {
+  public void run(String... args) { 
+      // Do something...
+  }
+}
+```
+
+
 
 ## What is a Spring Boot starter POM? Why is it useful?
 
@@ -138,6 +153,12 @@ environments:
 		name: My Cool App
 
 ```
+
+The SpringApplication class automatically supports `YAML` as an alternative to `properties` whenever you have the `SnakeYAML` library on your classpath.
+
+**Loading YAML**
+- `YamlPropertiesFactoryBean` loads YAML as **Properties** 
+- `YamlMapFactoryBean` loads YAML as a **Map**.
 
 
 ## Can you control logging with Spring Boot? How?
@@ -175,15 +196,15 @@ You can register multiple beans of the same type and associate them with one or 
 
 Properties controlling the behavior of Spring Boot applications can be defined using:
 
-- Property files. A property file contains key-value pairs. Example: requestreceiver.timeout=5000
+- Property files. A property file contains key-value pairs. Example: `requestreceiver.timeout=5000`
 
 - YAML files
 
 - Environment variables. Used to control application behavior in different environments.
 
-- Command-line arguments: Example: java -jar myspringbootapp.jar –server.port=8081
+- Command-line arguments: Example: `java -jar myspringbootapp.jar –server.port=8081`
 
-Commonly, but** not always**, Spring Boot configuration properties use the following format:
+Commonly, but **not always**, Spring Boot configuration properties use the following format:
 ```properties
 spring.xxx.yyy=somevalue
 ```
@@ -252,6 +273,10 @@ In your project target directory, you should see `myproject-0.0.1-SNAPSHOT.jar`.
     - it becomes hard to see which libraries are in your application. 
     - It can also be problematic if the same filename is used (but with different content) in multiple jars.
 - Spring Boot lets you actually nest jars directly.
+    - you can run your application as you would any other
+    - You do not need any special IDE plugins or extensions.
+    - Executable jars can be used for production deployment. As they are self-contained, they are also ideally suited for cloud-based deployment.
+    - Spring Boot’s executable jars are ready-made for most popular cloud PaaS (Platform-as-a-Service) providers. These providers tend to require that you “bring your own container”. They manage application processes (not Java applications specifically), so they need an intermediary layer that adapts your application to the cloud’s notion of a running process.
 
 **To create an executable jar**, we need to have the `spring-boot-maven-plugin` to our `pom.xml`.
 
@@ -261,6 +286,21 @@ In your project target directory, you should see `myproject-0.0.1-SNAPSHOT.jar`.
   <artifactId>spring-boot-maven-plugin</artifactId>
 </plugin>
 ```
+
+**Running as a Packaged Application**
+
+1. `java -jar`
+    ```bash
+    $ java -jar target/myapplication-0.0.1-SNAPSHOT.jar
+    ```
+2. Maven Plugin
+    ```bash
+    $ mvn spring-boot:run
+    ```
+3. Gradle Plugin
+    ```bash
+    $ gradle bootRun
+    ```
 
 
 ## What is the difference between an embedded container and a WAR?
@@ -323,6 +363,21 @@ Spring Boot autoconfiguration represents a way to automatically configure a Spri
 
 For example, if there is a specific embedded server on the classpath, this will be used unless there is another `EmbeddedServletContainerFactory` configuration in the project.
 
+**Externalized Configuration**
+
+Spring Boot lets you externalize your configuration so that you can work with the same application code in different environments. To externalize configuration
+- properties files,
+- YAML files, 
+- environment variables, and 
+- command-line arguments 
+
+
+
+
+
+
+
+
 ## What does @EnableAutoConfiguration do?
 
 It's a Spring Boot specific annotation. It enables the autoconfiguration of Spring ApplicationContext by:
@@ -335,7 +390,7 @@ Spring Boot provides various autoconfiguration classes in `spring-boot-autoconfi
 
 ## What does @SpringBootApplication do?
 
-It's a top-level annotation designed to use only at class level. It's a convenience annotation that equivalent to declaring the following three:
+It's a top-level annotation designed to use **only at class level**. It's a convenience annotation that equivalent to declaring the following three:
 
 1. `@EnableAutoConfiguration`: enable Spring Boot’s auto-configuration mechanism
 
