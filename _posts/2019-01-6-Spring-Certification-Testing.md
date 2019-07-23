@@ -18,6 +18,29 @@ TESTING
 - We don't necessarily need Spring in a unit test.
 - However Spring IOC makes both unit and integration testing easier.
 
+Spring framework has great support for testing.
+
+SpringRunner is a custom JUnit runner helping to load the Spring ApplicationContext by using @ContextConfiguration(classes=AppConfig.class)
+
+```java
+@RunWith(SpringRunner.class) 
+@ContextConfiguration(classes=AppConfig.class) 
+public class UserServiceTests {
+
+  @Autowired 
+  UserService userService;
+  
+  @Test 
+  public void should_load_all_users() {
+
+    List<User> users = userService.getAllUsers();
+    
+    assertNotNull(users);
+    assertEquals(10, users.size()); 
+  }
+}
+```
+
 
 ## What type of tests typically use Spring?
 - Spring provides mock objects and testing support classes for **Unit Testing**.
@@ -32,26 +55,45 @@ TESTING
 
 ## How can you create a shared application context in a JUnit integration test?
 
+Spring’s integration testing support has the following primary goals:
+
+- To manage Spring IoC container caching between tests. By default, once loaded, the configured ApplicationContext is reused for each test
+- To provide Dependency Injection of test fixture instances.
+- To provide transaction management appropriate to integration testing.
+- To supply Spring-specific base classes that assist developers in writing integration tests.
+
 The core class of this module is `SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**. It's a JUnit annotation.
 
 1. Annotate the test class with `@RunWith(SpringJUnit4ClassRunner.class)`.
 
-2. Annotate the class with `@ContextConfiguration` in order to tell the runner class where the bean definitions come from.
+2. Annotate the class with `@ContextConfiguration`. It defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
+
     1. bean definitions are provided **by class** `AllRepoConfig`
         ```java
         @ContextConfiguration(classes = {AllRepoConfig.class}) 
-        public class GenericQualifierTest {...} 
+        public class GenericQualifierTest {} 
+
         ```
       
     2. bean definitions are loaded from **file** all-config.xml
         ```java
         @ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
-        public class GenericQualifierTest {...}
+        public class GenericQualifierTest {}
+        
+        @ContextConfiguration("/test-config.xml") 
+        ublic class XmlApplicationContextTests { }
         ```
-    3. **If no attribute defined**: the default behavior of spring is to search for a file named `{testClassName}-context.xml` in the same location as the test class and load bean definitions from there if found.
+        
+    3. from both config and xml
+        ```java
+        @ContextConfiguration(locations = "/test-context.xml", 
+          loader = CustomContextLoader.class)
+        public class CustomLoaderXmlApplicationContextTests { }
+        ```
+    
+    4 . **If no attribute defined**: the default behavior of spring is to search for a file named `{testClassName}-context.xml` in the same location as the test class and load bean definitions from there if found.
         
 3. use `@Autowired` to inject beans to be tested.
-
 
 **Another way** to access the application contect is by extending the **TestContext** support class specific to JUnit: `AbstractJUnit4SpringContextTests`. This class implements the `ApplicationContextAware` interface, so you can extend it to get access to the managed application context via the protected field `applicationContext`.
 
@@ -83,11 +125,15 @@ public void init() {
 
 ## How are mock frameworks such as Mockito or EasyMock used?
 
-- A **mock object** replacing the dependency we are not interested in testing and helping to isolate the object in which we are interested. 
-- Mock code does not have to be written, because there are a few **libraries and frameworks** that can be used to generate mock objects. 
-- The mock object will implement the dependent interface on the fly. 
-- **Before a mock object is generated**, the developer can configure its behavior: what methods will be called and what will they return. 
-- The mock object can be used **after** that, and then expectations can be checked in order to decide the test result.
+Mockito lets you write tests by mocking the external dependencies with the desired behavior.
+
+- `@Mock` to create a mock object 
+- `@InjectMocks` has a behavior similar to the Spring IoC, because its role is to instantiate testing object instances and to try to inject fields annotated with @Mock or @Spy into private fields of the testing object.
+- `@MockBean` is a Spring Boot annotation, used to define a new Mockito mock bean or replace a Spring bean with a mock bean and inject that into their dependent beans. Mock beans will be automatically reset after each test method.
+- Use Mockito
+    - Either: `@RunWith(MockitoJUnitRunner.class)` to initialize the mock objects.
+    - OR: `MockitoAnnotations.initMocks(this)` in the JUnit `@Before` method.
+
 
 Mock objects have the **advantage over stubs** in that they are created dynamically and only for the specific scenario tested.
 
@@ -109,32 +155,36 @@ public class ProfilesJavaConfigTest {
 
 ## How does Spring Boot simplify writing tests?
 
-1. `spring-boot-starter-test` adds the following test-scoped dependencies that can be useful when writing tests: JUnit, Spring Test, Spring Boot Test, AssertJ, Hamcrest, Mockito, JSONassert and JsonPath.
+`spring-boot-starter-test` pulls in the following all within test scope:
+- JUnit: De-facto standard for testing Java apps 
+- JSON Path: XPath for JSON 
+- AssertJ: Fluent assertion library 
+- Mockito: Java mocking library 
+- Hamcrest: Library of matcher objects 
+- JSONassert: Assertion library for JSON 
+- Spring Test and Spring Boot Test: Test libraries provided by the Spring Framework and Spring Boot.
 
-2. Spring Boot provides the @MockBean and @SpyBean annotations that allow for creation of Mockito mock and spy beans and adding them to the Spring application context.
+```
+testCompile('org.springframework.boot:spring-boot-starter-test')
+```
 
-3. Spring Boot provide an annotation, @SpringBootTest, which allows for running Spring Boot based tests and that provides additional features compared to the Spring TestContext framework.
+**Slice-based testing**
 
-4. Spring Boot provides the @WebMvcTest and the corresponding @WebFluxTest annotation that enables creating tests that only tests Spring MVC or WebFlux components without loading the entire application context.
 
-5. Provides a mock web environment, or an embedded server if so desired, when testing Spring Boot web applications.
-
-6. `spring-boot-test-autoconfigure` that includes a number of annotations that for instance enables selecting which auto-configuration classes to load and which not to load when creating the application context for a test, thus avoiding to load all auto-configuration classes for a test.
-
-7. Auto-configuration for tests related to several technologies that can be used in Spring Boot applications. Some examples are: JPA, JDBC, MongoDB, Neo4J and Redis.
 
 
 ## What does @SpringBootTest do? How does it interact with @SpringBootApplication and
 @SpringBootConfiguration?
 
-`@SpringBootTest` should be used on a test class, provides features like:
+**Spring Boot features** like loading external properties and logging, are available **only if** you create ApplicationContext using the `SpringApplication` class, which you’ll typically use in your entry point class. These additional Spring Boot features **won’t be available** if you use `@ContextConfiguration`.
+
+`@SpringBootTest` uses **SpringApplication** behind the scenes to load ApplicationContext so that all the Spring Boot features will be available.
 
 1. If no **ContextLoader** is specified with `@ContextConfiguration`, it uses `org. springframework.boot.test.context.SpringBootContextLoader` by default.
 
 2. Automated search for a Spring Boot configuration when nested `@Configuration` classes are used.
 
 3. Loading environment-specific properties via the **properties** attribute.
-
 
 5. Registering a `org.springframework.boot.test.web.client.TestRestTemplate` bean for use in web tests that use a fully running container.
 
@@ -148,6 +198,7 @@ public class CtxControllerTest {
 }
 ```
 
+Spring Boot Test starter spring-boot-starter-test pulls in the JUnit, Spring Tes
 
 ## How to define a testing class in Spring? 
 
