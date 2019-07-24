@@ -15,20 +15,21 @@ Spring Core in Spring Certification (20%).
 
 ## What is dependency injection and what are the advantages?  
 
-Each software component provides a service to other components, and linking the customer and the provider component is the process known as Dependency Injection(DI).
+**Dependency injection (DI)** is a process whereby objects define their dependencies only through constructor arguments, arguments to a factory method, or properties that are set on the object instance after it is constructed or returned from a factory method. The container then injects those dependencies when it creates the bean
 
-In Spring, it creates the objects, manages them, wiring them together, configures them, as also manages their complete lifecycle.
+**DI exists in two major variants**
+1. Constructor-based
+    - mandatory dependencies
+    - **recommended by Spring**
+    - It enables one to implement application components as immutable objects and to ensure that required dependencies are not null.
+    - constructor-injected components are always returned to client (calling) code in a fully initialized state
+    - Constructor argument resolution matching occurs by using the argument’s type.
+    - Too many dependencies implying bad design
 
-DI exists in two major variants, 
-**Constructor-based**
-  - mandatory dependencies
-  - The **Spring team generally advocates constructor injection** as it enables one to implement application components as immutable objects and to ensure that required dependencies are not null.
-  - constructor-injected components are always returned to client (calling) code in a fully initialized state
-
-**Setter-based** dependency injection
-  - optional dependencies
-  - use of the `@Required` annotation on a setter method can be used to make the property a required dependency.
-  - setter methods make objects of that class amenable to reconfiguration or re-injection later.
+2. Setter-based dependency injection
+    - should be used for **optional dependencies** that can be assigned reasonable default values
+    - use of the `@Required` annotation on a setter method can be used to make the property a required dependency.
+    - setter methods make objects of that class amenable to reconfiguration or re-injection later.
 
 **Advantages**
 1. Reduced glue boilerplate code, so code is cleaner. 
@@ -44,13 +45,16 @@ DI exists in two major variants,
 
 Interfaces cannot be instantiated and it's a way of implementing multiple inheritance (polymorphism).
 
-Advantages
+**Advantages**
 - providing different implementations at runtime, 
 - the ability to inject dependencies, and 
 - polymorphism.
 
 **Why Interfaces are recommended for Spring beans?**
->Spring beans are recommended to be defiend as Interfaces. In the application, they can be implemented by the classes impleting them.
+
+Spring’s DI implementation is based on two core Java concepts: JavaBeans and interfaces. 
+- **JavaBeans** (POJOs): Any Spring-managed resource is referred to as a bean. 
+- **Using interfaces** you can get the most out of DI because your beans can utilize any interface implementation to satisfy their dependency. The use of interfaces also allows Spring to utilize JDK dynamic proxies to provide powerful concepts such as AOP for crosscutting concerns.
 
 - Increased testability, by mocking or stubbing
 - JDK dynamic proxying
@@ -58,10 +62,10 @@ Advantages
 
 
 ## What is meant by “application-context"?   
+
+ApplicationContext implements `org.springframework.context.ApplicationContext`.
+
 I'd like to illustrate it by comparing with **BeanFactory**.
-
-Both `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework’s IoC container.
-
 - The **BeanFactory** provides the configuration framework and basic functionality.
 - The **ApplicationContext** adds more enterprise-specific functionality.
 
@@ -75,7 +79,6 @@ Both `org.springframework.beans` and `org.springframework.context` packages are 
   - E.g., the resources of an application are restricted, such as when running Spring for an applet or a mobile device.
   - When using third-party libraries that only allow creating objects using a factory class.
 
-
 **ApplicationContext**
 `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans.
 - `ApplicationContext` is a **sub-interface of BeanFactory**.
@@ -88,118 +91,11 @@ Both `org.springframework.beans` and `org.springframework.context` packages are 
   - application-layer specific contexts such as the `WebApplicationContext` for use in web applications.
 
 
-## What is the concept of a “container” and what is its lifecycle?
-
-A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
-
-**Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services. Two main parts:
-1. `org.springframework.beans`
-2. `org.springframework.context`
-    1. The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
-    2. `ApplicationContext` is a sub-interface of `BeanFactory`.
-    3. In short, the `BeanFactory` provides the configuration framework and basic functionality, and the ApplicationContext adds more enterprise-specific functionality. 
-
-- `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
-
-**Container Lifecycle**
-A Spring application has a lifecycle composed of three phases:
-
-1. **Initialization**. After this phase is complete, the application can be used.
-    1. The application context is initialized. 
-    
-    2. The container reads the bean definitions (configuration data)(from the spring/test-db01-config.xml in this case).
-    
-    3. The bean definitions are processed (in our case a bean of type PropertyPlaceholderConfigurer is created and used to read the properties from datasource.properties, which are then added to the dataSource bean definition).
-    
-    4. Beans creation and processing.
-        1. In the first stage, the beans are instantiated vis contructor. This basically means that the **bean factory is calling the constructor of each bean.** If the bean is created using constructor dependency injection, the dependency bean is created first and then injected where needed. For beans that are defined in this way, the instantiation stage coincides with the dependency injection stage.
-        2. In the second stage, dependencies are injected. For beans that are defined having dependencies **injected via setter**, this stage is separate from the instantiation stage.
-        3. The next stage is the one in which **bean post process beans are invoked before initialization**.
-        4. In this stage, beans are initialized.
-        5. The next stage is the one in which **bean post process beans are invoked after initialization**.
-
-2. **Use**. Beans are used.
-
-3. **Destruction**: The context is being shut down, resources are released, and beans are handed over to the garbage collector.
-    1. Application shut down is initialized.
-    2. The Spring container is closed.
-    3. Destruction callbacks are invoked on the singleton Spring beans in the container.
-
-Initialization lifecycle callback methods are called on all objects regardless of scope, **in the case of prototypes**, configured destruction lifecycle callbacks are not called.
-
-```xml
-<!-- test-db01-config.xml contents--> 
-<?xml version="1.0" encoding="UTF-8"?> 
-<beans ...>
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
-    <property name="locations" value="classpath:db/datasource.properties"/> 
-  </bean>
-  
-  <bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
-    <property name="driverClassName" value="${driverClassName}"/> 
-    <property name="url" value="${url}"/> 
-    <property name="username" value="${username}"/> 
-    <property name="password" value="${password}"/> 
-  </bean> 
-</beans>
-```
-```java
-public class ApplicationContextTest {
-
-  private Logger logger = LoggerFactory.getLogger(ApplicationContextTest.class);
-  
-  @Test 
-  public void testDataSource1() {
-  
-    ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/test-db01-config.xml"); 
-    logger.info(" >> init done."); 
-    DataSource dataSource1 = ctx.getBean("dataSource1", DataSource.class); 
-    assertNotNull(dataSource1); 
-    logger.info(" >> usage done."); 
-    
-    ctx.close();
-  }
-}
-```
-
-![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
-
-**Get Beans from container**
-1. Retrieving Bean by Name
-    1. throw `NoSuchBeanDefinitionException`
-    2. we have to cast it to the desired type
-    ```java
-    Object obj = context.getBean("User");
-    User = (User) obj;
-    ```
-
-2. Retrieving Bean by Name and Type
-    ```java
-    User user = context.getBean("user", User.class);
-    ```
-3. Retrieving Bean by Type
-    - `NoUniqueBeanDefinitionException`
-    ```java
-    User user = context.getBean(User.class);
-    ```
-4. Retrieving Bean by Name with Constructor Parameters. **prototype scope only**
-    - `BeanDefinitionStoreException`
-    ```java
-    User user = = (User) context.getBean("haha", age);
-    ```
-5. Retrieving Bean by Type With Constructor Parameters. **prototype scope only**
-    ```java
-    User user = = (User) context.getBean(User.class, user.getName());
-    ```
-Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
-
 ## How are you going to create a new instance of an ApplicationContext?
-
-
-**Implementations in standalone applications**
-  - `ClassPathXmlApplicationContext`: looks for `xxx.xml` **anywhere in the classpath (including JAR files)**.
-  - `FileSystemXmlApplicationContext`: looks for `xxx.xml` **in a specific location** within the filesystem.
-  - **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation.
+**In standalone applications**
+- `ClassPathXmlApplicationContext`: looks for `xxx.xml` **anywhere in the classpath (including JAR files)**.
+- `FileSystemXmlApplicationContext`: looks for `xxx.xml` **in a specific location** within the filesystem.
+- **`AnnotationConfigApplicationContext`**, is the newest and most flexible implementation.
 
 **Implementations in Web Application**   
 `WebApplicationContext` extended `ApplicationContext` which is designed to work with the standard `javax.servlet.ServletContext` so it's able to communicate with the container.
@@ -256,29 +152,10 @@ public class CourtServletContainerInitializer implements ServletContainerInitial
 }
 ```
 
-**Use XmlWebApplicationContext**
-```java
-public class WebInitializer implements WebApplicationInitializer {
-
-  @Override 
-  public void onStartup(ServletContext servletContext) throws ServletException { 
-    XmlWebApplicationContext appContext = new XmlWebApplicationContext(); 
-    appContext.setConfigLocation("/WEB-INF/spring/mvc-config.xml"); 
-    ServletRegistration.Dynamic registration = servletContext.addServlet("dispatcher", new DispatcherServlet(appContext)); 
-    registration.setLoadOnStartup(1); 
-    registration.addMapping("/"); 
-  }
-}
-```
 
 ## Can you describe the lifecycle of a Spring Bean in an ApplicationContext?
 
 It’s important to understand the lifecycle of a Spring bean, because you may want to take advantage of some of the opportunities that Spring offers to customize how a bean is created.
-
-**Combining lifecycle mechanisms**
-1. JSR-250 `@PostConstruct` and `@PreDestroy` annotations
-2. the `InitializingBean` and `DisposableBean`. Beans can define callback methods, which can be invoked by the container **BeanPostProcessor** at specific points during their lifetime.
-3. custom `init()` and `destroy()` methods; 
 
 **Orders**
 1. Spring bean configuration is read and metadata in the form of a **BeanDefinition** object is created for each bean.
@@ -289,7 +166,7 @@ It’s important to understand the lifecycle of a Spring bean, because you may w
     
     1. The beans are **instantiated**: the bean factory is calling the **constructor** of each bean. If the bean is created using **constructor dependency injection**, the dependency bean is created first and then injected where needed.
     
-    2. **dependencies are injected vis setter**.
+    2. **dependencies are injected via setter**.
     
     3. From this point. Instantiation is completed. Now, bean post process beans are invoked before initialization. The preinitialization **BeanPostProcessor** infrastructure beans are consulted to see whether they want to call anything from this bean. These are Spring-specific infrastructure beans that perform bean modifications after they are created. The `@PostConstruct` annotation method is called, which is registered by CommonAnnotationBeanPostProcessor.
     
@@ -304,133 +181,126 @@ It’s important to understand the lifecycle of a Spring bean, because you may w
     2. `destroy()` as defined by the `DisposableBean` callback interface
     3. A custom configured `destroy()` method
 
-**XML‐based configuration** `<bean>` elements have `init‐method` and `destroy‐method` attributes that accept method names in the bean class as attribute values.
-    - The `init` method is invoked by the container **after** the bean is created, and its **properties are injected**.
-    - The destroy method is invoked just before the end of a bean's lifetime.
-    - Prototype‐scoped beans, on the other hand, are not tracked after their instantiation; therefore, their destroy methods cannot be invoked.
-    - **Method names can be anything**. There is no restriction; however, methods should **return void** and **accept nothing as input arguments**. **They can throw any type of exception.**
 
-```java
-public class Foo {
+**Combining lifecycle mechanisms**
+1. `@PostConstruct` and `@PreDestroy` JSR-250 annotations. **Best practice!**
+    ```java
+    public class Bar {
+    
+      @PostConstruct 
+      public void init() throws Exception { 
+        System.out.println("init method is called"); 
+      }
+      
+      @PreDestroy 
+      public void destroy() throws RuntimeException { 
+        System.out.println("destroy method is called"); 
+      }
+    }
+    ```
 
-  public void init() { 
-    System.out.println("init method is called"); 
-  }
-  
-  public void destroy() { 
-    System.out.println("destroy method is called"); 
-  }
-}
-```
-```xml
-<bean id="foo" class="com.haha.Foo" init-method="init" destroy-method="destroy"/>
-```
+2. The `InitializingBean` and `DisposableBean`. Beans can define callback methods, which can be invoked by the container `BeanPostProcessor`. **Do not use!**
+    - In `InitializingBean`, container calls `afterproperteisSet()`. 
+    - In `DisposableBean`, container calls`destroy()`. 
+    ```java
+    public class Baz implements InitializingBean, DisposableBean {
+    
+      @Override 
+      public void afterPropertiesSet() throws Exception { 
+        System.out.println("init method invoked"); 
+      }
+    
+      @Override 
+      public void destroy() throws Exception { 
+        System.out.println("destroy method invoked"); 
+      }
+    }
+    ```
 
-The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best practice for receiving lifecycle callbacks in a modern Spring application
-```java
-public class Bar {
-
-  @PostConstruct 
-  public void init() throws Exception { 
-    System.out.println("init method is called"); 
-  }
-  
-  @PreDestroy 
-  public void destroy() throws RuntimeException { 
-    System.out.println("destroy method is called"); 
-  }
-}
-```
-
-Implement the Spring `InitializingBean` and `DisposableBean` interfaces.
-
-- In `InitializingBean`, container calls `afterproperteisSet()`. 
-- In `DisposableBean`, container calls`destroy()`. 
-```java
-public class Baz implements InitializingBean, DisposableBean {
-
-  @Override 
-  public void afterPropertiesSet() throws Exception { 
-    System.out.println("init method invoked"); 
-  }
-
-  @Override 
-  public void destroy() throws Exception { 
-    System.out.println("destroy method invoked"); 
-  }
-}
-```
+3. Custom `init()` and `destroy()` methods from Bean. **Not bad**.
+    ```java
+    public class Foo {
+    
+      public void init() { 
+        System.out.println("init method is called"); 
+      }
+      
+      public void destroy() { 
+        System.out.println("destroy method is called"); 
+      }
+    }
+    ```
 
 ![IMAGE](https://i.loli.net/2019/06/12/5d0092044c0cf74240.jpg)
 
 
 ## How are you going to create an ApplicationContext in an integration test test?
 
-1. Add `JUnit` and `Spring test` dependencies.
-2. Enable Spring in Tests
-    1. any Spring enabled test will run with the help of `@RunWith(SpringJUnit4ClassRunner.class)`, the runner is essentially the entry-point to start using the Spring Test framework.
-    2. also need the `@ContextConfiguration` annotations to load the context configuration
+`ContextLoader` is a strategy interface for loading an `ApplicationContext` for an integration test managed by the Spring TestContext Framework. 
+
+Its sub-interface  `SmartContextLoader` to provide support for annotated classes, active bean definition profiles, test property sources, context hierarchies, and WebApplicationContext support.
+
+**Implementations of SmartContextLoader**:
+- `AnnotationConfigContextLoader`: Loads a **standard ApplicationContext** from annotated classes.
+- `AnnotationConfigWebContextLoader`: Loads a **WebApplicationContext** from annotated classes.
+
+
+`@WebAppConfiguration` is a class-level annotation that you can use to declare that the ApplicationContext loaded for an integration test should be a WebApplicationContext.
+
+`@ContextConfiguration` defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
+
+Note that `@WebAppConfiguration` **must be used in conjunction with** `@ContextConfiguration`, either within a single test class or within a test class hierarchy.
 
 ```java
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ApplicationConfig.class })
-@WebAppConfiguration // for web application
-public class GreetControllerIntegrationTest {
-
+@RunWith(SpringRunner.class) 
+@WebAppConfiguration 
+@ContextConfiguration 
+public class MyWebAppTest {
   @Autowired
   private WebApplicationContext wac;
+}
+```
+
+
+##  What is the preferred way to close an application context? 
+
+A Spring application has a lifecycle composed of three phases:
+1. Initialization: In this phase, bean definitions are read, beans are created, dependencies are injected, and resources are allocated, also known as the bootstrap phase. After this phase is complete, the application can be used.
+
+2. Use: In this phase, the application is up and running. It is used by clients, and beans are retrieved and used to provide responses for their requests. This is the main phase of the lifecycle and covers 99% of it.
+
+3. Destruction: The context is being shut down, resources are released, and beans are handed over to the garbage collector. But some beans work with resources that might refuse to release them if they are not notified before destruction.
+
+When Spring application context is to shut down, the beans receive destruction callbacks in this order:
+
+1. `@PreDestroy`
+2. `destroy()` as defined by the `DisposableBean` callback interface
+3. A custom configured `destroy()` method.
+
+**However, Spring doesn't fire destruction callbacks automatically.**
+
+For **web application** runs as a servlet, you can simply call `destroy()` in the servlet’s `destroy()` method.
+
+For **stand-alone application**, things are not simple, especially if you have multiple exit points out of your application. 
+
+**Solution**: use `AbstractApplicationContext`’s `registerShutdownHook()` method. The method automatically instructs Spring to register a shutdown hook of the underlying JVM runtime. After it is added, calls to `ctx.destroy()` or `close()` will be removed.
+
+```java
+public class DestructiveBeanWithHook {
+
+  public static void main(String... args) {
   
-  private MockMvc mockMvc;
-  @Before
-  public void setup() throws Exception {
-      this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-  }
-  
-  @Test
-  public void givenWac_whenServletContext_thenItProvidesGreetController() {
-      ServletContext servletContext = wac.getServletContext();
-       
-      Assert.assertNotNull(servletContext);
-      Assert.assertTrue(servletContext instanceof MockServletContext);
-      Assert.assertNotNull(wac.getBean("greetController"));
-  }
-  
-  @Test
-  public void givenHomePageURI_whenMockMVC_thenReturnsIndexJSPViewName() {
-      this.mockMvc.perform(get("/homePage"))
-        .andDo(print())
-        .andExpect(view().name("index"));
+    GenericApplicationContext ctx = new AnnotationConfigApplicationContext( DestructiveBeanConfig.class);
+    
+    ctx.getBean(DestructiveBeanWithJSR250.class); 
+    
+    ctx.registerShutdownHook();// no need to call ctx.destroy() or close()
   }
 }
 ```
 
-`@WebAppConfiguration` is a class-level annotation that is used to declare that the `ApplicationContext` loaded for an integration test should be a `WebApplicationContext`.
-
-The mere presence of `@WebAppConfiguration` on a test class ensures that a WebApplicationContext will be loaded for the test, using the default value of "file:src/main/webapp" for the path to the root of the web application
-
-Note that `@WebAppConfiguration` **must be used in conjunction with `@ContextConfiguration`**, either within a single test class or within a test class hierarchy.
-
-##  What is the preferred way to close an application context? Does Spring Boot do this for you?
-
-`destruction` callbacks in Spring are not fired automatically; you need to remember to call `AbstractApplicationContext.destroy()` before your application is closed
-
-- When your application runs as a **servlet**, you can simply call `destroy()` in the servlet’s `destroy()` method.
-- However, in a **stand-alone application**, things are not quite so simple, especially if you have multiple exit points out of your application. A shutdown hook, which is a thread that is executed just before the application shuts down. **This is the perfect way to invoke the `destroy()` method** of your AbstractApplicationContext (which was being extended by all concrete ApplicationContext implementations). **The easiest way** to take advantage of this mechanism is to use AbstractApplicationContext’s registerShutdownHook() method. The method automatically instructs Spring to register a shutdown hook of the underlying JVM runtime.
-    ```java
-    public class DestructiveBeanWithHook {
-
-      public static void main(String... args) {
-      
-        GenericApplicationContext ctx = new AnnotationConfigApplicationContext( DestructiveBeanConfig.class);
-        
-        ctx.getBean(DestructiveBeanWithJSR250.class); 
-        
-        ctx.registerShutdownHook();// no need to call ctx.destroy() or close()
-      }
-    }
-    ```
-
-**SpringBoot**
+**How to close applicatoinContext in SpringBoot**
+//todo
 - SpringBoot registers **shutdown-hook**
 - SpringBoot also uses **ContextLoaderListener**
 
@@ -439,9 +309,7 @@ Note that `@WebAppConfiguration` **must be used in conjunction with `@ContextCon
 
 1. Configuration metadata is traditionally supplied in **XML** format.
 2. Spring 2.5 introduced support for **annotation-based** configuration metadata.
-3. Spring 3.0, many features provided by the Spring **JavaConfig** project became part of the core Spring Framework. see the  `@Configuration`, `@Bean`, `@Import` and `@DependsOn` annotations. 
-
-**Java configuration typically uses `@Bean` annotated methods within a `@Configuration` class.**
+3. Spring 3.0, many features provided by the Spring **JavaConfig** project became part of the core Spring Framework. **Java configuration** typically uses `@Bean` annotated methods within a `@Configuration` class.
 
 ```java
 @Configuration 
@@ -478,17 +346,8 @@ public class SystemTestConfig {
 
   @Bean 
   public DataSource dataSource() { 
-    // return new DataSource 
+    return new DataSource 
   }
-}
-
-public static void main(String[] args) { 
-
-  // everything wires up across configuration classes...
-  ApplicationContext ctx = new AnnotationConfigApplicationContext(SystemTestConfig.class); 
-
-  TransferService transferService = ctx.getBean(TransferService.class); 
-  transferService.transfer(100.00, "A123", "C456"); 
 }
 ```
 
@@ -614,17 +473,34 @@ public @interface RestController {}
 - Websocket: Scopes a single bean definition to the lifecycle of a WebSocket, web-aware contexts only
 - As of Spring 3.0, a thread scope is available but is not registered by default.
 
-**Singleton beans with prototype-bean dependencies**
+**How to inject a prototype-scoped bean into a singleton bean?**
 
 Dependencies are resolved at instantiation time!!!
 
-- Inject prototype to singleton: a new prototype bean is instantiated and then dependency-injected into the singleton bean. The prototype instance is the sole instance that is ever supplied to the singletonscoped bean. that injection occurs only once, when the Spring container is instantiating the singleton bean and resolving and injecting its dependencies.
+Inject prototype to singleton bean directly: a new prototype bean is instantiated and then dependency-injected into the singleton bean at the beginning. The prototype instance is the sole instance that is ever supplied to the singletonscoped bean. that injection occurs only once, when the Spring container is instantiating the singleton bean and resolving and injecting its dependencies.
 
-- If you need a new instance of a prototype bean at runtime more than once, use **“Method injection”**. Make bean A aware of the container by implementing the ApplicationContextAware interface, and by making a getBean("B") call to the container ask for (a typically new) bean B instance every time bean A needs it.
+**Solutions:**
 
-**Custom scopes**
-- You need to implement the `org.springframework.beans.factory.config.Scope` interface.
+**First:** ApplicationContextAware
 
+If you need a new instance of a prototype bean at runtime more than once, use **“Method injection”**. Make bean A aware of the container by implementing the `ApplicationContextAware` interface, and by making a `getBean("B")` call to the container ask for (a typically new) bean B instance every time bean A needs it.
+
+**Second**: `@Lookup`
+
+A method annotated with @Lookup tells Spring to return an instance of the method’s return type when we invoke it.
+
+```java
+@Component
+@Scope("prototype")
+public class PrototypeDemo { }
+
+@Component
+public class someServices {
+    
+    @Lookup
+    public PrototypeDemo getThisBean() { }
+}
+```
 
 ## Are beans lazily or eagerly instantiated by default? How do you alter this behavior?   
 **Eager** instantiation and by default loads the bean immediately while **lazy** loads it on demand.
@@ -1181,6 +1057,118 @@ see image above.
 - servlet context parameters, 
 - ad-hoc Properties objects, 
 - Maps, and so on.
+
+---
+removed from mid 2019 study guide update
+===
+
+
+## What is the concept of a “container” and what is its lifecycle?
+
+A container provides an environment in which there are a number of services made available and that perhaps manages objects. 
+
+**Spring IOC container** provides an environment for Spring beans, managing their lifecycle and supplying the services. Two main parts:
+1. `org.springframework.beans`
+2. `org.springframework.context`
+    1. The `BeanFactory` interface provides an advanced configuration mechanism capable of managing any type of object.
+    2. `ApplicationContext` is a sub-interface of `BeanFactory`.
+    3. In short, the `BeanFactory` provides the configuration framework and basic functionality, and the ApplicationContext adds more enterprise-specific functionality. 
+
+- `ApplicationContext` interface represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the beans. 
+
+**Container Lifecycle**
+A Spring application has a lifecycle composed of three phases:
+
+1. **Initialization**. After this phase is complete, the application can be used.
+    1. The application context is initialized. 
+    
+    2. The container reads the bean definitions (configuration data)(from the spring/test-db01-config.xml in this case).
+    
+    3. The bean definitions are processed (in our case a bean of type PropertyPlaceholderConfigurer is created and used to read the properties from datasource.properties, which are then added to the dataSource bean definition).
+    
+    4. Beans creation and processing.
+        1. In the first stage, the beans are instantiated vis contructor. This basically means that the **bean factory is calling the constructor of each bean.** If the bean is created using constructor dependency injection, the dependency bean is created first and then injected where needed. For beans that are defined in this way, the instantiation stage coincides with the dependency injection stage.
+        2. In the second stage, dependencies are injected. For beans that are defined having dependencies **injected via setter**, this stage is separate from the instantiation stage.
+        3. The next stage is the one in which **bean post process beans are invoked before initialization**.
+        4. In this stage, beans are initialized.
+        5. The next stage is the one in which **bean post process beans are invoked after initialization**.
+
+2. **Use**. Beans are used.
+
+3. **Destruction**: The context is being shut down, resources are released, and beans are handed over to the garbage collector.
+    1. Application shut down is initialized.
+    2. The Spring container is closed.
+    3. Destruction callbacks are invoked on the singleton Spring beans in the container.
+
+Initialization lifecycle callback methods are called on all objects regardless of scope, **in the case of prototypes**, configured destruction lifecycle callbacks are not called.
+
+```xml
+<!-- test-db01-config.xml contents--> 
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans ...>
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> 
+    <property name="locations" value="classpath:db/datasource.properties"/> 
+  </bean>
+  
+  <bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+    <property name="driverClassName" value="${driverClassName}"/> 
+    <property name="url" value="${url}"/> 
+    <property name="username" value="${username}"/> 
+    <property name="password" value="${password}"/> 
+  </bean> 
+</beans>
+```
+```java
+public class ApplicationContextTest {
+
+  private Logger logger = LoggerFactory.getLogger(ApplicationContextTest.class);
+  
+  @Test 
+  public void testDataSource1() {
+  
+    ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/test-db01-config.xml"); 
+    logger.info(" >> init done."); 
+    DataSource dataSource1 = ctx.getBean("dataSource1", DataSource.class); 
+    assertNotNull(dataSource1); 
+    logger.info(" >> usage done."); 
+    
+    ctx.close();
+  }
+}
+```
+
+![IMAGE](https://i.loli.net/2019/05/29/5cee56ceeb49258816.jpg)
+
+**Get Beans from container**
+1. Retrieving Bean by Name
+    1. throw `NoSuchBeanDefinitionException`
+    2. we have to cast it to the desired type
+    ```java
+    Object obj = context.getBean("User");
+    User = (User) obj;
+    ```
+
+2. Retrieving Bean by Name and Type
+    ```java
+    User user = context.getBean("user", User.class);
+    ```
+3. Retrieving Bean by Type
+    - `NoUniqueBeanDefinitionException`
+    ```java
+    User user = context.getBean(User.class);
+    ```
+4. Retrieving Bean by Name with Constructor Parameters. **prototype scope only**
+    - `BeanDefinitionStoreException`
+    ```java
+    User user = = (User) context.getBean("haha", age);
+    ```
+5. Retrieving Bean by Type With Constructor Parameters. **prototype scope only**
+    ```java
+    User user = = (User) context.getBean(User.class, user.getName());
+    ```
+Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
+
+
 
 
 ## References
