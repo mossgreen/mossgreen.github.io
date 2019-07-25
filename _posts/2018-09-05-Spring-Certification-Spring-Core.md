@@ -301,8 +301,18 @@ public class DestructiveBeanWithHook {
 
 **How to close applicatoinContext in SpringBoot**
 //todo
-- SpringBoot registers **shutdown-hook**
-- SpringBoot also uses **ContextLoaderListener**
+1. SpringBoot registers **shutdown-hook**
+
+2.  call the `close()` method directly using the application context.
+    - while closing the application context, the parent context isn’t affected due to separate lifecycles.
+    - This destroys all the beans, releases the locks, then closes the bean factory.
+    ```java
+    ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Application.class).web(WebApplicationType.NONE).run();
+    
+    ctx.close();
+    ```
+
+2. Close the Current Application Context
 
 
 ## Describe dependency injection using Java configuration?
@@ -352,7 +362,7 @@ public class SystemTestConfig {
 ```
 
 
-## Describe dependency injection using annotations (@Component, @Autowired)? 
+## Describe dependency injection using @Autowired annotations? 
 
 `@Component` marks the class as a Java Bean and Spring picks that up and pulls it into the Application context so that it can be injected into `@Autowired` instances.
 
@@ -404,6 +414,7 @@ public class MovieRecommender {
 3. Wiring information may not be available to tools that may generate documentation from a Spring container.
 4. Multiple bean definitions within the container may match the type specified by the setter method or constructor argument to be autowired.
 
+
 ## Describe Component scanning
 
 Spring attacks automatic wiring from two angles:
@@ -412,15 +423,7 @@ Spring attacks automatic wiring from two angles:
 
 2. **Autowiring** — Spring automatically satisfies bean dependencies.
 
-In Spring Boot, automatic configuration has gone well **beyond** component scanning and autowiring.
-
-Component scanning isn’t turned on by default. **To enable component scanning**:
-
-1. annotate a configuration class in your Spring application with the `@ComponentScan`. 
-
-2. It works the same way as `<context:component-scan />` for XML.
-
-`@Configuration` classes are meta-annotated with `@Component`, so they are candidates for component-scanning. NB, it's not a sterotype tho!
+`@Configuration` classes are meta-annotated with `@Component`, so they are candidates for component-scanning. But, it's not a sterotype!
 
 Filtering configuration can be added to the `@ComponentScan` annotation as to include or exclude certain classes.
   - **basePackages**
@@ -438,6 +441,7 @@ public class FooApplication(){}
 ```
 
 ## Describe Stereotypes annotations
+
 **Stereotype** annotations are annotations that are applied classes that contains information of **which role Spring beans implemented** by the class fulfills.
 - `@Component`
 - `@Controller`
@@ -447,21 +451,6 @@ public class FooApplication(){}
 
 `@AliasFor` cannot be used on any stereotype annotations (@Component and its specializations)
 
-
-## Meta-Annotations?
-
-Annotations that can be applied to definitions of annotations, must be applicable at type level. Example with `@RestController`
-
-Meta-annotations can also be combined to create **composed annotations**. `@RestController` = `@Controller` + `@ResponseBody`.
-
-```java
-@Target(ElementType.TYPE) 
-@Retention(RetentionPolicy.RUNTIME) 
-@Documented 
-@Controller 
-@ResponseBody 
-public @interface RestController {}
-```
 
 ## Scopes for Spring beans? What is the default scope?
 
@@ -502,23 +491,26 @@ public class someServices {
 }
 ```
 
-## Are beans lazily or eagerly instantiated by default? How do you alter this behavior?   
-**Eager** instantiation and by default loads the bean immediately while **lazy** loads it on demand.
+## Are beans lazily or eagerly instantiated by default? How do you alter this behavior? 
 
-- **Singleton** beans are **eagerly instantiated by default**. 
+- **Singleton** beans are **eagerly** instantiated by default. 
 - **Prototype** beans are typically created **lazily** when requested.
-- Use `@Lazy(true)` annotation to override
-    - With @Component
-    - With @Bean along with @Configuration
-- Use `@Lazy` On injection point
+
+**Eager**: instantiation and by default loads the bean immediately. 
+
+**`@Lazy`**: postpone the creation of a bean until it is first accessed. By default is true. So `@Lazy(value=true)` equsls to `@Lazy`. **To alter behavior**, set `@Lazy(true)` true of false
+- Used on injection points (as `@Autowired`)
+- Used on bean definition
+    - With `@Component`
+    - With `@Bean` along with `@Configuration`
+
 - **Advantage**: it speeds container bootstrap time and has a smaller memory footprint. useful when the dependency is a huge object.
 - **Disadvantage**: error remains unnoticed untill using of it
+
 ```java
 @Service("accountService") 
 @Lazy(true) 
-public class AccountServiceImpl implements AccountService { 
-  //...
-}
+public class AccountServiceImpl implements AccountService { }
 
 @Configuration 
 public class Ch2BeanConfiguration {
@@ -529,7 +521,6 @@ public class Ch2BeanConfiguration {
     AccountServiceImpl bean = new AccountServiceImpl(); 
     return bean; 
   } 
-  //...
 }
 
 // on injection point 
@@ -547,18 +538,22 @@ public class JdbcPetRepo extends JdbcAbstractRepo<Pet> implements PetRepo {
 
 ## What is a property source? How would you use @PropertySource?
 
-**Property source**:   
-Abstract base class that represents a source of `name:value` property pairs. 
+**Property source** represents a source of `name:value` property pairs. 
 
-- Spring’s StandardEnvironment is configured with two PropertySource objects 
-  - the set of **JVM system properties**: `System.getProperties()`
-  - the set of **system environment variables**  `System.getenv()`
-- Add a custom source of properties, just inistantiate your own PropertySource and add it to the set of **PropertySource** for current `Environment`
-    ```java
-    ConfigurableApplicationContext ctx = new GenericApplicationContext(); 
-    MutablePropertySources sources = ctx.getEnvironment().getPropertySources(); 
-    sources.addFirst(new MyPropertySource());
-    ```
+The Spring environment pulls from several property sources, including:
+1. JVM system properties, `System.getProperties()`
+2. Operating system environment variables, `System.getenv()`
+3. Command-line arguments
+4. Application property configuration files
+
+**Custom property source**
+Inistantiate your own PropertySource and add it to the set of **PropertySource** for current Environment.
+
+```java
+ConfigurableApplicationContext ctx = new GenericApplicationContext(); 
+MutablePropertySources sources = ctx.getEnvironment().getPropertySources(); 
+sources.addFirst(new MyPropertySource());
+```
     
 **@PropertySource**
 A convenient and declarative mechanism for adding a PropertySource to Spring’s Environment.
@@ -606,15 +601,14 @@ public class MyIntegrationTests {
 
 ## What is a BeanFactoryPostProcessor and what is it used for? When is it invoked?
 
+**BeanFactoryPostProcessor** is for manipulate bean definition. If you want to change the actual bean instances, use **BeanPostProcessor**.
+
 **BeanFactoryPostProcessor** 
 - works in the ApplicationContext lifecycle  **Load Bean Definition** step,
-- before the container instantiates any beans other than BeanFactoryPostProcessors beans,
-- they read, and potentially operate on the bean configuration metadata, or say, bean meta-data, or bean definition.
-- A custom BeanFactoryPostProcessor can also be used, for example, to register custom property editors.
-- You can configure multiple BeanFactoryPostProcessors, control the order by implement `ordered` interface.
-- BeanPostProcessors are scoped per-container, it will only be applied to the bean definitions in current container, not in another.
-
-**BeanFactoryPostProcessor** is for manipulate bean definition. If you want to change the actual bean instances, use **BeanPostProcessor**.
+- before the container instantiates any beans other than `BeanFactoryPostProcessors` beans,
+- they **read**, and potentially **operate** on the bean configuration metadata, or say, bean meta-data, or bean definition.
+- A custom `BeanFactoryPostProcessor` can also be used, for example, to register custom property editors.
+- You can configure multiple `BeanFactoryPostProcessors`, control the order by implement `ordered` interface.
 
 It's invoked after container is initialized, and bean definition is read, **before anybean is initialized**.
 
@@ -634,47 +628,71 @@ public class CustomBeanFactory implements BeanFactoryPostProcessor {
 ```
 
 
-## Why would you define a static @Bean method?
+**Why would you define a static `@Bean` method?**
 
-- Static @Bean methods are called without creating their containing configuration class as an instance. 
+Static @Bean methods are called without creating their containing configuration class as an instance. 
 
-- This makes particular sense when defining postprocessor beans, e.g. of type `BeanFactoryPostProcessor` or `BeanPostProcessor`, since such beans will get initialized early in the container lifecycle and should avoid triggering other parts of the configuration at that point.
+This makes particular sense when defining **postprocessor beans**, e.g. of type:
+- `BeanFactoryPostProcessor` 
+- `BeanPostProcessor`, 
 
-- Calls to **static `@Bean`** methods never get intercepted by the container, because **CGLIB subclassing** can override only non-static methods
+since such beans will get initialized early in the container lifecycle and should avoid triggering other parts of the configuration at that point.
+
+Calls to **static `@Bean`** methods never get intercepted by the container, because **CGLIB subclassing** can override only non-static methods.
+
+In static @bean class, `@Autowired` and `@Value` **do not work** on the class itself, since it is being created as a bean instance too early.
 
 
-## What is a ProperySourcesPlaceholderConfigurer used for?
+**What is a `PropertySourcesPlaceholderConfigurer` used for?** 
 
-It is a BeanFactoryPostProcessor that resolves property placeholders, on the `${PROPERTY_NAME}` format, in Spring bean properties and Spring bean properties annotated with the `@Value`. When such a placeholder is encountered the corresponding value from the Spring environment and its property sources, it's injected into the property.
+Add a static bean factory method in the configuration class, which will **enable the property placeholder resolve mechanism**. 
 
-Using property placeholders, Spring bean configuration can be externalized into property files. This allows for changing for example the database server used by an application without having to rebuild and redeploy the application.
-
-
-## What is a BeanPostProcessor and how is it different to a BeanFactoryPostProcessor? What do they do? When are they called?
-
-A **BeanPostProcessor** is an interface that defines callback methods that allow for **modification of bean instances**, like to implement your own (or override the container’s default) instantiation logic, dependency-resolution logic, and so forth. 
-
-A BeanPostProcessor may even replace a bean instance with, for instance, an AOP. 
-
-BeanPostProcessors are scoped per-container.
+Its bean instance is a **special infrastructural bean** that is used to process placeholders defined in configuration metadata files or classes and replace those placeholders with the values of properties found in PropertySources. Therefore, that bean instance should be instantiated without creating an instance of the configuration class. 
 
 ```java
-public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor {
+@Bean 
+public static PropertySourcesPlaceholderConfigurer propertyPlaceHolderConfigurer() {
+  return new PropertySourcesPlaceholderConfigurer();
+}
+```
 
-  // simply return the instantiated bean as-is 
-  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-    return bean; // we could potentially return any object reference here... 
+**In SpringBoot**, configure the PropertyPlaceHolder bean using the `@PropertySource` annotation and `PropertySourcesPlaceholderConfigurer` bean definition, which loads properties from the `application.properties` file.
+
+
+## What is a `BeanPostProcessor` and how is it different to a `BeanFactoryPostProcessor`? What do they do? When are they called?
+
+**BeanFactoryPostProcessor** is for manipulate bean definition. If you want to change the actual bean instances, use **BeanPostProcessor**.
+
+**BeanPostProcessor** is an interface that defines callback methods that allow for **modification of bean instances**, like to implement your own (or override the container’s default) instantiation logic, dependency-resolution logic, and so forth. 
+- `postProcessBeforeInitialization()`
+- `postProcessAfterInitialization()`
+
+They're "called" when the Spring IoC container **instantiates a bean**. During the startup for all the singleton and on demand for the proptotypes one, it may even replace a bean instance with, for instance, an AOP. It's scoped per-container.
+
+Example:
+
+Java Configuration and all other annotations: a `org.springframework.beans.
+factory.annotation.AutowiredAnnotationBeanPostProcessor` bean is used to autowire dependencies. This is a **post processor bean** implementation that autowires annotated fields, setter methods, and arbitrary config methods. It is registered by the `@Configuration` annotation, but it can also be registered in mixed configurations by component scanning. This bean takes care of the autowiring configured with @Autowired, @Value, and @Inject.
+
+`@Required` annotation, which is backed by the built-in Spring post-processor `RequiredAnnotationBeanPostProcessor` which checks whether all the bean properties with the `@Required` annotation have been set.
+
+**To write a bean post-processor**
+
+To register a bean post-processor in an application context, just annotate the class with the @Component annotation. The application context is able to detect which bean implements the BeanPostProcessor interface and register it to process all other bean instances in the container.
+
+```java
+@Component 
+public class AuditCheckBeanPostProcessor implements BeanPostProcessor {
+
+  public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException { 
+    System.out.println("In AuditCheckBeanPostProcessor. postProcessBeforeInitialization, processing bean type: " + bean.getClass()); return bean; 
   }
   
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException { 
-    System.out.println("Bean '" + beanName + "' created : " + bean.toString()); 
     return bean; 
   }
 }
 ```
-**VS BeanFactoryPostProcessor**  
-- **BeanFactoryPostProcessor** implementations are "called" during **startup of the Spring context** after all bean definitions will have been loaded while 
-- **BeanPostProcessor** are "called" when the **Spring IoC container instantiates a bean** (i.e. during the startup for all the singleton and on demand for the proptotypes one)
 
 
 ### What is an initialization method and how is it declared on a Spring bean?
@@ -1169,6 +1187,20 @@ public class ApplicationContextTest {
 Despite being defined in the BeanFactory interface, the getBean() method is most frequently accessed through the ApplicationContext. Typically, we don’t want to use the getBean() method directly in our program.
 
 
+## Meta-Annotations?
+
+Annotations that can be applied to definitions of annotations, must be applicable at type level. Example with `@RestController`
+
+Meta-annotations can also be combined to create **composed annotations**. `@RestController` = `@Controller` + `@ResponseBody`.
+
+```java
+@Target(ElementType.TYPE) 
+@Retention(RetentionPolicy.RUNTIME) 
+@Documented 
+@Controller 
+@ResponseBody 
+public @interface RestController {}
+```
 
 
 ## References
