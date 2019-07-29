@@ -14,13 +14,17 @@ Spring Data Management in Spring Professional Certification (16%).
 
 ## What is the difference between checked and unchecked exceptions?
 
-**Checked exceptions**: Java compiler **requires** to handle. E.g., `Exception`
-**Unchecked exceptions**: compiler not require to declare. E.g., `RuntimeException`.
+**Checked exceptions**:   
+Java compiler **requires** to handle. E.g., `Exception`
+
+**Unchecked exceptions**:   
+compiler not require to declare. E.g., `RuntimeException`.
 
 **Why does Spring prefer unchecked exceptions?**
 
-Checked exceptions reqires handling, result in **cluttered code** and **unnecessary coupling**. 
-Unchecked exceptions are non recoverable exceptions, should not let developer to handle. E.g., when `SQLException` happens, nothing you can do.
+- **Checked exceptions** reqires handling, result in **cluttered code** and **unnecessary coupling**. 
+
+- **Unchecked exceptions** are non-recoverable exceptions, should not let developer to handle. E.g., when `SQLException` happens, nothing you can do.
 
 **What is the data access exception hierarchy?**
 
@@ -31,7 +35,7 @@ Each data access technology has its own exception types, such as
 
 What Spring does is to handle technology‐specific exceptions and translate them into its own exception hierarchy. The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
 
-Spring's `DataAccessException` and sub classes are **unchecked exceptions**. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
+Spring's `DataAccessException` is an abstract class, and sub classes are **unchecked exceptions**. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
 
 1. **non-transient** exceptions, `org.springframework.dao.NonTransientDataAccessException`
     - which means that retrying the operation will fail unless the originating cause is fixed.
@@ -48,7 +52,7 @@ Spring's `DataAccessException` and sub classes are **unchecked exceptions**. The
     - For example, when the database becomes unavailable because of a bad network connection in the middle of the execution of a query, an exception of type `QueryTimeoutException` is thrown. The developer can treat this exception by **retrying the query**. 
 
 
-## How do you configure a DataSource in Spring? Which bean is very useful for development/test databases?
+## How do you configure a DataSource in Spring? 
 
 Spring obtains a connection to the database through a `DataSource`. 
 
@@ -56,31 +60,59 @@ Spring obtains a connection to the database through a `DataSource`.
 - It allows a container or a framework to hide connection pooling and transaction management issues from the application code.
 - **DataSource** VS **Connection**: DataSource provides and manages Connections.
 
-Spring offers several options for configuring data-source beans in your Spring application, including:
-1. Data sources that are defined by a **JDBC driver**
-2. Data sources that are looked up by **JNDI**
+Spring offers several options for **configuring data-source beans**, including:
+
+1. Data sources that are **defined by a JDBC driver**
+
+2. Data sources that are **looked up by JNDI**. 
+
 3. Data sources that connection pool implementation. Popular implementations are Apache Jakarta Commons DBCP and C3P0
 
-**Some DataSources**:
-1. `DataSourceUtils`: is a convenient and powerful helper class that provides static methods to obtain connections from JNDI and close connections if necessary.
+4. An **embedded database** runs as part of your application instead of as a separate database server that your application connects to.
 
-2. `SmartDataSource`: use when you know that you will **reuse a connection**.
+**The preferred way** is to retrieve the pooled data source from an application server via JNDI.
+**The next best** thing is to configure a pooled data source directly in Spring.
 
-3. Extending `AbstractDataSource`: you extend the AbstractDataSource class if you are writing **your own DataSource implementation**.
+### Which bean is very useful for development/test databases?
 
-4. `SingleConnectionDataSource`: wraps a single Connection that is **not closed after each use**. Obviously, this is **not multi-threading capable**. In contrast to `DriverManagerDataSource`, it reuses the same connection all the time, avoiding excessive creation of physical connections.
+Datasource Bean.
 
-5. `DriverManagerDataSource`: an implementation of the standard DataSource interface that configures a plain JDBC driver through bean properties, and returns a new Connection every time.
+### Using JDBC driver-based data sources.
+1. `DriverManagerDataSource`. 
+    - the simplest implementation of a DataSource, 
+    - Returns **a new connection** every time. 
+    - Connections are **not pooled**.
+    - it performs poorly when multiple requests for a connection are made
+    - unsuitable for anything other than testing.
+    - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
 
-**DriverManagerDataSource**
-- the simplest implementation of a DataSource, 
-- it **doesn’t support database connection pooling** so it performs poorly when multiple requests for a connection are made
-- unsuitable for anything other than testing.
+2. `SimpleDriverDataSource`. 
+    - Similar with DriverManagerDataSource.
+    - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
+
+3. `SingleConnectionDataSource`.
+    - Returns the same connection every time a connection is requested, avoiding excessive creation of physical connections.
+    - wraps a single Connection that is **not closed after each use**
+    - Obviously, this is **not multi-threading capable**.
 
 ```java
-DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.hsqldb.jdbcDriver"); dataSource.setUrl("jdbc:hsqldb:hsql://localhost:"); 
-dataSource.setUsername("sa"); 
-dataSource.setPassword("");
+@Bean 
+public DataSource dataSource() { 
+
+  DriverManagerDataSource ds = new DriverManagerDataSource(); 
+  ds.setDriverClassName("org.h2.Driver"); 
+  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
+  ds.setUsername("sa"); 
+  ds.setPassword(""); 
+  return ds; 
+}
+```
+
+**In SpringBoot**
+No need to declare the data source bean. Configure it using `application.properties`
+```properties
+spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase 
+spring.datasource.username=haha spring.datasource.password=secret
 ```
 
 ### DataSource in an App that deployed to Server, Use JDNI lookup
@@ -90,13 +122,6 @@ Benefits:
 2. data sources managed in an application server are often pooled for greater performance and can be hot-swapped by system administrators.
 
 You can use `JndiObjectFactoryBean` to look up the DataSource from JNDI:
-
-```xml
-<!--using the jee namespace (datasource-jee.xml)-->
-<beans>
-    <jee:jndi-lookup id="dataSource" jndi-name="/jdbc/SpitterDS" resource-ref="true" />
-</beans>
-```
 
 ```java
 @Bean 
@@ -116,6 +141,7 @@ spring.datasource.jndi-name=java:jdbc/customers
 ```
 
 ### Configure a pooled data source directly in Spring
+
 Although Spring doesn’t provide a pooled data source, plenty of suitable ones are available, including the following open source options:
 
 ```java
@@ -136,31 +162,6 @@ Although Spring doesn’t provide a pooled data source, plenty of suitable ones 
 spring.datasource.hikari.maximum-pool-size=5 
 spring.datasource.hikari.minimum-idle=2 
 spring.datasource.hikari.leak-detection-threshold=20000
-```
-
-### Using JDBC driver-based data sources
-- It's simple
-- great for **small** applications and running in **development**
-- it **doesn’t work well in multithreaded applications** and is best limited to use in testing
-- compared to the pooling data-source beans, it doesn’t provide a connection pool, there are no pool configuration properties to set.
-
-```java
-@Bean 
-public DataSource dataSource() { 
-  DriverManagerDataSource ds = new DriverManagerDataSource(); 
-  ds.setDriverClassName("org.h2.Driver"); 
-  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
-  ds.setUsername("sa"); 
-  ds.setPassword(""); 
-  return ds; 
-}
-```
-
-**In SpringBoot**
-No need to declare the data source bean. Configure it using `application.properties`
-```properties
-spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase 
-spring.datasource.username=haha spring.datasource.password=secret
 ```
 
 ### Using an embedded data source
@@ -214,7 +215,7 @@ public JdbcTemplate jdbcTemplate(DataSource dataSource) {
 ```
 
 
-## What is the Template design pattern.
+## What is the Template design pattern? What is the JDBC template?
 
 - Use abstract methods for the different steps, subclasses define all steps
 - Alternatively, the class may define default implementations of the different steps of the algorithm, allowing subclasses to customize only selected methods as desired.
@@ -247,6 +248,7 @@ The Spring JdbcTemplate simplifies the use of JDBC by implementing common workfl
 • Use `ResultSetExtractor<T>` when **multiple rows in the ResultSet map to a single object**.
 
 **NamedParameterJdbcTemplate**
+
 The NamedParameterJdbcTemplate class adds support for programming JDBC statements by using named parameters, as opposed to programming JDBC statements using only classic placeholder ( '?' ) arguments.
 
 ```java
@@ -283,7 +285,6 @@ public int countOfActors(Actor exampleActor) {
 5. calling a Stored Function
 
 
-
 ## What is a callback? 
 A callback is code or reference to a piece of code that is passed as an argument to a method that, at some point during the execution of the methods, will call the code passed as an argument.
 
@@ -293,8 +294,11 @@ Spring **converts contents of a ResultSet into domain objects** using a callback
 (You would not have to remember the interface names in the exam, but you should know what they do if you see them in a code sample).
 
 The three callback interfaces that can be used with queries to extract result data are:
+
 1. `ResultSetExtractor`: processes multiple rows, `extractData()` returns an object.
+
 2. `RowCallbackHandler`: processes row by row, `processRow()` is void. Use when no value should be returned.
+
 3. `Rowmapper`: processes row by row, `mapRow()`returns an object.
 
 
@@ -309,7 +313,6 @@ Yes. With following methods:
 - queryForObject()
 - queryForRowSet()
 - update()
-
 
 **DML**  
 DML stands for **Data Manipulation Language**, the commands SELECT, INSERT, UPDATE, and DELETE are database statements used to create, update, or delete data from existing tables.
@@ -342,8 +345,7 @@ Override load method with various parameters. E.g., queryForList() has 7 types.
 
 ## What is a transaction?
 
-**Transaction**: operate serveral tasks as one unit. Run them all successfully, or reverted. 
-Tansaction enforces ACID principle:
+**Transaction**: The context of execution for a group of SQL operations is called a transaction. Run them all successfully, or reverted. Tansaction enforces **ACID principle**:
 
 - **Atomicity**: **It is the main attribute of a transaction.** Several operations might be performed over data in any transaction. Those operations must all succeed or commit, or, if something goes wrong, none of them should be persisted; in other words, they all must be rolled back. Atomicity is also known as **unit of work**.
 
@@ -891,7 +893,6 @@ Because they can be created **instantly** by extending one of the Spring-special
 When a custom repository interface extends `JpaRepository`, it will automatically be enriched with functionality to save entities, search them by ID, retrieve all of them from the database, delete entities, flush, etc.
 
 By default, repositories are instantiated eagerly unless explicitly annotated with `@Lazy`. LAZY is a decent choice for testing scenarios.
-
 
 ## How do you define an “instant” repository? Why is it an interface not a class?
 Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. 
