@@ -315,10 +315,11 @@ Yes. With following methods:
 - update()
 
 **DML**  
-DML stands for **Data Manipulation Language**, the commands SELECT, INSERT, UPDATE, and DELETE are database statements used to create, update, or delete data from existing tables.
+DML stands for **Data Manipulation Language**, the commands SELECT, INSERT, UPDATE, and DELETE are database statements used to create, update, or delete data from **existing tables**.
 
 **DDL**   
 DDL stands for **Data Definition Language**, used to manipulate database objects: tables, views, cursors, etc. DDL database statements can be executed with JdbcTemplate using the execute method.
+
 ```java
 public int createTable(String name) {
 
@@ -330,9 +331,13 @@ public int createTable(String name) {
 }
 ```
 
+
 ## When does the JDBC template acquire (and release) a connection - for every method called or once per template? Why?
+
 **Per method called**.
-A connection is acquired immediately before executing the operation at hand and released immediately after the operation has completed, be it successfully or with an exception thrown
+
+A connection is acquired immediately before executing the operation at hand and released immediately after the operation has completed, be it successfully or with an exception thrown.
+
 
 ## How does the JdbcTemplate support generic queries? How does it return objects and lists/maps of objects?
 
@@ -356,54 +361,56 @@ Override load method with various parameters. E.g., queryForList() has 7 types.
 - **Durability**: A system has durability when you receive a successful commit message, and you can be sure that your changes are reflected to the system and will survive any system failure that might occur after that time. Basically, when you commit, your changes are permanent and won’t be lost.
 
 ### What is the difference between a local and a global transaction?
-- **Local transactions** are resource-specic, such as a transaction associated with a JDBC connection.
-- **Global transaction** allows to span multiple transactional resources, typically relational databases and message queues.
-- Spring resolves the disadvantages of global and local transactions. It lets application developers use a **consistent programming model in any environment**.
+
+**Local transactions** are resource-specic, such as a transaction associated with a JDBC connection.
+
+**Global transaction** allows to span multiple transactional resources, typically relational databases and message queues.
+
+Spring resolves the disadvantages of global and local transactions. It lets application developers use a consistent programming model in any environment.
+
 
 ## Is a transaction a cross cutting concern? How is it implemented by Spring?
 
 Yes, transaction management is a cross-cutting concern. 
 
-**Declarative transaction management** is **non-invasive**.
-**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean. AOP proxies use two infrastructure beans for this:
+**AOP** is used to decorate beans with transactional behavior. This means that when we annotate classes or methods with `@Transactional`, a proxy bean will be created to provide the transactional behavior, and it is wrapped around the original bean **in an Around advice** that takes care of getting a transaction before calling the method and committing the transaction afterward. 
+
+AOP proxies use two infrastructure beans for this:
+
 1. `TransactionInterceptor` 
+
 2. An implementation of `PlatformTransactionManager` interface. E.g., 
-    1. DataSourceTransactionManager
-    2. HibernateTransactionManager
-    3. JpaTransactionManager
-    4. JtaTransactionManager
-    5. WebLogicJtaTransactionManager
-    6. etc
+    1. `DataSourceTransactionManager`
+    2. `HibernateTransactionManager`
+    3. `JpaTransactionManager`
+    4. `JtaTransactionManager`
+    5. `WebLogicJtaTransactionManager`
 
-Under the hood: an internal infrastructure Spring-specific bean of type `InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
-  
-**Programmatic transaction management**
+**Under the hood**: 
+An internal infrastructure Spring-specific bean of type `InfrastructureAdvisorAutoProxyCreator` is registered and acts as a **bean postprocessor** that modifies the service and repository bean to add transaction-specific logic. Basically, this is the bean that creates the transactional AOP proxy.
 
-Spring Framework provides two ways of implemeting Programmatic Transaction:
+When an exception is thrown from within the body of the transactional method, Spring checks the exception type in order to decide if the transaction will commit or rollback.
 
-1. The TransactionTemplate. 
-    1. Spring team recommends.
-    2. TransactionTemplate adopts the same approach as other Spring templates, such as the JdbcTemplate.
-    3. It uses a callback approach. If there is no return value, use `TransactionCallbackWithoutResult`
-
-2. Using a `PlatformTransactionManager` implementation directly.
-    1. First, pass the implementation of the `PlatformTransactionManager` you use to your bean through a bean reference. 
-    2. Then, by using the `TransactionDefinition` and `TransactionStatus` objects, you can initiate transactions, roll back, and commit. 
 
 ## How are you going to define a transaction in Spring?
 
+Two ways of implementing it:
+1. Declarative 
+2. Programmatic  
+    - Use `TransactionTemplate`
+    - Use `PlatformTransactionManager`
+
+### Declarative transaction management
+
+Declarative transaction management is **non-invasive**.
+
 1. **Configure transaction management support**
-    1. Using XML and activating it with `<tx:annotation-driven ../>` 
-    ```xml
-    <beans ...>
-      <bean id="transactionManager"  
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
-        <property name="dataSource" ref="dataSource"/>
-      </bean>
-    </bean>
-    ```
-    2. Using Java Configuration and enable it with `@EnableTransactionManagement`
+    - Using Java Configuration, define a `PlatformTransactionManager` bean
+    - Enable it by annotate the config file with `@EnableTransactionManagement`
+    
     ```java
+    @Configuration 
+    @EnableTransactionManagement 
     public class TestDataConfig {
       @Bean 
       public PlatformTransactionManager txManager(){ 
@@ -411,12 +418,7 @@ Spring Framework provides two ways of implemeting Programmatic Transaction:
       } 
     }
     ```
-    ```java
-    @Configuration 
-    @EnableTransactionManagement 
-    @ComponentScan(basePackages = {"com.ps.repos.impl", "com.ps.services.impl"}) 
-    public class AppConfig { }
-    ```
+
 2. Declare transactional methods using `@Transactional` 
 
     ```java
@@ -430,13 +432,25 @@ Spring Framework provides two ways of implemeting Programmatic Transaction:
     }
     ```
 
-## What does `@Transactional` do? 
+### Programmatic transaction management
 
-todo: Annotation driven transaction settings including: mode, proxyTargetClass, order
+Spring Framework provides two ways of implemeting Programmatic Transaction:
+
+1. The TransactionTemplate. 
+    1. Spring team recommends.
+    2. TransactionTemplate adopts the same approach as other Spring templates, such as the JdbcTemplate.
+    3. It uses a callback approach. If there is no return value, use `TransactionCallbackWithoutResult`
+
+2. Using a `PlatformTransactionManager` implementation directly.
+    1. First, pass the implementation of the `PlatformTransactionManager` you use to your bean through a bean reference. 
+    2. Then, by using the `TransactionDefinition` and `TransactionStatus` objects, you can initiate transactions, roll back, and commit. 
+
+
+## What does `@Transactional` do? 
 
 `@Transactional` is metadata that specifies that an **interface**, **class**, or **method** **must** have transactional semantics.
 
-A list of attributes of `@Transactional`:
+**`@Transactional` Settings**
 
 1. The **transactionManager** attribute value defines the transaction manager used to manage the transaction in the context of which the annotated method is executed
 
@@ -456,23 +470,34 @@ Default settings for **@Transactional**:
 
 - Propagation setting is `PROPAGATION_REQUIRED`.
 - Isolation level is `ISOLATION_DEFAULT`.
-- Transaction is `read/write`, which is  read only = FALSE.
+- Transaction is `read/write`, which is  `read only = FALSE`.
 - Transaction timeout defaults to the default timeout of the underlying transaction system, or to none if timeouts are not supported.
 - Any RuntimeException triggers rollback, and any checked Exception does not.
 
+  
+**Annotation driven transaction settings**
 
-## What is the PlatformTransactionManager?
+- `mode`
+    - The **default mode (proxy)** processes annotated beans to be proxied by using Spring’s AOP framework.
+    - The alternative **mode (aspectj)** instead weaves the affected classes with Spring’s AspectJ transaction aspect, modifying the target class byte code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar` in the classpath as well as having load-time weaving (or compiletime weaving) enabled.
+- `proxyTargetClas`
+    - Applies to proxy mode only.
+    - If it's false or omitted, then standard JDK interface-based proxies are created.
+    - If the proxy-target-class attribute is set to true, class-based proxies are created.
+- `order`
+    - Defines the order of the **transaction advice** that is applied to beans annotated with `@Transactional`
+    - Default `Ordered.LOWEST_PRECEDE NCE`.
+
+
+## What is the `PlatformTransactionManager`?
+
 Spring’s core transaction management abstraction is based on the interface **PlatformTransactionManager**.
 
 - It is the base interface for all transaction managers that can be used in the Spring framework’s transaction infrastructure.
 - It encapsulates a set of technology-independent methods for transaction management. 
-- Remember that a transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose in Spring. 
+- A transaction strategy is defined by `PlatformTransactionManager` interface
+- A transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose. 
 
-The PlatformTransactionManager interface provides three methods for working with transactions:
-
-1. `getTransaction()`: Return a currently active transaction or create a new one, according to the specified propagation behavior.
-2. `commit()`: Commit the given transaction, with regard to its status
-3. `rollback`: Perform a rollback of the given transaction
 
 ```java
 Public interface PlatformTransactionManager(){  
@@ -485,24 +510,60 @@ Public interface PlatformTransactionManager(){
 } 
 ```
 
+The PlatformTransactionManager interface provides three methods for working with transactions:
+
+1. `getTransaction()`: returns a TransactionStatus object, depending on a TransactionDefinition parameter. The returned TransactionStatus might represent a new transaction or can represent an existing transaction, if a matching transaction exists in the current call stack.
+
+    The `TransactionDefinition` interface specifies:  
+    - Propagation
+    - Isolation
+    - Timeout
+    - Read-only status
+
+2. `commit()`: Commit the given transaction, with regard to its status
+
+3. `rollback`: Perform a rollback of the given transaction
+
+
 Implementations of `PlatformTransactionManager` interface. E.g., 
-1. DataSourceTransactionManager
-2. HibernateTransactionManager
-3. JpaTransactionManager
-4. JtaTransactionManager
-5. WebLogicJtaTransactionManager
-6. etc
+
+1. `DataSourceTransactionManager`: Suitable if you are only using JDBC
+2. `HibernateTransactionManager`
+    - Hibernate without JPA
+    - Also possible to use JDBC at the same time
+3. `JpaTransactionManager`: 
+    - Suitable if you are using JPA. 
+    - Also possible to **use JDBC at the same time**
+4. `JdoTransactionManage`
+    - using JDO
+    - Also possible to use JDBC at the same time
+5. `JtaTransactionManager`
+    - Suitable if you are using **global transactions**—that is, the distributed transaction management capability of your application server. 
+    - You can use any data access technology
+6. `WebLogicJtaTransactionManager`
+7. etc.
+
+You typically define `PlatformTransactionManager` implementation through **dependency injection**.
 
 **Examples**
 1. Deal with only a single data source in your application and access it with **JDBC**, use `DataSourceTransactionManager`
+    
     ```java
+    
+    @Bean 
+    public DataSource dataSource() { 
+      DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.h2.Driver"); 
+      dataSource.setUrl("jdbc:h2:tcp://localhost/~/test"); 
+      dataSource.setUsername("sa"); 
+      dataSource.setPassword(""); 
+      return dataSource; 
+    }
+    
+    
     @Bean 
     public DataSourceTransactionManager transactionManager() {
-    
       DataSourceTransactionManager transactionManager = new DataSourceTransactionManager()
-      
       transactionManager.setDataSource(dataSource());
-      
       return transactionManager; 
     }
     ```
@@ -518,7 +579,7 @@ Implementations of `PlatformTransactionManager` interface. E.g.,
     }
     ```
 
-3. If you are using JTA for transaction management on a Java EE application server, you should use JtaTransactionManager to look up a transaction from the application server. Additionally, JtaTransactionManager is appropriate for distributed transactions (transactions that span multiple resources). Note that while it’s common to use a JTA transaction manager to integrate the application server’s transaction manager, there’s nothing stopping you from using a stand-alone JTA transaction manager such as Atomikos.
+3. If you are using JTA for transaction management on a Java EE application server, you should use JtaTransactionManager to look up a transaction from the application server. Additionally, JtaTransactionManager is **appropriate for distributed transactions** (transactions that span multiple resources). Note that while it’s common to use a JTA transaction manager to integrate the application server’s transaction manager, there’s nothing stopping you from using a stand-alone JTA transaction manager such as Atomikos.
 
 ![spring-aop-diagram.jpg](https://i.loli.net/2019/06/21/5d0ca922340f859820.jpg)
 
@@ -529,25 +590,27 @@ Yes, both declarative and programmatic ways, by wrapping the **DataSource** usin
 
 This is a proxy for a target DataSource, which wraps the target DataSource to add awareness of Spring-managed transactions.
 
+
 ## What is a transaction isolation level? How many do we have and how are they ordered?
 
-**Transaction Isolation** is the isolation of one transactions from another. Anwsers the question: are transactions affect each other?
+**Transaction Isolation** is the isolation of one transactions from another. It anwsers the question: are transactions affect each other?
 
-In Spring, there are five isolation values that are defined in the  `org.springframework.transaction.annotation.Isolation` enum:
+In Spring, there are five isolation values that are defined in the  `Isolation` enum:
 
-- `ISOLATION_DEFAULT`: DB default
+- `Isolation.DEFAULT`: DB default
 
-- `ISOLATION_READ_UNCOMMITED`: It allows this transaction to see data modified by other uncommitted transactions. **Dirty reads**, **NonRepeatable Read** and **Phantom Read**.
+- `Isolation.READ_UNCOMMITTED`: It allows this transaction to see data modified by other uncommitted transactions. **Dirty reads**, **NonRepeatable Read** and **Phantom Read**.
 
-- `ISOLATION_READ_COMMITED`: Default for most dbs. It ensures that other transactions are not able to read data that has not been committed by other transactions. However, the data that was read by one transaction can be updated by other transactions. **NonRepeatable Read** and **Phantom Read**.
+- `Isolation.READ_COMMITTED`: Default for most dbs. It ensures that other transactions are not able to read data that has not been committed by other transactions. However, the data that was read by one transaction can be updated by other transactions. **NonRepeatable Read** and **Phantom Read**.
 
-- `ISOLATION_REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **Phantom Read**.
+- `Isolation.REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **Phantom Read**.
 
-- `ISOLATION_SERIALIZABLE`: most restrictive, read and write locks.
+- `Isolation.SERIALIZABLE`: most restrictive, read and write locks.
 
 Higher isolation levels is a reduction of the ability of multiple users and systems concurrently accessing to the resources.
 
-## What is @EnableTransactionManagement for?
+---
+## What is `@EnableTransactionManagement` for?
 
 Both `@EnableTransactionManagement` and `<tx:annotation-driven ../>` enable all infrastructure beans necessary **for supporting transactional execution**.
 
@@ -563,19 +626,19 @@ It is to define behavior of the target methods: if they should be executed in an
 
 Spring `Propagation` enum:
 
-1. `PROPAGATION_REQUIRED`: enforces a physical transaction. An existing transaction will be used or a new one will be **created** to execute.  `@Transactional(propagation = Propagation.REQUIRED)`
+1. `Propagation.REQUIRED`: enforces a physical transaction. An existing transaction will be used or a new one will be **created** to execute.  `@Transactional(propagation = Propagation.REQUIRED)`
 
-2. `PROPAGATION_REQUIRES_NEW`: always new. If a current transaction exists, it will be **suspended**.
+2. `Propagation.REQUIRES_NEW`: always new. If a current transaction exists, it will be **suspended**.
 
-3. `PROPAGATION_NESTED`. Use existing one. Otherwaise **create** a new one. This setting is typically mapped onto JDBC savepoints, so it works **only with JDBC** resource transactions. See Spring’s `DataSourceTransactionManager` .
+3. `Propagation.NESTED`. Use existing one. Otherwaise **create** a new one. This setting is typically mapped onto JDBC savepoints, so it works **only with JDBC** resource transactions. See Spring’s `DataSourceTransactionManager` .
 
-4. MANDATORY. Use existing one. Otherwaise throw **exception**.
+4. `Propagation.MANDATORY`. Use existing one. Otherwaise throw **exception**.
 
-5. NEVER. **must not** be executed within a transaction. If a transaction exists, an exception will be thrown.
+5. `Propagation.NEVER`. **must not** be executed within a transaction. If a transaction exists, an exception will be thrown.
 
-6. NOT_SUPPORTED: no transaction is used.If a transaction exists, it will be **suspended**.
+6. `Propagation.NOT_SUPPORTED`: no transaction is used.If a transaction exists, it will be **suspended**.
 
-7. SUPPORTS. If existing, use it. Otherwise, it's ok.
+7. `Propagation.SUPPORTS`. If existing, use it. Otherwise, it's ok.
 
 ```java
 @Service 
