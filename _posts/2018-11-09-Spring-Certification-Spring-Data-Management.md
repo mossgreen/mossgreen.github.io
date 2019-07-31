@@ -605,11 +605,10 @@ In Spring, there are five isolation values that are defined in the  `Isolation` 
 
 - `Isolation.REPEATABLE_READ`: Ensures that once you select data, you can select at least the same set again. However, if other transactions insert new data, you can still select the newly inserted data. **Phantom Read**.
 
-- `Isolation.SERIALIZABLE`: most restrictive, read and write locks.
-
+- `Isolation.SERIALIZABLE`: most restrictive, read and write locks.  
 Higher isolation levels is a reduction of the ability of multiple users and systems concurrently accessing to the resources.
 
----
+
 ## What is `@EnableTransactionManagement` for?
 
 Both `@EnableTransactionManagement` and `<tx:annotation-driven ../>` enable all infrastructure beans necessary **for supporting transactional execution**.
@@ -618,7 +617,8 @@ Components registered when the `@EnableTransactionManagement` annotation is used
 - A TransactionInterceptor: calls to @Transactional methods
 - A JDK Proxy or AspectJ advice, intercepts methods annotated with `@Transactional`
 
-`@EnableTransactionManagement` and `<tx:annotation-driven/>` only looks for `@Transactional` on beans **in the same application context they are defined in**. This means that, if you put annotation driven configuration in a `WebApplicationContext` for a `DispatcherServlet` it only checks for `@Transactional` beans **in your controllers, and not your services**.
+`@EnableTransactionManagement` and `<tx:annotation-driven/>` only looks for `@Transactional` on beans **in the same application context they are defined in**. This means that, if you put annotation driven configuration in a `WebApplicationContext` for a `DispatcherServlet` it only checks for `@Transactional` beans in your controllers, and not your services.
+
 
 ## What does transaction propagation mean?
 
@@ -626,19 +626,33 @@ It is to define behavior of the target methods: if they should be executed in an
 
 Spring `Propagation` enum:
 
-1. `Propagation.REQUIRED`: enforces a physical transaction. An existing transaction will be used or a new one will be **created** to execute.  `@Transactional(propagation = Propagation.REQUIRED)`
+1. `Propagation.REQUIRED`: `@Transactional(propagation = Propagation.REQUIRED)`
+    - Starts a new transaction if there is no transaction.
+    - An existing transaction is kept and the second method call is executed within the same transaction.
+    - If the second method throws an **exception** that causes rollback, the whole transaction rolls back. It doesn’t matter if the first transaction handles that exception or not.
+    - Transaction rolls back and throws `UnexpectedRollbackException`.
 
-2. `Propagation.REQUIRES_NEW`: always new. If a current transaction exists, it will be **suspended**.
+2. `Propagation.REQUIRES_NEW`:  
+    - always starts a new transaction regardless of whether there is already an active one.
 
-3. `Propagation.NESTED`. Use existing one. Otherwaise **create** a new one. This setting is typically mapped onto JDBC savepoints, so it works **only with JDBC** resource transactions. See Spring’s `DataSourceTransactionManager` .
+3. `Propagation.NESTED`. 
+    - there is only one active transaction that spans method calls.
+    - only available if your persistence technology is JDBC.
+    - it won’t work if you are using JPA or Hibernate.
+    - `JDBC savepoints` are used to mark new method calls. When an exception occurs in the second method, the transaction until the last savepoint is rolled back
 
-4. `Propagation.MANDATORY`. Use existing one. Otherwaise throw **exception**.
+4. `Propagation.MANDATORY`. 
+    - An error occurs if there is not an active transaction.
 
-5. `Propagation.NEVER`. **must not** be executed within a transaction. If a transaction exists, an exception will be thrown.
+5. `Propagation.NEVER`. 
+    - An error occurs if there is an active transaction in the system when the method is called.
 
-6. `Propagation.NOT_SUPPORTED`: no transaction is used.If a transaction exists, it will be **suspended**.
+6. `Propagation.NOT_SUPPORTED`:
+    - If there is an active transaction when the method is called, the active transaction is suspended until the end of the method call.
 
-7. `Propagation.SUPPORTS`. If existing, use it. Otherwise, it's ok.
+7. `Propagation.SUPPORTS`. 
+    - current method work in a transaction if one already exists. 
+    - Otherwise, the method will work without any transaction.
 
 ```java
 @Service 
@@ -651,12 +665,21 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
-## What happens if one @Transactional annotated method is calling another @Transactional annotated method on the same object instance?
+
+## What happens if one `@Transactional` annotated method is calling another `@Transactional` annotated method on the same object instance?
 
 As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean effectively bypasses the proxy, thus the second method will be excuted in the same transaction with the first. 
+  
+### Service layer or Repository layer?
+
+Use `@Transactional` in the service layer or the DAO/ repository layer, but **not both**. 
+
+**The service layer is the usual choice**, because service methods call multiple repository methods that need to be executed in the same transaction. 
+
+The only reason to make your repositories transactional is if you do not need a service layer at all, which is usually the case for small educational applications.
 
 
-## Where can the @Transactional annotation be used? What is a typical usage if you put it at class level?
+## Where can the `@Transactional` annotation be used? What is a typical usage if you put it at class level?
 
 **Class level**: 
   1. default for **all methods** of the declaring class 
@@ -676,10 +699,6 @@ As per the limitation of Spring AOP, a self-invocation of a proxied Spring Bean 
 
 ## What does declarative transaction management mean?
 
-Programmatic transaction management is a good idea only if:
-1. Has only a small number of transactional operations. For example, if you have a web application that requires transactions only for certain update operations, you may not want to set up transactional proxies by using Spring or any other technology.
-2. Being able to set the transaction name explicitly.
-
 For declarative transaction management:
 1. It keeps transaction management out of business logic.
 2. Easy to configure. Use **Java annotations** or **XML** configuration files. 
@@ -695,6 +714,11 @@ Basically, when those specified methods are called, Spring begins a new transact
 
 4. From now on, that proxy instance becomes your bean, and it’s delivered from Spring Container when requested.
 
+**Programmatic transaction management is a good idea only if**:
+1. Has only a small number of transactional operations. For example, if you have a web application that requires transactions only for certain update operations, you may not want to set up transactional proxies by using Spring or any other technology.
+2. Being able to set the transaction name explicitly.
+
+
 ##  What is the default rollback policy? How can you override it?
 
 - Default rollback policy: **only** when a `RuntimeException` is thrown.
@@ -709,11 +733,8 @@ public int updatePassword(Long userId, String newPass) throws MailSendingExcepti
   sendEmail(email); 
   return userRepo.updatePassword(userId, newPass); 
 }
-
-private void sendEmail(String email) throws MailSendingException {
-  ... // checked exception
-}
 ```
+
 
 ## What is the default rollback policy in a JUnit test? 
 
@@ -722,22 +743,34 @@ When you use the `@RunWith(SpringJUnit4ClassRunner.class)` in JUnit 4 or `@Exten
 - Test-methods will be executed in a transaction, **and** will roll back after completion.
 - The rollback policy of a test can be changed using the `@Rollback` set to false.
 
+
+The `@DataJpaTest` tests are transactional and rolled back at the end of each test by default. You can disable this default rollback behavior for a single test or for an entire test class by annotating with `@Transactional(propagation = Propagation.NOT_SUPPORTED)`.
+
+
 ## Why is the term "unit of work" so important and why does JDBC AutoCommit violate this pattern?
 
 - The unit of work describes the **atomicity** of transactions. 
 - **JDBC AutoCommit** will cause each individual SQL statement as to be executed in its own transaction, which makes it impossible to perform operations that consist of multiple SQL statements as a unit of work.
 - JDBC AutoCommit **can be disabled** by calling the `setAutoCommit()` to false on a JDBC connection.
 
+
 ## What does JPA stand for - what about ORM?
 
 **JPA**: Java Persistence API.
 **ORM**: Object-Relational Mapping. Mappingg a java entity to SQL database table.
 
+**Benefits of using Spring’s JPA support in your data access layer**
+- Easier and more powerful persistence unit configuration
+- Automatic EntityManager management
+- Easier testing
+- Common data access exceptions
+- Integrated transaction management
+
 JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
 
-1. **Application-managed** — Entity managers are created when an application directly requests one from an entity manager factory. This type of entity manager is most appropriate for use in standalone applications that **don’t run in a Java EE container**.
+1. **Application-managed** — Entity managers are created when an application directly requests one from an **entity manager factory**. This type of entity manager is most appropriate for use in standalone applications that **don’t run in a Java EE container**.
 
-2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The **container is responsible for configuring the entity manager factories**. This type of entity manager is most appropriate for use by a Java EE container that wants to maintain some control over JPA configuration beyond what’s specified in `persistence.xml`.
+2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The **container is responsible for configuring the entity manager factories**. This type of entity manager is **most appropriate for use by a Java EE container** that wants to maintain some control over JPA configuration beyond what’s specified in `persistence.xml`.
 
 Both kinds of entity manager implement the same `EntityManager` interface.
 
@@ -803,21 +836,57 @@ JPA has two annotations to obtain container‐managed `EntityManagerFactory` or 
 
 ## What is a `PersistenceContext` and what is an `EntityManager`. What is the relationship between both?
 
-`@PersistenceUnit` and `@PersistenceContext` aren’t Spring annotations; they’re provided by the JPA specification.
+JPA has two annotations to obtain container‐managed EntityManagerFactory or EntityManager instances within Java EE environments.
 
-The `@PersistenceUnit` annotation expresses a dependency on an `EntityManagerFactory`, and `@PersistenceContext` expresses a dependency on a containermanaged `EntityManager` instance. 
+`@PersistenceUnit` and `@PersistenceContext` 
+- They aren’t Spring annotations; they’re provided by the JPA specification. 
+- Both annotations can be used at either the field or method level. 
+- Visibility of those fields and methods doesn’t matter.
+- Spring’s `PersistenceAnnotationBeanPostProcessor` must be configured **explicitly:**
+    ```java
+    @Bean 
+    public PersistenceAnnotationBeanPostProcessor paPostProcessor() { 
+      return new PersistenceAnnotationBeanPostProcessor(); 
+    }
+    ```
+- if you do use Spring’s exception translation
+    ```java
+    @Bean 
+    public BeanPostProcessor persistenceTranslation() { 
+      return new PersistenceExceptionTranslationPostProcessor(); 
+    }
+    ```
 
-Both `@PersistenceContext` and `@PersistenceUnit` annotations can be used at either the field or method level. Visibility of those fields and methods doesn’t matter.
+`@PersistenceContext` 
+- Used for entity manager injection.
+- Expresses a dependency on a container-managed EntityManager **and** its associated persistence context.
+- This field does not need to be autowired, since this annotation is picked up by an infrastructure Spring bean postprocessor bean that makes sure to create and inject an EntityManager instance.
+- @PersistenceContext has a type attribute 
+    - PersistenceContextType.TRANSACTION
+        In **stateless beans**, like singleton bean, it is safe to use only the PersistenceContextType.TRANSACTION value for a shared EntityManager to be created and injected into for the current active
+    - PersistenceContextType.EXTENDED
+        - is purposefully designed to support beans, like stateful EJBs, session Spring beans, or **request‐scoped Spring beans**. The shared EntityManager instance wouldn’t be bound to the active transaction and might span more than one transaction. 
 
-A **PersistenceContext** is essentially a Cache, containing a set of domain objects/entities in which for every persistent entity there is a unique entity instance.
-  - Default persistence context duration is one single transaction
-  - Can be configured 
+**PersistenceContext**   
+It's essentially a Cache, containing a set of domain objects/entities in which for every persistent entity there is a unique entity instance.
+- Default persistence context duration is one single transaction
+- Can be configured
+- the persistence context itself is managed by EntityManager
 
-An **EntityManager** represents a PersistenceContext. The entity manager provides an API for managing a persistence context and interacting with the entities in the persistence context.
-  - It does creation, update, querying, deletion
+**Persistence Unit**:  
+a group of entity classes defined by the developer to map database records to objects that are managed by an Entity Manager, basically all classes annotated with @Entity, @MappedSuperclass, and @Embedded in an application.
+- All entity classes must define a primary key, must have a non-arg constructor or not allowed to be final.
+- This set of entity classes represents data contained in a single datasource. 
+- Multiple persistence units can be defined within the same application. 
+- Configuration of persistence units can be done using XML, e.g., `persistence.xml` file under the `META-INF` directory.
 
-An **EntityManagerFactory** creates and EntityManager and therefore a  PersistenceContext/Cache.
-  - Thread safe, shareable, represent a single datasource and persistence context. 
+**EntityManager** 
+represents a PersistenceContext. The entity manager provides an API for managing a persistence context and interacting with the entities in the persistence context. 
+- It does creation, update, querying, deletion.
+- An EntityManager isn’t thread-safe and generally shouldn’t be injected into a shared singleton bean like your repository. `@PersistenceContext` doesn’t inject an EntityManager—at least, not exactly. Instead of giving the repository a real EntityManager, it gives a proxy to a real EntityManager. That real EntityManager either is one associated with the current transaction or, if one doesn’t exist, creates a new one.
+
+**EntityManagerFactory**  
+It has the responsibility of creating application-managed Entity Manager instances and therefore a  PersistenceContext/Cache. Thread safe, shareable, represent a single datasource and persistence context. 
 
 ```java
 @Repository 
@@ -831,6 +900,7 @@ public class JpaUserRepo implements UserRepo {
 }
 ```
 
+---
 ## Why do you need the @Entity annotation. Where can it be placed?
 
  `@Entity` marks classes as templates for domain objects, also called entities to database tables.
