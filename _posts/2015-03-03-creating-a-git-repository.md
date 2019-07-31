@@ -5,12 +5,11 @@ categories:
   - Git
 ---
 
-
-> First thing you need to know if you want to play with Github.
+Creating Github repo from either remote or locally.
 
 ## Two ways of creating a GitHub repository
 
-There are two ways to create a Github repository. One is pushing fro local, another is pulling to local.
+There are two ways to create a Github repository. One is pushing from local to remote, another is pulling from remote to local.
 
 ###  Create a repo on Github and Clone it to local
 1. Create a repo on Github

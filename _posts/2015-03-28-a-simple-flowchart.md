@@ -1,5 +1,5 @@
 ---
-title: How to Make a Simple Flowchart
+title: How to Create a Simple Flowchart
 search: true
 toc: true
 toc_label: "My Table of Contents"

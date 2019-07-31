@@ -8,8 +8,8 @@ classes: wide
 ---
 
 
-1. [All IT eBooks](http://www.allitebooks.org/) 
-2. [All IT eBooks](http://www.allitebooks.in/)
+1. [All IT eBooks - org](http://www.allitebooks.org/) 
+2. [All IT eBooks - in](http://www.allitebooks.in/)
 3. [droppdf](http://droppdf.com/) 
 4. [Ebook all](http://ebook-dl.com/) 
 5. [awesome-programming-books](https://github.com/jobbole/awesome-programming-books) 
