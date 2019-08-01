@@ -362,9 +362,14 @@ Override load method with various parameters. E.g., queryForList() has 7 types.
 
 ### What is the difference between a local and a global transaction?
 
-**Local transactions** are resource-specic, such as a transaction associated with a JDBC connection.
+**Local transactions** 
+- are resource-specic, your application works with a single database, and your transactions only control DML operations performed on that single database, 
+- such as a transaction associated with a JDBC connection.
 
-**Global transaction** allows to span multiple transactional resources, typically relational databases and message queues.
+**Global transaction** 
+- means distributed transaction management.
+- allows to span multiple transactional resources, typically relational databases and message queues.
+- JEE offers JTA to deal with global transactions,
 
 Spring resolves the disadvantages of global and local transactions. It lets application developers use a consistent programming model in any environment.
 
@@ -900,28 +905,20 @@ public class JpaUserRepo implements UserRepo {
 }
 ```
 
----
-## Why do you need the @Entity annotation. Where can it be placed?
 
- `@Entity` marks classes as templates for domain objects, also called entities to database tables.
-
-The `@Entity` annotation can be applied **only** at class level.
-
-```java
-@Entity 
-@Table(name="P_USER") 
-public class User extends AbstractEntity { }
-```
 ## What do you need to do in Spring if you would like to work with JPA?
 
 1. Declare **dependencies**: ORM dependency, db driver dependency, transaction manager dependency.
 
 2. `@Entity` classes
+    - `@Entity` marks classes as templates for domain objects, also called entities to database tables.
+    - The `@Entity` annotation can be applied **only** at class level.
 
 3. Define an **EntityManagerFactory** bean.
     - Simplest:  `LocalEntityManagerFactoryBean`. It produces an application-managed EntityManagerFactory.
     - Obtain an `EntityManagerFactory` using JNDI, use **when** app ran in Java EE server
     - Full JPA capabilities: `LocalContainerEntityManagerFactoryBean`
+
 4. Define a `DataSource` bean
 
 5. Define a `TransactionManager` bean
@@ -961,6 +958,7 @@ class ApplicationConfig {
   }
 }
 ```
+
 You must create `LocalContainerEntityManagerFactoryBean` and **not** `EntityManagerFactory` directly, since the former also participates in exception translation mechanisms in addition to creating `EntityManagerFactory` .
 
 
@@ -972,20 +970,56 @@ The Spring **JpaTransactionManager** supports direct DataSource access within on
 
 If the Spring application is to be deployed to a **JavaEE server**, then `JtaTransactionManager` can be used in the Spring application. 
 
+
 ## Which PlatformTransactionManager(s) can you use with JPA?
 
-First, any JTA transaction manager can be used with JPA since JTA transactions are global transactions, that is they can span multiple resources such as databases, queues etc. Thus JPA persistence becomes just another of these resources that can be involved in a transaction.
+Implementations of `PlatformTransactionManager` interface. E.g., 
+
+1. `DataSourceTransactionManager`: Suitable if you are only using JDBC
+
+2. `HibernateTransactionManager`
+    - Hibernate without JPA
+    - Also possible to use JDBC at the same time
+
+3. `JpaTransactionManager`: 
+    - Suitable if you are using JPA. 
+    - Also possible to **use JDBC at the same time**
+
+4. `JdoTransactionManage`
+    - using JDO
+    - Also possible to use JDBC at the same time
+
+5. `JtaTransactionManager`
+    - Suitable if you are using **global transactions**—that is, the distributed transaction management capability of your application server. 
+    - You can use any data access technology
+
+6. `WebLogicJtaTransactionManager`
+
+7. etc.
+
+`JtaTransactionManager` is used for global transactions, so that they can span multiple resources such as databases, queues etc. If the application has **multiple** JPA entity manager factories that are to be transactional, then a JTA transaction manager is **required**.
 
 When using JPA with one single entity manager factory, the Spring Framework `JpaTransactionManager` is the recommended choice. This is also the **only** transaction manager that is JPA entity manager factory aware.
 
-If the application has **multiple** JPA entity manager factories that are to be transactional, then a JTA transaction manager is **required**.
 
 ## What does @PersistenceContext do?
-> “Expresses a dependency on a container-managed EntityManager and its associated persistence context.”
 
-The @PersistenceContext annotation is applied to a instance variable of the type EntityManager or a setter method, taking a single parameter of the EntityManager type, into which an entity manager is to be injected.
+`@PersistenceContext` 
+- Used for entity manager injection.
+- Expresses a dependency on a container-managed EntityManager **and** its associated persistence context.
+- This field does not need to be autowired, since this annotation is picked up by an infrastructure Spring bean postprocessor bean that makes sure to create and inject an EntityManager instance.
+- @PersistenceContext has a type attribute 
+    - PersistenceContextType.TRANSACTION
+        In **stateless beans**, like singleton bean, it is safe to use only the PersistenceContextType.TRANSACTION value for a shared EntityManager to be created and injected into for the current active
+    - PersistenceContextType.EXTENDED
+        - is purposefully designed to support beans, like stateful EJBs, session Spring beans, or **request‐scoped Spring beans**. The shared EntityManager instance wouldn’t be bound to the active transaction and might span more than one transaction. 
 
-This field does not need to be autowired, since the @PersistenceContext annotation is picked up by an infrastructure Spring bean postprocessor bean of type org.springframework.
+**PersistenceContext**   
+It's essentially a Cache, containing a set of domain objects/entities in which for every persistent entity there is a unique entity instance.
+- Default persistence context duration is one single transaction
+- Can be configured
+- the persistence context itself is managed by EntityManager
+
 
 ## What do you have to configure to use JPA with Spring? How does Spring Boot make this easier?
 
@@ -994,11 +1028,12 @@ see: **What do you need to do in Spring if you would like to work with JPA?**
 To use Spring Data components in a JPA project, a dependency on the package spring-data-jpa **must** be introduced.
 
 ### JPA in SpringBoot
+
 1. SpringBoot provides a default set fo **dependencies** needed for JPA in starter.
 2. Provides all default **Spring beans** needed to use JPA.
 3. Provides a number of **default properties** related to persistence and JPA.
 
-**Disable Spring Data Auto Configuration in SrpingBoot**
+**Disable Spring Data Auto Configuration in SpringBoot**
 
 It's useful in testing.
 
@@ -1016,18 +1051,17 @@ org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,
 org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
 ```
 
-## What is an "instant repository"? 
-(hint: recall Spring Data)
+## What is a Repository interface?
 
-An instant repository, also known as a **Spring Data repository**.
-
-Because they can be created **instantly** by extending one of the Spring-specialized interfaces
+A **Spring Data repository** is also known as a "instant" repository, because they can be created **instantly** by extending one of the Spring-specialized interfaces.
 
 When a custom repository interface extends `JpaRepository`, it will automatically be enriched with functionality to save entities, search them by ID, retrieve all of them from the database, delete entities, flush, etc.
 
 By default, repositories are instantiated eagerly unless explicitly annotated with `@Lazy`. LAZY is a decent choice for testing scenarios.
 
+
 ## How do you define an “instant” repository? Why is it an interface not a class?
+
 Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. 
 
 Any additional functionality that is not provided by default can be easily implemented by defining a method skeleton and providing the desired functionality using annotations.
@@ -1041,10 +1075,30 @@ prefixes `find` also can be replaced:
 private static final String QUERY_PATTERN = "find|read|get|query|stream";
 ```
 
+**Limiting Query Results**
+```java
+User findFirstByOrderByLastnameAsc(); 
+
+User findTopByOrderByAgeDesc(); 
+
+Page<User> queryFirst10ByLastname(String lastname, Pageable pageable); 
+
+Slice<User> findTop3ByLastname(String lastname, Pageable pageable); 
+
+List<User> findFirst10ByLastname(String lastname, Sort sort); 
+
+List<User> findTop10ByLastname(String lastname, Pageable pageable);
+```
+
+NB: `findAllByXxx()` are `findByXxx()` identical.
+
+
 ## How are Spring Data repositories implemented by Spring at runtime?
+
 For a Spring Data repository a **JDK dynamic proxy** is created which intercepts all calls to the repository. 
 
 The default behavior is to route calls to the default repository implementation, which in Spring Data JPA is the SimpleJpaRepository class.
+
 
 ## What is `@Query` used for?
 
@@ -1072,9 +1126,11 @@ public interface UserRepo extends JpaRepository<User, Long> {
 }
 ```
 
+
 ## References
 
 1. [Spring Framework Reference - Data Access](https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html)
 2. [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html)
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
+5. [Beginning Spring](https://www.amazon.com/Beginning-Spring-Mert-Caliskan-ebook/dp/B00T1JV8TI) 
