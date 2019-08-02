@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring MVC in Spring professional certification.
+Spring MVC in Pivotal Spring professional certification(8%).
 
 ## MVC is an abbreviation for a design pattern. What does it stand for and what is the idea behind it?
 
@@ -47,9 +47,9 @@ Spring MVC in Spring professional certification.
 
 ## What is the DispatcherServlet and what is it used for?
 
-> **Front controller pattern** stands for a single servlet delegates responsibility for a request to other components of an application, to perform actual processing. 
+**Front controller pattern** stands for a single servlet delegates responsibility for a request to other components of an application, to perform actual processing. 
 
-Following **front controller pattern**, **DispatcherServlet** is the central `Servlet`, the **entry point** of the application, the heart of Spring Web MVC that coordinates all request handling operations.
+Following **front controller pattern**, Spring MVC provides `DispatcherServlet` receiving all the requests and delegates the processing to request handlers (controllers). Once the processing is done, ViewResolver will render a view based on the view name.
 
 A Spring web application may define **multiple** dispatcher servlets, each of which has its own namespace, its own Spring application context and its own set of mappings and handlers.
 
@@ -87,17 +87,27 @@ public class DemoWebAppInitializer
   }
 }
 ```
+
 - Any class that extends `AbstractAnnotationConfigDispatcherServletInitializer` will automatically be used to configure `DispatcherServlet` and the Spring application context in the application’s servlet context.
-- This initializer create a DispatcherServlet and a ContextLoaderListener.
+
+- This initializer create a `DispatcherServlet` and a `ContextLoaderListener`.
 
 - `getServletMappings()` identifies one or more paths that DispatcherServlet will be mapped to. It will handle all requests coming into the application.
 
 - `getRootConfigClasses()` is called internally, and the configuration classes are used to create the root application context, which will become the parent ApplicationContext that contains bean definitions shared by all child (DispatcherServlet) contexts.
 
+**In Spring Boot**
+The spring-boot-starter-web starter by default configures DispatcherServlet to the URL pattern "/" and adds Tomcat as the embedded servlet container, which runs on port 8080.
+Spring Boot by default serves the static resources (HTML, CSS, JS, images, etc.) from the following CLASSPATH locations:
+- /static
+- /public
+- /resources
+- /META-INF/resources
+
 
 ## Is the DispatcherServlet instantiated via an application context?
 
-In short: the DispatcherServlet is **not** instantiated via an application context. It is instantiated **before any** application context is created.
+In short: the DispatcherServlet is **not** instantiated via an application context. It is instantiated **before any** application context is created. parent ApplicationContext is creted by `ContextLoaderListener`, child ApplicationContext is created by Spring MVC `DispatcherServlet`.
 
 **Spring MVC WebApplicationContext Hierarchy**
 
@@ -119,7 +129,6 @@ We can have **two DispatcherServlet** instances in an application.
 
 ![IMAGE](https://i.loli.net/2019/06/06/5cf8dc6740e2245169.jpg)
 
-
 `DispatcherServlet` can be instantiated in 2 different ways and in both it is initialized by the servlet container:
 - XML
 - Java bean
@@ -130,7 +139,6 @@ We can have **two DispatcherServlet** instances in an application.
 ## What is a web application context? What extra scopes does it offer?
 
 **WebApplicationContext** is a Spring application context for web applications. 
-
 
 **Comparing to ApplicationContext**
 1. WebApplicationContext has all the properties of a regular Spring application contex, given that the `WebApplicationContext` interface extends the `ApplicationContext` interface
@@ -143,6 +151,13 @@ In addition to the standard Spring bean scopes singleton and prototype, there ar
 - **request**: each http request
 - **session**: each http session
 - **application**: per `ServletContext`
+
+The beans that are registered within the `WebApplicationContext` can also access the Servlet Context by implementing the `ServletContextAware` interface
+```java
+public interface ServletContextAware extends Aware { 
+  void setServletContext(ServletContext servletContext); 
+}
+```
 
 
 ## What is the @Controller annotation used for?
