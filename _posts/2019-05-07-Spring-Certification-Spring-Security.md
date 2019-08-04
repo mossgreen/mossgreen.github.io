@@ -12,7 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Spring Security in Pivotal Spring Professional Certification.
+Spring Security in Pivotal Spring Professional Certification(6%).
 
 ## What are authentication and authorization? Which must come first?  
 
@@ -154,11 +154,26 @@ Spring Security uses **PasswordEncoder** for encoding passwords. This interface 
 
 To apply security to lower layers of an application, **Spring Security uses AOP**. The respective bean is wrapped in a proxy that before calling the target method, first checks the credentials of the user and calls the method only if the user is authorized to call it.
 
-Three ways of using method security:
-xml, Spring Security namespace, Java Configuration and annotations
+Spring Security provides three different kinds of security annotations:
+
+- Spring Security’s own `@Secured`
+- JSR-250’s `@RolesAllowed`
+- Expression-driven annotations, with 
+    - `@PreAuthorize` and `@PostAuthorize`, 
+    - `@PreFilter`, and `@PostFilter`
+
+The `@Secured` and `@RolesAllowed` annotations are the simplest options, restricting access based on what authorities have been granted to the user.
+
+More flexibility in defining security rules on methods, Spring Security offers `@PreAuthorize` and `@PostAuthorize`.
+
+And `@PreFilter`/`@PostFilter` filter elements out of collections returned from or passed into a method.
+
+
 
 1. **`@Secured`**
-Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(secured Enabled = true)`. Methods must be secured by annotating them with Spring Security annotation `@Secured`.
+    - Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(secured Enabled = true)`. Methods must be secured by annotating them with Spring Security annotation `@Secured`. 
+    - When `securedEnabled` is true, a **pointcut** is created such that the **Spring Security aspects** will wrap bean methods that are annotated with `@Secured`. 
+    - One drawback of the `@Secured` annotation is that it’s a Spring-specific annotation. If you’re more comfortable using annotations defined in Java standards, then perhaps you should consider using @RolesAllowed instead.
     ```java
     @Configuration 
     @EnableWebSecurity 
@@ -178,7 +193,12 @@ Method-level security must be enabled by annotating a configuration class (good 
     ```
 
 2. **`JSR-250` annotations**   
-Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(jsr250Enabled = true)`. Methods must be secured by annotating them with `JSR-250` annotations. The JSR 250 annotations are standards-based and **allow simple role-based constraints to be applied but do not have the power of Spring Security’s native annotations**.
+    - Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(jsr250Enabled = true)`. 
+    - `jsr250Enabled` and `securedEnabled` can be used together
+    - Methods must be secured by annotating them with `JSR-250` annotations. 
+    - With `jsr250Enabled` set to true, a **pointcut** will be effected such that any methods annotated with @RolesAllowed will be wrapped with Spring Security’s aspects.
+    - The JSR 250 annotations are standards-based and **allow simple role-based constraints to be applied but do not have the power of Spring Security’s native annotations**.
+    - The `@RolesAllowed` annotation is equivalent to `@Secured` in almost every way
     ```java
     @Configuration 
     @EnableWebSecurity 
@@ -197,49 +217,41 @@ Method-level security must be enabled by annotating a configuration class (good 
     }
     ```
 
-Once you enable method-level security, you can annotate the SpringMVC controller
-- request-handling methods, 
-- service-layer methods, 
-- or any Spring components 
- 
-with `@Secured`, `@PreAuthorize`, or `@RolesAllowed` in order to define your security restrictions.
+3. Use SpEL to enable more security constraints on methods
+    - `@PreAuthorize`: Restricts access to a method before invocation based on the result of evaluating an expression
+    - `@PostAuthorize`: Allows a method to be invoked, but throws a security exception if the expression evaluates to **false**
+    - `@PostFilter`: Allows a method to be invoked, but filters the results of that method based on an expression
+    - `@PreFilter`: Allows a method to be invoked, but filters input prior to entering the method
+    
+    **@Secured, @PreAuthorize, or @RolesAllowed annotations at the class level as well!**.
 
-**@Secured, @PreAuthorize, or @RolesAllowed annotations at the class level as well!**
+    Each of these annotations accepts a SpEL expression for its value parameter. If the expression evaluates to `true`, then the security rule passes; otherwise, it fails. The implications of a passing versus failing security rule differ depending on which annotation is in use. You need to enable them by setting `@EnableGlobalMethodSecurity`’s `prePostEnabled` attribute to true:
 
-- If we secure only the web layer there may be a way to access service layer in case we expose some REST endpoints. 
-- Method security provides protection at a more granular level.
-- It's common to combine Web security and method security. 
-- If the access is denied the caller will get an **AccessDeniedException**.
-
-**four annotations**
-`@PreAuthorize`, `@PreFilter`, `@PostAuthorize`, and `@PostFilter`.
-Have to set: `@EnableGlobalMethodSecurity(prePostEnabled = true)`
-```java
-@Configuration 
-@EnableWebSecurity 
-@EnableGlobalMethodSecurity(prePostEnabled = true) 
-public class SecurityConfig extends WebSecurityConfigurerAdapter {}
-```
-```java
-@Service 
-@Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
-public class UserServiceImpl implements UserService {
-
-  @PreAuthorize("hasRole(’USER’)") 
-  public void create(User user){}
-}
-```
+    ```java
+    @Configuration 
+    @EnableWebSecurity 
+    @EnableGlobalMethodSecurity(prePostEnabled = true) 
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {}
+    ```
+    ```java
+    @Service 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
+    public class UserServiceImpl implements UserService {
+      @PreAuthorize("hasRole(’USER’)") 
+      public void create(User user){}
+    }
+    ```
 
 
 ## What do @PreAuthorized and @RolesAllowed do? What is the difference between them?
 
-- `@PreAuthorize` and `@PostAuthorize` are used on methods or controllers to enforce security constraints. 
-- `@RolesAllowed` is used to secure a controller. @RolesAllowed is a java standard annotation that does not support SpEL. 
+**@Secured** and **@RolesAllowed** prevent a method from being executed unless the user has the required authority. But their weakness is that they’re only able to make their decisions based on the user’s granted authorities.
 
-- Spring’s `@Secured` is the same as `@RolesAllowed`, except this annotation is spring specific.
-
-**How are these annotations implemented?**
-`@PreAuthorize` and `@PostAuthorize` are used on methods or controllers level.
+With SpEL expressions guiding access decisions, far more advanced security constraints can be written.
+```java
+@PreAuthorize( "(hasRole('ROLE_SPITTER') and #spittle.text.length() <= 140) or hasRole('ROLE_PREMIUM')") 
+public void addSpittle(Spittle spittle) { }
+```
 
 **In which security annotation are you allowed to use SpEL?**
 `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, `@PostFilter`.
@@ -250,10 +262,11 @@ public class UserServiceImpl implements UserService {
 - `isAnonymous()`: Returns true if the current user is an anonymous user.
 - `isAuthenticated()`: Returns true if the user is not anonymous.
 - `isFullyAuthenticated()`: Returns true if the user is not an anonymous or Remember-Me user.
+
+
+
+## Old questions in Version 5 but removed since June 2019
 ---
-# Old questions in Version 5 but removed since June 2019
-
-
 ## Why do you need the intercept-url?
 
 The paths defined as values for the pattern attribute are pieces of URLs defined using ANT style paths. The URLs that match them are secured and verified according to rules defined by the `<intercept-url …/>` elements.
