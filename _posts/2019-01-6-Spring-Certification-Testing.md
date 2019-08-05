@@ -9,18 +9,15 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring test in Spring professional certification (4%).
+Spring test in Pivotal Spring professional certification (4%).
 
-
-TESTING
 ## Do you use Spring in a unit test?
+
 - The testable POJOs should be instantiated without any container.
 - We don't necessarily need Spring in a unit test.
 - However Spring IOC makes both unit and integration testing easier.
 
 Spring framework has great support for testing.
-
-SpringRunner is a custom JUnit runner helping to load the Spring ApplicationContext by using @ContextConfiguration(classes=AppConfig.class)
 
 ```java
 @RunWith(SpringRunner.class) 
@@ -43,6 +40,7 @@ public class UserServiceTests {
 
 
 ## What type of tests typically use Spring?
+
 - Spring provides mock objects and testing support classes for **Unit Testing**.
   - Tests one unit of functionality
   - Keeps dependencies minimal
@@ -62,67 +60,41 @@ Spring’s integration testing support has the following primary goals:
 - To provide transaction management appropriate to integration testing.
 - To supply Spring-specific base classes that assist developers in writing integration tests.
 
-The core class of this module is `SpringJUnit4ClassRunner`, which is used to **cache** an `ApplicationContext` **across test methods**. It's a JUnit annotation.
+To access the Context with the TestContext Framework in JUnit, two options to access the managed application context.
 
-1. Annotate the test class with `@RunWith(SpringJUnit4ClassRunner.class)`.
-
-2. Annotate the class with `@ContextConfiguration`. It defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
-
-    1. bean definitions are provided **by class** `AllRepoConfig`
-        ```java
-        @ContextConfiguration(classes = {AllRepoConfig.class}) 
-        public class GenericQualifierTest {} 
-
-        ```
-      
-    2. bean definitions are loaded from **file** all-config.xml
-        ```java
-        @ContextConfiguration(locations = {"classpath:spring/all-config.xml"}) 
-        public class GenericQualifierTest {}
-        
-        @ContextConfiguration("/test-config.xml") 
-        ublic class XmlApplicationContextTests { }
-        ```
-        
-    3. from both config and xml
-        ```java
-        @ContextConfiguration(locations = "/test-context.xml", 
-          loader = CustomContextLoader.class)
-        public class CustomLoaderXmlApplicationContextTests { }
-        ```
+1. The first option is by implementing the `ApplicationContextAware` interface or using `@Autowired` on a field of the `ApplicationContext` type. You can specify this in the` @RunWith` annotation at the class level.
+    ```java
+    @RunWith(SpringRunner.class) 
+    @ContextConfiguration(classes = BankConfiguration.class) 
+    public class AccountServiceJUnit4ContextTests implements ApplicationContextAware { }
+    ```
+    - The `SpringRunner` class, which is an alias for `SpringJUnit4ClassRunner`, is a custom JUnit runner helping to load the Spring ApplicationContext by using `@ContextConfiguration(classes=AppConfig.class)`. In JUnit, you can simply run your test with the test runner `SpringRunner` to have a **test context manager** integrated.
     
-    4 . **If no attribute defined**: the default behavior of spring is to search for a file named `{testClassName}-context.xml` in the same location as the test class and load bean definitions from there if found.
-        
-3. use `@Autowired` to inject beans to be tested.
+    - By default, the application context will be cached and reused for each test method, but if you want it to be reloaded after a particular test method, you can annotate the test method with the @DirtiesContext annotation so that the application context will be reloaded for the next test method.
+    
+    - Inject Test Fixtures with the TestContext Framework in JUnit. In JUnit, you can specify SpringRunner as your test runner without extending a support class.
+        ```java
+        @RunWith(SpringRunner.class) 
+        @ContextConfiguration(classes = BankConfiguration.class) 
+        public class AccountServiceJUnit4ContextTests { }
+        ```
 
-**Another way** to access the application contect is by extending the **TestContext** support class specific to JUnit: `AbstractJUnit4SpringContextTests`. This class implements the `ApplicationContextAware` interface, so you can extend it to get access to the managed application context via the protected field `applicationContext`.
+2. The second option to access the managed application context is by extending the TestContext support class specific to JUnit: `AbstractJUnit4SpringContextTests`.
+    - Note that if you extend this support class, you don’t need to specify SpringRunner in the `@RunWith` annotation because this annotation is inherited from the parent.
+    ```java
+    @ContextConfiguration(classes = BankConfiguration.class) 
+    public class AccountServiceJUnit4ContextTests extends AbstractJUnit4SpringContextTests { }
+    ```
 
-NB:
-1. You have to delete the private field applicationContext and its setter method. 
-2. Note that if you extend this support class, you don’t need to specify `SpringRunner` in the `@RunWith` annotation because this annotation is inherited from the parent.
-
-```java
-@ContextConfiguration(classes = BankConfiguration.class) 
-public class AccountServiceJUnit4ContextTests extends AbstractJUnit4SpringContextTests {
-
-private static final String TEST_ACCOUNT_NO = "1234"; 
-private AccountService accountService;
-
-@Before 
-public void init() {
-  accountService = applicationContext.getBean(AccountService.class);
-  
-  accountService.createAccount(TEST_ACCOUNT_NO);
-  accountService.deposit(TEST_ACCOUNT_NO, 100); } 
-}
-```
 
 ## When and where do you use @Transactional in testing?
 
-- At **method level**: the annotated test method(s) will run, each in its own transaction. By default, automatically rolled back after completion of the test.
-- At **class level**: each test method within that class hierarchy runs within a transaction
+- At **method level**: the annotated test method(s) will run, each in its own transaction. By default, automatically rolled back after completion of the test. You can alter this behavior by disabling the `defaultRollback` attribute of `@TransactionConfiguration`.
+
+- At **class level**: each test method within that class hierarchy runs within a transaction. You can override this class-level rollback behavior at the method level with the `@Rollback` annotation, which requires a Boolean value.
 
 
+---
 ## How are mock frameworks such as Mockito or EasyMock used?
 
 Mockito lets you write tests by mocking the external dependencies with the desired behavior.
@@ -193,9 +165,7 @@ testCompile('org.springframework.boot:spring-boot-starter-test')
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, 
   properties = {"app.port=9090"}) 
-public class CtxControllerTest {
-  // ...
-}
+public class CtxControllerTest { }
 ```
 
 Spring Boot Test starter spring-boot-starter-test pulls in the JUnit, Spring Tes

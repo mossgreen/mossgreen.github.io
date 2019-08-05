@@ -10,7 +10,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring REST in Spring professional certification.
+Spring REST in Pivotal Spring professional certification (6%).
 
 
 ## What does REST stand for?
@@ -52,13 +52,24 @@ To secure it, can use:
 
 ## What are safe REST operations?  
 
-Safe methods are HTTP methods that do not modify resources. These are:
+In all, there are 9 different HTTP request types: 
+- HEAD, 
+- GET, 
+- POST, 
+- PUT, 
+- DELETE, 
+- PATCH, 
+- TRACE, 
+- OPTIONS, and 
+- CONNECT
+
+**Safe methods** are HTTP methods that do not modify resources. Spring Security implements CSRF protection with a synchronizer token. Statechanging requests(not safe methods) will be intercepted and checked for a CSRF token.
 - GET
 - HEAD
 - OPTIONS
 - TRACE
 
-Not Safe:
+**Not Safe**:
 - Two identical POST requests will result in two identical resources being created or errors at application level.
 - PUT modifies the state on the server
 - DELETE
@@ -79,7 +90,7 @@ REST is scalable, because it is stateless, its Cacheability and layered system.
 
 1. **Statelessness** ensures that requests can be processed by any node in a cluster of services without having to consider server-side state
 
-2. **Cacheability** allows for creating responses from cached information without the request having to proceed to the actual service, which improves network efficiency and reduces the load on the service.
+2. **Cacheability** allows for creating responses from cached information without the request having to proceed to the actual service, which improves network efficiency and reduces the load on the  service.
 
 3. A **layered system** allows for introducing intermediaries such as a load balancer without clients having to modify their behavior as far as sending requests to the service is concerned. The load balancer can then distribute the requests between multiple instances of the service in order to increase the request-processing capacity of the service.
 
@@ -134,7 +145,7 @@ Yes, it is. Each request is independent, which improves scalability.
 
 ## What does @RequestMapping do?
 
-1. Annotate both **class** and handler **methods**.
+1. Annotate both for **class** and **handler methods**.
 2. `@RequestMapping` mehtods are **handler method**, it provides information regarding when method should be called.
 3. Has various attributes to match by:
     - URL, 
@@ -158,8 +169,8 @@ What is a stereotype annotation? What does that mean?
 
 `@RestController`:
 1. It's stereotype
-2. All handler methods in the controller should have their return value written directly to the body of the response, rather than being carried in the model to a view for rendering.
-3. Yet another option would be to return a ResponseEntity object.
+2. All handler methods in the rest controller should have their return value written directly to the body of the response, rather than being carried in the model to a view for rendering.
+3. Yet another option would be to return a ResponseEntity object.s
 
 
 ## When do you need @ResponseBody?
@@ -167,9 +178,11 @@ What is a stereotype annotation? What does that mean?
 - `@ResponseBody` on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
 - `@ResponseBody` on class: the controller becomes restcontroller.
 
+
 ## What does @PathVariable do?
 
 `@PathVariable` maps a part of the URL, an URI template variable, to a handler method argument
+
 
 ## What are the HTTP status return codes for a successful GET, POST, PUT or DELETE operation?
 
@@ -186,6 +199,7 @@ What is a stereotype annotation? What does that mean?
 3. PUT: 200 OK, 201 Created, 204 No Content
 4. DELETE: 204 No Content, 202 Accepted, 205 Reset Content (not performed)
 
+
 ## When do you need @ResponseStatus?
 
 1. Annotate **exception classes** in order to specify the HTTP response status and reason.
@@ -198,8 +212,8 @@ What is a stereotype annotation? What does that mean?
 ```java
 @ResponseStatus(HttpStatus.NOT_FOUND) 
 public class ResourceNotFoundException extends RuntimeException {
-
-  public ResourceNotFoundException() { this("Resource not found!"); 
+  public ResourceNotFoundException() { 
+    this("Resource not found!"); 
 }
 ```
 
@@ -217,11 +231,11 @@ public Post createPost(@RequestBody Post post) {
 
 ### `@RequestBody`
 
-1. `@RequestBody` to have the request body read and deserialized into an Object through an HttpMessageConverter.
-2. `@RequestBody` can be combined with `@Validated`
+1. `@RequestBody` to have the web request body read and deserialized into an Object through an `HttpMessageConverter` to method parameter.
+2. `@RequestBody` can be combined with `@Validated`. 
 
 ### `@ResponseBody`
-1. To have the return serialized to the response body through an HttpMessageConverter.
+1. To have the return serialized to the response body through an `HttpMessageConverter`.
 2. `@ResponseStatus` can be combined to specify response status.
 
 
@@ -279,7 +293,9 @@ public class SingerController {
 
 ## Do you need Spring MVC in your classpath?
 
-`spring-web` module **must** be present on the classpath.
+- The `spring-mvc.jar` **is not part of** `spring-core`.
+- `spring-web` module **must** be present on the classpath.
+
 
 ## What Spring Boot starter would you use for a Spring REST application?
 
@@ -292,12 +308,11 @@ public class SingerController {
 
 - Provides a higher-level API to perform HTTP requests compared to traditional HTTP client libraries.
 - Supports URI templates
-- Automatically encodes URI templates. For example, a space character in an URI will be replaced with %20 using percent-encoding.
+- Automatically encodes URI templates. For example, a space character in an URI will be replaced with `%20` using percent-encoding.
 - Supports automatic detection of content type
 - Supports automatic conversion between objects and HTTP messages.
 - Allows for easy customization of response errors. A custom ResponseErrorHandler can be registered on the RestTemplate.
 - Provides methods for conveniently sending common HTTP request types and also provides methods that allow for increased detail when sending requests. Examples of the former method type are: delete, getForObject, getForEntity, headForHeaders, postForObject and put.
-
 
 
 ## If you saw an example using RestTemplate would you understand what it is doing?
@@ -322,4 +337,3 @@ String body = response.getBody();
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
 4. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
-
