@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring test in Pivotal Spring professional certification (4%).
+Spring testing in Pivotal Spring professional certification (4%).
 
 ## Do you use Spring in a unit test?
 
@@ -55,7 +55,7 @@ public class UserServiceTests {
 
 Spring’s integration testing support has the following primary goals:
 
-- To manage Spring IoC container caching between tests. By default, once loaded, the configured ApplicationContext is reused for each test
+- To manage Spring IoC container caching between tests. By default, once loaded, the configured ApplicationContext is **reused for each test**.
 - To provide Dependency Injection of test fixture instances.
 - To provide transaction management appropriate to integration testing.
 - To supply Spring-specific base classes that assist developers in writing integration tests.
@@ -87,32 +87,101 @@ To access the Context with the TestContext Framework in JUnit, two options to ac
     ```
 
 
-## When and where do you use @Transactional in testing?
+## When and where do you use `@Transactional` in testing?
 
 - At **method level**: the annotated test method(s) will run, each in its own transaction. By default, automatically rolled back after completion of the test. You can alter this behavior by disabling the `defaultRollback` attribute of `@TransactionConfiguration`.
 
 - At **class level**: each test method within that class hierarchy runs within a transaction. You can override this class-level rollback behavior at the method level with the `@Rollback` annotation, which requires a Boolean value.
 
 
----
 ## How are mock frameworks such as Mockito or EasyMock used?
 
-Mockito lets you write tests by mocking the external dependencies with the desired behavior.
+Mockito lets you write tests by mocking the external dependencies with the desired behavior. Mock objects have the **advantage over stubs** in that they are created dynamically and only for the specific scenario tested.
 
-- `@Mock` to create a mock object 
-- `@InjectMocks` has a behavior similar to the Spring IoC, because its role is to instantiate testing object instances and to try to inject fields annotated with @Mock or @Spy into private fields of the testing object.
-- `@MockBean` is a Spring Boot annotation, used to define a new Mockito mock bean or replace a Spring bean with a mock bean and inject that into their dependent beans. Mock beans will be automatically reset after each test method.
+Steps of using Mockito:
+1. Declare and create the mock
+2. Inject the mock
+3. Define the behavior of the mock
+4. Test
+5. Validate the execution
+
+```java
+public class SimpleReviewServiceTest { 
+
+  private ReviewRepo reviewMockRepo = mock(ReviewRepo.class); // (1)
+  private SimpleReviewService simpleReviewService;
+  
+  @Before 
+  public void setUp(){
+    simpleReviewService = new SimpleReviewService();
+    simpleReviewService.setRepo(reviewMockRepo); //(2)
+  }
+  
+  @Test 
+  public void findByUserPositive() {
+    User user = new User();
+    Set<Review> reviewSet = new HashSet<>();
+    when(reviewMockRepo.findAllForUser(user)).thenReturn(reviewSet);// (3)
+    Set<Review> result = simpleReviewService.findAllByUser(user); // (4)
+    assertEquals(result.size(), 1); //(5)
+  }
+}
+```
+
+**Mockito with Annotations**
+- `@Mock` : Creates mock instance of the field it annotates
+
+- `@InjectMocks` has a behavior similar to the Spring IoC, because its role is to instantiate testing object instances and to try to inject fields annotated with `@Mock` or `@Spy` into private fields of the testing object.
+
 - Use Mockito
     - Either: `@RunWith(MockitoJUnitRunner.class)` to initialize the mock objects.
     - OR: `MockitoAnnotations.initMocks(this)` in the JUnit `@Before` method.
 
+```java
+public class MockPetServiceTest {
 
-Mock objects have the **advantage over stubs** in that they are created dynamically and only for the specific scenario tested.
+  @InjectMocks 
+  SimplePetService simplePetService;
+  
+  @Mock 
+  PetRepo petRepo;
+  
+  @Before 
+  public void initMocks() { 
+    MockitoAnnotations.initMocks(this); 
+  }
+  
+  @Test p
+  ublic void findByOwnerPositive() { 
+    Set<Pet> sample = new HashSet<>(); 
+    sample.add(new Pet()); 
+    Mockito
+      .when(petRepo.findAllByOwner(owner))
+      .thenReturn(sample); 
+      
+    Set<Pet> result = simplePetService.findAllByOwner(owner); 
+    
+    assertEquals(result.size(), 1); }
+  }
+}
+```
+
+**Mockito in Spring Boot**
+
+`@MockBean` 
+  - It is a Spring Boot annotation, 
+  - used to define a new Mockito mock bean or replace a Spring bean with a mock bean and inject that into their dependent beans. 
+  - The annotation can be used directly on test classes, on fields within your test, or on @Configuration classes and fields.
+  - When used on a field, the instance of the created mock is also injected
+  - Mock beans will be automatically reset after each test method.
+  - If your test uses one of Spring Boot’s test annotations (such as` @SpringBootTest`), this feature is automatically enabled.
 
 
-## How is @ContextConfiguration used?
+## How is `@ContextConfiguration` used?
 
-> @ContextConfiguration defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
+In `spring-test` library, `@ContextConfiguration` is a class-level annotation, that defines the location configuration file, which will be loaded for building up the application context for integration tests.
+
+if `@ContextConfiguration` is used without any attributes defined, the default behavior of spring is to search for a file named `{testClassName}-context.xml` in the same location as the test class and load bean definitions from there if found.
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class) 
@@ -124,10 +193,19 @@ public class ProfilesJavaConfigTest {
 }
 ```
 
+Spring Boot provides a` @SpringBootTest` annotation, which can be used as an alternative to the standard spring-test `@ContextConfiguration` annotation when you need Spring Boot features. The annotation works by creating the ApplicationContext used in your tests through SpringApplication.
+
+```java
+@RunWith(SpringRunner.class) 
+@SpringBootTest(properties = "spring.main.web-application-type=reactive") 
+public class MyWebFluxTests { }
+```
+
 
 ## How does Spring Boot simplify writing tests?
 
 `spring-boot-starter-test` pulls in the following all within test scope:
+
 - JUnit: De-facto standard for testing Java apps 
 - JSON Path: XPath for JSON 
 - AssertJ: Fluent assertion library 
@@ -136,17 +214,14 @@ public class ProfilesJavaConfigTest {
 - JSONassert: Assertion library for JSON 
 - Spring Test and Spring Boot Test: Test libraries provided by the Spring Framework and Spring Boot.
 
-```
+```bash
 testCompile('org.springframework.boot:spring-boot-starter-test')
 ```
 
-**Slice-based testing**
 
+## What does `@SpringBootTest` do? 
 
-
-
-## What does @SpringBootTest do? How does it interact with @SpringBootApplication and
-@SpringBootConfiguration?
+How does it interact with `@SpringBootApplication` and `@SpringBootConfiguration`?
 
 **Spring Boot features** like loading external properties and logging, are available **only if** you create ApplicationContext using the `SpringApplication` class, which you’ll typically use in your entry point class. These additional Spring Boot features **won’t be available** if you use `@ContextConfiguration`.
 
@@ -167,8 +242,10 @@ testCompile('org.springframework.boot:spring-boot-starter-test')
   properties = {"app.port=9090"}) 
 public class CtxControllerTest { }
 ```
+---
 
-Spring Boot Test starter spring-boot-starter-test pulls in the JUnit, Spring Tes
+Questions listed before May 2019
+---
 
 ## How to define a testing class in Spring? 
 

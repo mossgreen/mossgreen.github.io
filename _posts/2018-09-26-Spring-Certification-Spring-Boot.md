@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Boot in Spring professional certification.
+Spring Boot in Pivotal Spring professional certification (32%).
 
 - Spring Boot Intro (8%)
 - Spring Boot Auto Configuration (8%)
