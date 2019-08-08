@@ -61,8 +61,8 @@ Spring Boot is an opinionated framework that helps developers build stand-alone 
     For example, if you have the spring-webmvc dependency in your classpath, Spring Boot assumes you are trying to build a SpringMVC-based web application and automatically tries to register DispatcherServlet if it is not already registered.
 
 - Elegant configuration management
-  -  Spring supports `@PropertySource`
-  -  Spring Boot uses densible defaults and powerful type-safe property binding to bean properties.
+  -  Spring supports `@PropertySource`. 
+  -  Spring Boot takes it **even further** by using the sensible defaults and powerful type-safe property binding to bean properties
   -  Spring Boot supports having deparate configuration files for different profiles without requiring much configuration.
 
 - Spring Boot actuator. 
@@ -81,10 +81,20 @@ Spring Boot is an opinionated framework that helps developers build stand-alone 
 - It pre-configures Spring app by reasonable defaults.
 - It's highly customizable
 
+Most of Spring application configuration is based on a common `application.properties` or `application.yml` file. If none is specified, it already has those property’s values as defaults.
+
 
 ## What things affect what Spring Boot sets up?
 
 Spring Boot provides many custom `@Conditional` annotations to meet developers’ autoconfiguration needs based on various criteria, each of which can be used to control the creation of Spring beans.
+
+- A specific class is present in the classpath
+- A Spring bean of a certain type isn’t already registered in the ApplicationContext
+- A specific file exists in a location
+- A specific property value is configured in a configuration file
+- A specific system property is present/absent
+
+Example: 
 
 - `@ConditionalOnClass`
 - `@ConditionalOnMissingClass`
@@ -109,18 +119,40 @@ Spring Boot configures various components automatically, by registering beans ba
 
 **ApplicationRunner or CommandLineRunner**
 
-If you need to run some specific code once the `SpringApplication` has started, you can implement the `ApplicationRunner` or `CommandLineRunner` interfaces. 
+Spring Boot allows you to execute code before your application starts. Spring Boot has the `ApplicationRunner` and the `CommandLineRunner` interfaces that expose the run methods. Both interfaces offer a single `run` method, which is called just before `SpringApplication.run(…)` completes.
 
-Both interfaces work in the same way and offer a single `run` method, which is called just before `SpringApplication.run(…)` completes.
+- `CommandLineRunner` exposes the` public void(String... args)` method 
+    ```bash
+    $ ./mvnw spring-boot:run -Drun.arguments="arg1,arg2"
+    ```
+
+- `ApplicationRunner` exposes the `public void run(ApplicationArguments args)` method. if you want to have more control over the arguments, implement this interface.
+    ```bash
+    $ ./mvnw spring-boot:run -Drun.arguments="arg1,arg2"
+    ```
+
 ```java
-@Component 
-public class MyBean implements CommandLineRunner {
-  public void run(String... args) { 
-      // Do something...
+@SpringBootApplication 
+public class SpringBootSimpleApplication implements CommandLineRunner, ApplicationRunner{
+
+  public static void main(String[] args) throws IOException {
+    SpringApplication.run(SpringBootSimpleApplication.class, args);
+  }
+  
+  @Override 
+  public void run(ApplicationArguments args) throws Exception {
+    args.getNonOptionArgs()
+      .forEach(file -> log.info(file)); 
+  }
+  
+  @Override 
+  public void run(String... args) throws Exception {
+    for(String arg:args) {
+      log.info(arg);
+    } 
   }
 }
 ```
-
 
 
 ## What is a Spring Boot starter POM? Why is it useful?
@@ -192,7 +224,12 @@ The list is **ordered by precedence** (properties defined in locations higher in
 
 ## How do you define profile specific property files?
 
-You can register multiple beans of the same type and associate them with one or more profiles. When you run the application, you can activate the desired profile(s). That way, only the beans associated with the activated profiles will be registered.
+You can create profile specific configuration files using the filename as `application-{profile}.properties`.
+
+For example
+- you can have `application.properties`, which contains the default properties values, - `application-dev.properties`, which contains the **dev profile** configuration, and 
+- `application-prod.properties`, which contains the production profile configuration values. 
+- properties that are common for all the profiles are in `application-default.properties`.
 
 Properties controlling the behavior of Spring Boot applications can be defined using:
 
@@ -226,9 +263,49 @@ public class AppConfig {
 
 ## How do you access the properties defined in the property files?
 
-With the aboveconfiguration, you can specify the active profile using the `-Dspring.profiles.active=DEV` system property. This approach works fine for simple cases, such as when you’re enabling or disabling bean registrations based on activated profiles. But if you want to register beans based on some conditional logic, the profiles approach itself is not sufficient.
+Spring provides the `@Value` annotation to bind any property value to a bean property.
 
-Using the `@Conditional` approach, you can register a bean conditionally based on any arbitrary condition.
+```properties
+jdbc.driver=com.mysql.jdbc.Driver 
+jdbc.url=jdbc:mysql://localhost:3306/test 
+jdbc.username=root jdbc.password=secret
+```
+
+```java
+@Configuration 
+public class AppConfig {
+
+    @Value("${jdbc.driver}") 
+    private String driver;
+
+    @Value("${jdbc.url}") 
+    private String url;
+    
+    @Value("${jdbc.username}") 
+    private String username;
+    
+    @Value("${jdbc.password}") 
+    private String password;
+}
+```
+
+**Bind a set of properties** to a bean's properties automatically in a type-safe manner.
+
+`@ConfigurationProperties(prefix="jdbc")` to automatically bind the properties that start with `jdbc.*`
+
+```java
+@Component 
+@ConfigurationProperties(prefix="jdbc")
+public class DataSourceConfig {
+
+  private String driver; 
+  private String url; 
+  private String username; 
+  private String password;
+
+//setters and getters
+}
+```
 
 
 ## What properties do you have to define in order to configure external MySQL?
@@ -245,20 +322,21 @@ spring.datasource.password=<password>
 spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 ```
 
+
 ## How do you configure default schema and initial data?
+
+By default:
+Add `spring-boot-starter-jdbc` module, Spring Boot will automatically initialize the database using `schema.sql` and `data.sql` files in the root classpath.
 
 Default schema when defining the datasource configuration:
 ```properties
-spring.datasource.schema = #value for your default schema to use in database
-```
-Spring Boot uses the `spring.datasource.initialize` property value, which is **true** by default, to determine whether to initialize the database.
-
-Spring Boot will load the `schema-${platform}.sql` and `data-${platform}.sql` files if they are available in the root classpath.
-
-```properties
+spring.datasource.initialize=false
 spring.datasource.schema=create-db.sql 
 spring.datasource.data=seed-data.sql
 ```
+Spring Boot uses the `spring.datasource.initialize` property value, which is **true** by default, to determine whether to initialize the database. `true` means, Spring Boot will use the `schema.sql` and `data.sql` files in the root classpath to initialize the database.
+
+Spring Boot will load the `schema-${platform}.sql` and `data-${platform}.sql` files if they are available in the root classpath.
 
 
 ## What is a fat jar? How is it different from the original jar?
@@ -305,9 +383,11 @@ In your project target directory, you should see `myproject-0.0.1-SNAPSHOT.jar`.
 
 ## What is the difference between an embedded container and a WAR?
 
+A  **Standalone app**  uses your resources, web app executes on the server, rendering is done on your system.
+
 An **embedded container** is packaged in the application **JAR-file** and will contain only one single application. 
 
-A **WAR-file**e will need to be deployed to a **web container**, such as Tomcat, before it can be used. The web container to which the WAR-file is deployed may contain other applications.
+A **WAR-file** will need to be deployed to a **web container**, such as Tomcat, before it can be used. The web container to which the WAR-file is deployed may contain other applications.
 
 **Deployable WAR**
 1. The first thing you do is change the `packaging` type.
@@ -355,6 +435,7 @@ Now running the Maven/Gradle build tool will produce a WAR file that can be depl
 </dependencies>
 ```
 
+
 # Spring Boot Auto Configuration
 
 ## How does Spring Boot know what to configure?
@@ -372,12 +453,6 @@ Spring Boot lets you externalize your configuration so that you can work with th
 - command-line arguments 
 
 
-
-
-
-
-
-
 ## What does @EnableAutoConfiguration do?
 
 It's a Spring Boot specific annotation. It enables the autoconfiguration of Spring ApplicationContext by:
@@ -387,6 +462,7 @@ It's a Spring Boot specific annotation. It enables the autoconfiguration of Spri
 Spring Boot provides various autoconfiguration classes in `spring-boot-autoconfigure{version}.jar`, and they are typically:
 1. annotated with `@Configuration` to mark it as a Spring configuration class and 
 2. annotated with `@EnableConfigurationProperties` to bind the customization properties and one or more conditional bean registration methods.
+
 
 ## What does @SpringBootApplication do?
 
@@ -424,6 +500,7 @@ public class Application {
 }
 ```
 
+
 ## How are DataSource and JdbcTemplate auto-configured?
 
 DataSource configuration is controlled by external configuration properties in spring.datasource.*. For example, you might declare the following section in application.properties:
@@ -441,92 +518,49 @@ Spring’s JdbcTemplate and NamedParameterJdbcTemplate classes are auto-configur
 @Component 
 public class MyBean {
 
-private final JdbcTemplate jdbcTemplate;
-
-@Autowired 
-public MyBean(JdbcTemplate jdbcTemplate) { 
-  this.jdbcTemplate = jdbcTemplate; 
+  private final JdbcTemplate jdbcTemplate;
+  
+  @Autowired 
+  public MyBean(JdbcTemplate jdbcTemplate) { 
+    this.jdbcTemplate = jdbcTemplate; 
+  }
 }
 ```
 
+
 ## What is `spring.factories` file for?
 
-the `META-INF/spring.factories` defined all the auto-configuration classes that will be used to guess what kind of application you are running.
+the `META-INF/spring.factories` defined all the auto-configuration classes that will be used to guess what kind of application you are running. It's the secret behind the auto-configuration
 
-Some events are actually triggered before the ApplicationContext is created, so you cannot register a listener on those as a @Bean. You can register them with the SpringApplication.addListeners(…) method or the SpringApplicationBuilder.listeners(…) method.
+You need to specify the class that will be picked up by the `EnableAutoConfiguration` class. This class imports the `EnableAutoConfigurationImportSelector` that will inspect the `spring.factories` and loads the class and executes the declaration.
 
-If you want those listeners to be registered automatically, regardless of the way the application is created, you can add a **META-INF/spring.factories** file to your project and reference your listener(s) by using the org.springframework.context.ApplicationListener key:
+Some events are actually triggered **before** the ApplicationContext is created, so you cannot register a listener on those as a `@Bean`. You can register them with the `SpringApplication.addListeners(…)` method or the `SpringApplicationBuilder.listeners(…)` method.
+
+If you want those listeners to be registered automatically, regardless of the way the application is created, you can add a `META-INF/spring.factories` file to your project and reference your listener(s) by using the `org.springframework.context.ApplicationListener `key.
 
 ```properties
 org.springframework.context.ApplicationListener=com.example.project.MyListener
 ```
 
-Spring Boot checks for the presence of a `META-INF/spring.factories` file within your published jar. The file should list your configuration classes under the EnableAutoConfiguration key,
+Spring Boot checks for the presence of a `META-INF/spring.factories` file within your published jar. The file should list your configuration classes under the `EnableAutoConfiguration` key, as shown in the following example:
+
+
+```properties
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.mycorp.libx.autoconfigure.LibXAutoConfiguration, com.mycorp.libx.autoconfigure.LibXWebAutoConfiguration
+```
+
 
 ## How do you customize Spring auto configuration?
 
-1. Create a class annotated as `@Configuration` and register it.
+Customize the Environment or ApplicationContext Before It Starts.
 
-    ```java
-    @Configuration
-    public class MySQLAutoconfiguration {
-        //...
-    }
-    ```
+1. Programmatically  
+Per application, by calling the `addListeners` and `addInitializers` methods on SpringApplication before you run it.
 
-2. The next mandatory step is registering the class as an auto-configuration candidate, by adding the name of the class under the key `EnableAutoConfiguration` in the standard file `resources/META-INF/spring.factories`:
+2. Declaratively  
+    - Per application, by setting the `context.initializer.classes` or `context.listener.classes properties`.
+    - For all applications, by adding a `META-INF/spring.factories` and packaging a jar file that the applications all use as a library.
 
-    ```properties
-    org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.project.MySQLAutoconfiguration
-    ```
-
-If we want our auto-configuration class to have priority over other auto-configuration candidates, we can add the `@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)` annotation.
-
-Auto-configuration is designed using classes and beans marked with `@Conditional` annotations so that the auto-configuration or specific parts of it can be replaced.
-
-Note that the auto-configuration is only in effect if the auto-configured beans are not defined in the application. If you define your bean, then the default one will be overridden.
-
-Example, Using `@Conditional` Based on System Properties. implement the `MySQLDatabaseTypeCondition` condition to check whether the dbType system property is MYSQL
-
-**MySQLDatabaseTypeCondition.java** 
-
-```java
-public class MySQLDatabaseTypeCondition implements Condition { 
-
-  @Override 
-  public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata metadata) { 
-    String enabledDBType = System.getProperty("dbType"); 
-    return (enabledDBType != null && enabledDBType.equalsIgnoreCase("MYSQL")); 
-  }
-}
-
-public class MongoDBDatabaseTypeCondition implements Condition { 
-
-  @Override 
-  public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata metadata) { 
-    String enabledDBType = System.getProperty("dbType"); 
-    return (enabledDBType != null && enabledDBType.equalsIgnoreCase("MONGODB")); 
-  } 
-}
-```
-
-```java
-@Configuration 
-public class AppConfig { 
-
-  @Bean 
-  @Conditional(MySQLDatabaseTypeCondition.class) 
-  public UserDAO jdbcUserDAO(){ 
-    return new JdbcUserDAO(); 
-  } 
-
-  @Bean 
-  @Conditional(MongoDBDatabaseTypeCondition.class) 
-  public UserDAO mongoUserDAO(){ 
-    return new MongoUserDAO(); 
-  }
-}
-```
 
 ## What are the examples of `@Conditional` annotations? How are they used?
 
@@ -567,12 +601,15 @@ Spring Boot provides `spring-boot-starter-actuator` to autoconfigure Actuator.
 
 ## What are the two protocols you can use to access actuator endpoints?
 
+If Spring Security is present, endpoints are secured by default using Spring Security’s contentnegotiation strategy.
+
 You can expose data through different technologies, like HTTP (endpoints), JMX, and SSH.
 
 Among all the ACTUATOR PROPERTIES.
 ```properties
 management.server.ssl.enabled-protocols= # Enabled SSL protocols.
 ```
+
 
 ## What are the actuator endpoints that are provided out of the box?
 
@@ -612,7 +649,7 @@ The only endpoints that are not sensitive are /docs, /info and /health. So, if y
 
 ## What is info endpoint for? How do you supply data?
 
-`/info` This endpoint will display the public application info. This means that you need to add this information to application.properties. It’s recommended that you add it if you have multiple Spring Boot applications.
+If you added any information about the application in the `application.properties` file using the `info.app.*` properties, then you can view it at the `http://localhost:8080/application/info` endpoint.
 
 ```properties
 info.app.name=Spring Boot Web Actuator Application 
@@ -623,7 +660,10 @@ info.app.version=1.0.0
 
 ## How do you change logging level of a package using loggers endpoint?
 
-Spring Boot Actuator includes the ability to view and configure the log levels of your application at runtime. You can view either the entire list or an individual logger’s configuration, which is made up of both the explicitly configured logging level as well as the effective logging level given to it by the logging framework.
+Spring Boot Actuator includes the ability to **view and configure** the log levels of your application at runtime. 
+
+You can view either the entire list or an individual logger’s configuration, which is made up of both the explicitly configured logging level as well as the effective logging level given to it by the logging framework.
+
 - TRACE
 - DEBUG
 - INFO
@@ -642,14 +682,65 @@ To configure a given logger, POST a partial entity to the resource’s URI, as s
 
 To “reset” the specific level of the logger (and use the default configuration instead), you can pass a value of null as the configuredLevel.
 
+you can use the `/logfile` endpoint to view the log file content. Go to `http://localhost:8080/application/logfile`.
+
+
 ## How do you access an endpoint using a tag?
 
-Common tags are generally used for dimensional drill-down on the operating environment like host, instance, region, stack, etc. Commons tags are applied to all meters and can be configured as shown in the following example:
+The `/metrics` endpoint is capable of reporting all manner of metrics produced by a running application, including metrics concerning memory, processor, garbage collection, and HTTP requests.
+
+There are so many metrics covered that it would be impossible to monitor them all. You can narrow down the results further by using the tags listed under availableTags.
+
+For example, you know that there have been 2,103 requests, but what’s unknown is how many of them resulted in an HTTP 200 versus an HTTP 404 or HTTP 500 response status. **Using the status tag**, you can get metrics for all requests resulting in an HTTP 404 status like this:
+```bash
+$ curl localhost:8081/actuator/metrics/http.server.requests?tag=status:404 
+```
+```json
+{ 
+"name": "http.server.requests", 
+"measurements": [ 
+  { "statistic": "COUNT", "value": 31 }, 
+  { "statistic": "TOTAL_TIME", "value": 0.522061212 }, 
+  { "statistic": "MAX", "value": 0 } 
+], 
+"availableTags": [ 
+  { "tag": "exception", "values": [ "ResponseStatusException", "none" ] }, 
+  { "tag": "method", "values": [ "GET" ] }, 
+  { "tag": "uri", "values": [ "/actuator/metrics/{requiredMetricName}", "/**" ] } 
+]
+}
+```
+
+Add any number of `tag=KEY:VALUE` query parameters to the end of the URL to dimensionally drill down on a meter. By specifying the tag name and value with the `tag` request attribute, you now see metrics specifically for requests that resulted in an HTTP 404 response.
+
+To know how many of those HTTP 404 responses were for the /** path? 
+All you need to do to filter this further is to specify the uri tag in the request, like this:
+```bash
+$ curl "localhost:8081/actuator/metrics/http.server.requests?tag=status:404&tag=uri:/**"
+```
+```json
+{ 
+"name": "http.server.requests", 
+"measurements": [ 
+  { "statistic": "COUNT", "value": 30 }, 
+  { "statistic": "TOTAL_TIME", "value": 0.519791548 }, 
+  { "statistic": "MAX", "value": 0 } ], 
+"availableTags": [ 
+  { "tag": "exception", "values": [ "ResponseStatusException" ] }, 
+  { "tag": "method", "values": [ "GET" ] } 
+]
+}
+```
+
+As you refine the request, the available tags are more limited. The tags offered are only those that match the requests captured by the displayed metrics.
+
+
+**Common tags**
+Common tags are generally used for dimensional **drill-down on the operating environment** like host, instance, region, stack, etc. Commons tags are applied to all meters and can be configured as shown in the following example.
 ```properties
 management.metrics.tags.region=us-east-1 
 management.metrics.tags.stack=prod
 ```
-The example above adds region and stack tags to all meters with a value of `us-east-1` and `prod` respectively.
 
 
 ## What is metrics for?
@@ -661,7 +752,48 @@ One of the important features about this endpoint is that it has some counters a
 
 ## How do you create a custom metric with or without tags?
 
+Ultimately, Actuator metrics are implemented by Micrometer. The most basic means of publishing metrics with Micrometer is through Micrometer’s MeterRegistry. 
+
+In a Spring Boot application, all you need to do to publish metrics is to inject a `MeterRegistry` wherever you may need to publish counters, timers, or gauges that capture the metrics for your application.
+
 To register custom metrics, inject MeterRegistry into your component,
+```java
+@Component 
+public class TacoMetrics extends AbstractRepositoryEventListener<Taco> { 
+  private MeterRegistry meterRegistry;
+  public TacoMetrics(MeterRegistry meterRegistry) { 
+    this.meterRegistry = meterRegistry; 
+  }
+
+  @Override 
+  protected void onAfterCreate(Taco taco) { 
+    List<Ingredient> ingredients = taco.getIngredients(); 
+    for (Ingredient ingredient : ingredients) { 
+      meterRegistry.counter("tacocloud", "ingredient", ingredient.getId()).increment(); 
+    } 
+  }
+}
+```
+
+``` bash
+$ curl localhost:8087/actuator/metrics/tacocloud
+```
+
+```json
+{
+
+"name": "tacocloud", 
+"measurements": [ 
+  { "statistic": "COUNT", "value": 84 } ], 
+"availableTags": [
+
+  {"tag": "ingredient",
+
+  "values": [ "FLTO", "CHED", "LETC", "GRBF", "COTO", "JACK", "TMTO", "SLSA"]} ]
+}
+```
+
+**Without Tag**
 ```java
 class Dictionary { 
   private final List<String> words = new CopyOnWriteArrayList<>(); 
@@ -671,9 +803,11 @@ class Dictionary {
 }
 ```
 
+
 ## What is Health Indicator?
 
 This endpoint will show the health of the application. If you are doing a database app like in the previous section (/flyway) you will see the DB status and by default you will see also the diskSpace from your system. If you are running your app, you can go to http://localhost:8080/health.
+
 
 ## What are the Health Indicators that are provided out of the box?
 
@@ -690,6 +824,7 @@ This endpoint will show the health of the application. If you are doing a databa
 
 - `UNKNOWN` No mapping by default, so http status is 200
 
+
 ## How do you change the Health Indicator status severity order?
 
 - Assume a new Status with code `FATAL` is being used in one of your HealthIndicator implementations.
@@ -700,15 +835,19 @@ management.health.status.order=FATAL, DOWN, OUT_OF_SERVICE, UNKNOWN, UP
 management.health.status.http-mapping.FATAL=503
 ```
 
+
 ## Why do you want to leverage 3rd party external monitoring system?
 
-Spring Boot auto-configures a composite MeterRegistry and adds a registry to the composite for each of the supported implementations that it finds on the classpath. Having a dependency on micrometer-registry-{system} in your runtime classpath is enough for Spring Boot to configure the registry.
+Spring Boot auto-configures a composite MeterRegistry and adds a registry to the composite for each of the supported implementations that it finds on the classpath. 
+
+Having a dependency on `micrometer-registry-{system}` in your runtime classpath is enough for Spring Boot to configure the registry.
+
 
 # Spring Boot Testing
 
 ## When do you want to use @SpringBootTest annotation?
 
-the test context framework will be searching for the class annotated with @SpringBootApplication (if no specific configuration is passed) and will use that to actually start the application.
+the test context framework will be searching for the class annotated with `@SpringBootApplication` (if no specific configuration is passed) and will use that to actually start the application.
 
 ```java
 @RunWith(SpringRunner.class) 
@@ -724,14 +863,35 @@ public class CalculatorApplicationTests {
 }
 ```
 
+
 ## What does @SpringBootTest auto-configure?
+
+Spring boot provides the `@SpringBootTest` annotation to configure the `ApplicationContext` for tests that use SpringApplication behind the scenes so that **all the Spring Boot features will be available**.
+
+For `@SpringBootTest`, you can pass 
+- Spring configuration classes, 
+- Spring bean definition XML files, 
+- and more, 
+
+In Spring Boot applications, you’ll typically use the entry point class.
+
 
 ## What dependencies does spring-boot-starter-test brings to the classpath?
 
-Spring Boot Test, JSONPath, JUnit, AssertJ, Mockito, Hamcrest, JSONassert, and Spring Test, all within test scope.
+The Spring Boot Test starter `spring-boot-starter-test` pulls in
+- Spring Test 
+- Spring Boot Test modules
+- JSONPath,
+- JUnit, 
+- AssertJ, 
+- Mockito, 
+- Hamcrest, 
+- JSONassert
 
 
 ## How do you perform integration testing with @SpringBootTest for a web application?
+
+//todo
 
 To properly test a web application, you need a way to throw actual HTTP requests at it and assert that it processes those requests correctly. Two options:
 
@@ -767,7 +927,7 @@ To properly test a web application, you need a way to throw actual HTTP requests
 ```
 
 2. **Web integration tests** — Actually starts the application in an embedded servlet container (such as Tomcat or Jetty), enabling tests that exercise the application in a real application server.  
-uses @WebIntegrationTest to start the application along with a server and uses Spring’s RestTemplate to perform HTTP requests against the application.
+uses `@WebIntegrationTest` to start the application along with a server and uses Spring’s RestTemplate to perform HTTP requests against the application.
 ```java
 @RunWith(SpringJUnit4ClassRunner.class) 
 @SpringApplicationConfiguration( classes=ReadingListApplication.class) 
@@ -789,11 +949,20 @@ public class SimpleWebTest {
 }
 ```
 
+
 ## When do you want to use @WebMvcTest? What does it auto-configure?
 
-Spring Boot provides the `@WebMvcTest` annotation, which will autoconfigure SpringMVC infrastructure components and **load only** `@Controller`, `@ControllerAdvice`, `@JsonComponent`, `Filter`, `WebMvcConfigurer`, and `HandlerMethodArgumentResolver` components. Other Spring beans (annotated with @Component, @Service, @Repository, etc.) will not be scanned when using this annotation.
+Spring Boot provides the `@WebMvcTest` annotation, which will autoconfigure SpringMVC infrastructure components and **load only** 
+- `@Controller`, 
+- `@ControllerAdvice`, 
+- `@JsonComponent`, 
+- `Filter`, 
+- `WebMvcConfigurer`, and 
+- `HandlerMethodArgumentResolver` components. 
 
-In contrast to `@SpringBootTest`, which loads the entire configuration.
+Other Spring beans (annotated with @Component, @Service, @Repository, etc.) will not be scanned when using this annotation.
+
+In contrast to `@SpringBootTest`, which loads the **entire configuration**.
 
 ```java
 @RunWith(SpringRunner.class) 
@@ -826,7 +995,7 @@ public class TodoControllerTests {
 }
 ```
 
-You have annotated the test with `@WebMvcTest(controllers = TodoController.class)` by explicitly specifying which controller you are testing. As @WebMvcTest doesn’t load other regular Spring beans and TodoController depends on TodoRepository, **you provided a mock bean using the @MockBean annotation**. The @WebMvcTest autoconfigures MockMvc, which can be used to test controllers without starting an actual servlet container.
+You have annotated the test with `@WebMvcTest(controllers = TodoController.class)` by explicitly specifying which controller you are testing. As `@WebMvcTest` doesn’t load other regular Spring beans and TodoController depends on TodoRepository, **you provided a mock bean using the `@MockBean` annotation**. The `@WebMvcTest` autoconfigures MockMvc, which can be used to test controllers without starting an actual servlet container.
 
 
 ## What are the differences between @MockBean and @Mock?
@@ -836,16 +1005,18 @@ You have annotated the test with `@WebMvcTest(controllers = TodoController.class
 
 **`@MockBean`**
 This is indeed a Spring Boot class.
-t allows to add Mockito mocks in a Spring ApplicationContext.
+It allows to add Mockito mocks in a Spring ApplicationContext.
 If a bean, compatible with the declared class exists in the context, it replaces it by the mock.
 If it is not the case, it adds the mock in the context as a bean.
 
 
 ## When do you want @DataJpaTest for? What does it auto-configure?
 
-- The `@DataJpaTest` annotation **doesn’t load other Spring beans** (@Components, @Controller, @Service, and annotated beans) into ApplicationContext.
+`@DataJpaTest` and `@JdbcTest` annotations to test the Spring beans, which talk to relational databases.
 
-- Enable transactions by applying Spring's @Transactional annotation to the test class Enable caching on the test class, defaulting to a NoOp cache instance
+- The `@DataJpaTest` allows you to test the persistence layer components, **doesn’t load other Spring beans** (@Components, @Controller, @Service, and annotated beans) into ApplicationContext.
+
+- Enable transactions by applying Spring's `@Transactional` annotation to the test class Enable caching on the test class, defaulting to a NoOp cache instance
 
 - Autoconfigure an embedded test database in place of a real one Create a **TestEntityManager** bean and add it to the application context
 
@@ -853,7 +1024,8 @@ If it is not the case, it adds the mock in the context as a bean.
 
 ```java
 @RunWith(SpringRunner.class) 
-@DataJpaTest public class UserRepositoryTests {
+@DataJpaTest 
+public class UserRepositoryTests {
 
   @Autowired 
   private UserRepository userRepository;
