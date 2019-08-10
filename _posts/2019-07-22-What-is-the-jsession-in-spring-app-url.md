@@ -12,7 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-blah
+Why does Spring Boot append JsessionId in your URL and how to stop it?
 
 ## What is Cookie
 

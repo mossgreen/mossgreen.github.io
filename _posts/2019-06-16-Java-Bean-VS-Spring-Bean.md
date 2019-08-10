@@ -7,7 +7,7 @@ tags:
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: wide
+classes: single
 ---
 
 A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.

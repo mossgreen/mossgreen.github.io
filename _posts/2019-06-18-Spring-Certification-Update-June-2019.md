@@ -1,5 +1,5 @@
 ---
-title: Spring Professional Certification Update June 2019
+title: Spring Professional Certification 2019 Update
 search: true
 tags: 
   - Java

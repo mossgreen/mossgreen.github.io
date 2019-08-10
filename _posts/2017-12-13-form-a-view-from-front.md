@@ -10,9 +10,9 @@ toc_icon: "cog"
 classes: wide
 ---
 
- Ask user for data and to send it to a web server.
+ Submits user's data and sends data to a server.
 
-### 1. Quick demo
+## Quick demo
 
 ```html
 <form action="/my-handling-form-page" method="post">
@@ -32,21 +32,23 @@ classes: wide
 
 In this demo, the form will send 2 pieces of data named `user_name` and `user_email`. Data will be sent to the URL `/my-handling-form-page` using the `HTTP POST` method.
 
-### 2. Attributes for `<form>`
+## `<form>` Attribute Details
 
-1. `action` 
+### `action` 
   - is the ocation that the data should be sent to
   - Must be a valid URL. Can be absolute or relative URL
   - If not provided, the data will be sent to the URL of the page containing the form
   - `<form action="#">`: before `HTML5`, `action` is required. It indicates data send to current page
 
-2. `method="GET"` 
+### `method` 
+
+`method="GET"`
     - `method` by default is "GET"
     - Data is appended to the URL 
     - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
     - `enctype` attribute will be ignored
   
-3. `method="POST"` 
+`method="POST"`
     - Data provided in the body of the HTTP request 
     - No data appened to URL
     - `enctype` attribute by default is `application/x-www-form-urlencoded`
@@ -59,7 +61,10 @@ Content-Length: 38
 
 user_name=moss&user_mail=haha@haha.com
 ```    
-### 3. Attributes for `<label>` 
+
+## Attributes inside of `<form>`
+
+### `<label>`  Attributee
 
 ```html
 <!-- probably a better one -->
@@ -69,10 +74,10 @@ user_name=moss&user_mail=haha@haha.com
 </div>
 ```
 When user click on the label, the input with `id="user_name"` shall be activated.
-
 It is especially useful for radio buttons and checkboxes.
 
-### 4. Attributes for `<input>`
+
+### `<input>`Attribute
 
 - button: A push button with no default behavior
 - date: `HTML5` year, month, and day, with no time
@@ -84,7 +89,7 @@ It is especially useful for radio buttons and checkboxes.
 
 See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
 
-### 5. Attributes for `<button>`
+### `<button>`
 
 - `type="submit"`: A click will submit data
 - `type="reset"` : A click will reset data in form
@@ -104,7 +109,9 @@ See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/
 <input type="submit" value="This is a submit button">
 ```
 
-### 6. AJAX
+## Submit a form
+
+### AJAX
 
 ```html
 <button type="button" onclick="sendData({test:'ok'})">Click Me!</button>
@@ -147,7 +154,35 @@ function sendData(data) {
 }
 ```
 
-### 7. FormData Object
+### form not submitting in Microsoft Edge
+
+In HTML5, a `<button>` has a form attribute. 
+```html
+<form id="form1" method="get" action="/">
+     <input type="text" name="firstname" />
+</form>
+ 
+<button type="submit" form="form1" value="Submit">Submit</button>
+```
+However, **it doesn't work on IE and Edge**. Since submit button is a type of control, the submit must appear inside a `<form>`.
+
+You can use JavaScript onclick event.
+```html
+<form id="form1">
+	<input type="text" name="firstname" />
+</form>
+ 
+<button id="submit-button">Submit</button>
+ 
+<script type="text/javascript">
+	document.getElementById("submit-button").onclick = function() {
+		document.getElementById("form1").submit();
+	}
+</script>
+```
+
+
+## FormData Object
 
 `FormData` sends a set of key/value pairs using `XMLHttpRequest`
 
@@ -159,11 +194,13 @@ request.open("POST", "submitform.php");
 formData.append("serialnumber", serialNumber++);
 request.send(formData);
 ```
-### 8. Form Validation 
+
+
+## Form Validation 
 
 When user enter data, form checks if it's correct. It won't allow invalid data to be submited, using `HTML5` validation, Javascript and 3rd party library.
 
-#### `<input>` HTML5 Valid
+### `<input>` HTML5 Valid
 
 A quick demo with email validation.
 Show red dashed border when input is invalid. 
@@ -182,7 +219,7 @@ input:invalid { border: 2px dashed red; }
 input:valid { border: 2px solid black; }
 ```
 
-#### `<input>` Regex Valid
+### `<input>` Regex Valid
 
 `<input>` has a `pattern` attribute, using regex to match text strings.
 
@@ -196,7 +233,7 @@ In this demo, it only accepts "man" or "woman".
 </form>
 ```
 
-#### Javascript Validation
+### Javascript Validation
 
 - Use `novalidate` to provent the default form validation and let your JS validation take control
 
@@ -244,7 +281,7 @@ form.addEventListener("submit", function (event) {
 }, false);
 ```
 
-#### 3rd party library validation
+### 3rd party library validation
 
 - [Validate.js](http://rickharrison.github.io/validate.js/)
 - [jQuery plug-in](https://jqueryvalidation.org/)
@@ -252,6 +289,7 @@ form.addEventListener("submit", function (event) {
 Find more: [MDN Constraint Validation](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation)
 
 
-### References
+## References
 - [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
+- [How do I make submit button without form?](https://www.quora.com/How-do-I-make-submit-button-without-form)
 - [Sensible Forms: A Form Usability Checklist](http://alistapart.com/article/sensibleforms)

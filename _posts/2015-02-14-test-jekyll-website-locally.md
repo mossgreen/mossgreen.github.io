@@ -11,18 +11,19 @@ Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous.
 
 
 ## Requirements
-- Install Ruby: `$ sodu install ruby`
 
-- Install bundler: `$ gem install bundler`
+1. Install Ruby: `$ sodu install ruby`
 
-- Update 'Gemfile' in project directory:
+2. Install bundler: `$ gem install bundler`
+
+3. Update 'Gemfile' in project directory:
 
     ```bash
     source 'https://rubygems.org'
     gem 'github-pages', group: :jekyll_plugins
     ```
 
-- In project directory, update dependencies:`$ bundle install`
+4. In project directory, update dependencies:`$ bundle install`
 
 ## Run it
 - Navigate to the root directory: `cd blog`

@@ -10,7 +10,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Session is lost and created as new in every servlet request. WHY?
+Why is my session lost and created as new in every servlet request?
 
 I got a question from coworker:
 > Fiddling with some web stuff on spring mvc one my localhost I can’t for the life of me figure our why I am getting a new session created on every request. Debug lots making sure each controller has a @Scope(“session”).  Sometimes session is there sometimes not, but mostly not and it is new on every request. Checked production and session seams find!

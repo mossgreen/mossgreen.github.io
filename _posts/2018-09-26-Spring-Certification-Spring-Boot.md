@@ -1,5 +1,5 @@
 ---
-title: Spring REST in Spring Certification
+title: Spring Boot in Spring Professional Certification
 search: true
 tags: 
   - Spring Boot

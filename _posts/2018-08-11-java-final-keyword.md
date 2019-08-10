@@ -6,7 +6,7 @@ tags:
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: wide
+classes: single
 ---
 I use final whenever it is appropriate. 
 
@@ -33,7 +33,8 @@ I use final whenever it is appropriate.
     final Long ANOTHER_ID;
     
     {
-        ANOTHER_ID = 333L; // this block has to be upper than constructor
+        // this block has to be upper than constructor
+        ANOTHER_ID = 333L; 
     }
     
     MyClass() {
@@ -64,14 +65,14 @@ public static void main(String[] args) {
 
 ## Question and Answer
 
-1. Improve performance?  
+1. Improved performance?  
 Not always, not really.
 
 2. Why use `final`?  
 Should use final based on clear design and readability.
 
 3. When must use?
-> You have to mark something final so you can access it from within an anonymous inner class.
+You have to mark something final so you can access it from within an anonymous inner class.
 
 4. Benefits
 > At first, it kind of looks awkward to see a lot of final keywords in your code, but pretty soon you'll stop noticing the word itself and will simply think, that-thing-will-never-change-from-this-point-on.

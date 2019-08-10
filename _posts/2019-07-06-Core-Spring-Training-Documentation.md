@@ -10,7 +10,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Study Notes for Core Spring Training Document.
+//not finished yet
 
 Mobules:
 1. INTRODUCTION TO SPRING
@@ -32,6 +32,7 @@ Mobules:
 17. SPRING BOOT TESTING ENHANCEMENTS
 
 ---
+
 ## 1. INTRODUCTION TO SPRING
 
 ### 1.1 Java configuration and the Spring application context
