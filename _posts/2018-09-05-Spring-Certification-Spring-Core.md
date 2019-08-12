@@ -374,10 +374,24 @@ public class SystemTestConfig {
 
 **`@Autowired` Injection types**
 1. constructor
-2. setter
-3. field injection
-4. field injection of an array of that type
-5. for interfaces that are well-known resolvable dependencies:   
+2. “traditional” setter methods, `void setXXX(){}`
+3. annotation to methods with **arbitrary names and multiple arguments**
+4. field injection
+5. field injection of an array of that type
+6. Requried by default.`@Autowired(required = false)` means optional.
+    - The `'required'` attribute of @Autowired is **recommended over** the `@Required` annotation on setter methods.
+    - you can express the non-required nature of a particular dependency through Java 8’s `java.util.Optional`.
+    ```java
+    
+    @Autowired(required = false) 
+    public void setMovieFinder(MovieFinder movieFinder) { 
+      this.movieFinder = movieFinder; 
+    }
+    
+    @Autowired 
+    public void setMovieFinder(Optional<MovieFinder> movieFinder) { }
+    ```
+7. for interfaces that are well-known resolvable dependencies:   
   `BeanFactory`, `ApplicationContext`, `Environment`, `ResourceLoader`, `ApplicationEventPublisher`, and `MessageSource`. These interfaces and their extended interfaces, such as ConfigurableApplicationContext or ResourcePatternResolver, are automatically resolved, with **no special setup necessary**.
 
 ```java
@@ -413,6 +427,14 @@ public class MovieRecommender {
 2. Autowiring is less exact than explicit wiring.
 3. Wiring information may not be available to tools that may generate documentation from a Spring container.
 4. Multiple bean definitions within the container may match the type specified by the setter method or constructor argument to be autowired.
+5. While injecting **Map** type, the key type msut be String.
+    ```java
+    private Map<String, MovieCatalog> movieCatalogs; 
+    @Autowired 
+    public void setMovieCatalogs(Map<String, MovieCatalog> movieCatalogs) {
+      this.movieCatalogs = movieCatalogs; 
+    }
+    ```
 
 
 ## Describe Component scanning
@@ -958,6 +980,7 @@ It's singleton scope by default.
 // todo ?
 
 ### Why can’t @Bean methods be final either?
+
 CGlib proxying cannot proxy a final class.
 
 ## How do you configure profiles? What are possible use cases where they might be useful?
@@ -996,6 +1019,7 @@ ctx.getEnvironment().setActiveProfiles("development");
 ctx.register(SomeConfig.class, StandaloneDataConfig.class, JndiDataConfig.class);
 ctx.refresh();
 ```
+
 
 ## Can you use `@Bean` together with `@Profile`? 
 

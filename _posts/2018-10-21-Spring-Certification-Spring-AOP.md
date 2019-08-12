@@ -73,6 +73,8 @@ Because of the variety of join points, you need a powerful expression language t
 
 ### Pointcut 
 
+- Pointcut is a predicate used to identify join points.
+
 - A pointcut is an **expression to match a set of join points**,
 
 - It represents a point in the code where new behavior will be injected. 
@@ -266,23 +268,23 @@ NB:
 
 **Advice: action taken by an aspect at a join point.**
 
-- **Before**: always proceed to the join point unless an execution is thrown from within the advice code
+- **Before advice**: `@Before` always proceed to the join point unless an execution is thrown from within the advice code
   - Access control, security
   - Statistics
 
-- **After returning**: execution of a join point has completed without throwing any exceptions
+- **After returning advice**: `@AfterReturning` execution of a join point has completed without throwing any exceptions
   - statistics
   - Data validation
 
-- **After throwing**: invoked after the execution of a join point that resulted in an exception being thrown
+- **After throwing advice**: `@AfterThrowing` invoked after the execution of a join point that resulted in an exception being thrown
   - Error handling 
   - Sending alerts when an error has occurred.
   - Attempt error recovery
 
-- **After (finally)**: invoke no matter what happened.
+- **After (finally) advice**: `@After` method will execute after a join point execution, no matter how the execution ended (even exception happens).
   - Releasing resources 
 
-- **Around**: Around advice can be used for all of the use-cases for AOP.
+- **Around**: `@Around` Around advice can be used for all of the use-cases for AOP.
  
 ![IMAGE](https://i.loli.net/2019/06/01/5cf1f4f78070020870.jpg)
 

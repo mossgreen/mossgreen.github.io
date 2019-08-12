@@ -176,18 +176,32 @@ When a request is issued to the application:
 - The method in the controller is **executed**.
 
 
-## What is the difference between @RequestMapping and @GetMapping?
+## What is the difference between `@RequestMapping` and `@GetMapping`?
+
 `@GetMapping` equals to ` @RequestMapping(method = RequestMethod.GET)`
 
 
-## What is @RequestParam used for?
-Request parameters of arbitrary type, annotated with `@RequestParam`.
+## What is `@RequestParam` used for?
+
+The request parameter can be retrieved through a method argument annotated with `@RequestParam`
+
+You can use the `@RequestParam` annotation to bind Servlet request parameters.
+
+By default, method parameters that use this annotation are **required**, but you can specify that a method parameter is optional by 
+
+1. setting the` @RequestParam` annotation’s required flag to `false` or 
+2. by declaring the argument with an `java.util.Optional` wrapper.
+
+Type conversion is automatically applied if the target method parameter type is not String.
+
+NB. use of` @RequestParam` is optional. By default, any argument that is a simple value type (as determined by BeanUtils#isSimpleProperty) and is not resolved by any other argument resolver, is treated as if it were annotated with @RequestParam.
 
 
 ## What are the differences between @RequestParam and @PathVariable?
-- `@PathVariable` instructs Spring MVC to **bind the path variable within the URL**
-- for example, http:// localhost:8080/singer/1  into the id argument of the findSingerById() method. 
-- Note that for the id argument, the type is Long, while Spring’s type conversion system will automatically handle the conversion from String to Long for us.
+
+`@PathVariable` instructs Spring MVC to **bind the path variable within the URL**
+    - for example, http:// localhost:8080/singer/1  into the id argument of the findSingerById() method. 
+    - Note that for the id argument, the type is Long, while Spring’s type conversion system will automatically handle the conversion from String to Long for us.
 
 ```java
 @RequestMapping(value = "/{userId}", method = RequestMethod.GET) 

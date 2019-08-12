@@ -76,6 +76,7 @@ In all, there are 9 different HTTP request types:
 
 
 ## What are idempotent operations? Why is idempotency important?
+
 **Idempotent** meansyou can **repeat** these operations over and over again, but the end result should be the **same**.
 
 Idempotency operations:

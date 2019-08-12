@@ -58,7 +58,9 @@ Spring obtains a connection to the database through a `DataSource`.
 
 - A DataSource is part of the **JDBC specification** and is a generalized connection factory. 
 - It allows a container or a framework to hide connection pooling and transaction management issues from the application code.
-- **DataSource** VS **Connection**: DataSource provides and manages Connections.
+
+**DataSource** VS **Connection**:   
+DataSource provides and manages Connections.
 
 Spring offers several options for **configuring data-source beans**, including:
 
@@ -66,18 +68,28 @@ Spring offers several options for **configuring data-source beans**, including:
 
 2. Data sources that are **looked up by JNDI**. 
 
-3. Data sources that connection pool implementation. Popular implementations are Apache Jakarta Commons DBCP and C3P0
+3. Data sources that connection pool implementation. Popular implementations are 
+    - Apache Jakarta Commons DBCP and 
+    - C3P0
 
 4. An **embedded database** runs as part of your application instead of as a separate database server that your application connects to.
 
-**The preferred way** is to retrieve the pooled data source from an application server via JNDI.
-**The next best** thing is to configure a pooled data source directly in Spring.
+**Orders of choice**
+1. **The preferred way** is to retrieve the pooled data source from an application server via JNDI.
+
+2. **The next best** thing is to configure a pooled data source directly in Spring.
 
 ### Which bean is very useful for development/test databases?
 
 Datasource Bean.
 
+Implementations in the Spring distribution are meant only for testing purposes and do not provide pooling:
+    1. Spring’s `DriverManagerDataSource`
+    2. // todo, more spring implementations?
+
+
 ### Using JDBC driver-based data sources.
+
 1. `DriverManagerDataSource`. 
     - the simplest implementation of a DataSource, 
     - Returns **a new connection** every time. 
@@ -87,7 +99,7 @@ Datasource Bean.
     - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
 
 2. `SimpleDriverDataSource`. 
-    - Similar with DriverManagerDataSource.
+    - Similar with `DriverManagerDataSource`.
     - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
 
 3. `SingleConnectionDataSource`.
@@ -911,8 +923,11 @@ public class JpaUserRepo implements UserRepo {
 1. Declare **dependencies**: ORM dependency, db driver dependency, transaction manager dependency.
 
 2. `@Entity` classes
-    - `@Entity` marks classes as templates for domain objects, also called entities to database tables.
+    - is part of the **javax.persistence.***, not JPA! 
+    - `@Entity` marks **classes** as templates for domain objects, also called entities to database tables.
     - The `@Entity` annotation can be applied **only** at class level.
+    - `@Entity` are mapped to database tables matching the class name, unless specified otherwise using the` @Table` annotation.
+    - `@Entity` and `@Id` are mandatory for a domain class.
 
 3. Define an **EntityManagerFactory** bean.
     - Simplest:  `LocalEntityManagerFactoryBean`. It produces an application-managed EntityManagerFactory.
@@ -1108,6 +1123,10 @@ When the name of the named parameter is the same as the name of the argument in 
 
 But if the method argument has a different name, the `@Param` annotation is needed to tell Spring that the value of this argument is to be injected in the named parameter in the query.
 
+Queries annotated to the query method take precedence over queries defined using `@NamedQuery` or named queries declared in `orm.xml` .
+
+Annotation-based configuration has the advantage of not needing another cofiguration file to be edited, lowering maintenance effort.
+
 ```java
 public interface UserRepo extends JpaRepository<User, Long> {
 
@@ -1126,6 +1145,28 @@ public interface UserRepo extends JpaRepository<User, Long> {
 }
 ```
 
+Named queries are part of the metadata, and are defined with the annotation `@NamedQuery`, The annotation `@NamedQueries` can be used to group multiple queries together.
+```java
+@Entity
+@Table(name="P_USER") 
+@SequenceGenerator(name = "seqGen", allocationSize = 1) @NamedQueries({
+
+  @NamedQuery(name=User.FIND_BY_USERNAME_EXACT, query = "from User u where username= ?"), @NamedQuery(name=User.FIND_BY_USERNAME_LIKE, query = "from User u where username like ?")
+})
+public class User extends AbstractEntity { }
+```
+
+
+The @Query annotation allows for running native queries by setting the nativeQuery flag to true, as shown in the following example:
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+
+  @Query(value = "SELECT * FROM USERS WHERE EMAIL_ADDRESS = ?1", nativeQuery = true) 
+  User findByEmailAddress(String emailAddress);
+}
+```
+- Spring Data JPA does not currently support dynamic sorting for native queries,
+- You can, however, use native queries for pagination by specifying the count query yourself.
 
 ## References
 

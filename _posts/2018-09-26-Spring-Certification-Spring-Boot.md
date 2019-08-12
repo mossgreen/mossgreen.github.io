@@ -195,17 +195,24 @@ The SpringApplication class automatically supports `YAML` as an alternative to `
 
 ## Can you control logging with Spring Boot? How?
 
+Spring Boot has no mandatory logging dependency, except for the **Commons Logging API**, which is typically provided by Spring Framework’s `spring-jcl` module.
+
 Spring Boot uses **Commons Logging** internally by default, but it leaves the underlying implementation open. 
 
-- By default, if you use the “Starters”, **Logback is used for logging**.
+Default configurations are provided for 
+- Java Util Logging, 
+- Log4J2, and 
+- Logback
 
-- By default, ERROR, WARN, and INFO level messages are logged. In `application.properties` add: `debug=true` to enable debug level logging.
+By default, if you use the “Starters”, **Logback is used for logging**.
 
-- Logging is initialized **before** the application context, so it is **impossible** to control logging from using `@PropertySources` in `@Configuration` classes.
+By default, ERROR, WARN, and INFO level messages are logged. In `application.properties` add: `debug=true` to enable debug level logging.
 
-- **System properties** and conventional Spring Boot **external configuration files** should be used. Depending on the logging system that is used, Spring Boot will look for the specific configuration files.
+Logging is initialized **before** the application context, so it is **impossible** to control logging from using `@PropertySources` in `@Configuration` classes.
 
-- The logfile name to use by default by Spring Boot can be configured using the `logging.file` Spring Environment variable.
+**System properties** and conventional Spring Boot **external configuration files** should be used. Depending on the logging system that is used, Spring Boot will look for the specific configuration files.
+
+The logfile name to use by default by Spring Boot can be configured using the `logging.file` Spring Environment variable.
 
 
 ## Where does Spring Boot look for property file by default?
@@ -446,14 +453,17 @@ For example, if there is a specific embedded server on the classpath, this will 
 
 **Externalized Configuration**
 
-Spring Boot lets you externalize your configuration so that you can work with the same application code in different environments. To externalize configuration
+Spring Boot lets you externalize your configuration so that you can work with the same application code **in different environments**. To externalize configuration
+
 - properties files,
 - YAML files, 
 - environment variables, and 
 - command-line arguments 
 
+NB. **`.xml`** is not shown in the documentation!
 
-## What does @EnableAutoConfiguration do?
+
+## What does `@EnableAutoConfiguration` do?
 
 It's a Spring Boot specific annotation. It enables the autoconfiguration of Spring ApplicationContext by:
 1. scanning the classpath components and 
