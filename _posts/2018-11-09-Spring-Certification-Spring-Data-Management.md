@@ -422,8 +422,9 @@ Two ways of implementing it:
 Declarative transaction management is **non-invasive**.
 
 1. **Configure transaction management support**
-    - Using Java Configuration, define a `PlatformTransactionManager` bean
-    - Enable it by annotate the config file with `@EnableTransactionManagement`
+    - Marked a Spring Configuration class using the `@Configuration` 
+    - Using Java Configuration, define a `PlatformTransactionManager` bean using `@bean`
+    - Enable transaction management by annotate the config file with `@EnableTransactionManagement`
     
     ```java
     @Configuration 
@@ -437,7 +438,6 @@ Declarative transaction management is **non-invasive**.
     ```
 
 2. Declare transactional methods using `@Transactional` 
-
     ```java
     @Service 
     public class UserServiceImpl implements UserService { 
@@ -448,6 +448,7 @@ Declarative transaction management is **non-invasive**.
       } 
     }
     ```
+
 
 ### Programmatic transaction management
 
@@ -758,8 +759,8 @@ public int updatePassword(Long userId, String newPass) throws MailSendingExcepti
 When you use the `@RunWith(SpringJUnit4ClassRunner.class)` in JUnit 4 or `@ExtendWith(SpringExtension.class)` in JUnit 5, and annotate your `@Test` annotated method with `@Transactional`?
 
 - Test-methods will be executed in a transaction, **and** will roll back after completion.
-- The rollback policy of a test can be changed using the `@Rollback` set to false.
-
+- The rollback policy of a test can be changed using the `@Rollback` set to false, `@Rollback(false)`
+- `@Commit` indicates that the transaction for a transactional test method should be committed after the test method has completed. You can use @Commit as a direct replacement for @Rollback(false) to more explicitly convey the intent of the code. Analogous to @Rollback, @Commit can also be declared as a class-level or method-level annotation.
 
 The `@DataJpaTest` tests are transactional and rolled back at the end of each test by default. You can disable this default rollback behavior for a single test or for an entire test class by annotating with `@Transactional(propagation = Propagation.NOT_SUPPORTED)`.
 

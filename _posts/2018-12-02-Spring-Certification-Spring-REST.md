@@ -109,6 +109,7 @@ The ability to exchange and make use of information.
 
 
 ## What is an HttpMessageConverter?
+
 The `@ResponseBody` is also used to facilitate understanding of the REST message format between client and server.
 
 The `HttpMessageConverter` interface specifies the properties of a converter that can perform the following conversions:
@@ -176,8 +177,23 @@ What is a stereotype annotation? What does that mean?
 
 ## When do you need @ResponseBody?
 
-- `@ResponseBody` on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
 - `@ResponseBody` on class: the controller becomes restcontroller.
+
+- `@ResponseBody` on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
+    ```java
+    @RequestMapping(value="/test", 
+      produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
+    public @ResponseBody List<Journal> getJournal(){ 
+      return repo.findAll(); 
+    }
+    
+    @ResponseStatus(HttpStatus.OK) 
+    @RequestMapping(value = "/listdata", method = RequestMethod.GET) 
+    @ResponseBody 
+    public Singers listData() { 
+      return new Singers(singerService.findAll()); 
+    }
+    ```
 
 
 ## What does @PathVariable do?
@@ -188,6 +204,7 @@ What is a stereotype annotation? What does that mean?
 ## What are the HTTP status return codes for a successful GET, POST, PUT or DELETE operation?
 
 ### HTTP response codes
+
 1. 1XX: information. Request hs been received and processing of it continues.
 2. 2XX: Successful. Successfully received, understood and accepted.
 3. 3XX: Redirection. Further action is needed to complete the request.
@@ -195,6 +212,7 @@ What is a stereotype annotation? What does that mean?
 5. 5XX: Server error. Server is unavailable for a valid request.
 
 ### HTTP method
+
 1. GET: 200 OK
 2. POST: 200 OK, 201 Created, 204 No Content
 3. PUT: 200 OK, 201 Created, 204 No Content

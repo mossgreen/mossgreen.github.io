@@ -9,7 +9,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring testing in Pivotal Spring professional certification (4%).
+Spring test in Pivotal Spring professional certification (4%).
 
 ## Do you use Spring in a unit test?
 
@@ -89,9 +89,13 @@ To access the Context with the TestContext Framework in JUnit, two options to ac
 
 ## When and where do you use `@Transactional` in testing?
 
-- At **method level**: the annotated test method(s) will run, each in its own transaction. By default, automatically rolled back after completion of the test. You can alter this behavior by disabling the `defaultRollback` attribute of `@TransactionConfiguration`.
+1. At **method level**: the annotated test method(s) will run, each in its own transaction. By default, automatically rolled back after completion of the test. 
 
-- At **class level**: each test method within that class hierarchy runs within a transaction. You can override this class-level rollback behavior at the method level with the `@Rollback` annotation, which requires a Boolean value.
+    You can alter this behavior by disabling the `defaultRollback` attribute of `@TransactionConfiguration`.
+
+2. At **class level**: each test method within that class hierarchy runs within a transaction. 
+
+    You can override this class-level rollback behavior at the method level with the `@Rollback` annotation, which requires a Boolean value, `@Rollback(false)`, This is equivalent to another annotation introduced in Spring `@Commit`.
 
 
 ## How are mock frameworks such as Mockito or EasyMock used?

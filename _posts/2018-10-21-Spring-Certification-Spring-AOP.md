@@ -83,62 +83,6 @@ Because of the variety of join points, you need a powerful expression language t
 
 - Pointcuts can be combined using the logical operators `&&` (and), `||` (or) and `!` (not).
 
-**pointcut expression**
-`execution( [Modifiers] [ReturnType] [FullClassName].[MethodName] ([Arguments]) throws [ExceptionType])`
-  
-- The `[ReturnType]` is **mandatory**
-- The `[Modifers]` is **not mandatory** and if not specified **defaults to public**
-- The `[MethodName]` is **not mandatory**, meaning no exception will be thrown at boot time
-- The `[Arguments]` is mandatory.
-
-**use  pointcut directly**
-```java
-@Aspect 
-@Component 
-public class UserRepoMonitor { 
-
-  private static final Logger logger = Logger.getLogger(UserRepoMonitor.class);
-  
-  @Before("execution( * com.ps.repos.*.*UserRepo+.update*(..))
-    || execution (* com.ps.services.*Service+.update*(..)))") 
-  public void beforeUpdate(JoinPoint joinPoint) throws Throwable { 
-  
-    String className = joinPoint.getSignature().getDeclaringTypeName(); 
-    String methodName = joinPoint.getSignature().getName(); 
-    logger.info(" ---> Method " + className + "." + methodName + " is about to be called"); 
-  }
-}
-```
-
-**Seperate pointcut in another class**
-```java
-
-public class PointcutContainer {
-
-  @Pointcut("execution (* com.ps.services.*Service+.update*(..))
-              && args(id,pass) && target (service)") 
-  public void serviceUpdate(UserService service, Long id, String pass) { } 
-}
-
-/*NB: UserRepoMonitor uses PointcutContainer.serviceUpdate() method*/
-
-@Aspect 
-@Component 
-public class UserRepoMonitor { 
-
-  private static final Logger logger = Logger.getLogger(UserRepoMonitor.class);
-  
-  @Before("com.ps.aspects.PointcutContainer.serviceUpdate(service, id, pass)") 
-  public void beforeServiceUpdate (UserService service, Long id, String pass) throws Throwable { 
-  
-  logger.info(" ---> Proxied object " + service.getClass());
-  
-  if (StringUtils.indexOfAny(pass, new String{"$", "#", "$", "%"}) != -1) { 
-    throw new IllegalArgumentException("Text for " + id + " contains weird characters!");
-    }
-  }
-}
-```
 
 ### Aspect
 
@@ -331,7 +275,7 @@ NB:
 
 ## What do you have to do to enable the detection of the @Aspect annotation? What does @EnableAspectJAutoProxy do?
 
-**Why do you want to use `@Aspect`?**
+### Why do you want to use `@Aspect`?
 
 Reduce duplication of pointcut expression. Aspect allows you define the pointcut once and then reference it every time you need it. The `@Pointcut` annotation defines a reusable pointcut within an `@AspectJ` aspect.
 
@@ -376,35 +320,105 @@ public class SomeConfig {
 
 The basic structure of a pointcut expression consists of **two parts**:
 
-- a pointcut **designator** and 
-- an **pattern** that selects join points of the type determined by the pointcut designator.
-
+1. a pointcut **designator** and 
+2. an **pattern** that selects join points of the type determined by the pointcut designator.
 
 Spring AOP only supports **method execution** join points for beans declared in its IoC container. Otherwise, throw `IllegalArgumentException`.
 
-- Use Method Signature Patterns
+###  Method Signature Patterns
+
+For filtering according to the method signatures.
+
+- the execution keyword can be used. 
+- Its pattern is stated as follows:
     ```java
-    execution(* com.apress.springrecipes.calculator.ArithmeticCalculator.*(..))
-    
-    execution(public double ArithmeticCalculator.*(..))
-    
-    execution(public double ArithmeticCalculator.*(double, ..))
+    execution( [scope] [ReturnType] [FullClassName].[MethodName] ([Arguments]) throws [ExceptionType])    
+    ```
+**pointcut expression**
+- The scope of the methods could either be `public`, `protected`, or `private`.
+- The `[ReturnType]` is **mandatory**
+- The `[Modifers]` is **not mandatory** and if not specified **defaults to public**
+- The `[MethodName]` is **not mandatory**, meaning no exception will be thrown at boot time
+- The `[Arguments]` is mandatory. To bypass the Arguments filtering, you can specify two dots `..`
+
+**Examples**
+- This advice will match for all the methods of MyBean.
+    ```java
+    execution(* com.wiley.spring.ch8.MyBean.*(..))
+    ```
+- This advice will match for all the public methods of MyBean.
+    ```java
+    execution(public * com.wiley.spring.ch8.MyBean.*(..))
+    ```
+- This advice will match for all the public methods of MyBean that return a String.
+    ```java
+    execution(public String com.wiley.spring.ch8.MyBean.*(..))
+    ```
+- This advice will match for all the public methods of MyBean with the first parameter defined as long.
+    ```java
+    execution(public * com.wiley.spring.ch8.MyBean.*(long, ..))
     ```
 
-- Use Type Signature Patterns
+### Type Signature Patterns
+
+For filtering methods according to its types—like interfaces, class names, or package names. 
+
+- Key word: `winthin`.
+- The type signature pattern is as follows, **type name** could be replaced with `package name` or `class name`.
     ```java
-    within(com.apress.springrecipes.calculator.*)
-    
-    within(com.apress.springrecipes.calculator.ArithmeticCalculatorImpl)
+    within(<type name>)
     ```
-- Combine Pointcut Expressions
+**Examples**
+- This advice will match for all the methods in all classes of the com.wiley package and all of its subpackages.
     ```java
-    // matches the join points within classes that implement either the ArithmeticCalculator or UnitCalculator interface
+    within(com.wiley..*)
+    ```
+- This advice will match for all the methods in the MyService class.
+    ```java
+    within(com.wiley.spring.ch8.MyService)`
+    ```
+- This advice will match for all the methods of classes that implement the MyServiceInterface.
+    ```java
+    within(MyServiceInterface+)
+    ```
+- This advice will match for MyBaseService class and for all of its subclasses.
+    ```java
+    within(com.wiley.spring.ch8.MyBaseService+)
+    ```
+- Combine Pointcut Expressions. Matches the join points within classes that implement either the ArithmeticCalculator or UnitCalculator interface
+    ```java
     within(ArithmeticCalculator+) || within(UnitCalculator+)
     ```
-- Declare Pointcut Parameters
+
+### Other alternative Point‐cut designators
+
+1. `bean(*Service)`: It’s possible to filter beans according to their names with the bean keyword. 
+The point‐cut expression given above will match for the beans that have the suffix Service in their names.
+
+2. `@annotation(com.wiley.spring.ch8.MarkerMethodAnnotation)`: It’s possible to filter the methods according to an annotation applied on. 
+The point‐cut expression here states that the methods that have the MarkerMethodAnnotation annotation will be advised.
+
+3. `@within(com.wiley.spring.ch8.MarkerAnnotation)`: While point‐cut expressions with the within keyword match a package, class, or an interface, it’s also possible to restrict filtering of the classes according to an annotation that the class would have. Here, the classes with the MarkerAnnotation will be advised by the @within keyword.
+
+4. `this(com.wiley.spring.ch8.MarkerInterface)`: This point‐cut expression will filter the methods of any proxy object that implements the MarkerInterface.
+
+
+### Wildcards
+
+1. `..`
+This wildcard matches any number of arguments within method definitions, and it matches any number of packages within the class definitions.
+
+2. `+`
+This wildcard matches any subclasses of a given class.
+
+3. `*`
+This wildcard matches any number of characters.
+
+
+### Declare Pointcut Parameters
     ```java
-    @Aspect public class CalculatorLoggingAspect { 
+    @Aspect 
+    public class CalculatorLoggingAspect { 
       @Before("execution(* *.*(..)) && target(target) && args(a,b)") 
       public void logParameter(Object target, double a, double b) { 
         log.info("Target class : {}", target.getClass().getName()); 
@@ -430,8 +444,36 @@ Spring AOP only supports **method execution** join points for beans declared in 
       } 
     }
     ```
-    
-    
+
+### @Pointcut
+
+1. Point‐cuts can be defined with this annotation by providing a method declaration.
+2. The return type of the method should be `void` and the parameters of the method should match the parameters of the point‐cut.
+3. There is no need to define the method body because it will be omitted.
+
+**use  pointcut directly**
+```java
+@Component 
+@Aspect 
+public class ExecutionOrderBefore {
+
+  @Before(value = "execution(public * *(..)) and args(param)") 
+  public void before(JoinPoint joinPoint, String param) { 
+    System.out.println("Before Advice. Argument: " + param); 
+  }
+}
+```
+
+**Rewrite with the @Pointcut**
+```java
+@Pointcut("execution(public * *(..))") 
+public void anyPublicMethod() { }
+
+@Before("anyPublicMethod()") 
+public void beforeWithPointcut(JoinPoint joinPoint) { }
+```
+
+
 ## What would be the correct pointcut expression to match both getter and setter methods?
 
 **Pointcut expression to match both getter and setter methods**

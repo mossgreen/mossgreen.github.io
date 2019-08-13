@@ -12,7 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Spring Security in Pivotal Spring Professional Certification(6%).
+Spring Security in Pivotal Spring Professional Certification (6%).
 
 ## What are authentication and authorization? Which must come first?  
 
@@ -112,12 +112,21 @@ assert(authentication.isAuthenticated);
 
 ## What does the ** pattern in an antMatcher or mvcMatcher do?
 
-`/admin/**` matches any path starting with `/admin`.
 
-The `antMatcher(…)` method is the equivalent of the `<intercept-url.../>` element from XML, and equivalent methods are available to replace the configuration for the login form, logout URL configuration, and CSRF token support.
+- `antMatcher(String antPattern)` - Allows configuring the HttpSecurity to only be invoked when matching the provided **Ant-style pattern**.
+    1. `/admin/**` matches any path starting with `/admin`.
+
+    2. he `antMatcher(…)` method is the equivalent of the `<intercept-url.../>` element from XML, and equivalent methods are available to replace the configuration for the login form, logout URL configuration, and CSRF token support.
+
+- `mvcMatcher(String mvcPattern)` - Allows configuring the HttpSecurity to only be invoked when matching the provided **Spring MVC pattern**.
+
+Generally mvcMatcher is more secure than an antMatcher.
+
+1. `antMatchers("/secured")` matches only the exact `/secured` URL
+
+2. `mvcMatchers("/secured")` matches `/secured` as well as `/secured/`, `/secured.html`, `/secured.xyz`
 
 ```java
-//or SecurityConfig.java 
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -128,6 +137,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 }
 ```
+
+```java
+@EnableWebSecurity 
+public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
+
+  protected void configure(HttpSecurity http) {
+
+    http 
+      .authorizeRequests() 
+        .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts") .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
+        .anyRequest().authenticated() 
+        .and() 
+      .oauth2ResourceServer() .jwt();
+  }
+}
+```
+
 
 ## Why is an mvcMatcher more secure than an antMatcher?
 
