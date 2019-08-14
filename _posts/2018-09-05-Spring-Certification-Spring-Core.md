@@ -247,7 +247,7 @@ Its sub-interface  `SmartContextLoader` to provide support for annotated classes
 
 `@WebAppConfiguration` is a class-level annotation that you can use to declare that the ApplicationContext loaded for an integration test should be a WebApplicationContext.
 
-`@ContextConfiguration` defines class-level metadata that is used to determine how to load and configure an ApplicationContext for integration tests.
+`@ContextConfiguration` defines **class-level metadata** that is used to determine how to load and configure an ApplicationContext for integration tests.
 
 Note that `@WebAppConfiguration` **must be used in conjunction with** `@ContextConfiguration`, either within a single test class or within a test class hierarchy.
 
@@ -823,6 +823,7 @@ Component, or classpath, scanning is the process using which the Spring containe
 4. If multiple matching, `@Qualifier` bean might be used
 5. If multiple matching, try to **match bean name and filed name**
 6. Exception throws if no unique matching
+7. `@Autowired` **cannot** be used to autowire primitive values, or Strings. `@Value` specializes in this exactly.
 
 ```java
 public class MovieRecommender {
@@ -854,43 +855,53 @@ For testing:
 
 ## How does the `@Qualifier` annotation complement the use of `@Autowired`?
 
-`@Qualifier` may be used
-1. on a field or parameter as a qualifier for candidate beans when autowiring. 
-2. to annotate other custom annotations that can then in turn be used as qualifiers.
+` @Autowired` +` @Qualifier` =` @Resource(name="beanName")`
 
-When you place the `@Qualifier` annotation together with the `@Autowired` and `@Bean` annotations, autowiring behavior turns into **byName** mode.
-
-`@Qualifier` used at 3 locations: 
+**`@Qualifier` used at 3 locations: **
 
 1. **Inject Points**. The most basic use of the `@Qualifier` annotation is to specify the name of the Spring bean to be selected the bean to be dependency-injected.
+    -  On a field
+    -  On a method
+        ```java
+        @Autowired 
+        @Qualifier("iceCream") 
+        public void setDessert(Dessert dessert) { 
+          this.dessert = dessert; 
+        }
+        ```
+    
+    -  On a method argument (before parameter type)
+        ```java
+        public class MovieRecommender {
+          private MovieCatalog movieCatalog; 
+          
+          @Autowired 
+          public void prepare(@Qualifier("main") MovieCatalog movieCatalog) {
+            this.movieCatalog = movieCatalog;
+          } 
+        }
+        ```
 
 2. **Bean Definitions**. This will assign a qualifier to the bean and the same qualifier can later be used at an injection point to inject the bean in question.
+    1. declare it 
+      ```java
+    @Component 
+    @Qualifier("cold") 
+    public class IceCream implements Dessert { 
+      return new IceCream();
+    }
+    ```
+    2. use it
+    ```java
+    @Autowired 
+    @Qualifier("cold") 
+    public void setDessert(Dessert dessert) { 
+      this.dessert = dessert; 
+    }
+    ```
+3. **Annotation Definition**. To create custom qualifier annotations
 
-3. **Annotation Definition**. To create custom qualifier annotations, use `@Qualifier` without `@Autowired`
-
-```java
-public class MovieRecommender {
-  @Autowired
-  @Qualifier("main")  // Inject Points
-  private MovieCatalog movieCatalog;
-}
-
-// use qualifier as method parameter
-public class MovieRecommender {
-
-  private MovieCatalog movieCatalog;
-  
-  private CustomerPreferenceDao customerPreferenceDao;
-  
-  @Autowired 
-  public void prepare(@Qualifier("main") MovieCatalog movieCatalog, CustomerPreferenceDao customerPreferenceDao) {
-  
-  this.movieCatalog = movieCatalog;
-  this.customerPreferenceDao = customerPreferenceDao; }
-}
-```
-
-NB: A scenario that use `@Qualifier` without `@Autowired`
+NB: A scenario that use `@Qualifier` without `@Autowired`. `@Qualifier `can also be used alongside the @Bean annotation when explicitly defining beans with Java configuration
 ```java
 @Component("fooFormatter")
 public class FooFormatter { }
@@ -898,6 +909,12 @@ public class FooFormatter { }
 @Component
 @Qualifier("fooFormatter")
 public class FooFormatter { }
+
+@Bean 
+@Qualifier("cold") 
+public Dessert iceCream() { 
+  return new IceCream(); 
+}
 ```
 
 

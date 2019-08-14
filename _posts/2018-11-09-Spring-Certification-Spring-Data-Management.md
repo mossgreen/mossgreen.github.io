@@ -229,13 +229,17 @@ public JdbcTemplate jdbcTemplate(DataSource dataSource) {
 
 ## What is the Template design pattern? What is the JDBC template?
 
-- Use abstract methods for the different steps, subclasses define all steps
-- Alternatively, the class may define default implementations of the different steps of the algorithm, allowing subclasses to customize only selected methods as desired.
-- In order to communicate with DB, some default methods includes:
-  - establishing connection
-  - handling transactions
-  - handling excetions
-  - clean up and release resource
+### Template design pattern
+
+Use abstract methods for the different steps, subclasses define all steps
+
+Alternatively, the class may define default implementations of the different steps of the algorithm, allowing subclasses to customize only selected methods as desired.
+
+In order to communicate with DB, some default methods includes:
+- establishing connection
+- handling transactions
+- handling excetions
+- clean up and release resource
 
 ### What is the JDBC template?
 
@@ -295,6 +299,35 @@ public int countOfActors(Actor exampleActor) {
 3. able to call a Stored Procedure
 4. define SqlParameters
 5. calling a Stored Function
+
+**initialize JdbcTemplate**
+The general practice is to initialize JdbcTemplate within the **setDataSource method** so that once the data source is injected by Spring, JdbcTemplate will also be initialized and ready for use.
+
+Once configured, **JdbcTemplate is thread-safe**. That means you can also choose to initialize a single instance of JdbcTemplate in Spring’s configuration and have it injected into all DAO beans.
+
+```java
+@Configuration 
+public class DemoJdbcConfig {
+  @Bean
+  public DataSource dataSource() {
+    return new DataSource();
+  }
+  
+  @Bean 
+  public JdbcTemplate jdbcTemplate(){ 
+    JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    jdbcTemplate.setDataSource(dataSource()); 
+    return jdbcTemplate; }
+  }
+  
+  @Bean 
+  public SingerDao singerDao() {
+    JdbcSingerDao dao = new JdbcSingerDao();
+    dao.setJdbcTemplate(jdbcTemplate());
+    return dao; 
+  }
+}
+```
 
 
 ## What is a callback? 
@@ -452,16 +485,85 @@ Declarative transaction management is **non-invasive**.
 
 ### Programmatic transaction management
 
+It is possible to use both declarative and programmatic transaction models simultaneously.
+
+Programmatic transaction management allows you to control transactions through your codeexplicitly starting, committing, and joining them as you see fit.
+
 Spring Framework provides two ways of implemeting Programmatic Transaction:
+1. Using `TransactionTemplate`, which is recommended by Spring;
+2. Using `PlatformTransactionManager` directly, which is low level.
 
-1. The TransactionTemplate. 
-    1. Spring team recommends.
-    2. TransactionTemplate adopts the same approach as other Spring templates, such as the JdbcTemplate.
-    3. It uses a callback approach. If there is no return value, use `TransactionCallbackWithoutResult`
+**Using `TransactionTemplate`**
+It uses a callback approach. 
 
-2. Using a `PlatformTransactionManager` implementation directly.
-    1. First, pass the implementation of the `PlatformTransactionManager` you use to your bean through a bean reference. 
-    2. Then, by using the `TransactionDefinition` and `TransactionStatus` objects, you can initiate transactions, roll back, and commit. 
+1. can write a `TransactionCallback` implementation, run `execute(..)`
+    ```java
+    public class SimpleService implements Service {
+    
+      // single TransactionTemplate shared amongst all methods in this instance 
+      private final TransactionTemplate transactionTemplate;
+      
+      // use constructor-injection to supply the PlatformTransactionManager 
+      public SimpleService(PlatformTransactionManager transactionManager) { 
+        this.transactionTemplate = new TransactionTemplate(transactionManager); 
+      }
+      
+      public Object someServiceMethod() {
+      
+        return transactionTemplate.execute(new TransactionCallback() { 
+          // the code in this method executes in a transactional context 
+          public Object doInTransaction(TransactionStatus status) { 
+            updateOperation1(); 
+            return resultOfUpdateOperation2(); 
+          } 
+        });
+      }
+    }
+    ```
+2. If there is no return value, use `TransactionCallbackWithoutResult`
+    ```java
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() { 
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        updateOperation1(); 
+        updateOperation2(); 
+      } 
+    });
+    ```
+
+3. NB. Code within the callback can roll the transaction back by calling the `setRollbackOnly()` method on the supplied `TransactionStatus` object
+    ```java
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+      protected void doInTransactionWithoutResult(TransactionStatus status) { 
+        try { 
+          updateOperation1(); 
+          updateOperation2(); 
+        } catch ( SomeBusinessException ex) { 
+          status.setRollbackOnly(); 
+        }
+      }
+    });
+    ```
+
+**Using `PlatformTransactionManager`**
+1. First, pass the implementation of the `PlatformTransactionManager` you use to your bean through a bean reference. 
+2. Then, by using the `TransactionDefinition` and `TransactionStatus` objects, you can initiate transactions, roll back, and commit. 
+
+```java
+DefaultTransactionDefinition def = new DefaultTransactionDefinition(); 
+// explicitly setting the transaction name is something that can be done only programmatically 
+def.setName("SomeTxName");
+def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+TransactionStatus status = txManager.getTransaction(def); 
+try {
+  // execute your business logic here 
+} catch (MyException ex) {
+  txManager.rollback(status);
+  throw ex; 
+} 
+txManager.commit(status);
+```
 
 
 ## What does `@Transactional` do? 
@@ -509,13 +611,11 @@ Default settings for **@Transactional**:
 
 ## What is the `PlatformTransactionManager`?
 
-Spring’s core transaction management abstraction is based on the interface **PlatformTransactionManager**.
+Spring’s core transaction management abstraction is based on the interface **PlatformTransactionManager**. 
 
-- It is the base interface for all transaction managers that can be used in the Spring framework’s transaction infrastructure.
-- It encapsulates a set of technology-independent methods for transaction management. 
-- A transaction strategy is defined by `PlatformTransactionManager` interface
-- A transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose. 
+It uses the `TransactionDefinition` and `TransactionStatus` interfaces to create and manage transactions. 
 
+A transaction manager is needed **no matter which transaction management strategy** (programmatic or declarative) you choose. 
 
 ```java
 Public interface PlatformTransactionManager(){  
@@ -530,14 +630,42 @@ Public interface PlatformTransactionManager(){
 
 The PlatformTransactionManager interface provides three methods for working with transactions:
 
-1. `getTransaction()`: returns a TransactionStatus object, depending on a TransactionDefinition parameter. The returned TransactionStatus might represent a new transaction or can represent an existing transaction, if a matching transaction exists in the current call stack.
-
-    The `TransactionDefinition` interface specifies:  
-    - Propagation
-    - Isolation
-    - Timeout
-    - Read-only status
-
+1. `getTransaction()`: takes a `TransactionDefinition` interface as an argument and returns a `TransactionStatus` interface.
+    - `TransactionDefinition` interface
+    
+        The `TransactionDefinition` interface controls the properties of a transaction. It specifies:  
+        - Propagation
+        - Isolation
+        - Timeout
+        - Read-only status
+        ```java
+        public interface TransactionDefinition {
+          // Variable declaration statements omitted ...
+        
+          int getPropagationBehavior(); 
+          int getIsolationLevel(); 
+          int getTimeout(); 
+          boolean isReadOnly(); 
+          String getName();
+        }
+        ```
+    - `TransactionStatus` interface 
+    
+        The returned TransactionStatus is used to control the transaction execution. The code can check whether the transaction is a new one or whether it is a read-only transaction, and it can initiate a rollback.
+        
+        `setRollbackOnly()` causes a rollback and ends the active transaction.
+        
+        ```java
+        public interface TransactionStatus extends SavepointManager { 
+        
+          boolean isNewTransaction(); 
+          boolean hasSavepoint(); 
+          void setRollbackOnly(); 
+          boolean isRollbackOnly(); 
+          void flush(); 
+          boolean isCompleted();
+        }
+        ```
 2. `commit()`: Commit the given transaction, with regard to its status
 
 3. `rollback`: Perform a rollback of the given transaction
@@ -567,21 +695,23 @@ You typically define `PlatformTransactionManager` implementation through **depen
 1. Deal with only a single data source in your application and access it with **JDBC**, use `DataSourceTransactionManager`
     
     ```java
-    
     @Bean 
     public DataSource dataSource() { 
-      DriverManagerDataSource dataSource = new DriverManagerDataSource(); dataSource.setDriverClassName("org.h2.Driver"); 
+      DriverManagerDataSource dataSource = new DriverManagerDataSource();
+      dataSource.setDriverClassName("org.h2.Driver"); 
       dataSource.setUrl("jdbc:h2:tcp://localhost/~/test"); 
       dataSource.setUsername("sa"); 
       dataSource.setPassword(""); 
+      
       return dataSource; 
     }
     
     
     @Bean 
     public DataSourceTransactionManager transactionManager() {
-      DataSourceTransactionManager transactionManager = new DataSourceTransactionManager()
+      DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
       transactionManager.setDataSource(dataSource());
+      
       return transactionManager; 
     }
     ```
