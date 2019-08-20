@@ -90,6 +90,12 @@ Because of the variety of join points, you need a powerful expression language t
 
 - Typically one aspect encapsulates one cross cutting concern, as to adhere to the single responsibility principle.
 
+- You define an aspect by decorating a Java class with the` @Aspect` annotation. 
+
+- Each of the methods in a class can become an **advice** with another annotation. 
+
+- You can use five types of advice annotations: @Before, @After, @AfterReturning, @AfterThrowing, and @Around.
+
 ```java
 @Aspect 
 @Component 
@@ -275,13 +281,23 @@ NB:
 
 ## What do you have to do to enable the detection of the @Aspect annotation? What does @EnableAspectJAutoProxy do?
 
+
 ### Why do you want to use `@Aspect`?
 
-Reduce duplication of pointcut expression. Aspect allows you define the pointcut once and then reference it every time you need it. The `@Pointcut` annotation defines a reusable pointcut within an `@AspectJ` aspect.
+Reduce duplication of pointcut expression. Aspect allows you define the pointcut once and then reference it every time you need it. The `@Pointcut` annotation defines a reusable pointcut within an `@Aspect` aspect. 
 
-After you have an **Aspect** class that contains a list of methods annotated with **@Pointcut**, you want to wire it as a Spring Bean. If you’re using JavaConfig, you can turn on auto-proxying by applying the `@EnableAspectJAutoProxy` annotation at the class level of the configuration class.
+After you have an **AspectJ** class that contains a list of methods annotated with **@Pointcut**, you want to wire it as a Spring Bean. Each of the methods in a `@Aspect` class can become an advice. If you’re using JavaConfig, you can turn on auto-proxying by applying the `@EnableAspectJAutoProxy` annotation at the class level of the configuration class.
 
-**In order to use aspect in Spring App:**
+### To enable annotation support in the Spring IoC container
+
+1. you have to add `@EnableAspectJAutoProxy` to one of your configuration classes. 
+
+2. To apply AOP, Spring creates proxies
+    - by default it creates **JDK dynamic proxies**, which are interface-based.
+    - It’s possible to create proxies by relying on **CGLIB**. To enable CGLIB, you need to set the attribute `proxyTargetClass=true` on the `@EnableAspectJAutoProxy` annotation.
+
+
+**Details of using aspect in Spring App:**
 
 1. `spring-aop` as a dependency
 
