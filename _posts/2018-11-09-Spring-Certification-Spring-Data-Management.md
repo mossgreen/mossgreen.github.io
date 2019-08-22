@@ -14,19 +14,16 @@ Spring Data Management in Spring Professional Certification (16%).
 
 ## What is the difference between checked and unchecked exceptions?
 
-**Checked exceptions**:   
-Java compiler **requires** to handle. E.g., `Exception`
+- **Checked** exceptions: Java compiler **requires** to handle. E.g., `Exception`
+- **Unchecked** exceptions: compiler not require to declare. E.g., `RuntimeException`.
 
-**Unchecked exceptions**:   
-compiler not require to declare. E.g., `RuntimeException`.
-
-**Why does Spring prefer unchecked exceptions?**
+### Why does Spring prefer unchecked exceptions?
 
 - **Checked exceptions** reqires handling, result in **cluttered code** and **unnecessary coupling**. 
 
 - **Unchecked exceptions** are non-recoverable exceptions, should not let developer to handle. E.g., when `SQLException` happens, nothing you can do.
 
-**What is the data access exception hierarchy?**
+### What is the data access exception hierarchy?
 
 Each data access technology has its own exception types, such as 
 - **SQLException** for direct JDBC access, 
@@ -35,9 +32,15 @@ Each data access technology has its own exception types, such as
 
 What Spring does is to handle technology‐specific exceptions and translate them into its own exception hierarchy. The hierarchy is to isolate developers from the particulars of JDBC data access APIs from different vendors.
 
-Spring's `DataAccessException` is an abstract class, and sub classes are **unchecked exceptions**. They are part of the `spring-tx` module.  Spring data access exception family has **three main branches**:
+Spring's `DataAccessException` 
+- It is an abstract class, 
+- It is the root exception.
+- Its sub-classes are **unchecked exceptions**. 
 
-1. **non-transient** exceptions, `org.springframework.dao.NonTransientDataAccessException`
+Spring data access exception family has **three main branches**:
+
+1. `org.springframework.dao.NonTransientDataAccessException`
+    -  **non-transient** exceptions, 
     - which means that retrying the operation will fail unless the originating cause is fixed.
     - The most obvious example here is searching for an object that does not exist.
 
@@ -46,7 +49,8 @@ Spring's `DataAccessException` is an abstract class, and sub classes are **unche
     - usually closing the current connection and using a new one.
     - E.g., a temporary network hiccup
 
-3. **transient** exception, `springframework.dao.TransientDataAccessException`.
+3. `springframework.dao.TransientDataAccessException`.
+    - **transient** exception,     
     - which means that retrying the operation might succeed without any intervention. 
     - These are **concurrency or latency exceptions**. 
     - For example, when the database becomes unavailable because of a bad network connection in the middle of the execution of a query, an exception of type `QueryTimeoutException` is thrown. The developer can treat this exception by **retrying the query**. 
@@ -54,13 +58,7 @@ Spring's `DataAccessException` is an abstract class, and sub classes are **unche
 
 ## How do you configure a DataSource in Spring? 
 
-Spring obtains a connection to the database through a `DataSource`. 
-
-- A DataSource is part of the **JDBC specification** and is a generalized connection factory. 
-- It allows a container or a framework to hide connection pooling and transaction management issues from the application code.
-
-**DataSource** VS **Connection**:   
-DataSource provides and manages Connections.
+Spring obtains a connection to the database through a `DataSource`. **DataSource** VS **Connection**: DataSource provides and manages Connections.
 
 Spring offers several options for **configuring data-source beans**, including:
 
@@ -68,57 +66,111 @@ Spring offers several options for **configuring data-source beans**, including:
 
 2. Data sources that are **looked up by JNDI**. 
 
-3. Data sources that connection pool implementation. Popular implementations are 
-    - Apache Jakarta Commons DBCP and 
-    - C3P0
+3. Data sources that connection pool implementation. 
 
 4. An **embedded database** runs as part of your application instead of as a separate database server that your application connects to.
 
 **Orders of choice**
-1. **The preferred way** is to retrieve the pooled data source from an application server via JNDI.
+1. **The preferred way** Using JNDI data sources
+    - they can be managed completely external to the application, allowing the application to ask for a data source when it’s ready to access the database.
+    - Moreover, data sources managed in an application server are often pooled for greater performance and can be hot-swapped by system administrators
+    - **In SpringBoot, obtain a DataSource from JNDI**
+        ```properties
+        spring.datasource.jndi-name=java:jdbc/customers
+        ```
+    ```java
+    @Bean 
+    public JndiObjectFactoryBean dataSource() { 
+      JndiObjectFactoryBean jndiObjectFB = new JndiObjectFactoryBean();
+      jndiObjectFB.setJndiName("jdbc/demodb"); 
+      jndiObjectFB.setResourceRef(true); 
+      jndiObjectFB.setProxyInterface(javax.sql.DataSource.class); 
+      return jndiObjectFB; 
+    }
+    ```
+2. **The next best** Using a pooled data source
+    - Spring doesn’t provide a pooled data source
+    - Apache Commons DBCP: `BasicDataSource`
+    - c3p0
+    - BoneCP
+    - **In SpringBoot, configure the datasource**
+        ```properties
+        spring.datasource.hikari.maximum-pool-size=5 
+        spring.datasource.hikari.minimum-idle=2 
+        spring.datasource.hikari.leak-detection-threshold=20000
+        ```
+    ```java
+    @Bean 
+    public BasicDataSource dataSource() {
+      BasicDataSource ds = new BasicDataSource(); 
+      ds.setDriverClassName("org.h2.Driver"); 
+      ds.setUrl("jdbc:h2:tcp://localhost/~/demodb"); 
+      ds.setUsername("sa"); 
+      ds.setPassword(""); 
+      ds.setInitialSize(5); 
+      ds.setMaxActive(10); 
+      
+      return ds;
+    }
+    ```
+3. **simplest** Using JDBC driver-based data sources
+    The simplest data source you can configure in Spring is one that’s defined through a JDBC driver. Spring offers three such data-source classes to choose from:
+    1. `DriverManagerDataSource`. 
+        - the simplest implementation of a DataSource, 
+        - Returns **a new connection** every time. 
+        - Connections are **not pooled**.
+        - it performs poorly when multiple requests for a connection are made
+        - unsuitable for anything other than testing.
+        - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
+        ```java
+        @Bean 
+        public DataSource dataSource() { 
+        
+          DriverManagerDataSource ds = new DriverManagerDataSource(); 
+          ds.setDriverClassName("org.h2.Driver"); 
+          ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
+          ds.setUsername("sa"); 
+          ds.setPassword(""); 
+          return ds; 
+        }
+        ```
+    2. `SimpleDriverDataSource`
+        - Similar as `DriverManagerDataSource` 
+        - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
+        - except that it works with the JDBC driver directly
+    
+    3. `SingleConnectionDataSource`
+        - Returns the same connection every time a connection is requested.
+        - wraps a single Connection that is **not closed after each use**
+        - Obviously, this is **not multi-threading capable**.
+        - It isn’t exactly a pooled data source, you can think of it as a data source with a pool of exactly one connection.
 
-2. **The next best** thing is to configure a pooled data source directly in Spring.
+4. Using an embedded data source
+    An embedded database runs as part of your application instead of as a separate database server that your application connects to. 
+    - it’s not very useful in production settings, 
+    - an embedded database is a **perfect choice for development and testing purposes**. That’s because it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+    - Spring’s jdbc namespace makes configuring an embedded database simple, with XML config.
+    - **In SpringBoot**, Spring Boot detects that you have the H2 database library in your application’s classpath, it will automatically configure an embedded H2 database. 
+    - With Java configuration, you can use `EmbeddedDatabaseBuilder` to construct the DataSource:
+    ```java
+    @Bean 
+    public DataSource dataSource() { 
+        return new EmbeddedDatabaseBuilder() 
+        .setType(EmbeddedDatabaseType.H2) 
+        .addScript("classpath:schema.sql") 
+        .addScript("classpath:test-data.sql") 
+        .build(); 
+    }
+    ```
+5. Using profiles, the data source is chosen at runtime, based on which profile is active.
+    - the embedded database is created if and only if the development profile is active. 
+    - Similarly, the DBCP BasicDataSource is created if and only if the qa profile is active. 
+    - And the data source is retrieved from JNDI if and only if the production profile is active.
 
+---//todo
 ### Which bean is very useful for development/test databases?
 
-Datasource Bean.
-
-Implementations in the Spring distribution are meant only for testing purposes and do not provide pooling:
-    1. Spring’s `DriverManagerDataSource`
-    2. // todo, more spring implementations?
-
-
-### Using JDBC driver-based data sources.
-
-1. `DriverManagerDataSource`. 
-    - the simplest implementation of a DataSource, 
-    - Returns **a new connection** every time. 
-    - Connections are **not pooled**.
-    - it performs poorly when multiple requests for a connection are made
-    - unsuitable for anything other than testing.
-    - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
-
-2. `SimpleDriverDataSource`. 
-    - Similar with `DriverManagerDataSource`.
-    - capable of supporting multiple threads, they incur a performance cost for creating a new connection each time a connection is requested.
-
-3. `SingleConnectionDataSource`.
-    - Returns the same connection every time a connection is requested, avoiding excessive creation of physical connections.
-    - wraps a single Connection that is **not closed after each use**
-    - Obviously, this is **not multi-threading capable**.
-
-```java
-@Bean 
-public DataSource dataSource() { 
-
-  DriverManagerDataSource ds = new DriverManagerDataSource(); 
-  ds.setDriverClassName("org.h2.Driver"); 
-  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
-  ds.setUsername("sa"); 
-  ds.setPassword(""); 
-  return ds; 
-}
-```
+Datasource Bean is very useful for development/test databases.
 
 **In SpringBoot**
 No need to declare the data source bean. Configure it using `application.properties`
@@ -127,113 +179,26 @@ spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase
 spring.datasource.username=haha spring.datasource.password=secret
 ```
 
-### DataSource in an App that deployed to Server, Use JDNI lookup
-
-Benefits:
-1. they can be managed completely external to the application, allowing the application to ask for a data source when it’s ready to access the database. Moreover, 
-2. data sources managed in an application server are often pooled for greater performance and can be hot-swapped by system administrators.
-
-You can use `JndiObjectFactoryBean` to look up the DataSource from JNDI:
-
-```java
-@Bean 
-public JndiObjectFactoryBean dataSource() { 
-  JndiObjectFactoryBean jndiObjectFB = new JndiObjectFactoryBean();
-  jndiObjectFB.setJndiName("jdbc/SpittrDS"); 
-  jndiObjectFB.setResourceRef(true); 
-  jndiObjectFB.setProxyInterface(javax.sql.DataSource.class); 
-  
-  return jndiObjectFB; 
-}
-```
-
-**In SpringBoot, obtain a DataSource from JNDI**
-```properties
-spring.datasource.jndi-name=java:jdbc/customers
-```
-
-### Configure a pooled data source directly in Spring
-
-Although Spring doesn’t provide a pooled data source, plenty of suitable ones are available, including the following open source options:
-
-```java
-@Bean public BasicDataSource dataSource() {
-  BasicDataSource ds = new BasicDataSource(); 
-  ds.setDriverClassName("org.h2.Driver"); 
-  ds.setUrl("jdbc:h2:tcp://localhost/~/spitter"); 
-  ds.setUsername("sa"); 
-  ds.setPassword(""); 
-  ds.setInitialSize(5); //the pool to start with five connections
-  ds.setMaxActive(10); 
-  return ds;
-}
-```
-
-**In SpringBoot, configure the datasource**
-```properties
-spring.datasource.hikari.maximum-pool-size=5 
-spring.datasource.hikari.minimum-idle=2 
-spring.datasource.hikari.leak-detection-threshold=20000
-```
-
-### Using an embedded data source
-
-The `org.springframework.jdbc.datasource.embedded` package provides support for embedded Java database engines. Three **in-memory embedded database** that Spring supports: **HSQL**, **H2**, and **Derby**. 
-
-**Why Use an Embedded Database?**
-1. During the **development phase** of a project, it's ease of configuration, quick startup time, testability
-
-2. The ability to rapidly **evolve your SQ**L during development. it allows you to populate your database with test data that’s reset **every time you restart** your application or run your tests.
-
-**Creating an Embedded Database Programmatically**
-
-```java
-@Configuration 
-public class DataSourceConfig {
-
-  @Bean 
-  public DataSource dataSource() {
-  
-    return new EmbeddedDatabaseBuilder()
-      .generateUniqueName(true)
-      .setType(H2)
-      .setScriptEncoding("UTF-8")
-      .ignoreFailedDrops(true)
-      .addScript("schema.sql")
-      .addScripts("user_data.sql", "country_data.sql")
-      .build();
-  }
-}
-```
-
-**In SpringBoot, obtain a DataSource from embedded data source**
-- Spring Boot detects that you have the H2 database library in your application’s classpath, it will automatically configure an embedded H2 database. 
-- If JdbcTemplate is in the classpath, then it will also configure a JdbcTemplate bean for you.
-
-```java
-@Bean 
-public DataSource dataSource() { 
-  return new EmbeddedDatabaseBuilder()
-    .setType(EmbeddedDatabaseType.H2)
-    .addScripts('schema.sql', 'data.sql')
-    .build(); 
-}
-
-//use embedded data source
-@Bean 
-public JdbcTemplate jdbcTemplate(DataSource dataSource) { 
-  return new JdbcTemplate(dataSource); 
-}
-```
-
-
+---
 ## What is the Template design pattern? What is the JDBC template?
 
 ### Template design pattern
 
-Use abstract methods for the different steps, subclasses define all steps
+A template method defines the skeleton of a process.
 
-Alternatively, the class may define default implementations of the different steps of the algorithm, allowing subclasses to customize only selected methods as desired.
+At certain points, the process delegates its work to a subclass to fill in some implementation-specific details. This is the variable part of the process.
+
+Spring separates the **fixed** and **variable** parts of the data-access process into two distinct classes: templates and callbacks. 
+
+1. Templates manage the fixed of data access
+    - controlling transactions, 
+    - managing resources, and 
+    - handling exceptions.
+
+2. your custom data-access code is handled in callbacks
+    - creating statements, 
+    - binding parameters, and 
+    - marshaling result sets
 
 In order to communicate with DB, some default methods includes:
 - establishing connection
@@ -331,6 +296,19 @@ public class DemoJdbcConfig {
 
 
 ## What is a callback? 
+
+Spring separates the **fixed** and **variable** parts of the data-access process into two distinct classes: templates and callbacks. 
+
+1. Templates manage the fixed of data access
+    - controlling transactions, 
+    - managing resources, and 
+    - handling exceptions.
+
+2. your custom data-access code is handled in **callbacks**
+    - creating statements, 
+    - binding parameters, and 
+    - marshaling result sets
+
 A callback is code or reference to a piece of code that is passed as an argument to a method that, at some point during the execution of the methods, will call the code passed as an argument.
 
 Spring **converts contents of a ResultSet into domain objects** using a callback approach.
@@ -1212,6 +1190,51 @@ Under the hood, Spring creates a **proxy** object that is a fullly functioning r
 
 Any additional functionality that is not provided by default can be easily implemented by defining a method skeleton and providing the desired functionality using annotations.
 
+**JDBC Support**
+typical JDBC support. You could have the DataSource injected into an initialization method, where you would create a JdbcTemplate and other data access support classes
+```java
+@Repository 
+public class JdbcMovieFinder implements MovieFinder {
+
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired 
+  public void init(DataSource dataSource) { 
+    this.jdbcTemplate = new JdbcTemplate(dataSource); 
+  }
+}
+```
+
+
+**JPA repository**
+JPA-based repository needs access to an EntityManager.
+```java
+@Repository 
+public class JpaMovieFinder implements MovieFinder {
+  
+  @PersistenceContext 
+  private EntityManager entityManager;
+}
+```
+
+**classic Hibernate APIs**
+inject SessionFactory
+```java
+@Repository 
+public class HibernateMovieFinder implements MovieFinder {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired 
+  public void setSessionFactory(SessionFactory sessionFactory) { 
+    this.sessionFactory = sessionFactory; 
+  }
+}
+```
+
+
+
+
 ## What is the naming convention for finder methods?
 
 `find`**(First[count])**`By`**[property expression][comparison operator][ordering operator]**
@@ -1306,3 +1329,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 3. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 4. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 5. [Beginning Spring](https://www.amazon.com/Beginning-Spring-Mert-Caliskan-ebook/dp/B00T1JV8TI) 
+6. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
+7. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
+8. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
