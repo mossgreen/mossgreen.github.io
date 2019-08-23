@@ -2,7 +2,6 @@
 title: Spring Security in Spring Certification
 search: true
 tags: 
-  - Java
   - Spring
   - Spring Security
   - Spring Professional Certification
@@ -16,60 +15,64 @@ Spring Security in Pivotal Spring Professional Certification (6%).
 
 ## What are authentication and authorization? Which must come first?  
 
-**Authentication** is the process of verifying the validity of the principal’s credentials. **Who are you?**
+- **Authentication** is the process of verifying the validity of the principal’s credentials. **Who are you?**
  
-**Authorization** is the process of making a decision whether an authenticated user is allowed to perform a certain action within the application. 
-- **What are you allowed to do?**
-- at the web **request level** and at the **method invocation level**
+- **Authorization** is the process of making a decision whether an authenticated user is allowed to perform a certain action within the application. 
+  - **What are you allowed to do?**
+  - at the web **request level** and at the **method invocation level**
 
 Authentication is the first step of authorization so always comes first.	
 
 
 ## Is security a cross cutting concern? How is it implemented internally?  
 
-- The cross-cutting concern is a concern which is applicable throughout the application and it affects the entire application. For example: logging, security and transactions.
+The cross-cutting concern is a concern which is applicable throughout the application and it affects the entire application. For example: logging, security and transactions.
 - Yes, security is a cross-cutting concern.
 
 Spring Security tackles security from two angles. 
 
-1. To **secure web requests** and restrict access at the URL level, Spring Security uses servlet filters. 
+1. To **secure web requests** and restrict access at the URL level, Spring Security is based entirely on standard servlet ﬁlters.
+    - It doesn’t use servlets or any other servlet-based frameworks (such as Spring MVC) internally, so it has no strong links to any particular web technology. 
+    - It deals in `HttpServletRequest` s and `HttpServletResponse` s and doesn’t care whether the requests come from a browser, a web service client, or AJAX.
+    - Spring Security’s web infrastructure should only be used by delegating to an instance of `FilterChainProxy` .
+
 2. Spring Security can also **secure method invocations** using Spring AOP, proxying objects and applying advice to ensure that the user has the proper authority to invoke secured methods.
 
-![IMAGE](https://i.loli.net/2019/06/08/5cfb89f9a75c570368.jpg)
+**Spring Security Configuration**
+1. declare the security filter for the application
+2. define the Spring Security context
+3. configure authentication and authorization
 
 
 ## What is the delegating filter proxy?
 
-You needed a hook‐up mechanism so that web requests coming into the web container will first pass through your Spring Security filter chain. `DelegatingFilterProxy` is a special servlet filter. It delegates to an implementation of `javax.servlet.Filter` that’s registered as a `<bean>` in the Spring application context.
+Delegating filter proxy is a servlet filter registered with the web container that delegates the requests to a Filter implementation on the Spring context side. There're 2 places servlet filters are attached to:
 
-1. `org.springframework.web.filter.DelegatingFilterProxy.` is a special `javax.servlet.Filter`. 
+1. Web container 
+2. Spring context
 
-2. It acts as a proxy in front and delegates web requests to the Spring Security Filter chain bean defined by <security:http> element.
+As of Spring Security all requests pass through delegating filter proxy that is registered with the container and then go to `FilterChainProxy` (another filter but this time on the Spring context side).
 
-3. Its name must be defined exactly as `springSecurityFilterChain` in the `web.xml` file because that same name is also used by Spring Security while defining a filter chain as a bean in the ApplicationContext via the <security:http> element.
+Delegating filter proxy may be declared in 2 ways:
 
-Configure `DelegatingFilterProxy` in Java with a `WebApplicationInitializer`
-
-All you need to do is create a new class that extends `AbstractSecurityWebApplicationInitializer`.
-
-```java
-public class SecurityWebInitializer extends AbstractSecurityWebApplicationInitializer {
-
-}
-```
+1. In `web.xml` (from WEB-INF folder)
+2. By extending `AbstractSecurityWebApplicationInitializer`
+    ```javapp
+    public class SecurityWebInitializer extends AbstractSecurityWebApplicationInitializer { }
+    ```
 
 ![IMAGE](https://i.loli.net/2019/06/08/5cfb80575a44e95751.jpg)
 
 
 ## What is the security filter chain?
 
-- The `DelegatingFilterProxy` delegates to a `FilterChainProxy` usually with a fixed name  `springSecurityFilterChain`.
+1. The `DelegatingFilterProxy` delegates to `springSecurityFilterChain` which is a `FilterChainProxy`. 
 
-- The `FilterChainProxy` contains all the security logic arranged internally as a chain (or chains) of filters. 
+2. The `FilterChainProxy` contains all the security logic arranged internally as a chain (or chains) of filters. 
 
-- `FilterChainProxy` is always a `@Bean`.
+3. Under the hood of `springSecurityFilterChain`, in a secured web environment the secured requests are handled by a chain of Spring-managed beans, which is why the proxy bean is named `springSecurityFilterChain`, because those filters are chained. 
 
--  A chain of filters that is customizable by pulling in and taking out some filters as well as customizing them.
+The `springSecurityFilterChain` is a mandatory name that refers to a bean with the same name in the **Spring root application context**. 
 
 This chain of filters has the following key responsibilities:
 
@@ -78,7 +81,7 @@ This chain of filters has the following key responsibilities:
 - managing logout
 - maintaining SecurityContext in HttpSession
 
-**Asimple security configuration**
+**A simple security configuration**
 
 Any bean in the Spring application context that implements `WebSecurityConfigurer` can contribute to Spring Security configuration, but it’s often **most convenient** for the configuration class to extend `WebSecurityConfigurerAdapter`.
 
@@ -98,29 +101,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 ## What is a security context?
 
-Security filter `SecurityContextPersistenceFilter` stores the authentication token in HttpSession in between requests, and puts it into `SecurityContextHolder` at the beginning of the next request so that the authentication token becomes available to the application during the request processing.
-
 - `SecurityContext` holds security information about the current thread of execution. 
 - This information includes details about the principal. 
 - Context is held in the `SecurityContextHolder`.
+- By default the `SecurityContextHolder` uses a ThreadLocal to store these details, which means that the security context is always available to methods in the same thread of execution, even if the security context is not explicitly passed around as an argument to those methods.
 
+**Obtaining information about the current user**
 ```java
 SecurityContext context = SecurityContextHolder.getContext();
+
 Authentication authentication = context.getAuthentication();
-assert(authentication.isAuthenticated);
+
+Object principal = authentication.getPrincipal();
+
+if (principal instanceof UserDetails) { 
+  String username = ((UserDetails)principal).getUsername(); 
+} else { 
+  String username = principal.toString(); 
+}
 ```
+
 
 ## What does the ** pattern in an antMatcher or mvcMatcher do?
 
+`antMatcher(String antPattern)`
+    Allows configuring the HttpSecurity to only be invoked when matching the provided **Ant-style pattern**.
+1. `/admin/**` matches any path starting with `/admin`.
 
-- `antMatcher(String antPattern)` - Allows configuring the HttpSecurity to only be invoked when matching the provided **Ant-style pattern**.
-    1. `/admin/**` matches any path starting with `/admin`.
+2. The `antMatcher(…)` method is the equivalent of the `<intercept-url.../>` element from XML, and equivalent methods are available to replace the configuration for the login form, logout URL configuration, and CSRF token support.
 
-    2. he `antMatcher(…)` method is the equivalent of the `<intercept-url.../>` element from XML, and equivalent methods are available to replace the configuration for the login form, logout URL configuration, and CSRF token support.
 
-- `mvcMatcher(String mvcPattern)` - Allows configuring the HttpSecurity to only be invoked when matching the provided **Spring MVC pattern**.
-
-Generally mvcMatcher is more secure than an antMatcher.
+`mvcMatcher(String mvcPattern)`
+Allows configuring the HttpSecurity to only be invoked when matching the provided Spring MVC pattern. Generally mvcMatcher is **more secure** than an antMatcher.
 
 1. `antMatchers("/secured")` matches only the exact `/secured` URL
 
@@ -182,24 +194,20 @@ To apply security to lower layers of an application, **Spring Security uses AOP*
 
 Spring Security provides three different kinds of security annotations:
 
-- Spring Security’s own `@Secured`
-- JSR-250’s `@RolesAllowed`
-- Expression-driven annotations, with 
+1. Spring Security’s own `@Secured`
+2. JSR-250’s `@RolesAllowed`
+3. Expression-driven annotations, with 
     - `@PreAuthorize` and `@PostAuthorize`, 
     - `@PreFilter`, and `@PostFilter`
 
 The `@Secured` and `@RolesAllowed` annotations are the simplest options, restricting access based on what authorities have been granted to the user.
 
-More flexibility in defining security rules on methods, Spring Security offers `@PreAuthorize` and `@PostAuthorize`.
-
-And `@PreFilter`/`@PostFilter` filter elements out of collections returned from or passed into a method.
-
-
+More flexibility in defining security rules on methods, Spring Security offers `@PreAuthorize` and `@PostAuthorize`. And `@PreFilter`/`@PostFilter` filter elements out of collections returned from or passed into a method.
 
 1. **`@Secured`**
     - Method-level security must be enabled by annotating a configuration class (good practice is to annotate the Security Configuration class to keep all configurations related to security in one place) with `@EnableGlobalMethodSecurity(secured Enabled = true)`. Methods must be secured by annotating them with Spring Security annotation `@Secured`. 
     - When `securedEnabled` is true, a **pointcut** is created such that the **Spring Security aspects** will wrap bean methods that are annotated with `@Secured`. 
-    - One drawback of the `@Secured` annotation is that it’s a Spring-specific annotation. If you’re more comfortable using annotations defined in Java standards, then perhaps you should consider using @RolesAllowed instead.
+    - One drawback of the `@Secured` annotation is that it’s a Spring-specific annotation. If you’re more comfortable using annotations defined in Java standards, then perhaps you should consider using `@RolesAllowed` instead.
     ```java
     @Configuration 
     @EnableWebSecurity 
@@ -231,7 +239,6 @@ And `@PreFilter`/`@PostFilter` filter elements out of collections returned from 
     @EnableGlobalMethodSecurity(jsr250Enabled = true) 
     public class SecurityConfig extends WebSecurityConfigurerAdapter { }
     ```
-    
     ```java
     @Service 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED) 
@@ -365,10 +372,10 @@ The `authenticate` tag is used to access the contents of the current Authenticat
     ```
 
 
-
 ### References
 1. [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture)
 2. [Spring Security with Boot](https://docs.spring.io/spring-security/site/docs/current/guides/html5/helloworld-boot.html)
 3. [Introduction to Spring Security Taglibs](https://www.baeldung.com/spring-security-taglibs)
 4. [Spring Security Notes from tonnguyen](https://quizlet.com/304129018/security-flash-cards/)
 5. [Difference between Authentication and Authorization](http://www.differencebetween.net/technology/difference-between-authentication-and-authorization/)
+6. [Core Spring 4.2 Study Guide answers by Vitalie)](https://codingideas.blog/core-spring-4-2-study-guide-answers-part-5-security#What_is_the_delegating_filter_proxy/)

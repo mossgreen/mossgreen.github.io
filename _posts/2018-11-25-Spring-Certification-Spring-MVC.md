@@ -4,6 +4,7 @@ search: true
 tags: 
   - Spring
   - Spring MVC
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
@@ -58,6 +59,11 @@ A Spring web application may define **multiple** dispatcher servlets, each of wh
 - Resolve views by mapping view-names to view instances
 - Resolves exceptions
 
+**To enable Spring MVC within a web application**
+1. Configuring the root `WebApplicationContext`
+2. Configuring the **servlet filters** required by Spring MVC
+3. Configuring the **dispatcher servlets** within the application
+
 **Use Java to configure DispatcherServlet in the servlet container**
 ```java
 public class DemoWebAppInitializer 
@@ -87,6 +93,15 @@ public class DemoWebAppInitializer
   }
 }
 ```
+
+To make things more practical, Spring class `AbstractAnnotationConfigDispatcherServletInitializer`, an implementation of `WebApplicationInitializer`, was extended because it contains concrete implementations of methods needed for the configuration of Spring web applications that use Java-based Spring configuration.
+
+1. `getRootConfigClasses()`: A root application context of type `AnnotationConfigWebApplicationContext` will be created.
+2. `getServletConfigClasses()`: A web application context of type AnnotationConfigWebApplicationContext will be created
+3. `getServletMappings()`: The DispatcherServelt’s mappings (context) are specified by the array of strings returned by this method.
+4. `getServletFilters()`: As the name of the methods says, this one will return an array of implementations of javax.servlet.Filter that will be applied to every request
+
+By providing an empty class that extends `AbstractSecurityWebApplicationInitializer`, you are basically telling Spring that you want `DelegatingFilterProxy` enabled, so `springSecurityFilterChain` will be used before any other registered `javax.servlet.Filter`.
 
 - Any class that extends `AbstractAnnotationConfigDispatcherServletInitializer` will automatically be used to configure `DispatcherServlet` and the Spring application context in the application’s servlet context.
 
@@ -162,11 +177,17 @@ public interface ServletContextAware extends Aware {
 
 ## What is the @Controller annotation used for?
 
-- JSR-303 **validation support** is enabled
-- **handlers** method are enabled, annotated with the `@RequestMapping` annotation.
+The core interface in Spring MVC is Controller. Spring simply requires that 
+1. you implement the Controller interface
+2. or annotate your controller class with the @Controller annotation
+
+The` @EnableWebMvc` annotation enables the annotation support for Spring MVC, that is, the @Controller annotation. 
+
+The Dispatcher Servlet scans classes annotated with it to map the web requests to the methods annotated with @RequestMapping, which are mapped to a certain request URL
 
 
 ## How is an incoming request mapped to a controller and mapped to a method?
+
 When a request is issued to the application:
 
 - DispatcherServlet of the application **receives** the request.
@@ -210,11 +231,13 @@ public String show(@PathVariable("userId") Long id, Model model) {
 }
 ```
 
-Differences:
+**Differences:**
 - `http://localhost:8080/greeting?firstName=dammy&lastName=good`
 - `http://localhost:8080/firstname/dammy/lastname/good`
 
+
 ## What are some of the parameter types for a controller method?
+
 - WebRequest
 - ServletRequest
 - ServletResponse
@@ -233,6 +256,7 @@ Differences:
 
 ### What other annotations might you use on a controller method parameter?   
 (You can ignore form-handling annotations for this exam)
+
 - @PathVariable
 - @MatrixVariable: key-value pair in url
 - @RequestParam
@@ -247,6 +271,7 @@ Differences:
 
 
 ## What are some of the valid return types of a controller method?
+
 - HttpEntity
 - ResponseEntity
 - HttpHeaders
@@ -257,7 +282,12 @@ Differences:
 - void
 - CompletableFuture<V> | CompletionStage<V>: Asynchronous
 
+---
+
+# The followings are removed from the test since May 2019
+
 ## What is a View and what's the idea behind supporting different types of View?
+
 **View** is responsible for presenting the data of the application to the user. 
 
 The user interacts with the view.
@@ -287,15 +317,18 @@ View Resolution Sequence
 
 
 ## What is the Model?
+
 - An instance of an object that implements the Model interface from the Spring framework
 - It is a collection of key-value pairs. 
 - The contents of the model represents the state of the application and contains information that will be used when rendering the view. 
 - The value-objects contained in the model may also contain business logic implemented in the classes instantiated to create those objects.
 
+
 ## Why do you have access to the model in your View? Where does it come from?
 
 - It contains information that will be used when rendering the view. 
 - The model is passed as a parameter to the view when the dispatcher servlet asks the selected view to render itself as part of processing a request.
+
 
 ## What is the purpose of the session scope?
 
@@ -307,6 +340,7 @@ The bean instance will remain the same during all requests the user makes within
 
 
 ## What is the default scope in the web context?
+
 **Singleton Scope** is default scope.
 
 

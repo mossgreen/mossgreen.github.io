@@ -2,18 +2,19 @@
 title: Spring REST in Spring Certification
 search: true
 tags: 
-  - Restful
   - Spring
   - Spring REST
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
+
 Spring REST in Pivotal Spring professional certification (6%).
 
-
 ## What does REST stand for?
+
 REST stands for **RE**presentational **S**tate **T**ransfer.
 REST is an **architecture style** for designing networked (distributed) applications.
 RESTful applications use HTTP requests for all four CRUD (Create/Read/Update/Delete) operations.
@@ -25,8 +26,9 @@ RESTful applications use HTTP requests for all four CRUD (Create/Read/Update/Del
 
 ## What is a resource?
 
-- Information, like data, Json, xml, html, file, image, etc.
-- Resource can be identified by a Uniform Resource Identifier (URI).
+Information, like data, Json, xml, html, file, image, etc.
+
+Resource can be identified by a Uniform Resource Identifier (URI).
 
 
 ## What does CRUD mean?
@@ -38,12 +40,14 @@ RESTful applications use HTTP requests to operate data in four CRUD (Create/Read
 - Update: PUT
 - Delete: DELETE
 
+![IMAGE](https://i.loli.net/2019/05/23/5ce653431c05e73185.jpg)
+
 
 ## Is REST secure? What can you do to secure it?
+
 REST by default is not secure.
 
 To secure it, can use:  
-
 - HTTPS
 - Basic Authentication
 - JSON Web Tokens (JWT)
@@ -63,30 +67,34 @@ In all, there are 9 different HTTP request types:
 - OPTIONS, and 
 - CONNECT
 
-**Safe methods** are HTTP methods that do not modify resources. Spring Security implements CSRF protection with a synchronizer token. Statechanging requests(not safe methods) will be intercepted and checked for a CSRF token.
+**Safe methods** are HTTP methods that do not modify resources. 
+Spring Security implements CSRF protection with a synchronizer token. Statechanging requests(not safe methods) will be intercepted and checked for a CSRF token.
 - GET
 - HEAD
 - OPTIONS
 - TRACE
 
 **Not Safe**:
-- Two identical POST requests will result in two identical resources being created or errors at application level.
-- PUT modifies the state on the server
+- POST: 
+    Two identical POST requests will result in two identical resources being created or errors at application level.
+- PUT: it modifies the state on the server
 - DELETE
 
 
 ## What are idempotent operations? Why is idempotency important?
 
-**Idempotent** meansyou can **repeat** these operations over and over again, but the end result should be the **same**.
+**Idempotent** means you can **repeat** these operations over and over again, but the end result should be the **same**.
 
 Idempotency operations:
 - GET
 - PUT
 - DELETE
 
+
 ## Is REST scalable and/or interoperable?
 
 ### Scalability
+
 REST is scalable, because it is stateless, its Cacheability and layered system. 
 
 1. **Statelessness** ensures that requests can be processed by any node in a cluster of services without having to consider server-side state
@@ -96,6 +104,7 @@ REST is scalable, because it is stateless, its Cacheability and layered system.
 3. A **layered system** allows for introducing intermediaries such as a load balancer without clients having to modify their behavior as far as sending requests to the service is concerned. The load balancer can then distribute the requests between multiple instances of the service in order to increase the request-processing capacity of the service.
 
 ### Interoperability   
+
 The ability to exchange and make use of information.
 
 1. REST service supports all formats of data: xml, json, file html
@@ -105,16 +114,29 @@ The ability to exchange and make use of information.
 
 ## Which HTTP methods does REST use?
 
-![IMAGE](https://i.loli.net/2019/05/23/5ce653431c05e73185.jpg)
+1. POST
+2. GET
+3. PUT: Update/Replace
+4. PATCH: Update/Modify
+5. DELETE
 
 
 ## What is an HttpMessageConverter?
 
-The `@ResponseBody` is also used to facilitate understanding of the REST message format between client and server.
-
-The `HttpMessageConverter` interface specifies the properties of a converter that can perform the following conversions:
-- Convert a `HttpInputMessage` to an object of specified type.
-- Convert an object to a `HttpOutputMessage`.
+1. The resource representation can have different formats: XML, JSON, HTML, etc.
+2. The client must know the format to use, or request a resource with a representation it understands form the server. 
+3. Representations are converted to HTTP requests and from HTTP responses by implementations `HttpMessageConverter` interface. 
+    - Convert a `HttpInputMessage` to an object of specified type.
+    - Convert an object to a `HttpOutputMessage`.
+4. Message converters are automatically detected and used by Spring
+5. JSON format, so MappingJackson2HttpMessageConverter is used.
+6. the `consumes` and `produces` annotation attributes of the `@RequestMapping`
+    - The **consumes** attribute defines 
+        1. the consumable media types of the mapped request (defined on the **server**) 
+        
+        2. the value of the Content-Type header (defined on the **client** side) must match at least one of the values of this property in order for a method to handle a specific REST request.
+    
+    - The **produces** attribute defines the producible media types of the mapped request, narrowing the primary mapping, and the value of the Accept header (on the client side) must match at least one of the values of this property in order for a method to handle a specific REST request.
 
 ```java
 @Configuration 
@@ -142,13 +164,17 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
 ## Is REST normally stateless?
 
-Yes, it is. Each request is independent, which improves scalability.
+Yes, it is stateless. 
+
+Each request is independent, which improves scalability.
 
 
 ## What does @RequestMapping do?
 
 1. Annotate both for **class** and **handler methods**.
+
 2. `@RequestMapping` mehtods are **handler method**, it provides information regarding when method should be called.
+
 3. Has various attributes to match by:
     - URL, 
     - HTTP method, 
@@ -159,9 +185,10 @@ Yes, it is. Each request is independent, which improves scalability.
 
 
 ## Is @Controller a stereotype? Is @RestController a stereotype?   
+
 What is a stereotype annotation? What does that mean?
 
-- Stereotype annotations are annotations that are applied to classes that fulfills a certain, distinct, role.
+Stereotype annotations are annotations that are applied to classes that fulfills a certain, distinct, role.
 - The main stereotype annotation is `@Component`.
 - Both `@Controller` and `@RestController` are stereotypes
 -  `@Controller` + `@ResponseBody` = `@RestController`
@@ -172,14 +199,15 @@ What is a stereotype annotation? What does that mean?
 `@RestController`:
 1. It's stereotype
 2. All handler methods in the rest controller should have their return value written directly to the body of the response, rather than being carried in the model to a view for rendering.
-3. Yet another option would be to return a ResponseEntity object.s
 
 
 ## When do you need @ResponseBody?
 
-- `@ResponseBody` on class: the controller becomes restcontroller.
+With Spring 4.0, the `@ResponseBody` annotation has been moved to the type level, so it can be added to interfaces, classes, or other annotations.
 
-- `@ResponseBody` on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
+1. on class: the controller becomes restcontroller.
+
+2. on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
     ```java
     @RequestMapping(value="/test", 
       produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
@@ -221,29 +249,28 @@ What is a stereotype annotation? What does that mean?
 
 ## When do you need @ResponseStatus?
 
+It’s always a good idea to use` @ResponseStatus` where appropriate to communicate the most **descriptive and accurate HTTP status code** to the client.
+
 1. Annotate **exception classes** in order to specify the HTTP response status and reason.
+    ```java
+    @ResponseStatus(HttpStatus.NOT_FOUND) 
+    public class ResourceNotFoundException extends RuntimeException {
+      public ResourceNotFoundException() { 
+        this("Resource not found!"); 
+    }
+    ```
+
 2. On controller **handler methods** 
     - will stop the DispatcherServlet from trying to find a view to render.
     - will override the original response status.
     - void method will just return a response with an empty body, E.g., DELETE method
-
-**On Exception class**
-```java
-@ResponseStatus(HttpStatus.NOT_FOUND) 
-public class ResourceNotFoundException extends RuntimeException {
-  public ResourceNotFoundException() { 
-    this("Resource not found!"); 
-}
-```
-
-**On Method**
-```java
-@ResponseStatus(HttpStatus.CREATED) 
-@PostMapping("/") 
-public Post createPost(@RequestBody Post post) { 
-  return postRepository.save(post); 
-}
-```
+    ```java
+    @ResponseStatus(HttpStatus.CREATED) 
+    @PostMapping("/") 
+    public Post createPost(@RequestBody Post post) { 
+      return postRepository.save(post); 
+    }
+    ```
 
 
 ## Where do you need @ResponseBody? What about @RequestBody? Try not to get these muddled up!
@@ -356,3 +383,4 @@ String body = response.getBody();
 2. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
 3. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
 4. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
+5. [Beginning Spring](https://www.amazon.com/Beginning-Spring-Mert-Caliskan-ebook/dp/B00T1JV8TI) 

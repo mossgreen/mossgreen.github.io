@@ -2,10 +2,9 @@
 title: Spring Core in Spring Certification
 search: true
 tags: 
-  - Java
   - Spring
   - Spring Core
-  - Spring Professional
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"

@@ -162,24 +162,24 @@ Spring offers several options for **configuring data-source beans**, including:
         .build(); 
     }
     ```
-5. Using profiles, the data source is chosen at runtime, based on which profile is active.
+5. Using **profiles**, the data source is chosen at runtime, based on which profile is active.
     - the embedded database is created if and only if the development profile is active. 
     - Similarly, the DBCP BasicDataSource is created if and only if the qa profile is active. 
     - And the data source is retrieved from JNDI if and only if the production profile is active.
 
----//todo
+
 ### Which bean is very useful for development/test databases?
 
-Datasource Bean is very useful for development/test databases.
+The **embedded data source**. 
+- It runs as part of application instead of being a standalone element.
+- it allows you to populate your database with test data that’s reset every time you restart your application or run your tests.
+- **Spring Boot can auto-configure** embedded H2, HSQL, and Derby databases. You need not provide any connection URLs. You need only include a build dependency to the embedded database that you want to use.
+- **Spring Boot automatically creates the schema of an embedded DataSource.** This behaviour can be customized by using the `spring.datasource.initialization-mode` property. For instance, if you want to always initialize the DataSource regardless of its type:
+    ```properties
+    spring.datasource.initialization-mode=always
+    ```
 
-**In SpringBoot**
-No need to declare the data source bean. Configure it using `application.properties`
-```properties
-spring.datasource.url= jdbc:hsqldb:hsql://localhost:1234/mydatabase 
-spring.datasource.username=haha spring.datasource.password=secret
-```
 
----
 ## What is the Template design pattern? What is the JDBC template?
 
 ### Template design pattern
@@ -191,24 +191,24 @@ At certain points, the process delegates its work to a subclass to fill in some 
 Spring separates the **fixed** and **variable** parts of the data-access process into two distinct classes: templates and callbacks. 
 
 1. Templates manage the fixed of data access
-    - controlling transactions, 
-    - managing resources, and 
-    - handling exceptions.
+    - establishing connection
+    - handling transactions
+    - handling excetions
+    - clean up and release resource
 
 2. your custom data-access code is handled in callbacks
     - creating statements, 
     - binding parameters, and 
     - marshaling result sets
 
-In order to communicate with DB, some default methods includes:
-- establishing connection
-- handling transactions
-- handling excetions
-- clean up and release resource
-
 ### What is the JDBC template?
 
-The Spring JdbcTemplate simplifies the use of JDBC by implementing common workflows for **querying**, **updating**, **statement execution** etc. Benefits are:
+The Spring JdbcTemplate simplifies the use of JDBC by implementing common workflows for 
+1. **querying**, 
+2. **updating**, 
+3. **statement execution** etc. 
+
+Benefits are:
 - Simplification: reduces boilerplate code for operations
 - Handle exceptions
 - Translates Exception from different vendors, e.g., `DataAccessException`
@@ -216,17 +216,50 @@ The Spring JdbcTemplate simplifies the use of JDBC by implementing common workfl
 - Allows customization, it's template design pattern
 - Thread safe
 
-**JdbcTemplate**
+Spring comes with three template classes to choose from:
+1. JdbcTemplate
+2. NamedParameterJdbcTemplate
+3. SimpleJdbcTemplate (**deprecated**)
 
+**JdbcTemplate**
 - JdbcTemplate works with queries that specify parameters using the `'?'` placeholder.
 
 - Use `queryForObject` when it is expected that execution of the query will return a **single result**.
 
 - Use `RowMapper<T>` when each row of the ResultSet maps to a domain object.
 
-• Use `RowCallbackHandler` when **no value** should be returned.
+- Use `RowCallbackHandler` when **no value** should be returned.
 
-• Use `ResultSetExtractor<T>` when **multiple rows in the ResultSet map to a single object**.
+- Use `ResultSetExtractor<T>` when **multiple rows in the ResultSet map to a single object**.
+
+- **initialize JdbcTemplate**
+    The general practice is to initialize JdbcTemplate within the **setDataSource method** so that once the data source is injected by Spring, JdbcTemplate will also be initialized and ready for use.
+
+    Once configured, **JdbcTemplate is thread-safe**. That means you can also choose to initialize a single instance of JdbcTemplate in Spring’s configuration and have it injected into all DAO beans.
+
+    ```java
+    @Configuration 
+    public class DemoJdbcConfig {
+      @Bean
+      public DataSource dataSource() {
+        return new DataSource();
+      }
+      
+      @Bean 
+      public JdbcTemplate jdbcTemplate(){ 
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(dataSource()); 
+        return jdbcTemplate; }
+      }
+      
+      @Bean 
+      public SingerDao singerDao() {
+        JdbcSingerDao dao = new JdbcSingerDao();
+        dao.setJdbcTemplate(jdbcTemplate());
+        return dao; 
+      }
+    }
+    ```
 
 **NamedParameterJdbcTemplate**
 
@@ -256,42 +289,6 @@ public int countOfActors(Actor exampleActor) {
   SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(exampleActor);
   
   return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, Integer.class); }
-```
-
-**SimpleJdbc Classes**
-1. fluid style
-2. easy of retrieving Auto-generated Keys
-3. able to call a Stored Procedure
-4. define SqlParameters
-5. calling a Stored Function
-
-**initialize JdbcTemplate**
-The general practice is to initialize JdbcTemplate within the **setDataSource method** so that once the data source is injected by Spring, JdbcTemplate will also be initialized and ready for use.
-
-Once configured, **JdbcTemplate is thread-safe**. That means you can also choose to initialize a single instance of JdbcTemplate in Spring’s configuration and have it injected into all DAO beans.
-
-```java
-@Configuration 
-public class DemoJdbcConfig {
-  @Bean
-  public DataSource dataSource() {
-    return new DataSource();
-  }
-  
-  @Bean 
-  public JdbcTemplate jdbcTemplate(){ 
-    JdbcTemplate jdbcTemplate = new JdbcTemplate();
-    jdbcTemplate.setDataSource(dataSource()); 
-    return jdbcTemplate; }
-  }
-  
-  @Bean 
-  public SingerDao singerDao() {
-    JdbcSingerDao dao = new JdbcSingerDao();
-    dao.setJdbcTemplate(jdbcTemplate());
-    return dao; 
-  }
-}
 ```
 
 
@@ -364,11 +361,14 @@ A connection is acquired immediately before executing the operation at hand and 
 
 ## How does the JdbcTemplate support generic queries? How does it return objects and lists/maps of objects?
 
-Override load method with various parameters. E.g., queryForList() has 7 types. 
+JdbcTemplate supports querying for any type of object assuming you supplied a RowMapper interface implementation defining the way database table should be mapped to some entity type.
 
-- `queryForObject()`
-- `queryForMap()`
-- `queryForList()`
+It has many overloaded methods for querying the database but mainly you can divide them in:
+
+1. `query()`
+2. `queryForObject()` if you are expecting only one object
+3. `queryForMap()` will return a map containing each column value as key(column name)/value(value itself) pairs.
+4. `queryForList()` a list of above if you’re expecting more results 
 
 
 ## What is a transaction?
@@ -882,7 +882,8 @@ The `@DataJpaTest` tests are transactional and rolled back at the end of each te
 
 ## What does JPA stand for - what about ORM?
 
-**JPA**: Java Persistence API.
+**JPA**: Java Persistence API. JPA is a POJO-based persistence mechanism that draws ideas from both Hibernate and Java Data Objects (JDO) and mixes Java 5 annotations in for good measure.
+
 **ORM**: Object-Relational Mapping. Mappingg a java entity to SQL database table.
 
 **Benefits of using Spring’s JPA support in your data access layer**
@@ -892,25 +893,36 @@ The `@DataJpaTest` tests are transactional and rolled back at the end of each te
 - Common data access exceptions
 - Integrated transaction management
 
-JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an EntityManager. The JPA specification defines **two** kinds of entity managers:
+The first step toward using JPA with Spring is to **configure an entity manager factory as a bean** in the Spring application context. JPA-based applications use an implementation of `EntityManagerFactory` to get an instance of an `EntityManager`. The JPA specification defines **two** kinds of entity managers:
 
-1. **Application-managed** — Entity managers are created when an application directly requests one from an **entity manager factory**. This type of entity manager is most appropriate for use in standalone applications that **don’t run in a Java EE container**.
-
-2. **Container-managed** — Entity managers are created and managed by a Java EE container. The application doesn’t interact with the entity manager factory at all. Instead, entity managers are obtained directly through injection or from JNDI. The **container is responsible for configuring the entity manager factories**. This type of entity manager is **most appropriate for use by a Java EE container** that wants to maintain some control over JPA configuration beyond what’s specified in `persistence.xml`.
-
-Both kinds of entity manager implement the same `EntityManager` interface.
-
-- `LocalEntityManagerFactoryBean` produces an application-managed EntityManagerFactory.
+1. **Application-managed**
+    - the application is responsible for opening or closing entity managers and involving the entity manager in transactions.
+    - most appropriate for use in standalone applications that **don’t run in a Java EE container**.
+    - `EntityManagers` are created by an `EntityManagerFactory` obtained by calling the `createEntityManagerFactory()` method of the PersistenceProvider.
+    - If you’re using an application-managed entity manager, Spring plays the role of an application and transparently deals with the EntityManager on your behalf.
+    - `LocalEntityManagerFactoryBean` produces an application-managed `EntityManagerFactory`.
+    - Application-managed entity-manager factories derive most of their configuration information from a configuration file called `persistence.xml`. This file must appear in the `META-INF` directory in the classpath. The purpose of the persistence.xml file is to define one or more persistence units.
     ```java
     @Bean 
     public LocalEntityManagerFactoryBean entityManagerFactoryBean() {   
       LocalEntityManagerFactoryBean emfb = new LocalEntityManagerFactoryBean(); 
-      emfb.setPersistenceUnitName("spitterPU"); 
+      emfb.setPersistenceUnitName("demo"); 
         return emfb; 
     }
     ```
-
-- `LocalContainerEntityManagerFactoryBean` produces a container-managed EntityManagerFactory.
+2. **Container-managed**
+    - Entity managers are created and managed by a Java EE container. 
+    - The application doesn’t interact with the entity manager factory at all. 
+    - Instead, entity managers are obtained directly through injection or from JNDI. 
+    - The **container is responsible for configuring the entity manager factories**.
+    - **most appropriate for use by a Java EE container** that wants to maintain some control over JPA configuration beyond what’s specified in `persistence.xml`.
+    - `EntityManagerFactorys` are obtained through PersistenceProvider’s `createContainerEntityManagerFactory()` method.
+    - Spring plays the role of the container.
+    - `LocalContainerEntityManagerFactoryBean` produces a container-managed `EntityManagerFactory`.
+    - Instead of configuring data-source details in persistence.xml, you can configure this information in the Spring application context.
+    - JPA has two annotations to obtain container‐managed `EntityManagerFactory` or `EntityManager` instances within Java EE environments. 
+        1. The `@PersistenceUnit` annotation expresses a dependency on an `EntityManagerFactory`, and 
+        2. `@PersistenceContext` expresses a dependency on a containermanaged `EntityManager` instance.
     ```java
     @Bean 
     public LocalContainerEntityManagerFactoryBean entityManagerFactory( DataSource dataSource, JpaVendorAdapter jpaVendorAdapter) { 
@@ -920,16 +932,6 @@ Both kinds of entity manager implement the same `EntityManager` interface.
       return emfb; 
     }
     ```
-
-todo See "Spring in Action" 4th, 11.2.
-
-JPA has two annotations to obtain container‐managed `EntityManagerFactory` or `EntityManager` instances within Java EE environments.
-
-1. The `@PersistenceUnit` annotation expresses a dependency on an `EntityManagerFactory`, 2. `@PersistenceContext` expresses a dependency on a containermanaged `EntityManager` instance.
-
-- You need to configure: `PersistenceAnnotationBeanPostProcessor` or xml to enalbe
-- Both @PersistenceContext and @PersistenceUnit annotations can be used at either the **field** or **method** level. 
-- Visibility of those fields and methods doesn’t matter.
 
 
 ## What is the idea behind an ORM? What are benefits/disadvantages or ORM?
@@ -962,11 +964,13 @@ JPA has two annotations to obtain container‐managed `EntityManagerFactory` or 
 
 ## What is a `PersistenceContext` and what is an `EntityManager`. What is the relationship between both?
 
-JPA has two annotations to obtain container‐managed EntityManagerFactory or EntityManager instances within Java EE environments.
+JPA has two annotations to obtain container‐managed `EntityManagerFactory` or `EntityManager` instances within Java EE environments. 
+1. The `@PersistenceUnit` annotation expresses a dependency on an `EntityManagerFactory`, and 
+2. `@PersistenceContext` expresses a dependency on a containermanaged `EntityManager` instance.
 
 `@PersistenceUnit` and `@PersistenceContext` 
 - They aren’t Spring annotations; they’re provided by the JPA specification. 
-- Both annotations can be used at either the field or method level. 
+- Both annotations can be used at either the **field** or **method** level. 
 - Visibility of those fields and methods doesn’t matter.
 - Spring’s `PersistenceAnnotationBeanPostProcessor` must be configured **explicitly:**
     ```java
@@ -988,9 +992,9 @@ JPA has two annotations to obtain container‐managed EntityManagerFactory or En
 - Expresses a dependency on a container-managed EntityManager **and** its associated persistence context.
 - This field does not need to be autowired, since this annotation is picked up by an infrastructure Spring bean postprocessor bean that makes sure to create and inject an EntityManager instance.
 - @PersistenceContext has a type attribute 
-    - PersistenceContextType.TRANSACTION
+    - `PersistenceContextType.TRANSACTION`
         In **stateless beans**, like singleton bean, it is safe to use only the PersistenceContextType.TRANSACTION value for a shared EntityManager to be created and injected into for the current active
-    - PersistenceContextType.EXTENDED
+    - `PersistenceContextType.EXTENDED`
         - is purposefully designed to support beans, like stateful EJBs, session Spring beans, or **request‐scoped Spring beans**. The shared EntityManager instance wouldn’t be bound to the active transaction and might span more than one transaction. 
 
 **PersistenceContext**   
@@ -1004,7 +1008,7 @@ a group of entity classes defined by the developer to map database records to ob
 - All entity classes must define a primary key, must have a non-arg constructor or not allowed to be final.
 - This set of entity classes represents data contained in a single datasource. 
 - Multiple persistence units can be defined within the same application. 
-- Configuration of persistence units can be done using XML, e.g., `persistence.xml` file under the `META-INF` directory.
+- Configuration of persistence units can be done using XML, e.g., `persistence.xml` file under the `META-INF` directory. JPA no need to specify it.
 
 **EntityManager** 
 represents a PersistenceContext. The entity manager provides an API for managing a persistence context and interacting with the entities in the persistence context. 
@@ -1186,9 +1190,12 @@ By default, repositories are instantiated eagerly unless explicitly annotated wi
 
 ## How do you define an “instant” repository? Why is it an interface not a class?
 
-Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. 
+Under the hood, Spring creates a **proxy** object that is a fullly functioning repository bean. The repository implementation is generated **at application startup time**, as the Spring application context is being created.
 
-Any additional functionality that is not provided by default can be easily implemented by defining a method skeleton and providing the desired functionality using annotations.
+Any additional functionality that is not provided by default can be easily implemented by defining a method skeleton and providing the desired functionality using annotations. It's including an implementation of all 18 methods inherited from 
+- JpaRepository, 
+- PagingAndSortingRepository, and 
+- CrudRepository.
 
 **JDBC Support**
 typical JDBC support. You could have the DataSource injected into an initialization method, where you would create a JdbcTemplate and other data access support classes
@@ -1204,7 +1211,6 @@ public class JdbcMovieFinder implements MovieFinder {
   }
 }
 ```
-
 
 **JPA repository**
 JPA-based repository needs access to an EntityManager.
@@ -1233,33 +1239,49 @@ public class HibernateMovieFinder implements MovieFinder {
 ```
 
 
-
-
 ## What is the naming convention for finder methods?
 
-`find`**(First[count])**`By`**[property expression][comparison operator][ordering operator]**
+![IMAGE](https://i.loli.net/2019/08/23/2kX8z6yLIOAF3ix.jpg)
 
-prefixes `find` also can be replaced:
-```java
-private static final String QUERY_PATTERN = "find|read|get|query|stream";
-```
+1. **verbs** in the method name: get, read, find, query,stream and count. 
+    - prefixes `find` also can be replaced with read|get|query|stream
+        ```java
+        private static final String QUERY_PATTERN = "find|read|get|query|stream";
+        ```
+    - findAllByXxx()` are `findByXxx()` identical.
+    - The `count` verb, on the other hand, returns a count of matching objects, rather than the objects themselves.
 
-**Limiting Query Results**
-```java
-User findFirstByOrderByLastnameAsc(); 
+2. The **subject** of a repository method is optional. 
+    - `readSpittersByFirstnameOrLastname()` = `readByFirstnameOrLastname()`
+    - `readPuppiesByFirstnameOrLastname()` = `readThoseThingsWeWantByFirstnameOrLastname()`
+    - They're all requal! Beccause the type of object being retrieved is determined by how you parameterize the JpaRepository interface, not the subject of the method name.
+    - There is one **exception** to the subject being ignored. If the subject starts with the word `Distinct`, then the generated query will be written to ensure a distinct result set.
 
-User findTopByOrderByAgeDesc(); 
+3. The `predicate` specifies the properties that will constrain the result set.
+    - Each condition must reference a property and may also specify a comparison operation. 
+    - If the comparison operator is left off, it’s implied to be an equals operation. 
+    - You may choose any other comparison operations,
+    - When dealing with `String` properties, the condition may also include `IgnoringCase` or `IgnoresCase`.
+    - you may also use `AllIgnoringCase` or `AllIgnoresCase` after all the conditions to ignore case for all conditions
+    - conditional parts are separated by either `And` or `Or`
 
-Page<User> queryFirst10ByLastname(String lastname, Pageable pageable); 
-
-Slice<User> findTop3ByLastname(String lastname, Pageable pageable); 
-
-List<User> findFirst10ByLastname(String lastname, Sort sort); 
-
-List<User> findTop10ByLastname(String lastname, Pageable pageable);
-```
-
-NB: `findAllByXxx()` are `findByXxx()` identical.
+3. **Limiting Query Results**
+    - The results of query methods can be limited by using the `first` or `top` keywords
+    - An optional numeric value can be appended to top or first to specify the maximum result size to be returned. 
+    - If the number is left out, a result size of 1 is assumed.
+    ```java
+    User findFirstByOrderByLastnameAsc(); 
+    
+    User findTopByOrderByAgeDesc(); 
+    
+    Page<User> queryFirst10ByLastname(String lastname, Pageable pageable); 
+    
+    Slice<User> findTop3ByLastname(String lastname, Pageable pageable); 
+    
+    List<User> findFirst10ByLastname(String lastname, Sort sort); 
+    
+    List<User> findTop10ByLastname(String lastname, Pageable pageable);
+    ```
 
 
 ## How are Spring Data repositories implemented by Spring at runtime?
@@ -1310,8 +1332,8 @@ Named queries are part of the metadata, and are defined with the annotation `@Na
 public class User extends AbstractEntity { }
 ```
 
-
-The @Query annotation allows for running native queries by setting the nativeQuery flag to true, as shown in the following example:
+**native queries**
+The `@Query` annotation allows for running native queries by setting the nativeQuery flag to true (`nativeQuery = true`), as shown in the following example:
 ```java
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -1321,6 +1343,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 ```
 - Spring Data JPA does not currently support dynamic sorting for native queries,
 - You can, however, use native queries for pagination by specifying the count query yourself.
+
 
 ## References
 

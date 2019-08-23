@@ -3,7 +3,8 @@ title: Spring AOP in Spring Certification
 search: true
 tags: 
   - Spring
-  - AOP
+  - Spring AOP
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
