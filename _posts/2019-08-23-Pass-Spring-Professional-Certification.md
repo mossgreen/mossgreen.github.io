@@ -23,7 +23,7 @@ Personally speaking, I just set a goal that needs to achieve. I learn Spring by 
 
 There was a discussion on "[Is Spring certification worth anything?](https://coderanch.com/t/550694/frameworks/Spring-certification-worth)".
 
- My answer is: the certification itself is worth nothing but the knowledge is worthless. You don't have to pass this certification to gain knowledge. This certificate is just a test that you have gained this knowledge.
+ My answer is: the certification itself is worthless nothing but the knowledge is invaluable. You don't have to pass this certification to gain knowledge. This certificate is just a test that you have gained this knowledge.
 
 
 ## How to prepare for it?
@@ -90,4 +90,4 @@ The official references are the most useful ones, because it's accurate and upda
 4. [Beginning Spring Boot 2](https://www.apress.com/gp/book/9781484229309)
 5. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
 6. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
-7. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+
