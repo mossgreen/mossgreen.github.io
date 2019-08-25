@@ -1,89 +1,93 @@
 ---
-title: What Is the Jsessionid in Your Spring App URL
+title: Got Spring Professional Certificated at Aug 2019
 search: true
 tags: 
   - Spring
-  - Session
-  - Spring Web
-  - Spring Security
+  - Spring Professional Certification
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
-Why does Spring Boot append JsessionId in your URL and how to stop it?
+Got Spring Professional Certificated at Aug 2019
 
-## What is Cookie
+## What is Spring Professional Certification?
 
-A cookie is data stored on the client-side. They’re used to identify a client when sending a subsequent request. They can also be used for passing some data from one servlet to another. Cookies are added to the request by the client. The client checks its parameters and decides if it can deliver it to the current URL.
-
-The Cookie class is defined in the `javax.servlet.http` package.
-
-To send it to the client, we need to create one and add it to the response:
-
-```java
-Cookie demoCookie = new Cookie("id", "demo");
-response.addCookie(uiColorCookie);
-```
-
-## What is HttpSession
-
-We can obtain an HttpSession straight from a HTTP request.
-
-A session is a server-side storage holding contextual data. Sessions allow applications running in a web container to keep track of individual users.
-
-Data isn’t shared between different session objects (client can access data from its session only).
-
-A servlet distinguishes users by their unique session IDs. The session ID arrives with each request. If the user's browser is cookie-enabled, the session ID is stored as a cookie. As an alternative, the session ID can be conveyed to the servlet by URL rewriting, in which the session ID is appended to the URL of the servlet or JavaServer Pages (JSP) file from which the user is making requests. 
-
-### HTTP session invalidation
-
-HTTP sessions are invalidated by calling the invalidate method on the session object or by specifying a specific time interval using the MaxInactiveInterval property.
-
-Sessions that are invalidated explicitly by application code are invalidated immediately.
-
-## Spring Session Resolver
-
-The `SessionLocaleResolver` lets you retrieve **Locale** and **TimeZone** from the session that might be associated with the user’s request. In contrast to `CookieLocaleResolver`, this strategy stores locally chosen locale settings in the Servlet container’s `HttpSession`. As a consequence, those settings are temporary for each session and are, therefore, lost when each session terminates.
+The Spring Professional certification exam is designed to test and validate your understanding of and familiarity with Spring Frame.
 
 
-## Spring Session
-Spring Boot provides Spring Session auto-configuration for a wide range of data stores. When building a Servlet web application, the following stores can be auto-configured:
-- JDBC
-- Redis
-- Hazelcast
-- MongoDB
+## Why do you want to pass it?
 
-```properties
-spring.session.store-type=jdbc
-```
+Personally speaking, I just set a goal that needs to achieve. I learn Spring by passing this certification.
 
-## Spring reference 14.2.1 Web Application Security
+There was a discussion on "[Is Spring certification worth anything?](https://coderanch.com/t/550694/frameworks/Spring-certification-worth)".
 
-<http> Attributes
-
-disable-url-rewriting Prevents session IDs from being appended to URLs in the application. Clients must use cookies if this attribute is set to true . The default is true .
+ My answer is: the certification itself is worth nothing but the knowledge is worthless. You don't have to pass this certification to gain knowledge. This certificate is just a test that you have gained this knowledge.
 
 
-## What is jsession
+## How to prepare for it?
 
-I’m using Spring Security’s concurrent session control to prevent users from logging in more than once at a time.
+After I did some research on other people's study notes, I believe it's getting harder and harder to get this certification.
 
-When I open another browser window after logging in, it doesn’t stop me from logging in again. Why can I log in more than once?
+### Old Version VS New Version
 
-Browsers generally maintain a single session per browser instance. You cannot have two separate sessions at once. So if you log in again in another window or tab you are just reauthenticating in the same session. The server doesn’t know anything about tabs, windows or browser instances. All it sees are HTTP requests and it ties those to a particular session according to the value of the JSESSIONID cookie that they contain. When a user authenticates during a session, Spring Security’s concurrent session control checks the number ofother authenticated sessions that they have. If they are already authenticated with the same session, then re-authenticating will have no effect.
+1. Version 4.2
+    You can find a summary about version 4.2 exam from [Vojtech Ruzicka's Programming Blog](https://www.vojtechruzicka.com/exam-notes-pivotal-certified-spring-professional/).
+    
+    And study notes from Vitalie: [Core Spring 4.2 Study Guide answers by Vitalie)](https://codingideas.blog/core-spring-4-2-study-guide-answers-part-5-security#What_is_the_delegating_filter_proxy/)
 
-I’m not switching between HTTP and HTTPS but my session is still getting lost
+2. Version 5, before May 2019
+    I've read some blogs about this version of the test. In fact, in the beginning, I prepare the test just according to this version of the study guide. Some useful resources:
+    1. [Passed Spring Professional 5.0 certification with 94%.](https://coderanch.com/t/706033/certification/Passed-Spring-Professional-certification)
+    2. [Spring Certification 5.0 study notes from MrR0807](https://github.com/MrR0807/SpringCertification5.0)
+    3. [Core Spring 5 – Training and Certification](https://www.ivankrizsan.se/2018/04/28/core-spring-5-training-and-certification/)
+    4. [How I became a Pivotal Spring Professional Certified 5.0](https://medium.com/@raphaelrodrigues_74842/how-i-became-a-pivotal-spring-professional-certified-5-0-c6348da5f80b)
 
-Sessions are maintained either by exchanging a session cookie or by adding a jsessionid parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call HttpServletResponse.encodeUrl on URLs (before a redirect, for example). If clients have cookies disabled, and you are not rewriting URLs to include the jsessionid , then the session will be lost. Note that the use of cookies is preferred for security reasons, as it does not expose the session information in the URL.
+3. Version 5.x after May 2019
+    Before I took the exam, I found that the study guide has been updated. It's not a huge change, but it's enough to fail you if you didn't prepare perfectly. I took me a while to do an extra study on the new topics. It pays. I the test, it has at least 4 questions are about actuator, which is a newly added topic.
+
+    Changes:
+    1. Less content on AOP topic. From 14% to 8%.
+    2. More Spring Boot content, from 14% to 32%.
+    
+    ![IMAGE](https://i.loli.net/2019/06/26/5d132ecfb894c54615.jpg)
 
 
+### How to study
+
+I recommend you to make your note according to the latest study guide from Pivotal. 
+1. Try to answer questions based on official documentation.
+2. If cannot, try to read other people's answer based on other people's study notes.
+3. Then try to find the answer from some books. 
+4. After all the readings, read the official guide again.
+
+The reasons are:
+1. People have a different understanding of the same question. However, the only one you need to answer to is Pivotal.
+2. Some answers are out of date, or the book you read is about the old version of Spring. 
+    For instance, Spring In Action 4th edition has something wrong about Spring Data JPA method name convention. 
 
 
-6. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
+### How long it will take?
 
-https://www.baeldung.com/java-servlet-cookies-session
-https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/http/HttpSession.html
-https://www.ibm.com/support/knowledgecenter/en/SSEQTP_9.0.5/com.ibm.websphere.base.doc/ae/cprs_best_practice.html
-https://www.ibm.com/support/knowledgecenter/SSEQTP_9.0.5/com.ibm.websphere.base.doc/ae/cprs_sess.html
+Hah, it may change a lot depends on your experience, isn't it?
+
+If you've had a look at the links I gave above, a guy spent 5 months on it. A 12-years experienced senior Java developer spent only 40 hours.
+
+It's not easy. So make your plan.
+
+As for me: around 3 months.
+
+
+### Books I command
+
+The official references are the most useful ones, because it's accurate and update to date. for example, Spring 5 and Spring Boot 2 are released not very long ago. If you still study very old books, it's just a waste of time.
+
+
+1. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
+2. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
+3. [Pivotal Certified Professional Spring Developer Exam Study Guide](https://www.amazon.com/Pivotal-Certified-Professional-Spring-Developer-ebook/dp/B01MS0JSML/)
+4. [Beginning Spring Boot 2](https://www.apress.com/gp/book/9781484229309)
+5. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
+6. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+7. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
