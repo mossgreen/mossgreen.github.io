@@ -81,8 +81,36 @@ As for me: around 3 months.
 
 ### Books I command
 
-The official references are the most useful ones, because it's accurate and update to date. for example, Spring 5 and Spring Boot 2 are released not very long ago. If you still study very old books, it's just a waste of time.
+The official references are the most useful ones, because it's accurate and update to date. for example, Spring 5 and Spring Boot 2 are released not very long ago. If you still study old version of Spring or Spring Boot, it's just a waste of time.
 
+### My notes
+
+I don't recommend my notes if you've got time to write your notes. They're just copy and pasted from all the books or materials I mentioned. I list it here because:
+
+1. It's up to date. 
+2. All out-of-date contents are removed. E.g., XML configurations.
+3. All questions are answered in a structured way.
+
+Here you are:
+
+- [Container, Dependency, and IOC](https://mossgreen.github.io/Spring-Certification-Spring-Core/)
+- [Aspect oriented programming](https://mossgreen.github.io/Spring-Certification-Spring-AOP/)
+- [Data Management](https://mossgreen.github.io/Spring-Certification-Spring-Data-Management/)
+    - JDBC
+    - Transactions
+    - Spring Data JPA
+- [Spring MVC and the Web Layer](https://mossgreen.github.io/Spring-Certification-Spring-MVC/)
+- [Security](https://mossgreen.github.io/Spring-Certification-Spring-Security/)
+- [REST](https://mossgreen.github.io/Spring-Certification-Spring-REST/)
+- [Testing](https://mossgreen.github.io/Spring-Certification-Testing/)
+- [Spring Boot](https://mossgreen.github.io/Spring-Certification-Spring-Boot/)
+    - Spring Boot Intro 
+    - Spring Boot Auto Configuration
+    - Spring Boot Actuator
+    - Spring Boot Testing
+
+
+## References
 
 1. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
 2. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
@@ -90,4 +118,5 @@ The official references are the most useful ones, because it's accurate and upda
 4. [Beginning Spring Boot 2](https://www.apress.com/gp/book/9781484229309)
 5. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
 6. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
+7. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 
