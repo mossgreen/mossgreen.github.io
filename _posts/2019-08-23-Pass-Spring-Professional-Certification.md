@@ -14,21 +14,26 @@ Got Spring Professional Certificated at Aug 2019
 
 ## What is Spring Professional Certification?
 
-The Spring Professional certification exam is designed to test and validate your understanding of and familiarity with Spring Frame.
+The [Spring Professional certification](https://pivotal.io/training/certification/spring-professional-certification) exam is designed to test and validate your understanding of and familiarity with some topics of Spring Framework:
+
+- Spring IOC
+- Spring AOP
+- Spring Data
+- Spring Testing
+- Spring Boot
+- etc..
 
 
 ## Why do you want to pass it?
 
-Personally speaking, I just set a goal that needs to achieve. I learn Spring by passing this certification.
-
 There was a discussion on "[Is Spring certification worth anything?](https://coderanch.com/t/550694/frameworks/Spring-certification-worth)".
 
- My answer is: the certification itself is worthless nothing but the knowledge is invaluable. You don't have to pass this certification to gain knowledge. This certificate is just a test that you have gained this knowledge.
+ My answer is: the certification itself is worthless but the knowledge is invaluable. You don't have to pass this certification to gain knowledge. This certificate is just a test that you have gained this knowledge.
 
 
 ## How to prepare for it?
 
-After I did some research on other people's study notes, I believe it's getting harder and harder to get this certification.
+After I did some research on other people's study notes, I believe it's getting harder and harder to get this certification. You need to prepare more than the people who do the  Version 4.2 test.
 
 ### Old Version VS New Version
 
@@ -56,21 +61,22 @@ After I did some research on other people's study notes, I believe it's getting 
 
 ### How to study
 
-I recommend you to make your note according to the latest study guide from Pivotal. 
+I recommend you to make your note according to the latest [official study guide](https://d1fto35gcfffzn.cloudfront.net/academy/Spring-Professional-Certification-Study-Guide.pdf) from Pivotal. 
+
 1. Try to answer questions based on official documentation.
-2. If cannot, try to read other people's answer based on other people's study notes.
-3. Then try to find the answer from some books. 
+2. If cannot, try to read other people's study notes.
+3. Then try to find the answer from listed books. 
 4. After all the readings, read the official guide again.
 
 The reasons are:
 1. People have a different understanding of the same question. However, the only one you need to answer to is Pivotal.
-2. Some answers are out of date, or the book you read is about the old version of Spring. 
-    For instance, Spring In Action 4th edition has something wrong about Spring Data JPA method name convention. 
+2. Some answers are out of date, or the book you read is about the old version of Spring.
+    For instance, Spring In Action 4th edition has something wrong about Spring Data JPA method name convention. This question will definitely appear in the exam. So, be careful.
 
 
 ### How long it will take?
 
-Hah, it may change a lot depends on your experience, isn't it?
+Hah, it may change a lot depends on your working experience, isn't it?
 
 If you've had a look at the links I gave above, a guy spent 5 months on it. A 12-years experienced senior Java developer spent only 40 hours.
 
@@ -110,6 +116,9 @@ Here you are:
     - Spring Boot Testing
 
 
+![IMAGE](https://i.loli.net/2019/08/28/Ejw31m6H2vKF8Ju.jpg)
+
+
 ## References
 
 1. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
@@ -119,4 +128,3 @@ Here you are:
 5. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
 6. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
 7. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
-
