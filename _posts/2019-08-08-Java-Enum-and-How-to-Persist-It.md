@@ -27,6 +27,16 @@ An enum type (or enumerated type) is a type whose fields consist of a fixed set 
 4. We can use == to compare enum constants effectively because constants are final and we cannot call an enum’s constructors to create more constants.
 5. Enums supports switch statement.
 
+**Example**
+```java
+public enum Season {
+    SPRING,
+    SUMMER,
+    AUTUMN,
+    WINTER; 
+}
+```
+
 ### Enum fields and methods
 
 Enum constructor:
@@ -53,11 +63,12 @@ Overridden methods:
 5. `toString ()` – to return constant’s name.
 6. `compareTo()` – Enum implements Comparable.
 
-
 Important methods
 1. `name()` – returns constant’s name. 
+
 2. `ordinal()` – position of the constant within enum type. compareTo () compares ordinals.
-3.` The values()` static method of the enum returns an array of all constants that are declared in the enum. It's not part of Enum’s java documentation. It's added by the compiler.
+
+3. ` The values()` static method of the enum returns an array of all constants that are declared in the enum. It's not part of Enum’s java documentation. It's added by the compiler.
     ```java
     for (Planet p : Planet.values()) {
         System.out.printf("Your weight on %s is %f%n", p, p.surfaceWeight(mass));
@@ -68,16 +79,6 @@ Important methods
     - Two enum constants e1 and e2 are of the same enum type if and only if `e1.getDeclaringClass() == e2.getDeclaringClass()`
     - The value returned by this method may differ from the one returned by the Object.getClass() method for enum constants with constant-specific class bodies.
 
-### Example
-```java
-public enum Season {
-    SPRING,
-    SUMMER,
-    AUTUMN,
-    WINTER; 
-}
-```
-
 ### JSON Representation of Enum
 
 Enums are POJOs. They can be represented as a JSON.
@@ -85,10 +86,10 @@ Enums are POJOs. They can be represented as a JSON.
 
 ### Benefits of using Enum:
 
-1. Code more readable, 
-2. Enum is type-safe cannot assign anything else other than predefined Enum constants to an Enum variable
+1. More readable code. 
+2. Enum is type-safe. You cannot assign anything else other than predefined Enum constants to an Enum variable
 3. Set of Constant declaration.
-4. Can be usable in switch-case
+4. Can be usable in switch-case.
 
 
 ## Implement Design Patterns using Enum
@@ -107,11 +108,20 @@ Enums are POJOs. They can be represented as a JSON.
 
 ### Ordinal
 
-1. @Enumerated column does not need to take the ORDINAL EnumType value since that’s used by default. 
-2. New enum elements must be added to the end of the list. If we add a new value in the middle or rearrange the enum’s order, we’ll break the existing data model.
+
+**The Good**
+- `ORDINAL`  can use a SMALLINT which is the most compact db option.
+- Rename filed without pressure.
+
+
+**The Bad**
+- New enum elements must be added to the end of the list. If we add a new value in the middle or rearrange the enum’s order, we’ll break the existing data model.
 have to update all the database records.
-3. Removing existing elements from ann Enum will require to shift all entries in case you are using ORDINAL.
-4. ORDINAL  can use a SMALLINT which is the most compact db option.
+- Removing existing elements from ann Enum will require to shift all entries in case you are using `ORDINAL`.
+
+**The Others**
+`@Enumerated` column does not need to take the `ORDINAL` EnumType value since that’s used by default. 
+
 
 ### String Value
 
@@ -119,7 +129,7 @@ have to update all the database records.
 2. Renaming an enum value will still break the database data.
 
 
-## Map Enumerated Types in Postgres DB
+### Using `@Converter`
 
 ```java
 public enum Season {
