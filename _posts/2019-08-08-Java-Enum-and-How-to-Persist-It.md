@@ -24,7 +24,7 @@ An enum type (or enumerated type) is a type whose fields consist of a fixed set 
 1. We can add fields, constructors and methods to an enum.
 2. Enum can also implement interfaces.
 3. When anything else other than constants is there, comma-separated constants should be terminated with a semicolon. Otherwise, the semicolon is optional.
-4. We can use == to compare enum constants effectively because constants are final and we cannot call an enum’s constructors to create more constants.
+4. We can use `==` to compare enum constants effectively because constants are final and we cannot call an enum’s constructors to create more constants.
 5. Enums supports switch statement.
 
 **Example**
@@ -44,7 +44,7 @@ Enum constructor:
 protected Enum(String name, int ordinal)
 ```
 
-**Parameters:**
+Parameters:
 1. `name`
     - The name of this enum constant, which is the identifier used to declare it. 
     - Should use toString to return a more user-friendly name.
@@ -108,20 +108,17 @@ Enums are POJOs. They can be represented as a JSON.
 
 ### Ordinal
 
-
-**The Good**
+The Good
 - `ORDINAL`  can use a SMALLINT which is the most compact db option.
 - Rename filed without pressure.
 
 
-**The Bad**
+The Bad
 - New enum elements must be added to the end of the list. If we add a new value in the middle or rearrange the enum’s order, we’ll break the existing data model.
-have to update all the database records.
 - Removing existing elements from ann Enum will require to shift all entries in case you are using `ORDINAL`.
 
-**The Others**
-`@Enumerated` column does not need to take the `ORDINAL` EnumType value since that’s used by default. 
-
+The Others
+- `@Enumerated` column does not need to take the `ORDINAL` EnumType value since that’s used by default. 
 
 ### String Value
 
