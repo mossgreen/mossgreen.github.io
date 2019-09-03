@@ -12,9 +12,17 @@ classes: single
 
 A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
 
+
+## POJO
+
+POJO is an acronym for **Plain Old Java Object**. The term was coined by Martin Fowler et. al., as a ‘fancy’ way to describe ordinary Java Objects that do not require a framework to use, nor need to be run in a application server environment. It is often used to distinguish simpler, lightweight Java objects from ‘heavyweight’ code like EJBs. The use of these kind of lightweight objects in programming is described in books such as “POJOs in Action” and advocated by frameworks like Spring.
+
+
 ## Java Bean
 
-**JavaBeans** are classes that encapsulate many objects into a single object (the bean). The name "Bean" was given to encompass the following standards, which aims to create reusable software components for Java.
+The concept of **JavaBeans** was originally devised for Swing to facilitate the development of standalone GUI components, but the pattern has been repurposed for the land of Spring beans and back-end persistence with Hibernate.
+
+**JavaBeans** are classes that encapsulate many objectss into a single object (the bean). The name "Bean" was given to encompass the following standards, which aims to create reusable software components for Java.
 
 1. Must implement Serializable.
 2. It should have a public no-arg constructor.
@@ -27,14 +35,21 @@ A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
 3. class properties are private, accessed by getter and seter.
 
 ### Advantages
+
 1. properties, events, and methods can be reused in other applications
 2.  register events
 3.  can be saved to persistent storage and restored
 
 ### Disadvantages
+
 1. public no-arg constructor cannot guatantee a proper initialization
 2. Java Beans are mutable in nature.
 3. Boilerplate code, like getter and setter.
+
+### Java Bean VS POJO
+
+An object in Java may be a POJO but not a JavaBean. For instance, it may implement an interface or extend specified classes, but because it refers to objects that are stateful and/or exist outside the scope of the Java Virtual Machine (JVM)—for example, HTTP or database connections —it cannot reasonably be serialized to disk and then restored.
+
 
 ## Spring Bean
 
@@ -59,16 +74,11 @@ It contains the following meta data:
 - initialization method	
 - destruction method	
 
-### three different of defining a Spring bean
+### three ways of defining a Spring bean
 
 1. Using stereotype `@Component` annotation
 2. using `@Bean` annotation in a custom Java configuration class
 3. `XML` configuration
-
-
-## POJO
-
-POJO is an acronym for Plain Old Java Object. The term was coined by Martin Fowler et. al., as a ‘fancy’ way to describe ordinary Java Objects that do not require a framework to use, nor need to be run in a application server environment. It is often used to distinguish simpler, lightweight Java objects from ‘heavyweight’ code like EJBs. The use of these kind of lightweight objects in programming is described in books such as “POJOs in Action” and advocated by frameworks like Spring.
 
 
 ## Java Bean VS Spring Bean
@@ -83,3 +93,4 @@ POJO is an acronym for Plain Old Java Object. The term was coined by Martin Fowl
 1. [Wikipedia: JavaBeans](https://en.wikipedia.org/wiki/JavaBeans#JavaBean_conventions)
 2. [Spring Reference: The IoC container](https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/beans.html)
 3. [What is a Spring Bean?](https://www.baeldung.com/spring-bean)
+4. [Spring Persistence with Hibernate, 2nd edition](https://www.apress.com/gp/book/9781484202692/)
