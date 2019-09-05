@@ -127,4 +127,3 @@ Here you are:
 4. [Beginning Spring Boot 2](https://www.apress.com/gp/book/9781484229309)
 5. [Spring Boot 2 Recipes](https://www.apress.com/gp/book/9781484239629)
 6. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
-7. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
