@@ -12,7 +12,7 @@ classes: wide
 
 Insert (not add) a column in PostgreSQL is quit a mission.
 
-## Add a column in table
+## Add a column in a table
 
 Add a column in a table in PostgreSQL is:
 
@@ -37,6 +37,40 @@ It's simple. I won't go further. The question is what if I want to insert the co
 
 I've checked StackOverflow and psql documentation. So sure that there is no way to insert a column to a table. 
 
+
+## How to test
+
+Before we do it, we have to know how to verify that our solution is good.
+
+1. Current table Not data lost
+2. Current table o table definition change
+3. Other tables don't lose data
+4. Other tables don't have definition change
+
+### Before running our migration script
+
+1. \d current table
+2. select count(id)
+3. \d reference table 
+4. select count(ref_id)
+5. \d reference table 
+6. select count(ref_id)
+7. check views
+
+### Export schema and table definition
+
+1. We need the schema definition because we want to compare customers related tables definitions are not changed.
+    ```sql
+    $ pg_dump -U postgres -s -d myDatabase -n my_schema > my_schema_dump.txt
+    ```
+2. We need the customers definition because
+    1. We need to reuse definition while creating new customers table
+    2. we want to make sure new customers table remains the same definition
+    ```sql
+    $ pg_dump -U postgres -s -d myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
+    ```
+
+
 ## Insert a column to a table
 
 My processes:
@@ -47,8 +81,8 @@ My processes:
 5. Add constrains back to the customers table.
 6. Add constrains back to reference tables.
 7. Rebuild customers table sequence.
+8. Verify based on the testing plan.
 
-//todo details
 
 ## References
 
