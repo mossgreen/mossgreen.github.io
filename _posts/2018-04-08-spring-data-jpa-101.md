@@ -35,6 +35,14 @@ classes: wide
 - The service layer (or service facade)
 
 
+## Persistence annotations
+
+- Persistence annotations can be applied at three different levels: class, method, and field.
+- The mapping annotations can be categorized as being in one of two categories: logical annotations and physical annotations. Understanding and being able to distinguish between these two levels of metadata will help you make decisions about where to declare metadata, and where to use annotations and XML.
+    1. The annotations in the logical group are those that describe the entity model from an object modeling view. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework. 
+    2. The physical annotations relate to the concrete data model in the database. They deal with tables, columns, constraints, and other database-level artifacts that the object model might never be aware of otherwise.
+
+### Class
 ## Building the Domain Model
 
 - `@Entity`
@@ -64,7 +72,7 @@ classes: wide
   ```java
   @Column(name="working_title",length=200,nullable=false) 
   String title;
-  ``
+  ```
 - `@Id`
 - `@GeneratedValue`: it takes a pair of attributes: strategy and generator.
     - strategy
@@ -98,6 +106,7 @@ Q2: Can a customer have more than one email address?
 The answers to these questions can be formed into a truth table:
 ![IMAGE](https://i.loli.net/2019/09/04/MmsSt8l6z91eQZk.jpg)
 
+
 ### Cascading Parent-child relationships
 
 - **parent-child** relationships, meaning that one entity owns or encapsulates a collection of another entity. E.g., one garden has multiple flowers.
@@ -114,6 +123,54 @@ public Set<Comment> getComments() {
 }
 ```
 
+### bidirection VS unidirection
+//todo
+
+The association between a Blog and its Comment instances is best described as a one-to-many relationship. 
+Inversely, the relationship between a Comment and its associated Blog is known as a many-to-one association. 
+Because each entity is able to reference the other, the association is considered **bidirectional**. 
+If one entity is able to reference another entity, but the inverse is not true, this is considered a **unidirectional** association.
+if you don’t have a specific requirement to use bidirectional associations, it is easier to stick with a unidirectional approach, because bidirectional associations can require circular references and may end up complicating marshaling or serialization implementations.
+
+
+`mappedBy` hint here to indicate that the inverse side of this relationship is referenced by the artEntities property in the Comment class. For bidirectional many-to-many associations, we need to tell Hibernate which side of the collection is the owner. By adding the mappedBy attribute to the Comment class, we are asserting that the Category class owns the relationship.
+
+Except for the @ManyToOne annotation, all other multiplicity annotations have a mappedBy attribute.
+
+By looking at its value, JPA identifies the attribute that it looks at to manage association between two entities. The side on which mappedBy is used can be seen as a mirror, or read‐only. Setting a value on this mirror property has no effect on creating or removing associations.
+
+the absence of the mappedBy element in the mapping annotation implies ownership of the relationship, while the presence of the mappedBy element means the entity is on the inverse side of the relationship. the mappedBy element is described in subsequent sections.
+
+```
+@Entity @Table(name = "POSTS") 
+public class Post {
+
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+  private Integer id;
+
+  @Column(name = "title", nullable = false, length = 150) 
+  private String title; 
+
+  @OneToMany(mappedBy="post") 
+  private List<Comment> comments;
+
+}
+```
+```java
+@Entity @Table(name = "COMMENTS") 
+public class Comment {
+  
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+  private Integer id;
+  
+  @Column(name = "name", nullable = false, length = 150) 
+  private String name;
+  
+  @ManyToOne(optional=false) @JoinColumn(name="post_id") 
+  private Post post;
+
+}
+```
 
 ## Second-Level Caching
 
@@ -145,18 +202,6 @@ public class ArtEntity implements Serializable {
 
 
 ## References 
-
-- [Integrating Spring Data JPA, PostgreSQL, and Liquibase](https://auth0.com/blog/integrating-spring-data-jpa-postgresql-liquibase/?utm_source=medium&utm_medium=sc&utm_campaign=spring_data_jpa)
-
-- [Spring JPA One-to-Many Query Examples with Property Expressions](https://medium.com/@evonsdesigns/spring-jpa-one-to-many-query-examples-281078bc457b)
-
-- [Spring Data JPA - Reference Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
-
-- [Building a Spring Boot REST API — Part III: Integrating MySQL Database and JPA](https://medium.com/@salisuwy/building-a-spring-boot-rest-api-part-iii-integrating-mysql-database-and-jpa-81391404046a)
-
-- [JPA “@JoinTable” annotation](https://stackoverflow.com/questions/5478328/jpa-jointable-annotation)
-
-- [Hibernate Tips: How to map an entity to multiple tables](https://www.thoughts-on-java.org/hibernate-tips-how-to-map-an-entity-to-multiple-tables/)
 
 - [Spring Persistence with Hibernate, 2nd edition](https://www.apress.com/gp/book/9781484202692/)
 
