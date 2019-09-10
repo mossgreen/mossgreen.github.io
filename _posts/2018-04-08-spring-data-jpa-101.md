@@ -37,12 +37,87 @@ classes: wide
 
 ## Persistence annotations
 
-- Persistence annotations can be applied at three different levels: class, method, and field.
-- The mapping annotations can be categorized as being in one of two categories: logical annotations and physical annotations. Understanding and being able to distinguish between these two levels of metadata will help you make decisions about where to declare metadata, and where to use annotations and XML.
-    1. The annotations in the logical group are those that describe the entity model from an object modeling view. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework. 
-    2. The physical annotations relate to the concrete data model in the database. They deal with tables, columns, constraints, and other database-level artifacts that the object model might never be aware of otherwise.
+Persistence annotations can be applied at three different levels: class, method, and field.
 
-### Class
+The mapping annotations can be categorized as being in one of two categories: logical annotations and physical annotations. 
+
+Understanding and being able to distinguish between these two levels of metadata will help you make decisions about where to declare metadata, and where to use annotations and XML.
+
+1. The logical annotations: describe the entity model **from an object modeling view**. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework. 
+
+2. The physical annotations relate to the concrete **data model in the database**. They deal with tables, columns, constraints, and other database-level artifacts that the object model might never be aware of otherwise.
+
+Other rules:
+1. The mapping annotations for a property must be on the getter method.
+
+### logical annotations
+
+0. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
+
+1. The `@Id` annotation indicates
+    1. the id field is the persistent identifier or primary key for the entity 
+    2. the field access should be assumed private.
+2. `@Access`
+    - entity default access mode is `AccessType.FIELD`.
+    - Override the access of data through field access.
+    - If use property access, filed should be marked as `@Transient`.
+    ```java
+    @Entity 
+    @Access(AccessType.FIELD) 
+    public class Employee {
+    
+      @Transient 
+      private String phoneNum;
+      
+      @Access(AccessType.PROPERTY) 
+      @Column(name="PHONE") 
+      protected String getPhoneNumberForDb() {
+        // todo
+      }
+    }
+    ```
+3. `@Table` 
+    - default table name is the entity class name.
+    - name element: `@Table(name="EMP")`
+    - database **schema or catalog**
+4. Mapping Simple Types
+    - the provider runtime can convert the type returned by JDBC into the correct Java type of the attribute. 
+    - If the type from the JDBC layer cannot be converted to the Java type of the field or property, an exception will normally be thrown, although it is not guaranteed.
+    - An `optional @Basic` annotation can be placed on a field or property to explicitly mark it as being persistent. This annotation is mostly for documentation purposes and is not required for the field or property to be persistent.
+5. Column Mappings
+    - The `@Basic` annotation can be thought of as a logical indication that a given attribute is persistent.
+    - A number of annotation elements can be specified as part of @Column, but most of them apply only to schema generation.
+    - name element is used when the default column name is not appropriate.
+    -` @Column` can be used with `@Id` mappings.
+5. Lazy Fetching
+    ```java
+    @Basic(fetch=FetchType.LAZY) 
+    @Column(name="COMM") 
+    private String comments;
+    ```    
+    - LAZY means that the provider might defer loading the state for that attribute until it is referenced.
+    - The default is to load all basic mappings eagerly.
+    - is meant only to be a hint to the persistence provider to help the application achieve better performance.
+    - never a good idea to lazily fetch simple types
+    - **should be considered** are when there are many columns in a table (for example, dozens or hundreds) or when the columns are large (for example, very large character strings or byte strings)
+6. Enumerated Types   
+    - ORDINAL and STRING
+    - using strings will solve the problem of inserting additional values in the middle of the enumerated type, but it will leave the data vulnerable to changes in the names of the values.
+    - In general, storing the ordinal is the best and most efficient way to store enumerated types as long as the likelihood of additional values inserted in the middle is not high. New values could still be added on the end of the type without any negative consequences.
+7. Temporal Types
+    - Temporal types are the set of time-based types that can be used in persistent state mappings.
+    - three enumerated values of DATE, TIME, and TIMESTAMP
+8. Transient State 
+    - Attributes that are part of a persistent entity but not intended to be persistent can either be modified with the transient modifier in Java or be annotated with the `@Transient` annotation.
+9. Identifier Generation
+    1. Automatic ID Generation
+    2. ID Generation Using a Table
+    3. ID Generation Using a Database Sequence
+    4. ID Generation Using Database Identity
+
+### Relationship Annotations
+
+
 ## Building the Domain Model
 
 - `@Entity`
@@ -204,5 +279,5 @@ public class ArtEntity implements Serializable {
 ## References 
 
 - [Spring Persistence with Hibernate, 2nd edition](https://www.apress.com/gp/book/9781484202692/)
-
+- [Pro JPA 2 in Java EE 8](https://www.amazon.com/Pro-JPA-Java-Depth-Persistence/dp/1484234197/)
 - [Beginning Hibernate, 4th Edition](https://www.amazon.com/Beginning-Hibernate-Joseph-B-Ottinger-ebook/dp/B01MRIXZGP/)
