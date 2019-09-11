@@ -49,8 +49,10 @@ Understanding and being able to distinguish between these two levels of metadata
 
 Other rules:
 1. The mapping annotations for a property must be on the getter method.
+2. By convention, the logical mapping should appear first, followed by the physical mapping. This makes the object model clear.
 
-### logical annotations
+
+## logical annotations
 
 0. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
 
@@ -115,8 +117,80 @@ Other rules:
     3. ID Generation Using a Database Sequence
     4. ID Generation Using Database Identity
 
-### Relationship Annotations
+## Relationships
 
+Directions:
+1. When each entity points to the other, the relationship is **bidirectional**. 
+2. If only one entity has a pointer to the other, the relationship is said to be **unidirectional**.
+3. A bidirectional relationship is considered as a pair of unidirectional relationships.
+
+Mappings
+1. Many-to-one
+2. One-to-one
+3. One-to-many
+4. Many-to-many
+
+### X-To-One
+Single-Valued Associations are the source entity refers to at most one target entity: 
+- the many-to-one
+- one-to-one
+
+1. many-to-one is the most common mapping. 
+    - E.g., more than one employee works in the same department.
+    - A many-to-one mapping is defined by annotating the attribute in the source entity (the attribute that refers to the target entity) with the `@ManyToOne` annotation.
+    - Data base term 'foreign key column', in JPA, they're called **join columns**, and the `@JoinColumn` annotation.
+    - Many-to-one mappings are always on the owning side of a relationship
+        - one of the two sides will have the join column in its table. 
+        - `@JoinColumn` is always defined on the owning side of the relationship.
+        - The side that does not have the join column is called inverse side. 
+    ```java
+    @Entity 
+    public class Many {
+      @ManyToOne
+      @JoinColumn(name="many_id")
+      private One one;
+    }
+    ```
+
+2. One-to-One Relationship
+    ```java
+    @Entity 
+    public class SourceOne {
+    
+      @Id private long id; 
+      private String name; 
+      
+      @OneToOne 
+      @JoinColumn(name="PSPACE_ID") 
+      private TargetOne targetOne;
+    }
+    ```
+
+3. Bidirectional One-to-One Mappings
+When TargetOne points back to the SourceOne.
+    1. either side can be the owner, so the join column might end up being on one side or the other. This would normally be a data modeling decision, not a Java programming decision.
+    2. `@JoinColumn` annotation is with owner.
+    3. a `mappedBy` element to indicate that the owning side is not here. 
+        - The value of `mappedBy` is the name of the attribute in the owning entity that points back to the inverse entity.
+        - a bidirectional association cannot have mappedBy on both sides.
+        - a bidirectional association, mappedBy cannot absent on both sides. Otherwise the provider would treat each side as an independent unidirectional relationship. This would be fine except that it would assume that each side was the owner and that each had a join column.
+    ```java
+    @Entity 
+    public class TargetOne {
+
+      @Id 
+      private long id; 
+      
+      private int lot; 
+      private String location; 
+      
+      @OneToOne(mappedBy="targetOne") 
+      private SourceOne sourceOne;
+    
+    }
+    ```
+
+## Relationship Annotations
 
 ## Building the Domain Model
 
