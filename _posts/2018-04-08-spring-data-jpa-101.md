@@ -68,14 +68,14 @@ Other rules:
     @Access(AccessType.FIELD) 
     public class Employee {
     
-      @Transient 
-      private String phoneNum;
-      
-      @Access(AccessType.PROPERTY) 
-      @Column(name="PHONE") 
-      protected String getPhoneNumberForDb() {
-        // todo
-      }
+        @Transient 
+        private String phoneNum;
+        
+        @Access(AccessType.PROPERTY) 
+        @Column(name="PHONE") 
+        protected String getPhoneNumberForDb() {
+          // todo
+        }
     }
     ```
 3. `@Table` 
@@ -102,6 +102,10 @@ Other rules:
     - is meant only to be a hint to the persistence provider to help the application achieve better performance.
     - never a good idea to lazily fetch simple types
     - **should be considered** are when there are many columns in a table (for example, dozens or hundreds) or when the columns are large (for example, very large character strings or byte strings)
+    - lazy loading at the attribute level is not normally very beneficial.
+    - At the relationship level, however, lazy loading can be a big boon to enhancing performance. It can reduce the amount of SQL that gets executed, and speed up queries and object loading considerably.
+    - on a single-valued relationship, the related object is guaranteed to be loaded eagerly.
+    - Collection-valued relationships default to be lazily loaded
 6. Enumerated Types   
     - ORDINAL and STRING
     - using strings will solve the problem of inserting additional values in the middle of the enumerated type, but it will leave the data vulnerable to changes in the names of the values.
@@ -131,6 +135,7 @@ Mappings
 4. Many-to-many
 
 ### X-To-One
+
 Single-Valued Associations are the source entity refers to at most one target entity: 
 - the many-to-one
 - one-to-one
@@ -146,9 +151,9 @@ Single-Valued Associations are the source entity refers to at most one target en
     ```java
     @Entity 
     public class Many {
-      @ManyToOne
-      @JoinColumn(name="many_id")
-      private One one;
+        @ManyToOne
+        @JoinColumn(name="many_id")
+        private One one;
     }
     ```
 
@@ -157,12 +162,12 @@ Single-Valued Associations are the source entity refers to at most one target en
     @Entity 
     public class SourceOne {
     
-      @Id private long id; 
-      private String name; 
-      
-      @OneToOne 
-      @JoinColumn(name="PSPACE_ID") 
-      private TargetOne targetOne;
+        @Id private long id; 
+        private String name; 
+        
+        @OneToOne 
+        @JoinColumn(name="PSPACE_ID") 
+        private TargetOne targetOne;
     }
     ```
 
@@ -178,17 +183,80 @@ When TargetOne points back to the SourceOne.
     @Entity 
     public class TargetOne {
 
-      @Id 
-      private long id; 
-      
-      private int lot; 
-      private String location; 
-      
-      @OneToOne(mappedBy="targetOne") 
-      private SourceOne sourceOne;
+        @Id 
+        private long id; 
+        
+        private int lot; 
+        private String location; 
+        
+        @OneToOne(mappedBy="targetOne") 
+        private SourceOne sourceOne;
     
     }
     ```
+
+### X-To-Many
+
+Collection-Valued Associations means source entity associated with collection.
+- One to many
+- Many to many
+
+1. bidirectional One-to-Many Mappings
+one-to-many association is almost always **bidirectional** and the “one” side is not normally the owning side. 
+    1. The many-to-one side should be the owning side, so the join column should be defined on that side.
+    2. the target entities should have many-to-one associations back to the source entity object.
+    3.  The target side, or inverse side needs to include the `mappedBy` element.
+    4.  Failing to specify the `mappedBy` element in the `@OneToMany` annotation will cause the provider to treat it as a **unidirectional one-to-many** relationship that is defined to use a join table
+    ```java
+    @Entity 
+    public class Target { 
+    
+        @Id 
+        private long id; 
+        private String name; 
+        
+        @OneToMany(mappedBy="source") 
+        private Collection<Source> sources;
+    }
+    ```
+
+2. bidirectional Many-toMany Mappings  
+A many-to-many mapping is expressed on both the source and target entities as a `@ManyToMany` annotation on the collection attributes. When a many-to-many relationship is **bidirectional**, both sides of the relationship are many-to-many mappings.
+    - The only way to implement a many-tomany relationship is with a separate join table. Each many-to-many relationship must have one.
+    - A join table consists simply of two foreign key or join columns to refer to each of the two entity types.
+    - The @JoinTable annotation is used to configure the join table for the relationship.
+    - no matter which side is designated as the owner, the other side should include the mappedBy element; otherwise, the provider will think that both sides are the owner and that the mappings are separate unidirectional relationships.
+    ```java
+    @Entity 
+    public class SourceMany { 
+    
+        @Id 
+        private long id; 
+        private String name; 
+        
+        @ManyToMany
+        @JoinTable(name="SourceMany_TargetMany", 
+          joinColumns=@JoinColumn(name="SourceMany_ID"),
+          inverseJoinColumns=@JoinColumn(name="TargetMany_ID"))
+        private Collection<TargetMany> targetManys;
+    }
+    ```
+    ```java
+    @Entity 
+    public class TargetMany { 
+    
+        @Id 
+        private long id; 
+        private String name; 
+        
+        @ManyToMany(mappedBy="targetManys") 
+        private Collection<SourceMany> SourceManys;
+    }
+    ```
+3. Unidirectional Collection Mappings.  
+In two unidirectional collection-valued cases, the source code is similar to the earlier examples, but there is no attribute in the target entity to reference the source entity, and the mappedBy element will not be present in the @OneToMany annotation on the source entity. The join table must now be specified as part of the mapping.
+    1. one-to-many mapping 
+    2. many-to-many mapping
 
 ## Relationship Annotations
 
@@ -256,6 +324,8 @@ The answers to these questions can be formed into a truth table:
 ![IMAGE](https://i.loli.net/2019/09/04/MmsSt8l6z91eQZk.jpg)
 
 
+
+
 ### Cascading Parent-child relationships
 
 - **parent-child** relationships, meaning that one entity owns or encapsulates a collection of another entity. E.g., one garden has multiple flowers.
@@ -294,14 +364,14 @@ the absence of the mappedBy element in the mapping annotation implies ownership 
 @Entity @Table(name = "POSTS") 
 public class Post {
 
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
-  private Integer id;
-
-  @Column(name = "title", nullable = false, length = 150) 
-  private String title; 
-
-  @OneToMany(mappedBy="post") 
-  private List<Comment> comments;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    private Integer id;
+  
+    @Column(name = "title", nullable = false, length = 150) 
+    private String title; 
+  
+    @OneToMany(mappedBy="post") 
+    private List<Comment> comments;
 
 }
 ```
@@ -309,14 +379,14 @@ public class Post {
 @Entity @Table(name = "COMMENTS") 
 public class Comment {
   
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
-  private Integer id;
-  
-  @Column(name = "name", nullable = false, length = 150) 
-  private String name;
-  
-  @ManyToOne(optional=false) @JoinColumn(name="post_id") 
-  private Post post;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    private Integer id;
+    
+    @Column(name = "name", nullable = false, length = 150) 
+    private String name;
+    
+    @ManyToOne(optional=false) @JoinColumn(name="post_id") 
+    private Post post;
 
 }
 ```
