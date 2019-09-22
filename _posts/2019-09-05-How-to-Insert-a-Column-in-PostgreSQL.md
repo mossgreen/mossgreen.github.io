@@ -60,13 +60,13 @@ Before we do it, we have to know how to verify that our solution is good.
 ### Export schema and table definition
 
 1. We need the schema definition because we want to compare customers related tables definitions are not changed.
-    ```sql
+    ```bash
     $ pg_dump -U postgres -s -d myDatabase -n my_schema > my_schema_dump.txt
     ```
 2. We need the customers definition because
     1. We need to reuse definition while creating new customers table
     2. we want to make sure new customers table remains the same definition
-    ```sql
+    ```bash
     $ pg_dump -U postgres -s -d myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
     ```
 
@@ -81,6 +81,7 @@ My processes:
 5. Add constrains back to the customers table.
 6. Add constrains back to reference tables.
 7. Rebuild customers table sequence.
+    - NB sequence cannot be 0. 
 8. Verify based on the testing plan.
 
 

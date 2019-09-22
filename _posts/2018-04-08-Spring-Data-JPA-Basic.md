@@ -53,16 +53,18 @@ The mapping annotations can be categorized as being in one of two categories: lo
 
 Understanding and being able to distinguish between these two levels of metadata will help you make decisions about where to declare metadata, and where to use annotations and XML.
 
-1. The logical annotations: describe the entity model **from an object modeling view**. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework. 
+1. **The logical annotations**: 
+describe the entity model **from an object modeling view**. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework. 
 
-2. The physical annotations relate to the concrete **data model in the database**. They deal with tables, columns, constraints, and other database-level artifacts that the object model might never be aware of otherwise.
+2. **The physical annotations**: 
+relate to the concrete **data model in the database**. They deal with tables, columns, constraints, and other **database-level artifacts **that the object model might never be aware of otherwise.
 
 Other rules:
-1. The mapping annotations for a property must be on the getter method.
+1. The mapping annotations for a property must be on the `getter` method.
 2. By convention, the logical mapping should appear first, followed by the physical mapping. This makes the object model clear.
 
 
-### 2.2 logical annotations
+### 2.2 logical annotations (object modeling)
 
 0. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
 
@@ -114,16 +116,16 @@ Other rules:
     - At the relationship level, however, lazy loading can be a big boon to enhancing performance. It can reduce the amount of SQL that gets executed, and speed up queries and object loading considerably.
     - on a single-valued relationship, the related object is guaranteed to be loaded eagerly.
     - Collection-valued relationships default to be lazily loaded
-6. Enumerated Types   
+6. Enumerated Types  
     - ORDINAL and STRING
     - using strings will solve the problem of inserting additional values in the middle of the enumerated type, but it will leave the data vulnerable to changes in the names of the values.
     - In general, storing the ordinal is the best and most efficient way to store enumerated types as long as the likelihood of additional values inserted in the middle is not high. New values could still be added on the end of the type without any negative consequences.
-7. Temporal Types
+7. Temporal Types  
     - Temporal types are the set of time-based types that can be used in persistent state mappings.
     - three enumerated values of DATE, TIME, and TIMESTAMP
-8. Transient State 
+8. Transient State  
     - Attributes that are part of a persistent entity but not intended to be persistent can either be modified with the transient modifier in Java or be annotated with the `@Transient` annotation.
-9. Identifier Generation
+9. Identifier Generation  
     1. Automatic ID Generation
     2. ID Generation Using a Table
     3. ID Generation Using a Database Sequence
@@ -139,15 +141,21 @@ Other rules:
 
 1. One to One
 2. One to Many
-3. Many to one
+3. Many to One
 4. Many to Many
 
 Regarding the following questions: 
-Q1: Can an email address belong to more than one user?
-Q2: Can a customer have more than one email address?
+Q1: Can a B belong to more than one A?
+Q2: Can an A have more than one B?
 
 The answers to these questions can be formed into a truth table:
-![IMAGE](https://i.loli.net/2019/09/04/MmsSt8l6z91eQZk.jpg)
+|Q1 Answer |Q2 Answer   |Relationship Between A and B|
+|---|---|---|
+|NO|NO|One to One|
+|YES|NO|Many to One|
+|NO|YES|One to Many|
+|YES|YES|Many to Many|
+
 
 Directions:
 
@@ -156,7 +164,6 @@ Directions:
 3. A bidirectional relationship is considered as a pair of unidirectional relationships.
 
 Mappings
-
 1. X-To-One: Single-Valued Associations
     1. Many-to-one 
         - unidirection
@@ -301,9 +308,6 @@ In two unidirectional collection-valued cases, the source code is similar to the
             - we specify a @JoinColumn annotation on the one-to-many attribute to indicate the foreign key column.
             - the join column that we are specifying applies to the table of the target object, not to the source object
 
-    
-
-
 ### 2.4 physical annotations
 
 1. `@JoinTable` annotation is a physical annotation and must be defined on the owning side of the relationship
@@ -392,7 +396,7 @@ By looking at its value, JPA identifies the attribute that it looks at to manage
 
 the absence of the mappedBy element in the mapping annotation implies ownership of the relationship, while the presence of the mappedBy element means the entity is on the inverse side of the relationship. the mappedBy element is described in subsequent sections.
 
-```
+```java
 @Entity @Table(name = "POSTS") 
 public class Post {
 
@@ -404,7 +408,6 @@ public class Post {
   
     @OneToMany(mappedBy="post") 
     private List<Comment> comments;
-
 }
 ```
 ```java
@@ -446,7 +449,6 @@ public class ArtEntity implements Serializable {
 
 }
 ```
-
 
 ### 2.8 Validation
 

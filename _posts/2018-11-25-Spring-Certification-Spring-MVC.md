@@ -27,7 +27,7 @@ Spring MVC in Pivotal Spring professional certification(8%).
 
 **Spring MVC Request Life Cycle**
 
-1. **Filter**: The filter applies to every request. There are everal commonly used filters.
+1. **Filter**: The filter applies to every request. There are several commonly used filters.
 2. **Dispatcher servlet**: The servlet analyzes the requests and dispatches them to the appropriate controller for processing. This is where DispatcherServlet implement **Front Controller design pattern**.
 3. **Common services**: The common services will apply to every request to provide supports including i18n, theme, and file upload. Their configuration is defined in the DispatcherServlet’s WebApplicationContext.
 4. **Handler mapping**: This maps incoming requests to handlers (a method within a Spring MVC controller class). Spring MVC will automatically register a HandlerMapping implementation maps handlers based on HTTP paths expressed through the `@RequestMappin`g annotation at the **type or method level** within controller classes.
