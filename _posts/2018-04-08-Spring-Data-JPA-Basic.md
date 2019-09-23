@@ -3,18 +3,21 @@ title: Spring Data JPA Basic
 search: true
 tags: 
   - JPA
-  - Spring Data
+  - Spring Data JPA
+  - Hibernate
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
+Additional capabilities beyond core spring and JPA.
+
 ## Concepts
 
 - **ORM**: Object-Relation Mapping. The process of mapping object-oriented entities to entity-relationship models.
 
-- **Hibernate**: // todo
+- **Hibernate**: ORM frameworks, relies heavily on POJOs.
 
 - **JPA**: Java Persistence API. It's a Java specification for accessing, presenting and managing data between Java objects and relational databases.
 
@@ -360,30 +363,50 @@ In two unidirectional collection-valued cases, the source code is similar to the
             ```
         - UUID-based generation
 
-### 2.5  Cascading Parent-child relationships
+### 2.5  Cascading operation
 
-- **parent-child** relationships, meaning that one entity owns or encapsulates a collection of another entity. E.g., one garden has multiple flowers.
+The cascade attribute, in all the logical relationship annotations (@OneToOne, @OneToMany, @ManyToOne, and @ ManyToMany), defines the list of entity manager operations to be cascaded.
 
-Whenever you create this bidirectional link, two actions are required:
-1. You must add the Flower to the Flowers collection of the Garden. 
-2. The item property of the Bid must be set.
+Cascade settings are unidirectional. This means that they must be explicitly set on both sides of a relationship if the same behavior is intended for both situations.
 
-```java
-@OneToMany( orphanRemoval = true, 
-    cascade = { javax.persistence.CascadeType.ALL }) 
-public Set<Comment> getComments() { 
-  return comments; 
-}
-```
+1. Cascade Persist
 
-// todo  some cases that do not use cascade.all, may cause issue.
+    ```java
+    @Entity 
+    public class Employee {
+        @ManyToOne(cascade=CascadeType.PERSIST) 
+        Address address;
+    }
+    ```
+
+2. Cascade Remove
+this should be applied only in certain cases. There are really only two cases in which cascading the `remove()` operation makes sense: 
+    1. one-to-one 
+    2. one-to-many (a clear parent-child relationship.)
+
+    we have added the REMOVE cascade in addition to the existing PERSIST option. Chances are, if an owning relationship is safe to use REMOVE, it is also safe to use PERSIST.
+    ```java
+    @Entity 
+    public class Employee {
+        @OneToOne(cascade={CascadeType.PERSIST, CascadeType.REMOVE}) 
+        ParkingSpace parkingSpace; 
+        
+        @OneToMany(mappedBy="employee", 
+        cascade={CascadeType.PERSIST, CascadeType.REMOVE}) 
+        Collection<Phone> phones; 
+    }
+    ```
 
 ### 2.6 bidirection VS unidirection
 //todo
 
 The association between a Blog and its Comment instances is best described as a one-to-many relationship. 
+
 Inversely, the relationship between a Comment and its associated Blog is known as a many-to-one association. 
-Because each entity is able to reference the other, the association is considered **bidirectional**. 
+
+Because each entity is able to reference the other, the association is considered 
+
+**bidirectional**. 
 If one entity is able to reference another entity, but the inverse is not true, this is considered a **unidirectional** association.
 if you don’t have a specific requirement to use bidirectional associations, it is easier to stick with a unidirectional approach, because bidirectional associations can require circular references and may end up complicating marshaling or serialization implementations.
 
@@ -526,3 +549,4 @@ Three interfaces in Spring Data API:
 - [Spring Persistence with Hibernate, 2nd edition](https://www.apress.com/gp/book/9781484202692/)
 - [Pro JPA 2 in Java EE 8](https://www.amazon.com/Pro-JPA-Java-Depth-Persistence/dp/1484234197/)
 - [Beginning Hibernate, 4th Edition](https://www.amazon.com/Beginning-Hibernate-Joseph-B-Ottinger-ebook/dp/B01MRIXZGP/)
+- [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition)
