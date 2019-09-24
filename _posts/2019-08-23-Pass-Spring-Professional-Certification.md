@@ -38,18 +38,21 @@ After I did some research on other people's study notes, I believe it's getting 
 ### Old Version VS New Version
 
 1. Version 4.2
+
     You can find a summary about version 4.2 exam from [Vojtech Ruzicka's Programming Blog](https://www.vojtechruzicka.com/exam-notes-pivotal-certified-spring-professional/).
     
     And study notes from Vitalie: [Core Spring 4.2 Study Guide answers by Vitalie)](https://codingideas.blog/core-spring-4-2-study-guide-answers-part-5-security#What_is_the_delegating_filter_proxy/)
 
 2. Version 5, before May 2019
-    I've read some blogs about this version of the test. In fact, in the beginning, I prepare the test just according to this version of the study guide. Some useful resources:
+
+    Some useful resources:
     1. [Passed Spring Professional 5.0 certification with 94%.](https://coderanch.com/t/706033/certification/Passed-Spring-Professional-certification)
     2. [Spring Certification 5.0 study notes from MrR0807](https://github.com/MrR0807/SpringCertification5.0)
     3. [Core Spring 5 – Training and Certification](https://www.ivankrizsan.se/2018/04/28/core-spring-5-training-and-certification/)
     4. [How I became a Pivotal Spring Professional Certified 5.0](https://medium.com/@raphaelrodrigues_74842/how-i-became-a-pivotal-spring-professional-certified-5-0-c6348da5f80b)
 
-3. Version 5.x after May 2019
+3. Version 5.X, after May 2019
+    
     Before I took the exam, I found that the study guide has been updated. It's not a huge change, but it's enough to fail you if you didn't prepare perfectly. I took me a while to do an extra study on the new topics. It pays. I the test, it has at least 4 questions are about actuator, which is a newly added topic.
 
     Changes:
@@ -59,9 +62,9 @@ After I did some research on other people's study notes, I believe it's getting 
     ![IMAGE](https://i.loli.net/2019/06/26/5d132ecfb894c54615.jpg)
 
 
-### How to study
+### How to prepare
 
-I recommend you to make your note according to the latest [official study guide](https://d1fto35gcfffzn.cloudfront.net/academy/Spring-Professional-Certification-Study-Guide.pdf) from Pivotal. 
+I recommend you to make your notes according to the latest [official study guide](https://d1fto35gcfffzn.cloudfront.net/academy/Spring-Professional-Certification-Study-Guide.pdf) from Pivotal. 
 
 1. Try to answer questions based on official documentation.
 2. If cannot, try to read other people's study notes.

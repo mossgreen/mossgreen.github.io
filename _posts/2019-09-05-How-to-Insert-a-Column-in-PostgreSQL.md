@@ -56,6 +56,7 @@ Before we do it, we have to know how to verify that our solution is good.
 5. \d reference table 
 6. select count(ref_id)
 7. check views
+8. NB check all triggers to see if there is a `select * from currentTable`  statement. If there is, we also need to back up and rebuild that table.
 
 ### Export schema and table definition
 
