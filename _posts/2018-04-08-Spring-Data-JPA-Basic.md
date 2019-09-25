@@ -13,7 +13,7 @@ classes: wide
 
 Additional capabilities beyond core spring and JPA.
 
-## Concepts
+## 0. Concepts
 
 - **ORM**: Object-Relation Mapping. The process of mapping object-oriented entities to entity-relationship models.
 
@@ -32,7 +32,7 @@ Additional capabilities beyond core spring and JPA.
 - The service layer (or service facade)
 
 
-## Developing applications with Spring Data JPA
+### Developing applications with Spring Data JPA
 
 1. Configuration
 2. Define entities
@@ -45,6 +45,7 @@ Additional capabilities beyond core spring and JPA.
 2. Configure a database connection.
 3. Manage the system’s transactions.
 4. Inject all of that into the DAO.
+
 
 ## 2. Define entities
 
@@ -61,6 +62,8 @@ describe the entity model **from an object modeling view**. They are tightly bou
 
 2. **The physical annotations**: 
 relate to the concrete **data model in the database**. They deal with tables, columns, constraints, and other **database-level artifacts **that the object model might never be aware of otherwise.
+    - 
+
 
 Other rules:
 1. The mapping annotations for a property must be on the `getter` method.
@@ -69,12 +72,13 @@ Other rules:
 
 ### 2.2 logical annotations (object modeling)
 
-0. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
 
-1. The `@Id` annotation indicates
+1. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
+
+2. The `@Id` annotation indicates
     1. the id field is the persistent identifier or primary key for the entity 
     2. the field access should be assumed private.
-2. `@Access`
+3. `@Access`
     - entity default access mode is `AccessType.FIELD`.
     - Override the access of data through field access.
     - If use property access, filed should be marked as `@Transient`.
@@ -91,20 +95,7 @@ Other rules:
         protected String getPhoneNumberForDb() { }
     }
     ```
-3. `@Table` 
-    - default table name is the entity class name.
-    - name element: `@Table(name="EMP")`
-    - database **schema or catalog**
-4. Mapping Simple Types
-    - the provider runtime can convert the type returned by JDBC into the correct Java type of the attribute. 
-    - If the type from the JDBC layer cannot be converted to the Java type of the field or property, an exception will normally be thrown, although it is not guaranteed.
-    - An `optional @Basic` annotation can be placed on a field or property to explicitly mark it as being persistent. This annotation is mostly for documentation purposes and is not required for the field or property to be persistent.
-5. Column Mappings
-    - The `@Basic` annotation can be thought of as a logical indication that a given attribute is persistent.
-    - A number of annotation elements can be specified as part of @Column, but most of them apply only to schema generation.
-    - name element is used when the default column name is not appropriate.
-    -` @Column` can be used with `@Id` mappings.
-5. Lazy Fetching
+4. Lazy Fetching
     ```java
     @Basic(fetch=FetchType.LAZY) 
     @Column(name="COMM") 
@@ -119,25 +110,20 @@ Other rules:
     - At the relationship level, however, lazy loading can be a big boon to enhancing performance. It can reduce the amount of SQL that gets executed, and speed up queries and object loading considerably.
     - on a single-valued relationship, the related object is guaranteed to be loaded eagerly.
     - Collection-valued relationships default to be lazily loaded
-6. Enumerated Types  
+5. Enumerated Types  
     - ORDINAL and STRING
     - using strings will solve the problem of inserting additional values in the middle of the enumerated type, but it will leave the data vulnerable to changes in the names of the values.
     - In general, storing the ordinal is the best and most efficient way to store enumerated types as long as the likelihood of additional values inserted in the middle is not high. New values could still be added on the end of the type without any negative consequences.
-7. Temporal Types  
+6. Temporal Types  
     - Temporal types are the set of time-based types that can be used in persistent state mappings.
     - three enumerated values of DATE, TIME, and TIMESTAMP
-8. Transient State  
+7. Transient State  
     - Attributes that are part of a persistent entity but not intended to be persistent can either be modified with the transient modifier in Java or be annotated with the `@Transient` annotation.
-9. Identifier Generation  
+8. Identifier Generation  
     1. Automatic ID Generation
     2. ID Generation Using a Table
     3. ID Generation Using a Database Sequence
     4. ID Generation Using Database Identity
-10. Read-Only Mappings using `@Column` and `@JoinColumn` annotations
-    1. options to set individual mappings to be read-only using the insertable and updatable elements of the @Column and @JoinColumn annotations
-    2. default to true
-    3. set to false if we want to ensure that the provider will not insert or update information in the table in response to changes in the entity instance
-    4. Even though all of these mappings are not updatable, the entity as a whole could still be deleted.
 
 
 ### 2.3 Relationships
@@ -313,7 +299,24 @@ In two unidirectional collection-valued cases, the source code is similar to the
 
 ### 2.4 physical annotations
 
-1. `@JoinTable` annotation is a physical annotation and must be defined on the owning side of the relationship
+1. `@Table` 
+    - default table name is the entity class name.
+    - name element: `@Table(name="EMP")`
+    - database **schema or catalog**
+2. Column Mappings
+    - The `@Basic` annotation can be thought of as a logical indication that a given attribute is persistent.
+    - A number of annotation elements can be specified as part of @Column, but most of them apply only to schema generation.
+    - name element is used when the default column name is not appropriate.
+    -` @Column` can be used with `@Id` mappings.
+3. `@JoinTable` annotation is a physical annotation and must be defined on the owning side of the relationship.
+
+    Read-Only Mappings using `@Column` and `@JoinColumn` annotations
+    1. options to set individual mappings to be read-only using the insertable and updatable elements of the @Column and @JoinColumn annotations
+    2. default to true
+    3. set to false if we want to ensure that the provider will not insert or update information in the table in response to changes in the entity instance
+    4. Even though all of these mappings are not updatable, the entity as a whole could still be deleted.
+
+
 
 ### 2.5 Building the Domain Model
 
@@ -460,6 +463,8 @@ There are three types of caching options for Hibernate:
 2. collection, use `@Cache`
 3. query.
 
+//todo
+
 ```java
 @Entity 
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE) 
@@ -541,7 +546,11 @@ Three interfaces in Spring Data API:
 
 3. JpaRepository, which extends PagingAndSortingRepository. Provides JPA-related methods, such as flushing the persistence context and deleting records in a batch.
 
+
 ## 4. Queries
+
+
+## 5. Unit tests
 
 
 ## References 

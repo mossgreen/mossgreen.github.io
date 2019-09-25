@@ -7,9 +7,10 @@ tags:
 toc: true
 ---
 
-Essential commands to manipulate files and directories in Linux, and Mac.
+Essential commands to manipulate files and directories on Linux.
 
-### 1. Create VS Delete
+
+## 1. Create VS Delete
 
 ```bash
 # Create a file
@@ -29,7 +30,8 @@ $ rmdir ./testfolder2 #Error, if directory is not empty
 $ rm -rf ./testfolder3 # recursively, force
 ```
 
-### 2. Copy VS Move
+
+## 2. Copy VS Move
 
 ```bash
 # Copy file
@@ -41,10 +43,10 @@ $ cp -r testfolder testfolder2
 
 # Move files
 $ mv file1.copy.txt file2.copy.txt # RENAME
-
 ```
 
-### 3. Link Files and Directories
+
+## 3. Link Files and Directories
     
 ```bash
 # link directory
@@ -52,7 +54,8 @@ $ ln ./originalfolder ./anotherfolder/somenamehere # ERRPR, should from "/" root
 $ ln /homedir/originalfolder /homedir/anotherfolder/somenamehere
 ```
 
-### 4. Read and Concatenate files
+
+## 4. Read and Concatenate files
     
 ```bash
 # Read 
@@ -68,7 +71,8 @@ $ cat testfolder/file0.txt testfolder/file3.txt
 $ more +/test2 testfolder/file0.txt
 ```
 
-### 5. Archive VS Extract
+
+## 5. Archive VS Extract
 
 **tar**: Creating an archive file which contains many other files.
 
@@ -81,8 +85,7 @@ the switches are as follows:
 - `-x = extract`
 - `-r = apppend`
 
-```yaml
-
+```bash
 # Archive some files or directory to a tar file
 $ tar -cvf testname.tar ./tutorials
 
@@ -103,10 +106,18 @@ $ tar -uvf somename.tar ./foldername/filename.txt
 
 # Only extract files that are newer than existing files
 $ tar --keep-newer-files -xvf tarfilename.tar
-
-# Others
-$man tar
-$tar --help
 ```
 
 
+## Find files
+
+```bash
+# find files in current dir, name start with 'my'
+$ find . -name 'my*'
+
+# find files in current dir, name start with 'my' and show accesses
+$ find . -name 'my*' -ls
+
+# find files in current dir, type is file, updated within 10 mins
+$ find . -type f -mmin -10
+```
