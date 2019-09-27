@@ -13,15 +13,37 @@ classes: wide
 
 Spring Security in Pivotal Spring Professional Certification (6%).
 
+
 ## What are authentication and authorization? Which must come first?  
 
-- **Authentication** is the process of verifying the validity of the principal’s credentials. **Who are you?**
+- **Authentication** is the process of verifying the validity of the principal’s credentials. Answers question of: Who are you?
  
-- **Authorization** is the process of making a decision whether an authenticated user is allowed to perform a certain action within the application. 
-  - **What are you allowed to do?**
-  - at the web **request level** and at the **method invocation level**
+- **Authorization** is the process of making a decision whether an authenticated user is allowed to perform a certain action within the application. Answers question of: What are you allowed to do?  It can be happen at both:
+    - **web request level**
+    - **method invocation level**
 
 Authentication is the first step of authorization so always comes first.	
+
+**Spring Security supports authentications**:
+- Basic
+- Form
+- OAuth
+- X.509
+- Cookies
+- Single-Sign-On
+
+**How credentials are stored**:
+- LDAP
+- RDBMS
+- properties files
+- DAOs
+- Beans
+- others
+
+**Most common user roles**:
+- ADMIN
+- MEMBER
+- GUEST
 
 
 ## Is security a cross cutting concern? How is it implemented internally?  
@@ -29,7 +51,7 @@ Authentication is the first step of authorization so always comes first.
 The cross-cutting concern is a concern which is applicable throughout the application and it affects the entire application. For example: logging, security and transactions.
 - Yes, security is a cross-cutting concern.
 
-Spring Security tackles security from two angles. 
+Spring Security tackles security from two angles:
 
 1. To **secure web requests** and restrict access at the URL level, Spring Security is based entirely on standard servlet ﬁlters.
     - It doesn’t use servlets or any other servlet-based frameworks (such as Spring MVC) internally, so it has no strong links to any particular web technology. 
@@ -42,6 +64,93 @@ Spring Security tackles security from two angles.
 1. declare the security filter for the application
 2. define the Spring Security context
 3. configure authentication and authorization
+
+**Spring Security WebMvc under the hood**
+
+1. A user tries to access the application by making a request. The application requires the user to provide the credentials so it can be logged in.
+2. The credentials are verified by the Authenticaltion Manager and the user is granted access to the application. The authorization rights for this user are loaded into the **Spring Security context**.
+3. The user makes a resource request (view, edit, insert, or delete information) and the **Security Interceptor** intercepts the request before the user accesses a protected/secured resource.
+4. The Security Interceptor extracts the user authorization data from the security context and…
+5. …delegates the decision to the Access Decision Manager.
+6. The Access Decision Manager polls a list of voters to return a decision regarding the rights of the authenticated user to system resources.
+7. Access is granted or denied to the resource based on the user rights and the resource attributes.
+
+**Securing RESTful-WS** three-step process:
+
+1. a security filter named springSecurityFilterChain needs to be added, the filter is replaced by a class extending `AbstractSecurityWebApplicationInitializer`. This class registers `DelegatingFilterProxy` to use `springSecurityFilterChain` before any other registered Filter.
+
+2. add a Spring configuration class for security where we will declare who can access the application and what they are allowed to do. In the case of this application, things are easy: we are using in-memory authentication for teaching purposes, so add a user named _prospring5_ with the password _prospring5_ and the role _REMOTE_.
+
+    ```java
+    @Configuration 
+    @EnableWebSecurity //enable secured behavior
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    
+        private static Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+    
+        @Autowired 
+        protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception { 
+            auth.inMemoryAuthentication() 
+                .withUser("prospring5") 
+                .password("prospring5") 
+                .roles("REMOTE");
+        }
+        
+        @Override 
+        protected void configure(HttpSecurity http) throws Exception {
+            http.sessionManagement() 
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            .and() 
+            .authorizeRequests() 
+            .antMatchers("/**")
+            .permitAll() 
+            .antMatchers("/rest/**")
+            .hasRole("REMOTE")
+            .anyRequest()
+            .authenticated() 
+            .and() 
+            .formLogin() 
+            .and() 
+            .httpBasic() 
+            .and() 
+            .csrf()
+            .disable();
+        }
+    
+    }
+    ```
+3. add the rest application context, besides adding SecurityConfig to the root context application.
+```java
+public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+    @Override 
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class<?>[]{ DataServiceConfig.class, SecurityConfig.class}; 
+    }
+    
+    @Override 
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class<?>[]{ WebConfig.class}; 
+    }
+    
+    @Override 
+    protected String[] getServletMappings() { 
+        return new String[]{"/rest/**"}; 
+    }
+}
+```
+
+**Securing a Web Application**
+//todo
+
+
+**Spring Security in Sprint Boot**
+If library `spring-boot-starter-security` is in the classpath, Spring Boot automatically secures all HTTP endpoints with basic authentication. This will add the 
+1. spring-security-core, 
+2. spring-security-config, and 
+3. springsecurity-web 
+
+dependencies to your project.
 
 
 ## What is the delegating filter proxy?
@@ -93,13 +202,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-**Overriding WebSecurityConfigurerAdapter’s configure() methods**
+**Overriding WebSecurityConfigurerAdapter’s `configure()` methods**
 - `configure(WebSecurity)` Override to configure Spring Security’s **filter chain**.
 - `configure(HttpSecurity)` Override to configure how requests are secured by **interceptors**.
 - `configure(AuthenticationManagerBuilder)` Override to configure **user-details services**.
 
 
 ## What is a security context?
+
+There are several ways to determine who the user is. These are a few of the most common ways:
+1. Inject a _Principal_ object into the controller method.
+2. Inject an _Authentication_ object into the controller method.
+3. Use _SecurityContextHolder_ to get at the security context.
+4. Use an `@AuthenticationPrincipal` annotated method.
+
+
+
 
 - `SecurityContext` holds security information about the current thread of execution. 
 - This information includes details about the principal. 
@@ -108,17 +226,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 **Obtaining information about the current user**
 ```java
-SecurityContext context = SecurityContextHolder.getContext();
-
-Authentication authentication = context.getAuthentication();
-
-Object principal = authentication.getPrincipal();
-
-if (principal instanceof UserDetails) { 
-  String username = ((UserDetails)principal).getUsername(); 
-} else { 
-  String username = principal.toString(); 
-}
+Authentication authentication = SecurityContextHolder
+    .getContext()
+    .getAuthentication(); 
+    
+User user = (User) authentication.getPrincipal();
 ```
 
 
@@ -372,10 +484,11 @@ The `authenticate` tag is used to access the contents of the current Authenticat
     ```
 
 
-### References
+## References
 1. [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture)
 2. [Spring Security with Boot](https://docs.spring.io/spring-security/site/docs/current/guides/html5/helloworld-boot.html)
 3. [Introduction to Spring Security Taglibs](https://www.baeldung.com/spring-security-taglibs)
 4. [Spring Security Notes from tonnguyen](https://quizlet.com/304129018/security-flash-cards/)
 5. [Difference between Authentication and Authorization](http://www.differencebetween.net/technology/difference-between-authentication-and-authorization/)
 6. [Core Spring 4.2 Study Guide answers by Vitalie)](https://codingideas.blog/core-spring-4-2-study-guide-answers-part-5-security#What_is_the_delegating_filter_proxy/)
+7. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
