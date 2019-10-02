@@ -1,144 +1,82 @@
 ---
-title: Lombok in Spring
+title: Upgrade A Spring Boot Project from 2.0 to 2.1
 search: true
 tags: 
-  - Spring
-  - Lombok
+  - Java
+  - Sprint Boot
   - Gradle
+  - Flyway
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
-Lombok makes Java prettier, and your life easier.
+Upgrade Java, Spring Boot, Gradle, Flyway, etc.
 
-## Why do you want to use Lombok
+## Why upgrade
 
-1. Eliminate Java Boilerplate
-2. Avoid Repetitive Code
-3. The Builder Pattern
-4. Logger
-
-## How to use in your Spring project
-
-### Gradle plugin
-
-Makes it easy to deploy. See **[io.freefair.lombok](https://plugins.gradle.org/plugin/io.freefair.lombok)**.
+- Faster
+- Security
+- Eliminate risks of upgrading to a higher version
 
 
-### Gradle Built-in
+## Processes
 
-tell Gradle to add Lombok only during compilation. See `build.gradle`
-
-```bash
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
-}
-```
+1. Before the upgrade, run all unit tests
+2. Upgrade Gradle, Spring Boot, Java
+3. Implement fix to make it builds
+4. Run Unit tests or implements fix
 
 
-## My favourite Lombok features
+## Details
 
-### 1. @Getter/@Setter
+### Update Gradle wrapper from 4.7 to 5.6
 
-1. put a @Getter and/or @Setter annotation on a class. In that case, it's as if you annotate all the non-static fields in that class with the annotation.
-2. Disable setter or getter: `AccessLevel.NONE`
-3. `@Accessors(fluent=true)` 
-    ```java
-    @Getter
-    @Setter
-    class myEntity{
-        @Setter(AccessLevel.PROTECTED) 
-        private String name;
-    }
+1. Update local Gradle to latest version (5.6)
+    ```bash
+    $ sdk list gradle
+    $ sdk use gradle 5.6.2
     ```
 
-### 2. @ToString
-
-1. By default, all non-static fields will be printed. 
-2. skip some fields, you can annotate these fields with `@ToString.Exclude`.
-3. @ToString can also be used on an enum definition.
-    
-    ```java
-    @ToString
-    public class myEntity {
-    
-        @ToString.Exclude 
-        private AnotherEntity anotherEntity;
-    }  
+2. Generate lastest Gradle Wrapper
+    ```bash
+    $ gradle wrapper
     ```
+3. Check `gradle/wrapper/gradle-wrapper.properties` file
+      ```bash
+      distributionUrl=https\://services.gradle.org/distributions/gradle-5.6.2-bin.zip
+      ```
 
-### 3. @EqualsAndHashCode
+### Upgrade Spring Boot from 2.0 to 2.1.8
 
-```java
-@EqualsAndHashCode
-public class myEntity {
+1. Generate new `build.gradle`
     
-    @EqualsAndHashCode.Exclude
-    private AnotherEntity anotherEntity;
-}
-```
-    
-### 4. @NoArgsConstructor, @RequiredArgsConstructor and @AllArgsConstructor
+    Go to [Spring Initializr](https://start.spring.io/), regenerate your dependencies. It uses a new default format of `build.gradle` and latest version. Tick Java 11, we'll talk it later.
 
-- `@NoArgsConstructor` will generate a constructor with no parameters.
-- `@RequiredArgsConstructor` generates a constructor with 1 parameter for each field that requires special handling. All non-initialized final fields get a parameter, as well as any fields that are marked as @NonNull that aren't initialized where they are declared.
-- `@AllArgsConstructor` generates a constructor with 1 parameter for each field in your class. Fields marked with @NonNull result in null checks on those parameters.
+2. Allow bean definition override
 
-
-### 5. @Data
-
-A shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, @Setter on all non-final fields, and @RequiredArgsConstructor
-
-
-### 6. @Log
-
-You put the variant of @Log on your class (whichever one applies to the logging system you use); you then have a static final log field, initialized as is the commonly prescribed way for the logging framework you use, which you can then use to write log statements.
-
-`@Slf4j`  Creates 
-
-```java
-private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LogExample.class);
-```
-```java
-@Slf4j
-public class LogExampleOther {
-  
-  public static void main(String... args) {
-    log.error("Something else is wrong here");
-  }
-}
-```
-
-
-### 7. @Builder
-
-1. The @Builder annotation produces complex builder APIs for your classes.
-2. @Builder can be placed on a class, or on a constructor, or on a method.
-
-    ```java
-    @Builder
-    public class BuilderExample {
-      @Builder.Default 
-      private long created = System.currentTimeMillis();
-      
-      private String name;
-      
-      private int age;
-      
-      @Singular 
-      private Set<String> occupations;
-    }
+    ```properties
+    spring.main.allow-bean-definition-overriding=true
     ```
+    1. We customized `Flyway` bean to run with dynamic databases.
+    2. We override bean in unit tests because we don't want the real instance to load.
+
+3. Lombok changes
+
+    >Spring Boot 2.1 has upgraded to Lombok `1.18.x` from `1.16.x`. In `1.18`, Lombok will no longer generate a private, no-args constructor by default. It can be enabled by setting `lombok.noArgsConstructor.extraPrivate=true` in a `lombok.config` configuration file.
+
+4. Flyway changes
+
+    //todo
+
+### Oracle Java 8 to OpenJDK Java 11
+
+There is a Java 9 introduced bug, please see [this interesting blog](https://blog.andornot.com/blog/java-11-date-parsing-locale-locale-locale/).
+
+// todo a workaround
 
 
-## References 
-
-- [Project Lombok](https://projectlombok.org/)
-- [Introduction to Project Lombok](https://www.baeldung.com/intro-to-project-lombok)
+## References
+1. [Spring Boot 2.1 Release Notes](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.1-Release-Notes#bean-overriding)
+2. [Java 11 date parsing? Locale, locale, locale](https://blog.andornot.com/blog/java-11-date-parsing-locale-locale-locale/)
