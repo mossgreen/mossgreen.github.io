@@ -53,7 +53,7 @@ After I did some research on other people's study notes, I believe it's getting 
 
 3. Version 5.X, after May 2019
     
-    Before I took the exam, I found that the study guide has been updated. It's not a huge change, but it's enough to fail you if you didn't prepare perfectly. I took me a while to do an extra study on the new topics. It pays. I the test, it has at least 4 questions are about actuator, which is a newly added topic.
+    Before I took the exam, I found that the study guide has been updated. It's not a huge change, but it's enough to fail you if you didn't prepare perfectly. I took me a while to do an extra study on the new topics. It pays. In my test, it has at least 4 questions are about actuator, which is a newly added topic.
 
     Changes:
     1. Less content on AOP topic. From 14% to 8%.

@@ -1,28 +1,43 @@
 ---
-title: Create a 360 photo view page
+title: Build A 360 Photo View Page
 search: true
 tags: 
   - PHP
-  - Photo
+  - 360 Photo
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-We'are building a web page to show 360 photos that user uploads. Here are my notes about it. In this project, I'm using PHP as the backend, using **three.js** in the front end.
+
+Handle and view a 360 photo.
+
+We'are building a web page to show 360 photos that user uploads. In this project, I'm using PHP as the backend, using **three.js** in the front end.
 
 ## How do you know it's a 360 photo?
 
-There're several things we could check whether it's a 360 photo, like the make of camera, photo XMP(Extensible Metadata Platform)  info, Exif(Exchangeable image file format) info, etc.. In my project, the provided examples have full XMP info, and don't have much info in Exif.  After discussion, we decided to check 2 aspects.
-1. Equirectangular projection
-2.  2:1 landscape aspect ratio
+There is not a standard rule to identify a 360 photo yet so several things we could check, like
+- the make of camera, 
+- photo XMP (Extensible Metadata Platform) info, 
+- Exif (Exchangeable image file format) info, 
+- etc.. 
 
-### Equirectangular projection
-Most of full, spherical 360 photos are equirectangular projections. This information is stored in XMP tag.
+In my project, the provided examples have full XMP info, and don't have much info in Exif.  After discussion, we decided to check 2 aspects.
+
+1. ProjectionType is **equirectangular**
+2. landscape aspect ratio is **2:1**
+
+NB, if possible, I think we should also add a list of camera Make and Model. For example some popular ones. We can read this info via exif.
+- RICOH - RICOH THETA S
+- LG 360 CAM
+
+
+## Equirectangular projection
+
+Most of full, spherical 360 photos are equirectangular projections. This information is stored in `XMP` tag.
 
 ```php
-
-function isEquirectangularProject(){
+function isEquirectangularProject() {
   $xmpData = self::getXmpData($filename, 200);
   $parser = xml_parser_create();
   xml_parse_into_struct($parser, $xmpData, $vals, $index);
@@ -75,16 +90,14 @@ public static function getXmpData($filename, $chunkSize) {
     fclose($file_pointer);
     return ($hasXmp) ? $buffer : NULL;
 }
-
 ```
 
-### check 2:1 landscape aspect ratio
+## check 2:1 landscape aspect ratio
 
 We get this information from Exif.
 
 ```php
-function is2To1Ratio($filename)
-{
+function is2To1Ratio($filename) {
     if (strpos(strtolower($filename), 'jpg') !== false) {
 
         $exif = exif_read_data($filename, 'COMPUTED');
@@ -98,9 +111,12 @@ function is2To1Ratio($filename)
         }
     }
     return false;
+}
 ```
 
-### Create viewer page
+## Create viewer page
+
+We use an external library.
 
 ```php
 <?php
@@ -235,12 +251,10 @@ include_once 'hints.inc.php';
 <body onLoad="frmInit();">
 </body>
 <?php include_once 'footer.inc.php';?>
-
 ```
+
 
 ## References
 
 - [Editing 360 Photos & Injecting Metadata](https://www.facebook.com/notes/eric-cheng/editing-360-photos-injecting-metadata/10156930564975277)
-
 - [HTML5 WebGL 360 degrees panorama viewer with Three.js](http://www.emanueleferonato.com/2014/12/10/html5-webgl-360-degrees-panorama-viewer-with-three-js/)
-
