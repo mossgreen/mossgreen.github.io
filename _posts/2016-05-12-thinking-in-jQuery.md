@@ -9,7 +9,8 @@ toc_icon: "cog"
 classes: single
 ---
 
-> Live long and prosper!
+Long live the jQuery.
+
 
 ## 1. How to select DOM elements
 

@@ -6,7 +6,7 @@ tags:
 toc: true
 ---
 
-These are my notes while using connection strings with VS 2015 and SQL Server products.
+SQL Server Connection Strings.
 
 What is connection string?
 ---

@@ -68,7 +68,83 @@ $ man base64
 
 
 ## `jq` Details
-//todo
+
+Let's move on with the same example.
+
+1. The `|` operator in jq feeds the output of one filter
+
+2. Get all the keys: `| jq 'keys | .[]'`
+
+```bash
+$ resulttext | jq 'keys | .[]''
+"id"
+"image"
+```
+
+3.  get all the values: 
+
+```bash
+$ resulttext | jq '.[]''
+"001"
+{
+  "full_size": {
+    "data": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
+  },
+  "half_size": {
+    "data": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAQAAAAnZu5uAAAAEElEQVR42mNk+M8ABYwkMAGbQQUBEvGWBAAAAABJRU5ErkJggg=="
+  }
+}
+```
+
+4.  get one from key: 
+
+```bash
+$ resulttext | jq '.image''
+{
+  "full_size": {
+    "data": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
+  },
+  "half_size": {
+    "data": "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAQAAAAnZu5uAAAAEElEQVR42mNk+M8ABYwkMAGbQQUBEvGWBAAAAABJRU5ErkJggg=="
+  }
+}
+```
+
+5.  Get length
+
+- String: length in bytes
+- array: number of elements
+- Objects: number of key-value pairs
+- length of null is 0
+
+```
+$ resulttext | jq '.image |  length'
+2
+```
+
+6.  Go deeper
+
+```bash
+$ resulttext | jq  '.image.full_size.data'
+"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
+```
+
+7.  Without Quotes
+
+```bash
+$ resulttext | jq -r '.image.full_size.data'
+"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
+```
+
+`-r` stands for `--raw-output`.
+
+I got an error with `.`, so this example could be:
+
+```bash
+$ resulttext | jq -r '.["image"]["full_size"]["data"]'
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII=
+```
+
 
 ## References
 

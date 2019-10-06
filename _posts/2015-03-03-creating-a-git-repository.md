@@ -7,6 +7,7 @@ categories:
 
 Creating Github repo from either remote or locally.
 
+
 ## Two ways of creating a GitHub repository
 
 There are two ways to create a Github repository. One is pushing from local to remote, another is pulling from remote to local.
@@ -24,6 +25,7 @@ There are two ways to create a Github repository. One is pushing from local to r
 5. Go to your Github page,  create a new repository, select **Push an existing repository**, get your **repo address**
 6. In your local, run `git remote add origin https://github.com/username/new_repo`
 7. Push your code: `git push origin YOUR_BRANCH` 
+
 
 ## References: 
 - [Start a new git repository](http://kbroman.org/github_tutorial/pages/init.html)
