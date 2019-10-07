@@ -49,14 +49,14 @@ Before we do it, we have to know how to verify that our solution is good.
 
 ### Before running our migration script
 
-1. \d current table
-2. select count(id)
-3. \d reference table 
-4. select count(ref_id)
-5. \d reference table 
-6. select count(ref_id)
+1. `\d current table`
+2. `select count(id)`
+3. `\d reference table`
+4. `select count(ref_id)`
+5. `\d reference table`
+6. `select count(ref_id)`
 7. check views
-8. NB check all triggers to see if there is a `select * from currentTable`  statement. If there is, we also need to back up and rebuild that table.
+8. NB check all triggers to see if there is a `select * from currentTable`  statement. If there is, we also need to back up and rebuild this table.
 
 ### Export schema and table definition
 
@@ -81,8 +81,10 @@ My processes:
 4. Copy data back from origin_customers. Give your new column a default value or leave null.
 5. Add constrains back to the customers table.
 6. Add constrains back to reference tables.
-7. Rebuild customers table sequence.
-    - NB sequence cannot be 0. 
+7. Rebuild customers table sequence. Remember, sequence cannot be 0.  
+    ```sql
+    select setval('customers_customers_id_seq', (select max(customers_id) from customers where customers_id > 0), true);
+    ```
 8. Verify based on the testing plan.
 
 

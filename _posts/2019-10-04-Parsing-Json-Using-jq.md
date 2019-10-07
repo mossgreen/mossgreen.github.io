@@ -14,6 +14,7 @@ classes: wide
 
 Parse JSON using jq in the bash command line.
 
+
 ## My challenge
 
 - Got a Json from curl get request
@@ -34,6 +35,7 @@ Here is an example Json
    }
 }
 ```
+
 
 ##  The solution
 
@@ -67,13 +69,15 @@ $ man base64
 ```
 
 
-## `jq` Details
+##  jq Details
 
 Let's move on with the same example.
 
-1. The `|` operator in jq feeds the output of one filter
+### 1. The pipe operator
 
-2. Get all the keys: `| jq 'keys | .[]'`
+The `|` operator in `jq` feeds the output of one filter.
+
+### 2. Get all the keys
 
 ```bash
 $ resulttext | jq 'keys | .[]''
@@ -81,7 +85,7 @@ $ resulttext | jq 'keys | .[]''
 "image"
 ```
 
-3.  get all the values: 
+### 3.  get all the values
 
 ```bash
 $ resulttext | jq '.[]''
@@ -96,7 +100,7 @@ $ resulttext | jq '.[]''
 }
 ```
 
-4.  get one from key: 
+###  4.  get one from key: 
 
 ```bash
 $ resulttext | jq '.image''
@@ -110,7 +114,7 @@ $ resulttext | jq '.image''
 }
 ```
 
-5.  Get length
+### 5.  Get length
 
 - String: length in bytes
 - array: number of elements
@@ -122,14 +126,14 @@ $ resulttext | jq '.image |  length'
 2
 ```
 
-6.  Go deeper
+### 6.  Go deeper
 
 ```bash
 $ resulttext | jq  '.image.full_size.data'
 "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
 ```
 
-7.  Without Quotes
+### 7.  Without Quotes
 
 ```bash
 $ resulttext | jq -r '.image.full_size.data'
