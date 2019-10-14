@@ -20,7 +20,7 @@ I've got some ideas from:
 
 1. Book ["Working Effectively with Legacy Code"](https://www.amazon.com/dp/0131177052/)
 
-    > The main thing that distinguishes legacy code from non-legacy code is tests, or rather a lack of tests. We can get a sense of this with a little thought experiment: how easy would it be to modify your code base if it could bite back, if it could tell you when you made a mistake? It would be pretty easy, wouldn't it? Most of the fear involved in making changes to large code bases is fear of introducing subtle bugs; fear of changing things inadvertently. With tests, you can make things better with impunity. To me, the difference is so critical, it overwhelms any other distinction. With tests, you can make things better. Without them, you just don’t know whether things are getting better or worse. -- Michael Feathers
+    > The main thing that distinguishes legacy code from non-legacy code is tests or rather a lack of tests. We can get a sense of this with a little thought experiment: how easy would it be to modify your codebase if it could bite back if it could tell you when you made a mistake? It would be pretty easy, wouldn't it? Most of the fear involved in making changes to large codebases is fear of introducing subtle bugs; fear of changing things inadvertently. With tests, you can make things better with impunity. To me, the difference is so critical, it overwhelms any other distinction. With tests, you can make things better. Without them, you just don’t know whether things are getting better or worse. -- Michael Feathers
 
 2. Stackoverflow thread:  [Legacy Code](https://stackoverflow.com/questions/4174867/what-is-the-definition-of-legacy-code)
 
@@ -30,18 +30,18 @@ I've got some ideas from:
 
     > source code inherited from someone else and source code inherited from an older version of the software
 
-Digging deep, I've learnt pioneers' core concerns. Rather than talking about the liternal meaning, I prefer to say "**Code that develpers are afraid to change.**"
+Digging deep, I've learnt pioneers' core concerns. Rather than talking about the literal meaning, I prefer to say "**Code that developers are afraid to change.**"
 
-What a coincidence, when I read "[Defining Legacy Code](Defining%20Legacy%20Code%0Ahttps://dzone.com/articles/defining-legacy-code)", and "[Surviving Legacy Code with Golden Master and Sampling](https://blog.thecodewhisperer.com/permalink/surviving-legacy-code-with-golden-master-and-sampling)" the authers hold the same opinion. :)
+What a coincidence, when I read "[Defining Legacy Code](Defining%20Legacy%20Code%0Ahttps://dzone.com/articles/defining-legacy-code)", and "[Surviving Legacy Code with Golden Master and Sampling](https://blog.thecodewhisperer.com/permalink/surviving-legacy-code-with-golden-master-and-sampling)" the authors hold the same opinion. :)
 
 ### What makes code legacy code
 
-We afraid to change may due to serveral reasons
+We afraid to change may due to several reasons
 - APIs are out-of-date
-- Platform are not supported anymore
-- Bad designed code
+- Platforms are not supported anymore
+- Badly designed code
 - No documentation
-- It's buggy, and without test
+- It's buggy and without test
 
 
 ## What should we do: Golden Master
@@ -52,7 +52,7 @@ Before starting to change any legacy system you need to know you will not introd
 
 ![IMAGE](quiver-image-url/49715A29707A3290D5B446760D603BB2.jpg =440x438)
 
-In audio mastering, a [golden master](https://en.wikipedia.org/wiki/Mastering_(audio)) is a model disk used as a reference to create disks in the old vinyl industry. This disk was cut in metal and it would contain the sound transferred from a microphone. In the software world we took this name and we started using it for a fixed reference of a system output, paired with a system input.
+In audio mastering, a [golden master](https://en.wikipedia.org/wiki/Mastering_(audio)) is a model disk used as a reference to create disks in the old vinyl industry. This disk was cut in metal and it would contain the sound transferred from a microphone. In the software world, we took this name and we started using it for a fixed reference of a system output, paired with a system input.
 
 ### Golden Master technique steps
 
@@ -69,13 +69,15 @@ In Adrian Bolboaca's [Legacy Coderetreat serials](https://blog.adrianbolboaca.ro
 
 4. Generate enough random inputs and persist the tuple input/output
 
-5. Write a system test to check the SUT against the previously persisted data
+5. Write a system test to check the SUT (System under test) against the previously persisted data
+    
+    > whatever class, object or method we are testing; when we are writing customer tests, the SUT is probably the entire application or at least a major subsystem of it.  -- "[xUnit Patterns](http://xunitpatterns.com/SUT.html)"
 
 6. Commit the test
 
 7. Check test behaviour and coverage
     - Use a test coverage tool to see where the system tests touch the SUT
-    - Start changing the SUT in order to see the golden master test go red.
+    - Start changing the SUT to see the golden master test go red.
 
 8. If not enough behaviours are covered, go to 3
 
@@ -83,7 +85,7 @@ In Adrian Bolboaca's [Legacy Coderetreat serials](https://blog.adrianbolboaca.ro
 ## Principles while dealing with legacy code
 
 - Maximize safety
-- Mininum change
+- Minimum change
 
 ## Think positive
 
@@ -91,14 +93,42 @@ In Adrian Bolboaca's [Legacy Coderetreat serials](https://blog.adrianbolboaca.ro
 
 1. It improves your ability to refactor code
 2. It improves your ability to learn about a codebase, and how it's grown over time
-3. It improves your ability to interpret codebases you've not working on before
+3. It improves your ability to interpret codebases you've not worked on before
 4. If a codebase that you were involved in then it allows you to realise how far YOU'VE come too!
 5. It feels rewarding to "modernise" code!
 
 
 ## My practice
 
-//todo
+I wrote the code several years ago when I was an internship. Main issues of my code:
+1. No testing
+2. Badly designed
+
+I'll use the Golden Master method to add test code and do refactoring.
+
+1. Step one: Figure out how the system delivers the outputs. In my scenario, on my page, I can tick either one or all of three checkboxes to generate different folders in a different format.
+
+2. Don't touch the code. In production, figure out what are the inputs and outputs. I created a matrix, to note down all inputs and outputs. In my scenario, either the checkboxes are checked or not. There are 
+    
+    | Input 1        | Input 2      |Input 3      | Out put     |
+    | :------------- | :---------- | :----------- |:----------- |
+    |  √ | X  | X | A|
+    |  X | √  | X | B|
+    |  X | X  | √ | C|
+    |  √ | √  | X | D|
+    |  X | √  | √ | E|
+    |  √ | X  | √ | F|
+    |  √ | √  | √ | G|
+    |  X | X  | X | I|
+
+3. Copy production data to local, Make my local as a testing system.
+
+4. Write test and check the out put. 
+    1. Write a test and test. If the output pass. Commit code. It's safe.
+    2. Write a test and test. If the output doesn't pass. Rollback to the safe version.
+    3. Check test coverage. 
+
+
 
 ## Reference
 
