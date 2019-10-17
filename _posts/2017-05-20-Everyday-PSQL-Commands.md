@@ -160,9 +160,39 @@ gunzip -c database_name.gz | psql -U postgres database_name
     $ pg_dump -U postgres -s -d myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
     ```
 
+## DO $$ Block
+
+1. Excute sql
+
+    ```sql
+    Do $$
+        Begin 
+           execute format('drop database %I ', 'bak_20180404_2014_12'); 
+        End
+    $$ ;
+    ```
+
+2. Excute based on conditions
+
+    ```sql
+    DO
+        $do$
+        BEGIN
+            IF EXISTS (SELECT FROM orders) THEN
+               DELETE FROM orders;
+            ELSE 
+               INSERT INTO orders VALUES (1,2,3);
+            END IF;
+        END
+    $do$
+    ```
+    - Need a `;` at the end of each statement, except for the final `END`
+    - need `END IF;` at the end of the `IF` statement.
+
 
 ## Reference 
 
 1. [PSQL 24.1. SQL Dump](https://www.postgresql.org/docs/9.1/backup-dump.html)
 2. [17 Practical psql Commands That You Don’t Want To Miss](http://www.postgresqltutorial.com/psql-commands/)
-2. [5 Tips to Backup and Restore Database in PostgreSQL](https://tecadmin.net/backup-and-restore-database-in-postgresql/)
+3. [5 Tips to Backup and Restore Database in PostgreSQL](https://tecadmin.net/backup-and-restore-database-in-postgresql/)
+4. [postgresql-if-statement](https://stackoverflow.com/questions/11299037/postgresql-if-statement/)
