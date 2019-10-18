@@ -57,7 +57,7 @@ Switch to another db
 
 3. Describe a table `\d table_name`
 4. List available schema `\dn`
-5. List available functions `\df`
+5. List available functions `\df`. Use `\df+` to view a founction.
 6. List available views `\dv`
 7. List users and their roles `\du`
 8. List Command history `\s`
@@ -82,7 +82,19 @@ Switch to another db
     ```
 
 11. Edit command in your own editor `\e`. It will open vim.
-12. Edit a function in the editor `\ef myFuncName`. It generates a function template.
+12. Create or View/Edit a function in the editor
+    -  `\ef`It generates an editable function template.
+        ```sql
+        CREATE FUNCTION ( )
+         RETURNS
+         LANGUAGE
+         -- common options:  IMMUTABLE  STABLE  STRICT  SECURITY DEFINER
+        AS $function$
+        
+        $function$
+        ```
+
+    -  `\ef myFuncName` It opens a vim to view **existing** function.
 13. Quit psql `\q`
 
 
