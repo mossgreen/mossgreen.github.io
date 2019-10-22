@@ -490,31 +490,35 @@ Filtering configuration can be added to the `@ComponentScan` annotation as to in
 - Websocket: Scopes a single bean definition to the lifecycle of a WebSocket, web-aware contexts only
 - As of Spring 3.0, a **thread scope** is available but is not registered by default.
 
-**How to inject a prototype-scoped bean into a singleton bean?**
+### How to inject a prototype-scoped bean into a singleton bean?
 
 Dependencies are resolved at instantiation time!!!
 
-Inject prototype to singleton bean directly: a new prototype bean is instantiated and then dependency-injected into the singleton bean at the beginning. The prototype instance is the sole instance that is ever supplied to the singletonscoped bean. that injection occurs only once, when the Spring container is instantiating the singleton bean and resolving and injecting its dependencies.
+- A new prototype bean is instantiated and then dependency-injected into the singleton bean at the beginning. 
+- The prototype instance is the sole instance that is ever supplied to the singletonscoped bean. 
+- The injection occurs only once, when the Spring container is instantiating the singleton bean and resolving and injecting its dependencies.
 
-**Solutions:**
+Solutions:
 
-**First:** ApplicationContextAware
+1. ApplicationContextAware
 
 If you need a new instance of a prototype bean at runtime more than once, use **“Method injection”**. Make bean A aware of the container by implementing the `ApplicationContextAware` interface, and by making a `getBean("B")` call to the container ask for (a typically new) bean B instance every time bean A needs it.
 
-**Second**: `@Lookup`
+2. Lookup Method Injection `@Lookup`
 
-A method annotated with `@Lookup` tells Spring to return an instance of the method’s return type when we invoke it.
+It's used when a singleton depends on a nonsingleton. let the singleton declare a method, the lookup method, which returns an instance of the nonsingleton bean.
 
 ```java
 @Component
 @Scope("prototype")
 public class PrototypeDemo { }
+```
 
+```java
 @Component
 public class someServices {
     
-    @Lookup
+    @Lookup("prototypeDemo")
     public PrototypeDemo getThisBean() { }
 }
 ```
