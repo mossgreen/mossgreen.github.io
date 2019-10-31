@@ -40,22 +40,136 @@ The first way is considered preferred because
 However, you’re forced to use the second way, such as when stubbing a real method of a spy because calling it may have unwanted side effects.
 
 
-## Enable testing annotations
+## Enable Mockito annotations
 
 Two ways
 
 1. Annotate the JUnit testing class 
     ```java
     @RunWith(MockitoJUnitRunner.class)
+    public class MockitoAnnotationTest {}
     ```
 
-2. Initialise it insie of `@Before`
+2. Initialise it inside of `@Before`
     ```
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
     }
     ```
+
+
+## Annotations
+
+- `@Mock` creates and injects mocked instances. It equals to `Mockito.mock`.
+- `@Spy` spy the behavious (in order to vefify them).
+- `Captor` to create an ArgumentCaptor instance.
+- `@InjectMocks` to inject mock fields into the tested object automatically.
+- `@MockBean` uses in Srint Boot. We use it to add mock objects to the Spring application context. The mock will replace any existing bean of the same type in the application context. It's useful when you need to mock an external service.
+
+### 1. `@Mock`
+
+- Without `@Mock`
+
+    ```java
+    @Test
+    public void testWithoutMockAnnotation() {
+        List mockList = Mockito.mock(ArrayList.class);
+        mockList.add("one");
+    }
+    ```
+
+- With `@Mock`
+
+    ```java
+    @Mock List<String> mockedList;
+    
+    @Test
+    public void testWithMockAnnotation() {
+        mockList.add("one");
+    }
+    ```
+
+### 2. `@Spy`
+
+- Without `@Spy`
+
+    ```java
+    @Test
+    public void testWithoutSpyAnnotation() {
+        List<String> spyList = Mockito.spy(new ArrayList<String>());
+         
+        spyList.add("one");
+        Mockito.verify(spyList).add("one");
+    }
+    ```
+
+- With `@Spy`
+
+    ```java
+    @Spy List<String> spiedList = new ArrayList<String>();
+    
+    @Test
+    public void testWithSpyAnnotation() {
+        spiedList.add("one");
+        Mockito.verify(spiedList).add("one");    
+    }
+    ```
+
+### 3. `@Captor`
+
+- Without `@Captor`
+
+    ```java
+    @Test
+    public void testWithoutCaptorAnnotation() {
+        List mockList = Mockito.mock(List.class);
+        ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
+     
+        mockList.add("one");
+        Mockito.verify(mockList).add(arg.capture());
+     
+        assertEquals("one", arg.getValue());
+    }
+    ```
+
+- With `@Captor`
+
+    ```java
+    @Mock List mockedList;
+    @Captor ArgumentCaptor argCaptor;
+    
+    @Test
+    public void testWithCaptorAnnotation() {
+        mockedList.add("one");
+        Mockito.verify(mockedList).add(argCaptor.capture());
+        
+        assertEquals("one", argCaptor.getValue());  
+    }
+    ```
+
+### 4. `@InjectMocks`
+
+    //todo 
+
+### 5. `@MockBean`
+
+The `@MockBean` will also be injected into the field.
+
+```java
+@RunWith(SpringRunner.class)
+public class MockBeanAnnotationIntegrationTest {
+     
+    @MockBean
+    UserRepository mockUserRepository;
+     
+    @Test
+    public void givenCountMethodMocked_WhenCountInvoked_ThenMockValueReturned() {
+        Mockito.when(mockUserRepository.getSomething())
+            .thenReturn(new Something());
+    }
+}
+```
 
 
 ## RETURNING CUSTOM RESPONSES
@@ -152,3 +266,4 @@ You create a spy and stub some of its methods to get the behaviour you want.
 - [MOCKITO – ANSWER VS. RETURN](https://www.planetgeek.ch/2010/07/20/mockito-answer-vs-return/)
 - [A Unit Testing Practitioner's Guide to Everyday Mockito](https://www.toptal.com/java/a-guide-to-everyday-mockito)
 - [Stubbing and Mocking with Mockito 2 and JUnit](https://semaphoreci.com/community/tutorials/stubbing-and-mocking-with-mockito-2-and-junit)
+- [Getting Started with Mockito Annotations](https://www.baeldung.com/mockito-annotations)
