@@ -15,9 +15,10 @@ PostgreSQL Cheat Sheet.
 ## Contents
 
 - psql query Parameters
-- Common connect and query
+- Common connect and queries
 - Query Postgres db version
 - Pg dump and restore
+
 
 ## PSQL Query Parameters
 
@@ -111,15 +112,26 @@ template1=> SHOW server_version_num;
 --  90614 (9.6.14)
 ```
 
-
-## How can I query if a column exists in a table using an SQL statement
+### How can I query if a column exists in a table using an SQL statement
 
 ```sql
 SELECT column_name 
 FROM information_schema.columns 
 WHERE table_name='your_table' and column_name='your_column';
+
+select count(1)
+from events
+where time between (now() - '1 week'::interval) and (now() - '2 weeks'::interval);
 ```
 
+### How to query record with timestamp
+
+```java
+SELECT *
+FROM table
+WHERE update_date >= '2013-05-03'::date
+AND update_date < ('2013-05-03'::date + '1 day'::interval);
+```
 
 ## Backup and Restore 
 
