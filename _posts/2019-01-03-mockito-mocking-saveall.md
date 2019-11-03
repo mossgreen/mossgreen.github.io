@@ -45,6 +45,9 @@ However, you’re forced to use the second way, such as when stubbing a real met
 Two ways
 
 1. Annotate the JUnit testing class 
+
+    Mockito runner initializes proxy objects annotated with the `@Mock` annotation.
+
     ```java
     @RunWith(MockitoJUnitRunner.class)
     public class MockitoAnnotationTest {}
@@ -260,6 +263,48 @@ It's useful  for testing legacy code.
 You create a spy and stub some of its methods to get the behaviour you want.
 
 //todo
+
+
+## What Mockito cannot do
+
+Mockito cannot mock or spy on:
+- Java constructs such as final classes and methods, 
+- static methods, 
+- enums, 
+- private methods (with Spring ReflectionTestUtils)
+- the `equals()` and `hashCode()` methods, 
+- primitive types, and 
+- anonymous classes.
+
+Answer to this:
+
+- PowerMockito, an extension of the Mockito, let us mock static and private methods. 
+- As per the design, you should not opt for mocking private or static properties because it violates the encapsulation. 
+- You should refactor the offending code to make it testable.
+
+### Mockito mock private methods using RelectionTestUtils
+
+The `org.springframework.test.util` package contains `ReflectionTestUtils`, which is a collection of relection-based utility methods to set a non-public field or invoke a private/protected setter method when testing the application code.
+
+```java
+public class ReflectionUtilsTest {
+
+    @Test 
+    public void private_field_access() throws Exception {
+    
+        Secret myClass = new Secret(); 
+        myClass.initiate("aio"); 
+        
+        Field secretField = ReflectionUtils.findField(Secret.class, "secret", String.class); assertNotNull(secretField); 
+        
+        ReflectionUtils.makeAccessible(secretField); 
+        assertEquals("zko", ReflectionUtils.getField(secretField, myClass));
+        
+        ReflectionUtils.setField(secretField, myClass, "cool"); 
+        assertEquals("cool", ReflectionUtils.getField(secretField, myClass));
+    }
+}
+```
 
 ## References
 
