@@ -11,17 +11,20 @@ tags:
 toc: true
 ---
 
-How to quit vim?
+How to quit vim? - -!
 
-**It has Dual-mode: GUI and Editor.**
-## GUI
+## It has Dual-mode
+- GUI
+- Editor
+
+
+## GUI Mode
 
 ### move
   - "H" moves left; 
   - "K" moves up; 
   - "L" moves right; 
   - "J" moves down.
-
 
 ### Copy & Paste
 - "Y" copies a line of text to the buffer.
@@ -39,7 +42,7 @@ How to quit vim?
 - ":q!" quit without save
 
 
-## Editor
+## Editor Mode
 
 - "i" to begin inserting text at the current cursor position
 - "a" to begin inserting after the current cursor position
@@ -63,4 +66,5 @@ find settings at `~/.vimrc`
 3. Then press `dG`. This will delete from the first line to the last line.
 
 ## References
-- [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
+- [Learning The Vi And Vim Editors, 7th Edition.pdf](https://www.amazon.com/Learning-Vim-Editors-Processing-Maximum/dp/059652983X)
+- [vim tips and tricks](https://www.cs.oberlin.edu/~kuperman/help/vim/searching.html)

@@ -14,7 +14,8 @@ Get out of nightmare that positioning elements with CSS.
 
 ## What is Flexbox Layout
 
-Layout 
+// todo
+
 
 ## Terminology
 
@@ -24,7 +25,9 @@ X-axis of the container called **main axis**, Y-axis is named **cross axis**.
 
 Start of main axis is **main start**, end of the main axis is **main end**.
 
+
 ## Attributes for container:
+
 - flex-direction
 - flex-wrap
 - flex-flow
@@ -44,7 +47,9 @@ Start of main axis is **main start**, end of the main axis is **main end**.
 5. `align-items` is for cross-axis alignment
 6. Similar to how `justify-content` aligns individual items within the main-axis, `align-content` aligns space in the cross-axis
 
+
 ## Attributes for items
+
 - order
 - flex-grow
 - flex-shrink
@@ -59,15 +64,13 @@ Start of main axis is **main start**, end of the main axis is **main end**.
 5. `flex` is the shorthand for `flex-grow`, `flex-shrink` and `flex-basis` combined. Default is `0 1 auto`
 6. `align-self` allows the default alignment to be overridden for individual flex items
 
+
 ## Conclusion
 
 > Flexbox layout is most appropriate to the components of an application, and small-scale layouts, while the Grid layout is intended for larger scale layouts.
 
 As per 
 https://css-tricks.com/snippets/css/a-guide-to-flexbox/
-
- 
-
 
 
 ## References

@@ -3,6 +3,8 @@ title: Lombok in Spring
 search: true
 tags: 
   - Spring
+  - Lombok
+  - Gradle
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
@@ -11,14 +13,14 @@ classes: wide
 
 Lombok makes Java prettier, and your life easier.
 
-## Why do you want use Lombok
+## Why do you want to use Lombok
 
 1. Eliminate Java Boilerplate
 2. Avoid Repetitive Code
 3. The Builder Pattern
 4. Logger
 
-## How to use in you Spring project
+## How to use in your Spring project
 
 ### Gradle plugin
 
@@ -27,21 +29,21 @@ Makes it easy to deploy. See **[io.freefair.lombok](https://plugins.gradle.org/p
 
 ### Gradle Built-in
 
-tell gradle to add lombok only during compilation. See `build.gradle`
+tell Gradle to add Lombok only during compilation. See `build.gradle`
 
 ```bash
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	compileOnly 'org.projectlombok:lombok:1.18.10'
-	annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 ```
 
 
-## My favorate Lombok features
+## My favourite Lombok features
 
 ### 1. @Getter/@Setter
 

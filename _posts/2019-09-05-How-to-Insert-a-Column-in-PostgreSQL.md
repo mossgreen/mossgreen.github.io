@@ -62,13 +62,13 @@ Before we do it, we have to know how to verify that our solution is good.
 
 1. We need the schema definition because we want to compare customers related tables definitions are not changed.
     ```bash
-    $ pg_dump -U postgres -s -d myDatabase -n my_schema > my_schema_dump.txt
+    $ pg_dump -U postgres -s myDatabase -n my_schema > my_schema_dump.txt
     ```
 2. We need the customers definition because
     1. We need to reuse definition while creating new customers table
     2. we want to make sure new customers table remains the same definition
     ```bash
-    $ pg_dump -U postgres -s -d myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
+    $ pg_dump -U postgres -s myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
     ```
 
 
