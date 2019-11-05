@@ -83,8 +83,67 @@ To use AWS, you must have two levels of access:
 10.  Amazon Redshift: a fully managed data warehouse service in the cloud.
 
 
+## Certifications
+
+Depense on the difficulties, easiest is on the top
+
+1. AWS Certified Cloud Practitioner
+2. AWS Certified Developer – Associate
+3. AWS Certified Solutions Architect – Associate
+4. AWS Certified SysOps Administrator – Associate
+5. AWS Certified DevOps Engineer – Professional
+6. AWS Certified Security – Specialty
+7. AWS Certified Big Data – Specialty
+8. AWS Certified Advanced Networking – Specialty
+9. AWS Certified Solutions Architect – Professional
+
+## Official 10-Minute Tutorials
+
+See: https://aws.amazon.com/getting-started/tutorials/
+
+### 1. Control your AWS Costs
+
+- AWS Budgets is cost control tool that allows you to create custom cost budgets that alert you when you exceed your budgeted threshold.
+- AWS Budgets has a Free Tier limit of 62 budget days per month
+- It is a best practice to create a total monthly cost budget for each AWS account you use.
+
+In toturail, I created three buget, they're:
+1. When actual costs exceed 50%
+2. When forecasted costs exceed 100%
+3. When actual costs exceed 100%
+
+
+### 2. Launch a Linux Virtual Machine
+
+- Amazon Elastic Compute Cloud (EC2): create and run virtual machines in the cloud.
+- Amazon Machine Image (AMI)
+- Save your key pair in the .ssh sub-directory from your home directory (ex. ~/.ssh/MyKeyPair.pem).
+    ```bash
+    mv ~/Downloads/MyKeyPair.pem ~/.ssh/MyKeyPair.pem
+    ```
+Obstacle
+
+1. Permission issue
+
+    > Permissions 0644 for 'MyKeyPair.pem' are too open.
+    It is required that your private key files are NOT accessible by others.
+    This private key will be ignored.
+
+    Solution: 
+    ```bash
+    chmod 400 MyKeyPair.pem
+    ```
+
+### 3. Deploy Code to a Virtual Machine
+
+- AWS CodeDeploy, a service that automates code deployments to AWS or on-premises servers
+- To deploy code to virtual machines that you create and manage with Amazon EC2. 
+
+
 ## References
 
 - [AWS for Developers For Dummies](https://www.amazon.com/AWS-Developers-Dummies-Computer-Tech/dp/1119371848)
 - [AWS Services List - Top 10 AWS Services](https://mindmajix.com/top-aws-services)
 - [Amazon Productions](https://aws.amazon.com/products/)
+
+_Last Updated: Nov 2019_
