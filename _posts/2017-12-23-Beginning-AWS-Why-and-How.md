@@ -139,6 +139,16 @@ Obstacle
 - AWS CodeDeploy, a service that automates code deployments to AWS or on-premises servers
 - To deploy code to virtual machines that you create and manage with Amazon EC2. 
 
+### 4. Deploy and host a ReactJS app
+
+- AWS Amplify Console will now build your source code and deploy your app at https://<branchname>.<appid>.amplifyapp.com
+
+- With AWS Amplify Console, you can continuously deploy your application in the cloud and host it on a globally available CDN.
+
+### 5. Create and Connect to a MySQL Database
+
+- Amazon RDS
+- If you want to visit db from your local client, need to set Public accessibility to Yes.
 
 ## References
 
