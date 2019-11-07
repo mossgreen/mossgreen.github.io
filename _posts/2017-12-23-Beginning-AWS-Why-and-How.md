@@ -45,7 +45,24 @@ Disadvantages:
 - For example, Windows is a particular kind of platform. The virtual platform provided by PaaS allows a customer to develop, run, and manage applications of all sorts.
 
 
-## Major AWS Competitors
+### Benefits of Cloud Solution
+
+1. Infrastructure automation is a big advantage of the cloud compared to hosting on-premises.
+
+
+## What is AWS
+
+Amazon Web Services (AWS) is a platform of web services that offers solutions for computing, storing, and networking, at different layers of abstraction.
+
+- Computing
+- Storing
+- Networking
+
+### Benefits from AWS
+
+//todo
+
+### Major AWS Competitors
 
 - [Google Cloud Platform](https://cloud.google.com/products/): the prominence of machine learning services that aren’t found in AWS.
 
