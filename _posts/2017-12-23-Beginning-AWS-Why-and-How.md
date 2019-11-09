@@ -100,6 +100,15 @@ To use AWS, you must have two levels of access:
 10.  Amazon Redshift: a fully managed data warehouse service in the cloud.
 
 
+### 1. S3
+
+### 2. EC2
+
+Amazon VPC is the networking layer for Amazon EC2.
+Amazon Virtual Private Cloud (Amazon VPC) enables you to launch AWS resources into a virtual network that you've defined. 
+//todo
+
+
 ## Certifications
 
 Depense on the difficulties, easiest is on the top
