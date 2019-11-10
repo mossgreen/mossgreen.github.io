@@ -12,16 +12,19 @@ classes: wide
 
 AWS does everything. This the first step.
 
-## Cloud Basic
+
+
+## Cloud Platform Models
 
 - IaaS
 - SaaS
 - Paas
+- Serverless
 
 ### Infrastructure as a Service (IaaS)
 
-- Iaas provides access to virtualized computer resources over an Internet connection
-- You essentially use IaaS to replace physical resources, such as servers, with virtual resources hosted and managed by Amazon.
+- Iaas provides access to virtualized computer resources over an Internet connection.
+- IaaS products give you direct access to a provider’s compute, storage, and networking assets.
 - You can use IaaS to replace every physical element in your computing setup except
     - those required to establish and maintain Internet connectivity and 
     - those required to provide nonvirtualized services (such as printing)
@@ -32,23 +35,29 @@ Disadvantages:
 3. A lag often occurs between when a change in service is needed and when the host provides it.
 4. Host downtime is unfixable.
 
-### Software as a Service (SaaS)
-
-- It's also called _software on demand_. 
-- It's all about cloud-based applications
-- A client typically accesses the application using a local application, such as a browser. The browser runs on local hardware, but the application runs on the host hardware.
-- The host, Amazon, maintains the software, provides the required licenses, and does all the other work needed to make the software available.
-
 ### Platform as a Service (PaaS)
 
 - PaaS is more of a development solution than a production environment solution.
+- It hides the complexity of the infrastructure that runs it
 - For example, Windows is a particular kind of platform. The virtual platform provided by PaaS allows a customer to develop, run, and manage applications of all sorts.
 
+### Software as a Service (SaaS)
+
+- It's also called _software on demand_. 
+- It's all about cloud-based applications.
+- It offers services meant to be accessed by end users.
+- A client typically accesses the application using a local application, such as a browser. The browser runs on local hardware, but the application runs on the host hardware.
+- The host, Amazon, maintains the software, provides the required licenses, and does all the other work needed to make the software available.
+
+### Serverless workload
+//todo
 
 ### Benefits of Cloud Solution
 
 1. Infrastructure automation is a big advantage of the cloud compared to hosting on-premises.
-
+2. Scalability
+    A scalable service will automatically grow in capacity to seamlessly meet any changes in demand.
+3. Elasticity. Services are built to be easily and automatically resized, 
 
 ## What is AWS
 
@@ -57,6 +66,23 @@ Amazon Web Services (AWS) is a platform of web services that offers solutions fo
 - Computing
 - Storing
 - Networking
+
+### Cloud Platform Models is AWS
+
+- IaaS
+    - Elastic Cloud Compute (EC2) for virtual machine instances,
+    - Elastic Block Store (EBS) for storage volumes
+    - Elastic Load Balancing
+- Paas
+    - Elastic Beanstalk
+    - Elastic Container Service (ECS)
+- Saas
+    - Simple Email Service
+    - Amazon WorkSpaces
+    - (Google’s Gmail service)
+    - (Microsoft Outlook)
+- Serverless
+    - AWS lamda
 
 ### Benefits from AWS
 
@@ -71,13 +97,15 @@ Amazon Web Services (AWS) is a platform of web services that offers solutions fo
 - AWS has more to offer in the way of the Internet of Things (IoT), applications, and mobile services.
 
 
-## What You Can Do With AWS Free Tier
+## Common Topic 
+
+### What You Can Do With AWS Free Tier
 
 1. [AWS starter projects](https://aws.amazon.com/getting-started/projects/)
 2. [reddit discussion: Project ideas for using AWS free tier?](https://www.reddit.com/r/aws/comments/5zadfk/project_ideas_for_using_aws_free_tier/)
 
 
-## Sign Up
+### Sign Up
 
 To use AWS, you must have two levels of access:
 
@@ -86,7 +114,7 @@ To use AWS, you must have two levels of access:
 2. Developer: The second level, which you must obtain after getting userlevel access, is developer access. Amazon wants to know who is using its service for a number of reasons, including billing, which means you need a developer ID to obtain the required programmatic access to services.
 
 
-## Most used AWS Services
+### Most used AWS Services
 
 1. Amazon S3: storing and retrieving the data
 2. EC2 [Elastic Compute Cloud]: develop and deploy applications quickly and effectively for a low cost.
@@ -99,17 +127,7 @@ To use AWS, you must have two levels of access:
 9.  Amazon ElastiCache: a memory cache system service on the cloud and supports Redis and Memcached.
 10.  Amazon Redshift: a fully managed data warehouse service in the cloud.
 
-
-### 1. S3
-
-### 2. EC2
-
-Amazon VPC is the networking layer for Amazon EC2.
-Amazon Virtual Private Cloud (Amazon VPC) enables you to launch AWS resources into a virtual network that you've defined. 
-//todo
-
-
-## Certifications
+### Certifications
 
 Depense on the difficulties, easiest is on the top
 
@@ -122,6 +140,7 @@ Depense on the difficulties, easiest is on the top
 7. AWS Certified Big Data – Specialty
 8. AWS Certified Advanced Networking – Specialty
 9. AWS Certified Solutions Architect – Professional
+
 
 ## Official 10-Minute Tutorials
 
@@ -175,6 +194,7 @@ Obstacle
 
 - Amazon RDS
 - If you want to visit db from your local client, need to set Public accessibility to Yes.
+
 
 ## References
 
