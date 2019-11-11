@@ -97,13 +97,72 @@ Amazon Web Services (AWS) is a platform of web services that offers solutions fo
 - AWS has more to offer in the way of the Internet of Things (IoT), applications, and mobile services.
 
 
-## Common Topic 
+## What AWS Free Tier provides
 
-### What You Can Do With AWS Free Tier
+- The 12-Month Free Tier
+- Permanently Free Services
+- https://aws.amazon.com/free 
+
+### The 12-Month Free Tier
+
+- 30 GB of either magnetic or solid-state drive (SSD) volumes from Amazon Elastic Block Storage (EBS).
+- 500 MB/month of free storage on the Amazon Elastic Container Registry (ECR).
+- 50 GB of outbound data transfers and 2 million HTTP or HTTPS requests for Amazon CloudFront distributions. (These are annual rather than monthly amounts.)
+- One million API calls/month on Amazon API Gateway
+
+### Permanently Free Services
+
+- 10 custom monitoring metrics and 10 alarms on Amazon CloudWatch active at any given time.
+- 10 GB of data retrievals from Amazon Glacier per month.
+- 62,000 outbound email messages per month using Amazon Simple Email Service (SES).
+- One million requests and 3.2 million seconds of compute time for AWS Lambda functions.
+
+### How to minitor your Free tier services
+
+1. Free Tier–related email alerts
+2. Billing Dashboard
+
+
+### What You Can Do With AWS Services Free Tier
 
 1. [AWS starter projects](https://aws.amazon.com/getting-started/projects/)
 2. [reddit discussion: Project ideas for using AWS free tier?](https://www.reddit.com/r/aws/comments/5zadfk/project_ideas_for_using_aws_free_tier/)
 
+
+## Product Pricing
+
+1. Each AWS service has its own web page dedicated to pricing.
+    - https://aws.amazon.com/s3/pricing
+    - https://aws.amazon.com/ec2/pricing
+2. Paying less if buy in bulk
+3. Server licensing costs are included in the hourly EC2 rates.
+
+### Product cost calculators
+
+1. Simple Monthly Calculator
+    - http://calculator .s3.amazonaws.com/index.html
+    - what running any combination of AWS resources will cost you
+
+2. Total Cost of Ownership Calculator
+    - https://aws.amazon.com/ tco-calculator
+    - compare what you’re currently paying for on-premises servers with what the same workload would cost on AWS.
+
+
+### Billing and Cost Management
+
+1. The AWS Billing Dashboard
+    - previous
+    - current
+    - forecast
+
+2. AWS Budgets
+
+### Service Limits
+
+1. run only 20 on-demand and 20 reserved instances of the EC2 m5.large instance type at any one time within a single AWS Region
+2. protect customers from having automated processes accidentally (or maliciously) launch resources that generate unsustainable costs.
+3. Most service limits are soft (or adjustable)—meaning that you can manually request that AWS increase a limit for your account.
+4. https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
 
 ### Sign Up
 
