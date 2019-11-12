@@ -12,12 +12,12 @@ Creating Github repo from either remote or locally.
 
 There are two ways to create a Github repository. One is pushing from local to remote, another is pulling from remote to local.
 
-###  Create a repo on Github and Clone it to local
+### 1. Create a repo on Github and Clone it to local
 1. Create a repo on Github
 2. Go to the project, find a URL 
 3. Go to your local folder, run command `git clone URL`
 
-### Create a local repository, push it to your Github account
+### 2. Create a local repository, push it to your Github account
 1. Create a directory to contain the project, go into this directory
 2. `git init` to initialise it as a Git Repository
 3. You’ll probably want to create a `.gitignore` file
@@ -26,6 +26,18 @@ There are two ways to create a Github repository. One is pushing from local to r
 6. In your local, run `git remote add origin https://github.com/username/new_repo`
 7. Push your code: `git push origin YOUR_BRANCH` 
 
+### 3. Configure remote url
+
+```bash
+
+# works without internet
+$ git config --get remote.origin.url 
+
+# works with internet
+$ git remote show origin
+```
+
+_Last Updated: Nov 2019_
 
 ## References: 
 - [Start a new git repository](http://kbroman.org/github_tutorial/pages/init.html)

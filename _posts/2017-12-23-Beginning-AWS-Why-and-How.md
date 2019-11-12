@@ -164,6 +164,63 @@ Amazon Web Services (AWS) is a platform of web services that offers solutions fo
 3. Most service limits are soft (or adjustable)—meaning that you can manually request that AWS increase a limit for your account.
 4. https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html
 
+
+## Getting Support on AWS
+
+1. Support plans: https://aws.amazon.com/ premiumsupport
+2. AWS Professional Services
+3. Documentation and Online Help
+4. Trusted Advisor
+
+### Support plans
+- The Basic Support Plan
+    - not paying anything
+    - access only to publicly available documentation, including white papers, tutorials, and support forums
+    - contact customer service at any time of the day or night for account-related issues (such as bill payment)
+    - limited access to the Trusted Advisor tool
+
+- Developer Support Plan
+    - starts at $29 /month
+    - Suitable for running nonproduction workloads, not ideal for critical applications
+    - AWS cloud support associates is limited to emails during business hours and to asking their advice on general information about AWS use cases.
+    - The associates you contact when you open a support ticket won’t be able to discuss specific problems you’re having or details about the way your particular application should be deployed.
+
+- Business Support Plan 
+    - starts at $100 /month
+    - meet the needs of many organizations
+    - guarantees a response from a cloud support engineer via email, chat, or phone within one hour.
+    - support can include help troubleshooting interoperability between AWS resources and third-party software and operating systems.
+
+- Enterprise Support Plan
+    - starting at $15,000/month
+    - appropriate only for large operations whose scope is global and for whom downtime is simply unthinkable
+    - the technical account manager (TAM) who is assigned as a dedicated “guide and advocate” for your account. the TAM becomes closely involved in your deployment, guiding your team through planning, launches, and proactive reviews—all optimized using best practices.
+    - 24/7 access to senior cloud support engineers and a 15-minute response time for business-critical troubleshooting.
+
+### AWS Professional Services
+
+https://aws.amazon.com/professional-services.
+
+### Documentation and Online Help
+
+- https://docs.aws.amazon.com
+- to get the latest version: `https://docs.aws.amazon.com/AmazonS3/latest/user-guide/what-is-s3.html`
+- AWS Knowledge Center (https://aws.amazon.com/premiumsupport/knowledge-center) is basically a frequently asked questions (FAQ) page
+- Security Resources: https://aws.amazon.com/security/security-resources
+- Forums: https://forums.aws.amazon.com and 
+
+### Trusted Advisor
+
+- Trusted Advisor is to visually confirm whether your account resource configurations are sound and are compliant with best practices. 
+- Full range of Trusted Advisor alerts is only available for users signed on to either the Business or Enterprise Support service tier
+- free Basic Support plan has some security alerts
+
+- Cost Optimization
+- Performance
+- Security
+- Fault Tolerance
+- Service Limits
+
 ### Sign Up
 
 To use AWS, you must have two levels of access:
