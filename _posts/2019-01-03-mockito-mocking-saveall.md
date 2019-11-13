@@ -1,5 +1,5 @@
 ---
-title: Mocking Batch Saving in Mockito
+title: How to use Mockito
 search: true
 tags: 
   - Mockito
@@ -153,7 +153,11 @@ Two ways
 
 ### 4. `@InjectMocks`
 
-    //todo 
+It's used to instantiate the @InjectMock annotated field and inject all the @Mock or @Spy annotated fields into it (if applicable).
+
+All test class fields are scanned for annotations and proper test doubles are initialized and injected into the @InjectMocks annotated object (either by a constructor, property setter, or field injection, in that precise order).
+
+If Mockito is not able to inject test doubles into the @InjectMocks annotated fields through either of the strategies, it won't report failure—the test will continue as if nothing happened (and most likely, you will get NullPointerException).
 
 ### 5. `@MockBean`
 
