@@ -50,7 +50,13 @@ Disadvantages:
 - The host, Amazon, maintains the software, provides the required licenses, and does all the other work needed to make the software available.
 
 ### Serverless workload
-//todo
+
+- No need to manage a server
+- Inherent scaling and HA
+- No idle capacity - lower cost
+- Quick deployment and updates
+- Pay-as-you-go model
+- Event/mocroservices architectures
 
 ### Benefits of Cloud Solution
 
@@ -220,6 +226,53 @@ https://aws.amazon.com/professional-services.
 - Security
 - Fault Tolerance
 - Service Limits
+
+
+## AWS Infrastructure
+
+https://aws.amazon.com/about-aws/global-infrastructure
+
+### Regionally Based Services
+
+- Locate your infrastructure geographically closer to your users to allow access with the lowest possible latency
+- Locate your infrastructure within national borders to meet regulatory compliance with legal and banking rules
+- Isolate groups of resources from each other and from larger networks to allow the greatest possible security
+
+### Globally Based Services
+
+- AWS Identity and Access Management (IAM)
+- Amazon CloudFront (CDN, content delivery network)
+- Amazon S3 buckets
+
+### Availability Zones and High Availability
+
+- A resource running without backup is known as a single point of failure.
+- The only effective protection against failure is redundancy.
+- Geographically parallel distribute your resources across remote locations. Cloud is easier and cheaper.
+- **Autoscaling** can be configured to replace or replicate a resource to ensure that a predefined service level is maintained.
+- **Load balancing** orchestrates the use of multiple parallel resources to direct user requests to the server resource that’s best able to provide a successful experience.
+
+### Edge Locations
+
+- An edge location is a site where AWS deploys physical server infrastructure to provide lowlatency user access to Amazon-based data.
+- Edge locations are smaller set of roles and  stock a much narrower set of hardware.
+- the best-known tenant of edge locations is **CloudFront**, Amazon’s CDN service.
+- **Amazon Route 53**: Amazon’s Domain Name System (DNS) administration tool for managing domain name registration and traffic routing 
+- **AWS Shield** A managed service for countering the threat of distributed denial-of-service (DDoS) attacks against your AWS-based infrastructure
+- **AWS Web Application Firewall (WAF) **A managed service for protecting web applications from web-based threats 
+- **Lambda@Edge** A tool designed to use the serverless power of Lambda to customize CloudFront behavior
+
+### The AWS Shared Responsibility Model
+
+- **Managed Resources**: A managed cloud service will “hide” all or some of the underlying configuration and administration work needed to keep things running, leaving you free to focus on the “business” end of your project. **Beanstalk** handles the instances, storage, databases, and networking headaches—including ongoing patches and administration—invisibly.
+
+- **Unmanaged Resources**: think about EC2. if you can edit it, you own it.
+
+### AWS Acceptable Use Policy
+
+Amazon reserves the right to suspend or even terminate your use of its services should you engage in illegal, insecure, or abusive activities (including the sending of spam and related mass mailings).
+
+---
 
 ### Sign Up
 
