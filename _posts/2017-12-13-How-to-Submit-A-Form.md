@@ -1,5 +1,5 @@
 ---
-title: Form (1), a Simple View from Front
+title: How to Submit a Form
 search: true
 tags: 
   - HTML
@@ -11,6 +11,26 @@ classes: wide
 ---
 
  Submits user's data and sends data to a server.
+
+
+ //todo new structure
+
+ /*
+ 
+ 1. What is a form
+ 2. form elements and possible options
+    - autocomplete
+    
+ 3. A traditional form
+ 4. Submit out of the <form>
+ 5. How does it work for get and post
+ 6. safty
+    - how it encrypt data
+    - other safty issues
+ 
+ 
+ 
+ */
 
 ## Quick demo
 
