@@ -18,21 +18,21 @@ classes: wide
  /*
  
  1. What is a form
+
  2. form elements and possible options
     - autocomplete
-    
+ 3. Input   
  3. A traditional form
  4. Submit out of the <form>
  5. How does it work for get and post
  6. safty
     - how it encrypt data
     - other safty issues
- 
- 
- 
  */
 
-## Quick demo
+## 0. Quick form demo
+
+In this demo, the form will send 2 pieces of data named `user_name` and `user_email`. Data will be sent to the URL `/my-handling-form-page` using the `HTTP POST` method.
 
 ```html
 <form action="/my-handling-form-page" method="post">
@@ -50,41 +50,40 @@ classes: wide
 </form>
 ```
 
-In this demo, the form will send 2 pieces of data named `user_name` and `user_email`. Data will be sent to the URL `/my-handling-form-page` using the `HTTP POST` method.
+Users interact application using forms, user can enter data and submit to server.
 
-## `<form>` Attribute Details
 
-### `action` 
+## 1. Elements in a HTML form
+
+### 1.1 `<form>`
+- `action` 
   - is the ocation that the data should be sent to
   - Must be a valid URL. Can be absolute or relative URL
   - If not provided, the data will be sent to the URL of the page containing the form
   - `<form action="#">`: before `HTML5`, `action` is required. It indicates data send to current page
 
-### `method` 
-
-`method="GET"`
-    - `method` by default is "GET"
-    - Data is appended to the URL 
-    - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
-    - `enctype` attribute will be ignored
+- `method`
+    - `method="GET"`
+        - `method` by default is "GET"
+        - Data is appended to the URL 
+        - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
+        - `enctype` attribute will be ignored
   
-`method="POST"`
-    - Data provided in the body of the HTTP request 
-    - No data appened to URL
-    - `enctype` attribute by default is `application/x-www-form-urlencoded`
+    - `method="POST"`
+        - Data provided in the body of the HTTP request 
+        - No data appened to URL
+        - `enctype` attribute by default is `application/x-www-form-urlencoded`
   
-```yaml
-POST / HTTP/1.1
-Host: foo.com
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 38
+    ```yaml
+    POST / HTTP/1.1
+    Host: foo.com
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 38
+    
+    user_name=moss&user_mail=haha@haha.com
+    ```    
 
-user_name=moss&user_mail=haha@haha.com
-```    
-
-## Attributes inside of `<form>`
-
-### `<label>`  Attributee
+### 1.2 `<label>`  Attributee
 
 ```html
 <!-- probably a better one -->
@@ -96,20 +95,24 @@ user_name=moss&user_mail=haha@haha.com
 When user click on the label, the input with `id="user_name"` shall be activated.
 It is especially useful for radio buttons and checkboxes.
 
+### 1.3 `<input>`Attribute
 
-### `<input>`Attribute
+  - ~~datetime: `HTML5` will be removed, don't use~~
+  - `button`: A push button with no default behavior
+  - `date`: `HTML5` year, month, and day, with no time
+  - `email`: `HTML5` A field for editing an e-mail address.
+  - `hidden`: not displayed, but value is submitted to the server
+  - `password`: Use the `maxlength` and `minlength` attributes to specify
+  - `range`: `HTML5` number range
+  - `autocomplete`: 
+      - lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, 
+      - guidance to the browser as to the type of information expected in the field.
+      - available on <input> elements that take a text or numeric value as input, <textarea> elements, <select> elements, and <form> elements.
+      - "off": The browser is not permitted to automatically enter or select a value for this field.
+      - "on": The browser is allowed to automatically complete the input. No guidance is provided.
+      - "new-password": prevent autofilling of password fields
 
-- button: A push button with no default behavior
-- date: `HTML5` year, month, and day, with no time
-- email: `HTML5` A field for editing an e-mail address.
-- hidden: not displayed, but value is submitted to the server
-- password: Use the `maxlength` and `minlength` attributes to specify
-- range: `HTML5` number range
-- ~~datetime: `HTML5` will be removed, don't use~~
-
-See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
-
-### `<button>`
+### 1.4 `<button>`
 
 - `type="submit"`: A click will submit data
 - `type="reset"` : A click will reset data in form
@@ -129,7 +132,7 @@ See more: [MDN Web Docs for Input](https://developer.mozilla.org/en-US/docs/Web/
 <input type="submit" value="This is a submit button">
 ```
 
-## Submit a form
+## 2. Submit a form
 
 ### AJAX
 
@@ -313,3 +316,4 @@ Find more: [MDN Constraint Validation](https://developer.mozilla.org/en-US/docs/
 - [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
 - [How do I make submit button without form?](https://www.quora.com/How-do-I-make-submit-button-without-form)
 - [Sensible Forms: A Form Usability Checklist](http://alistapart.com/article/sensibleforms)
+- [How to turn off form autocompletion](https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#The_autocomplete_attribute_and_login_fields)
