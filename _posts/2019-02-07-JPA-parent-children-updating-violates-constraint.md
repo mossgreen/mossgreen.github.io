@@ -26,9 +26,10 @@ What I've tried, however doesn't work:
 
 3. Annotate the deleting mehtod with `@Transactional`, then implement the insert.
 
-3. After deleting, run `repository.flush()`.
+4. After deleting, run `repository.flush()`.
 
 What saved me:
+
 ```sql
 ALTER TABLE options
   ADD CONSTRAINT your_constraint_name UNIQUE (id, label) DEFERRABLE INITIALLY DEFERRED;
@@ -37,8 +38,6 @@ ALTER TABLE options
 Explain:
 
 JPA preference is to instert before deleting so when we have parent child contraints it will not work, so we added the deferred constraint so it will delete and insert then apply the contraint rules. This will only work for prostgress and Oracle future dbs be aware.
-
-
 
 ## References
 

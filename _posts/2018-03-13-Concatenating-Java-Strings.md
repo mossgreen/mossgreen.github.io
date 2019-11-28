@@ -1,5 +1,5 @@
 ---
-title: String, and One Step Further
+title: Concatenating Java Strings
 search: true
 tags: 
   - Java
@@ -9,14 +9,16 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-> Behavior of String literals is very confusing.
+
+Behavior of String literals is very confusing.
 
 ## String is immutable
 
 **What is immutable**  
 An immutable object is one that will not change state after it is instantiated. 
 
-**How to declare an immutable class**  
+**How to declare an immutable class**
+
 - Declare class final
 - Make the fields final and initialize them in the constructor
 - Only getters no setters

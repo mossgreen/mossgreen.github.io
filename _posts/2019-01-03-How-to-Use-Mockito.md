@@ -20,7 +20,6 @@ It's different from stubs. Stubs have hard coded logic.
 
 Mockito is the most popular Mocking framework for unit tests written in Java
 
-
 ## How to mock a behaviour
 
 1. Before method run, you tell Mockito what to do when methods got called
@@ -32,19 +31,18 @@ Mockito offers two ways of stubbing.
 1. when this method is called, then do something
 2. Do something when this mock’s method is called with the given arguments
 
+The first way is considered preferred because
 
-The first way is considered preferred because 
-- it is typesafe and 
-- readable. 
+- it is typesafe and
+- readable.
 
 However, you’re forced to use the second way, such as when stubbing a real method of a spy because calling it may have unwanted side effects.
-
 
 ## Enable Mockito annotations
 
 Two ways
 
-1. Annotate the JUnit testing class 
+1. Annotate the JUnit testing class
 
     Mockito runner initializes proxy objects annotated with the `@Mock` annotation.
 
@@ -54,13 +52,13 @@ Two ways
     ```
 
 2. Initialise it inside of `@Before`
-    ```
+
+    ```java
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
     }
     ```
-
 
 ## Annotations
 
@@ -86,7 +84,7 @@ Two ways
 
     ```java
     @Mock List<String> mockedList;
-    
+
     @Test
     public void testWithMockAnnotation() {
         mockList.add("one");
@@ -101,7 +99,7 @@ Two ways
     @Test
     public void testWithoutSpyAnnotation() {
         List<String> spyList = Mockito.spy(new ArrayList<String>());
-         
+
         spyList.add("one");
         Mockito.verify(spyList).add("one");
     }
@@ -111,11 +109,11 @@ Two ways
 
     ```java
     @Spy List<String> spiedList = new ArrayList<String>();
-    
+
     @Test
     public void testWithSpyAnnotation() {
         spiedList.add("one");
-        Mockito.verify(spiedList).add("one");    
+        Mockito.verify(spiedList).add("one");
     }
     ```
 
@@ -128,10 +126,10 @@ Two ways
     public void testWithoutCaptorAnnotation() {
         List mockList = Mockito.mock(List.class);
         ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
-     
+
         mockList.add("one");
         Mockito.verify(mockList).add(arg.capture());
-     
+
         assertEquals("one", arg.getValue());
     }
     ```
@@ -141,12 +139,12 @@ Two ways
     ```java
     @Mock List mockedList;
     @Captor ArgumentCaptor argCaptor;
-    
+
     @Test
     public void testWithCaptorAnnotation() {
         mockedList.add("one");
         Mockito.verify(mockedList).add(argCaptor.capture());
-        
+
         assertEquals("one", argCaptor.getValue());  
     }
     ```
@@ -166,10 +164,10 @@ The `@MockBean` will also be injected into the field.
 ```java
 @RunWith(SpringRunner.class)
 public class MockBeanAnnotationIntegrationTest {
-     
+
     @MockBean
     UserRepository mockUserRepository;
-     
+
     @Test
     public void givenCountMethodMocked_WhenCountInvoked_ThenMockValueReturned() {
         Mockito.when(mockUserRepository.getSomething())
@@ -178,22 +176,22 @@ public class MockBeanAnnotationIntegrationTest {
 }
 ```
 
-
 ## RETURNING CUSTOM RESPONSES
 
 1. When... Then
+
     ```java
     when(passwordEncoder.encode("1")).thenAnswer(
            invocation -> invocation.getArgument(0) + "!");
-           
+
     when(passwordEncoder.encode("1")).thenAnswer(invocation -> {
        throw new IllegalArgumentException();
     });
-    
+
     // throw exception instance
     when(passwordEncoder.encode("1"))
       .thenThrow(new IllegalArgumentException());
-      
+
     // throw exception class  
     when(passwordEncoder.encode("1"))
       .thenThrow(IllegalArgumentException.class);
@@ -202,24 +200,23 @@ public class MockBeanAnnotationIntegrationTest {
     ```
 
 2. Do... When
+
     ```java
     doAnswer(invocation -> invocation.getArgument(0) + "!")
            .when(passwordEncoder).encode("1");
-           
+
     doThrow(new IllegalArgumentException()).when(passwordEncoder).encode("1");
-    
+
     doThrow(IllegalArgumentException.class).when(passwordEncoder).encode("1");
 
     ```
 
 ## Argument Matchers
 
-- `eq()` 
+- `eq()`
 //todo
 
-
-## Mock a void method 
-
+## Mock a void method
 
 ## Mock a single saving  
 
@@ -235,7 +232,6 @@ when(mockingRepository.save(any(User.class))).thenAnswer(new Answer<String>() {
     }
 });
 ```
-
 
 ## Mock a batch saving  
 
@@ -259,7 +255,6 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
     });
 ```
 
-
 ## Spy
 
 Spy doesn't use as much as Mock.
@@ -268,16 +263,15 @@ You create a spy and stub some of its methods to get the behaviour you want.
 
 //todo
 
-
 ## What Mockito cannot do
 
 Mockito cannot mock or spy on:
-- Java constructs such as final classes and methods, 
-- static methods, 
-- enums, 
+- Java constructs such as final classes and methods
+- static methods,
+- enums,
 - private methods (with Spring ReflectionTestUtils)
-- the `equals()` and `hashCode()` methods, 
-- primitive types, and 
+- the `equals()` and `hashCode()` methods,
+- primitive types, and
 - anonymous classes.
 
 Answer to this:
@@ -293,18 +287,18 @@ The `org.springframework.test.util` package contains `ReflectionTestUtils`, whic
 ```java
 public class ReflectionUtilsTest {
 
-    @Test 
+    @Test
     public void private_field_access() throws Exception {
-    
-        Secret myClass = new Secret(); 
-        myClass.initiate("aio"); 
-        
-        Field secretField = ReflectionUtils.findField(Secret.class, "secret", String.class); assertNotNull(secretField); 
-        
-        ReflectionUtils.makeAccessible(secretField); 
+
+        Secret myClass = new Secret();
+        myClass.initiate("aio");
+
+        Field secretField = ReflectionUtils.findField(Secret.class, "secret", String.class); assertNotNull(secretField);
+
+        ReflectionUtils.makeAccessible(secretField);
         assertEquals("zko", ReflectionUtils.getField(secretField, myClass));
-        
-        ReflectionUtils.setField(secretField, myClass, "cool"); 
+
+        ReflectionUtils.setField(secretField, myClass, "cool");
         assertEquals("cool", ReflectionUtils.getField(secretField, myClass));
     }
 }

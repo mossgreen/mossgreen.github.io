@@ -1,5 +1,5 @@
 ---
-title: Setup a simplest Spring Boot Project
+title: Setup a simplest Spring Project Demo Project
 search: true
 tags: 
   - Spring
@@ -9,61 +9,156 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: single
 ---
-Get a simplest Spring Boot project up and running.
+
+A Spring Demo project. See: <https://github.com/digitalsonic/geektime-spring-family>
 
 ## Where to start
 
 1. [Spring initializr](https://start.spring.io/) (recommended)
 2. Create project from your IDE: IntelliJ, or Eclipse, etc..
 
-```bash
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
+## Spring Boot & JPA with H2
+
+### 0. Gradle dependency
+
+`build.gradle`
+
+```properties
+implementation 'org.springframework.boot:spring-boot-starter'
+compileOnly 'org.projectlombok:lombok'
+developmentOnly 'org.springframework.boot:spring-boot-devtools'
+annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+annotationProcessor 'org.projectlombok:lombok'
+testImplementation 'org.springframework.boot:spring-boot-starter-test'
+implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+compile 'com.h2database:h2'
+testImplementation 'org.springframework.boot:spring-boot-starter-test'
+compile 'org.joda:joda-money:1.0.1'
+implementation 'org.jadira.usertype:usertype.core:6.0.1.GA'
 ```
 
-## How to import a existing project
+Note: from offical website, joda money gradle dependency uses `compile 'org.joda:joda-money:1.0.2-SNAP-SHOT'` which is wrong.
 
-1. Open the project using the build file  
-In IntelliJ IDEA, Menu:
-File | Open | Path_to_the_file | build.gradle
-Open as a project
+### 1. Entity
 
-2. Build your project
-    - make sure your select the correct version of java
-    - make sure the gradle or maven version is correct. 
+1. Base Entity
+    - Abstraction of multiple entites
+    - `@MappedSuperclass`
+    - no `toString()` method
+    - `createTime` is not updatable
 
+    ```java
+    @MappedSuperclass
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class BaseEntity implements Serializable {
+        @Id
+        @GeneratedValue
+        private Long id;
 
-## How to run
+        @Column(updatable = false)
+        @CreationTimestamp
+        private LocalDateTime createTime;
 
-1. IDEA recognises the `Main` method
-2. Otherwise, you needto run it manually. **Application** class is normally in the class with `@SpringBootApplication`.
-3. If you have DB dependencies, need to configure your db 
-4. `application.properties`
-    ```properties
-    spring.datasource.driverClassName=org.postgresql.Driver
-    spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/ihobbdb
-    spring.datasource.username=myusername
-    spring.datasource.password=mypassword
-    
-    spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
-    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL9Dialect
+        @UpdateTimestamp
+        private LocalDateTime updateTime;
+    }
     ```
 
+2. Enum
 
-## Git ignore
+    ```java
+    public enum OrderState {
+        INIT, PAID, BREWING, BREWED, TAKEN,CANCELLED
+    }
+    ```
 
-Checkout official `.gitignore` file from [Spring Boot](https://github.com/spring-projects/spring-boot/blob/master/.gitignore).
+3. Entity
+    - Be careful of the Money `joda.PersistentMoneyAmount`
+    - Extends base entity
+    - in `toString`, uses `callSuper = true`
+    - `@Enumerated`
 
+    ```java
+    @Entity
+    @Table(name = "T_MENU")
+    @Builder
+    @Data
+    @ToString(callSuper = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Coffee extends BaseEntity implements Serializable {
 
-## Take ways
+        private String name;
+        @Column
+        @Type(type = "org.jadira.usertype.moneyandcurrency.joda.PersistentMoneyAmount",
+                parameters = {@org.hibernate.annotations.Parameter(name = "currencyCode", value = "CNY")})
+        private Money price;
+    }
+    ```
 
-1. How fast is it to start?   
-With db running, it's 3 seconds-ish
+    ```java
+    @Entity
+    @Table(name = "T_ORDER")
+    @Data
+    @ToString(callSuper = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public class CoffeeOrder extends BaseEntity implements Serializable {
+
+        private String customer;
+        @ManyToMany
+        @JoinTable(name = "T_ORDER_COFFEE")
+        @OrderBy("id")
+        private List<Coffee> items;
+
+        @Enumerated
+        @Column(nullable = false)
+        private Integer state;
+    }
+    ```
+
+### 2. Repository
+
+1. Base Repository
+
+    - `@NoRepositoryBean`
+
+    ```java
+    @NoRepositoryBean
+    public interface BaseRepository<T, Long> extends PagingAndSortingRepository<T, Long> {
+        List<T> findTop3ByOrderByUpdateTimeDescIdAsc();
+    }
+    ```
+
+2. Regular repositories
+    - extends base repository
+
+    ```java
+    public interface CoffeeRepository extends BaseRepository<Coffee, Long> {}
+
+    public interface CoffeeOrderRepository extends BaseRepository<CoffeeOrder, Long> {
+        List<CoffeeOrder> findByCustomerOrderById(String customer);
+        List<CoffeeOrder> findByItems_Name(String name);
+    }
+    ```
+
+### 3. Main method
+
+- `@SpringBootApplication`
+- @EnableJpaRepositories
+
+### 4. application.properties
+
+```properties
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.properties.hibernate.show_sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+## references
+
+- <https://github.com/digitalsonic/geektime-spring-family>
+- https://www.baeldung.com/spring-data-redis-tutorial
