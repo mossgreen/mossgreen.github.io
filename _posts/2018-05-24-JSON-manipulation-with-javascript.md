@@ -107,7 +107,7 @@ In JS, JSON is an object, however, in a transaction, JSON is a string. JS provid
   // 31
   ```
 
-## Ready a JSON tree recursively
+## Read a JSON tree recursively
 
 ```javascript
 // This function handles arrays and objects
@@ -130,11 +130,7 @@ function eachRecursive(obj)
 - `Object.entries()` returns an array of object's keys and corresponding values in a format `[key, value]`.
 
 ```javascript
-const obj = {
-  a: 1
- ,b: 2
- ,c: 3
-}
+const obj = { a: 1 ,b: 2 ,c: 3 }
 
 console.log(Object.keys(obj)) // ['a', 'b', 'c']
 console.log(Object.values(obj)) // [1, 2, 3]
@@ -152,9 +148,9 @@ for (const element of Object.entries(obj)) {
 }
 ```
 
+## Convert a http response to object
 
-# Convert a http response to object
-```
+```javascript
 this.restService.post('/projects', true, JSON.stringify(project))
     .subscribe((response: Project) => {
             const newProject: Project = new Project();
@@ -163,9 +159,10 @@ this.restService.post('/projects', true, JSON.stringify(project))
 ```
 
 ## Merge two jsons, or say values overwriting
+
 `Object.assign(target, ...sources)`
 
-```
+```javascript
 var o1 = { a: 1, b: 1, c: 1 };
 var o2 = { b: 2, c: 2 };
 var o3 = { c: 3 };
@@ -174,13 +171,9 @@ var obj = Object.assign({}, o1, o2, o3);
 console.log(obj); // { a: 1, b: 2, c: 3 }
 ```
 
-
-
 ## References
 
 - [looping through an object (tree) recursively](https://stackoverflow.com/questions/2549320/looping-through-an-object-tree-recursively)
-
 - [Access / process (nested) objects, arrays or JSON](https://stackoverflow.com/questions/11922383/access-process-nested-objects-arrays-or-json)
-
 - [MDN: Object.assign()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
 

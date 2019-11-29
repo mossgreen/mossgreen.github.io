@@ -8,8 +8,7 @@ categories:
 
 Preview your site and help troubleshoot failed Jekyll builds.
 
-Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous. We highly recommend installing Jekyll to preview your site and help troubleshoot failed Jekyll builds.
-
+Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous. It's highly recommend installing Jekyll to preview your site and help troubleshoot failed Jekyll builds.
 
 ## Requirements
 
@@ -27,9 +26,10 @@ Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous.
 4. In project directory, update dependencies:`$ bundle install`
 
 ## Run it
+
 - Navigate to the root directory: `cd blog`
 
-- Run your Jekyll site locally on 'watch mood': 
+- Run your Jekyll site locally on 'watch mood':
 
     ```bash
     $ bundle exec Jekyll serve --watch
@@ -40,4 +40,5 @@ Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous.
 - If you update something, when you hit **Save**, it will automatically update
 
 ## End
+
 - Add your changes and push to the repo on GitHub
