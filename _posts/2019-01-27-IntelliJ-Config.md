@@ -53,9 +53,9 @@ Preference | compiler | Build Project Automatically
 Set JAVA_HOME globally on MAC OS with launchctl
 
 ```bash
-launchctl setenv JAVA_HOME $(/usr/libexec/java_home -v 1.8)
+\$ launchctl setenv JAVA_HOME $(/usr/libexec/java_home -v 1.8)
 # or
-launchctl setenv JAVA_HOME ~/.sdkman/candidates/java/current
+\$ launchctl setenv JAVA_HOME ~/.sdkman/candidates/java/current
 ```
 
 ### 4. customise your font colour
@@ -79,6 +79,12 @@ Normally information like this will be found in one of the following places in O
 ```
 
 If the app adheres to the standard OS X conventions you weill find info in one or all of these places. If it doesnt store here you might check for a `/Users/username/.intellij` folder or something similar in your home directory
+
+## Errors
+
+### 1. Could not target platform: 'Java SE 11' using tool chain: 'JDK 8
+
+Gradle JVM: change to version 1.8
 
 ## References
 
