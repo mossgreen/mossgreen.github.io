@@ -134,3 +134,5 @@ du -h . | sort -n -r | head -n 10
 #  find the largest folders on a file system
 du -a / | sort -n -r | head -n 10
 ```
+
+Last update: Dec 2019
