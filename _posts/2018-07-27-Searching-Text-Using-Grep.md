@@ -24,6 +24,8 @@ How to search text in your files in Linux?
 
 `grep` stands for "global regular expression print". It processes text line by line and prints any lines which match a specified pattern.
 
+It can accept standard input as a parameter.
+
 ### Install grep
 
 ```bash

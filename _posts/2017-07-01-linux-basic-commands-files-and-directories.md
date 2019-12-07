@@ -2,7 +2,7 @@
 title: Linux Basic Commands for Files and Directories
 search: true
 tags: 
-  - Linux
+  - linux
 toc: true
 ---
 
@@ -113,6 +113,41 @@ find . -name 'my*' -ls
 
 # find files in current dir, type is file, updated within 10 mins
 find . -type f -mmin -10
+```
+
+### Find with `xargs`
+
+The most common usage of xargs is to use it with the find command. This uses find to search for files or directories and then uses xargs to operate on the results. Typical examples of this are
+
+- removing files,
+- changing the ownership of files or
+- moving files.
+
+Parameters:
+
+- `-t`: prints each command
+- `-p`: prints the command to be executed and prompt the user to run it.
+
+```bash
+echo 'how are you' | xargs mkdir
+ls -alh
+drwxr-xr-x  5 moss  staff   160B  6 Dec 20:48 .
+drwxr-xr-x  7 moss  staff   224B  6 Dec 20:47 ..
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 are
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 how
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 you
+
+# The -t option prints each command, it's helpful when debugging
+echo 'how are you' | xargs -t rm
+ls -alh
+drwxr-xr-x  5 moss  staff   160B  6 Dec 20:48 .
+drwxr-xr-x  7 moss  staff   224B  6 Dec 20:47 ..
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 are
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 how
+drwxr-xr-x  2 moss  staff    64B  6 Dec 20:48 you
+
+# files older than two weeks in the temp folder are found and then remove them
+\$ find /tmp -mtime +14 | xargs -t rm
 ```
 
 ## Estimating file space usage
