@@ -165,6 +165,15 @@ It can accept standard input as a parameter.
 
 6. `\bmoss\b` # only 'moss'
 
+## Docker logs with grep
+
+`grep` doesn't work on docker logs command: `docker logs nginx | grep "error"`.
+Because `docker logs` doesn't send output to standard output. piping works only for stdout. Try:
+
+```bash
+\$ docker logs nginx 2>&1 | grep "error"
+```
+
 ## Scenarios
 
 ### 1. I have a very big log file and try to find the line that in a certain time
