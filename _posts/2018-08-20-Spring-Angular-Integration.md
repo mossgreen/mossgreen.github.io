@@ -26,9 +26,76 @@ Setup a project with Spring Boot and Angular.
 
 2. Generate a Webapp using Angular CLI
 
-3. Update configuration files
+    In `src/main` folder, do
 
-4. Set up NodeJS
+    ```bash
+    ng new webapp
+    ```
+
+3. Move configuration files
+
+    - Remove `node_modules`
+    - Move config files from webapp to root directory. We do this because we want to leave only the public files in Webapp folder.
+        - Move App from webapp/src/ to webapp/
+        - Move config files (not dirs) from webapp/e2e/ to root
+        - Move config files from webapp/src/ to root
+
+4. Update configuration files
+    - angular.json
+    - tsconfig.app.json
+    - tsconfig.e2e.json
+    - tsconfig.json
+    - tsconfig.spec.json
+    - protractor.conf.js
+    - karma.conf.js
+
+5. Set up frontend-maven-plugin in `pom.xml`
+
+    ```xml
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.6</version>
+
+        <configuration>
+          <nodeVersion>v13.1.0</nodeVersion>
+          <npmVersion>6.12.1</npmVersion>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>npm run build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>run build:prod</arguments>
+            </configuration>
+          </execution>
+        </executions>
+    </plugin>
+    ```
+
+    `npm run build` command will execute the build task described in package.json. By default, angular-cli will write the files in the `src/main/web/dist` directory, but we've changed the dist directory to `target/webapp`.
+
+    Now, run `mvn clean install` from project root dir
+
+6. Set up NodeJS
 
 ## Angular project comsumes Spring Boot API
 
