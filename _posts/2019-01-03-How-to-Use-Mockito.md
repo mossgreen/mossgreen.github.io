@@ -1,9 +1,11 @@
 ---
 title: How to use Mockito
 search: true
-tags: 
+tags:
   - Mockito
   - Unit Test
+  - Spring
+  - Spring Boot
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
@@ -44,21 +46,21 @@ Two ways
 
 1. Annotate the JUnit testing class
 
-    Mockito runner initializes proxy objects annotated with the `@Mock` annotation.
+   Mockito runner initializes proxy objects annotated with the `@Mock` annotation.
 
-    ```java
-    @RunWith(MockitoJUnitRunner.class)
-    public class MockitoAnnotationTest {}
-    ```
+   ```java
+   @RunWith(MockitoJUnitRunner.class)
+   public class MockitoAnnotationTest {}
+   ```
 
 2. Initialise it inside of `@Before`
 
-    ```java
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-    }
-    ```
+   ```java
+   @Before
+   public void init() {
+       MockitoAnnotations.initMocks(this);
+   }
+   ```
 
 ## Annotations
 
@@ -72,82 +74,82 @@ Two ways
 
 - Without `@Mock`
 
-    ```java
-    @Test
-    public void testWithoutMockAnnotation() {
-        List mockList = Mockito.mock(ArrayList.class);
-        mockList.add("one");
-    }
-    ```
+  ```java
+  @Test
+  public void testWithoutMockAnnotation() {
+      List mockList = Mockito.mock(ArrayList.class);
+      mockList.add("one");
+  }
+  ```
 
 - With `@Mock`
 
-    ```java
-    @Mock List<String> mockedList;
+  ```java
+  @Mock List<String> mockedList;
 
-    @Test
-    public void testWithMockAnnotation() {
-        mockList.add("one");
-    }
-    ```
+  @Test
+  public void testWithMockAnnotation() {
+      mockList.add("one");
+  }
+  ```
 
 ### 2. `@Spy`
 
 - Without `@Spy`
 
-    ```java
-    @Test
-    public void testWithoutSpyAnnotation() {
-        List<String> spyList = Mockito.spy(new ArrayList<String>());
+  ```java
+  @Test
+  public void testWithoutSpyAnnotation() {
+      List<String> spyList = Mockito.spy(new ArrayList<String>());
 
-        spyList.add("one");
-        Mockito.verify(spyList).add("one");
-    }
-    ```
+      spyList.add("one");
+      Mockito.verify(spyList).add("one");
+  }
+  ```
 
 - With `@Spy`
 
-    ```java
-    @Spy List<String> spiedList = new ArrayList<String>();
+  ```java
+  @Spy List<String> spiedList = new ArrayList<String>();
 
-    @Test
-    public void testWithSpyAnnotation() {
-        spiedList.add("one");
-        Mockito.verify(spiedList).add("one");
-    }
-    ```
+  @Test
+  public void testWithSpyAnnotation() {
+      spiedList.add("one");
+      Mockito.verify(spiedList).add("one");
+  }
+  ```
 
 ### 3. `@Captor`
 
 - Without `@Captor`
 
-    ```java
-    @Test
-    public void testWithoutCaptorAnnotation() {
-        List mockList = Mockito.mock(List.class);
-        ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
+  ```java
+  @Test
+  public void testWithoutCaptorAnnotation() {
+      List mockList = Mockito.mock(List.class);
+      ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
 
-        mockList.add("one");
-        Mockito.verify(mockList).add(arg.capture());
+      mockList.add("one");
+      Mockito.verify(mockList).add(arg.capture());
 
-        assertEquals("one", arg.getValue());
-    }
-    ```
+      assertEquals("one", arg.getValue());
+  }
+  ```
 
 - With `@Captor`
 
-    ```java
-    @Mock List mockedList;
-    @Captor ArgumentCaptor argCaptor;
+  ```java
+  @Mock List mockedList;
+  @Captor ArgumentCaptor argCaptor;
 
-    @Test
-    public void testWithCaptorAnnotation() {
-        mockedList.add("one");
-        Mockito.verify(mockedList).add(argCaptor.capture());
+  @Test
+  public void testWithCaptorAnnotation() {
+      mockedList.add("one");
+      Mockito.verify(mockedList).add(argCaptor.capture());
 
-        assertEquals("one", argCaptor.getValue());  
-    }
-    ```
+      assertEquals("one", argCaptor.getValue());
+  }
+  ```
 
 ### 4. `@InjectMocks`
 
@@ -180,45 +182,46 @@ public class MockBeanAnnotationIntegrationTest {
 
 1. When... Then
 
-    ```java
-    when(passwordEncoder.encode("1")).thenAnswer(
-           invocation -> invocation.getArgument(0) + "!");
+   ```java
+   when(passwordEncoder.encode("1")).thenAnswer(
+          invocation -> invocation.getArgument(0) + "!");
 
-    when(passwordEncoder.encode("1")).thenAnswer(invocation -> {
-       throw new IllegalArgumentException();
-    });
+   when(passwordEncoder.encode("1")).thenAnswer(invocation -> {
+      throw new IllegalArgumentException();
+   });
 
-    // throw exception instance
-    when(passwordEncoder.encode("1"))
-      .thenThrow(new IllegalArgumentException());
+   // throw exception instance
+   when(passwordEncoder.encode("1"))
+     .thenThrow(new IllegalArgumentException());
 
-    // throw exception class  
-    when(passwordEncoder.encode("1"))
-      .thenThrow(IllegalArgumentException.class);
+   // throw exception class
+   when(passwordEncoder.encode("1"))
+     .thenThrow(IllegalArgumentException.class);
+   ```
 
 
     ```
 
 2. Do... When
 
-    ```java
-    doAnswer(invocation -> invocation.getArgument(0) + "!")
-           .when(passwordEncoder).encode("1");
+   ```java
+   doAnswer(invocation -> invocation.getArgument(0) + "!")
+          .when(passwordEncoder).encode("1");
 
-    doThrow(new IllegalArgumentException()).when(passwordEncoder).encode("1");
+   doThrow(new IllegalArgumentException()).when(passwordEncoder).encode("1");
 
-    doThrow(IllegalArgumentException.class).when(passwordEncoder).encode("1");
+   doThrow(IllegalArgumentException.class).when(passwordEncoder).encode("1");
 
-    ```
+   ```
 
 ## Argument Matchers
 
 - `eq()`
-//todo
+  //todo
 
 ## Mock a void method
 
-## Mock a single saving  
+## Mock a single saving
 
 Saving a new User object, means service accept a user without Id and will return a user with id to the front end. When we mockito it, we would do it this way:
 
@@ -233,7 +236,7 @@ when(mockingRepository.save(any(User.class))).thenAnswer(new Answer<String>() {
 });
 ```
 
-## Mock a batch saving  
+## Mock a batch saving
 
 In order to improve performance, we sometimes like to use saveAll() method. So this time we pass in a list of Users, here is the answer:
 
@@ -258,7 +261,7 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
 ## Spy
 
 Spy doesn't use as much as Mock.
-It's useful  for testing legacy code.
+It's useful for testing legacy code.
 You create a spy and stub some of its methods to get the behaviour you want.
 
 //todo
@@ -266,6 +269,7 @@ You create a spy and stub some of its methods to get the behaviour you want.
 ## What Mockito cannot do
 
 Mockito cannot mock or spy on:
+
 - Java constructs such as final classes and methods
 - static methods,
 - enums,
@@ -276,8 +280,8 @@ Mockito cannot mock or spy on:
 
 Answer to this:
 
-- PowerMockito, an extension of the Mockito, let us mock static and private methods. 
-- As per the design, you should not opt for mocking private or static properties because it violates the encapsulation. 
+- PowerMockito, an extension of the Mockito, let us mock static and private methods.
+- As per the design, you should not opt for mocking private or static properties because it violates the encapsulation.
 - You should refactor the offending code to make it testable.
 
 ### Mockito mock private methods using RelectionTestUtils
@@ -304,9 +308,62 @@ public class ReflectionUtilsTest {
 }
 ```
 
+## Scenarios
+
+### 1. The component is really bad designed and had too many dependencies
+
+If we need to re-mock many dependency beans, how about we extract the logic into an abstract class?
+
+```java
+public abstract class MockedRepository {
+    @MockBean
+    public ApplicationContext applicationContext;
+
+    @MockBean
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @MockBean
+    public JdbcTemplate jdbc;
+
+    @MockBean
+    public Security security;
+
+    @MockBean
+    public UsersRepository usersRepository;
+}
+```
+
+### 2. To mock it self
+
+```java
+@RunWith(SpringRunner.class)
+@ContextConfiguration
+public class ItSelfRepositoryTest extends MockedRepository {
+
+    @MockBean
+    private DependencyOne dependencyOne;
+
+    @MockBean
+    private DependencyTwo dependencyTwo;
+
+    @Autowired
+    private ItSelfRepository itSelfRepository;
+
+     @TestConfiguration
+    static class ItSelfRepositoryConfiguration {
+        @Bean
+        public ItSelfRepository itSelfRepository() {
+            return new ItSelfRepository();
+        }
+    }
+}
+```
+
 ## References
 
 - [MOCKITO – ANSWER VS. RETURN](https://www.planetgeek.ch/2010/07/20/mockito-answer-vs-return/)
 - [A Unit Testing Practitioner's Guide to Everyday Mockito](https://www.toptal.com/java/a-guide-to-everyday-mockito)
 - [Stubbing and Mocking with Mockito 2 and JUnit](https://semaphoreci.com/community/tutorials/stubbing-and-mocking-with-mockito-2-and-junit)
 - [Getting Started with Mockito Annotations](https://www.baeldung.com/mockito-annotations)
+
+Last update: Dec 2019
