@@ -17,10 +17,15 @@ In Mockito Answer, we mock the process.
 ## Why Mockito
 
 Unit tests are to test behaviours with initialing the real objects or load the real dependencies.
+Mocks and stubs are fake Java classes that replace these external dependencies. Stubs have hard coded logic. Mockito is the most popular Mocking framework for unit tests written in Java.
 
-It's different from stubs. Stubs have hard coded logic.
+Common targets for mocking are:
 
-Mockito is the most popular Mocking framework for unit tests written in Java
+- Database connections,
+- Web services,
+- Classes that are slow ,
+- Classes with side effects, and
+- Classes with non-deterministic behavior.
 
 ## How to mock a behaviour
 
@@ -199,7 +204,6 @@ public class MockBeanAnnotationIntegrationTest {
      .thenThrow(IllegalArgumentException.class);
    ```
 
-
     ```
 
 2. Do... When
@@ -358,6 +362,19 @@ public class ItSelfRepositoryTest extends MockedRepository {
     }
 }
 ```
+
+### 3. Override default Spring-Boot application.properties settings in Junit Test
+
+You can use `@TestPropertySource` to override values in `application.properties`. E.g., 
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = ExampleApplication.class)
+@TestPropertySource(locations="classpath:test.properties")
+public class ExampleApplicationTests { }
+```
+
+NB. `@TestPropertySource` can accept a properties argument to overwrite some property inline, such as `@TestPropertySource(properties = "myConf.myProp=valueInTest")`, it's useful in case that you don't want a totally brand new property file.
 
 ## References
 
