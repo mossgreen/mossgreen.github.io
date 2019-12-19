@@ -24,7 +24,7 @@ Automated tests
 
 - are performed by a machine that executes a test script that has been written in advance.
 - he quality of your automated tests depends on how well your test scripts have been written
-- Automated testing is a key component of continuous integration and continuous delivery and it's a great way to scale your QA process as you add new features to your application. 
+- Automated testing is a key component of continuous integration and continuous delivery and it's a great way to scale your QA process as you add new features to your application.
 
 ### 2. Functional Testing vs. Non-functional Testing
 
@@ -79,7 +79,7 @@ Non-functional Testing types include:
 
 ## Some Non-Functional Testing that I'm interest in
 
-Performance Testing Vs Load Testing Vs Stress Testing 
+Performance Testing Vs Load Testing Vs Stress Testing
 
 ### Performance Testing
 
@@ -94,15 +94,15 @@ Performance Testing Vs Load Testing Vs Stress Testing
 ### Load Testing
 
 - Load testing is meant to test the system by constantly and steadily increasing the load on the system until it reaches the threshold limit. It is a subset of performance testing.
-- can be easily done by employing any of the suitable automation tools available in the market. 
+- can be easily done by employing any of the suitable automation tools available in the market.
 - **WAPT** and **LoadRunner** are two such famous tools that aid in load testing.
 - Goal: To determine the upper limit of all the components of an application like a database, hardware, network, etc.
 
 ### Stress Testing
 
 - various activities to overload the existing resources with excess jobs are carried out in an attempt to break the system down.
-- Make sure a failure of the system and to monitor how the system recovers back gracefully. 
-- may include synchronization issues, memory leaks, race conditions, etc. 
+- Make sure a failure of the system and to monitor how the system recovers back gracefully.
+- may include synchronization issues, memory leaks, race conditions, etc.
 - The goal of stress testing is to analyze post-crash reports to define the behavior of the application after failure.
 
 ## References

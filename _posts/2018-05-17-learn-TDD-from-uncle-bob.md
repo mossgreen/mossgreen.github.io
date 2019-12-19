@@ -12,7 +12,6 @@ classes: wide
 
 > The jury is in. The controversy is over. The debate has ended. The conclusion is: TDD works.
 
-
 We have knowledge sharing session every two weeks. Normally we just share the new technics we learn in the sprint. This week is different. We watched the famous Uncle Bob's three TDD rules video.
 
 1. You can't write any production code until you have first written a failing unit test.
@@ -20,6 +19,7 @@ We have knowledge sharing session every two weeks. Normally we just share the ne
 3. You can't write more production code than is sufficient to pass the currently failing unit test.
 
 The benefits we can get from following these rules are:
+
 1. Saving time on debugging.
 2. Confident. All tests passed means deployment ready.
 3. Documents itself.
