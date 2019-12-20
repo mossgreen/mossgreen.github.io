@@ -20,7 +20,9 @@ Add a column in a table in PostgreSQL is:
 ALTER TABLE table_name
   ADD new_column_name column_definition;
 ```
+
 For example:
+
 ```sql
 CREATE TABLE customers (
    id SERIAL PRIMARY KEY,
@@ -29,14 +31,13 @@ CREATE TABLE customers (
 ```
 
 ```sql
-ALTER TABLE customers 
+ALTER TABLE customers
 ADD COLUMN phone VARCHAR;
 ```
 
 It's simple. I won't go further. The question is what if I want to insert the column between `id` and `customer_name`?
 
-I've checked StackOverflow and psql documentation. So sure that there is no way to insert a column to a table. 
-
+I've checked StackOverflow and psql documentation. So sure that there is no way to insert a column to a table.
 
 ## How to test
 
@@ -61,20 +62,23 @@ Before we do it, we have to know how to verify that our solution is good.
 ### Export schema and table definition
 
 1. We need the schema definition because we want to compare customers related tables definitions are not changed.
+
     ```bash
-    $ pg_dump -U postgres -s myDatabase -n my_schema > my_schema_dump.txt
+    pg_dump -U postgres -s myDatabase -n my_schema > my_schema_dump.txt
     ```
+
 2. We need the customers definition because
     1. We need to reuse definition while creating new customers table
     2. we want to make sure new customers table remains the same definition
-    ```bash
-    $ pg_dump -U postgres -s myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
-    ```
 
+    ```bash
+    pg_dump -U postgres -s myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
+    ```
 
 ## Insert a column to a table
 
 My processes:
+
 1. Back up customers table, copy all data to origin_customers table.
 2. Drop the current table.
 3. Rebuild customers table without constraints.
@@ -82,11 +86,12 @@ My processes:
 5. Add constrains back to the customers table.
 6. Add constrains back to reference tables.
 7. Rebuild customers table sequence. Remember, sequence cannot be 0.  
+
     ```sql
     select setval('customers_customers_id_seq', (select max(customers_id) from customers where customers_id > 0), true);
     ```
-8. Verify based on the testing plan.
 
+8. Verify based on the testing plan.
 
 ## References
 

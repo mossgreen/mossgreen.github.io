@@ -56,7 +56,7 @@ Set up and Run Junit in a Java project.
     }
     ```
 
-4.Running Unit Tests With Gradle
+4. Running Unit Tests With Gradle
 
     ```bash
     \$ gradle clean test
