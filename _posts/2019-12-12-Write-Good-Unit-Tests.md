@@ -13,6 +13,11 @@ classes: wide
 
 Unit test good practices.
 
+- Testing terminology
+- Test fixture
+- Behavior vs. state testing
+- JUnit naming conventions
+
 ## References
 
-- [jq Manual GitHub Page](https://stedolan.github.io/jq/manual/)
+- [Testing with Junit](https://www.packtpub.com/application-development/testing-junit)

@@ -119,5 +119,6 @@ Your test class doesn't follow these conventions. You should rename it or config
 ## References
 
 - [JUnit Tutorial: Setting Up, Writing, and Running Java Unit Tests](https://blog.parasoft.com/junit-tutorial-setting-up-writing-and-running-java-unit-tests)
+- [Tutorialspoint: JUnit - Test Framework](https://www.tutorialspoint.com/junit/junit_test_framework.htm)
 
 last update: Dec 2019
