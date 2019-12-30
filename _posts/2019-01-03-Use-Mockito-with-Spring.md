@@ -1,5 +1,5 @@
 ---
-title: How to use Mockito
+title: Use Mockito with Spring
 search: true
 tags:
   - Mockito
@@ -264,10 +264,7 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
 
 ## Spy
 
-Spy doesn't use as much as Mock.
-It's useful for testing legacy code.
 You create a spy and stub some of its methods to get the behaviour you want.
-
 //todo
 
 ## What Mockito cannot do
@@ -365,7 +362,7 @@ public class ItSelfRepositoryTest extends MockedRepository {
 
 ### 3. Override default Spring-Boot application.properties settings in Junit Test
 
-You can use `@TestPropertySource` to override values in `application.properties`. E.g., 
+You can use `@TestPropertySource` to override values in `application.properties`. E.g.,
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)

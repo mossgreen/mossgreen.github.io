@@ -71,8 +71,14 @@ testMethodName
 
 ### 2. Annotations
 
-1. @Test annotation
-2. There are many other annotations, but the more common are @Before (which runs some statement/precondition before @Test, public void), @After (which runs some statement after @Test, public void e.g. resetting variables, deleting temporary files, variables, etc.), and @Ignore (which ignores some statement during test execution -- note that @BeforeClass and @AfterClass are used for running statements before and after all test cases, public static void, respectively).
+1. `@Test` annotation
+
+2. `@RunWith` annotation
+        - The @RunWith annotation accepts a class name.
+        - The class should extend the org.junit.runner.Runner class.
+        - A runner can change the characteristics of the test class; for example, a Spring runner enables Spring context initialization nature, or a Mockito runner initializes proxy objects annotated with the `@Mock` annotation.
+
+3. There are many other annotations, but the more common are @Before (which runs some statement/precondition before @Test, public void), @After (which runs some statement after @Test, public void e.g. resetting variables, deleting temporary files, variables, etc.), and @Ignore (which ignores some statement during test execution -- note that @BeforeClass and @AfterClass are used for running statements before and after all test cases, public static void, respectively).
 
 ### The assert methods
 
