@@ -204,8 +204,6 @@ public class MockBeanAnnotationIntegrationTest {
      .thenThrow(IllegalArgumentException.class);
    ```
 
-    ```
-
 2. Do... When
 
    ```java

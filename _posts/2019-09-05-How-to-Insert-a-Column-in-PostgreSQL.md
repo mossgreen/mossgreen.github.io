@@ -37,14 +37,14 @@ ADD COLUMN phone VARCHAR;
 
 It's simple. I won't go further. The question is what if I want to insert the column between `id` and `customer_name`?
 
-I've checked StackOverflow and psql documentation. So sure that there is no way to insert a column to a table.
+I've checked StackOverflow and psql documentation. So sure that there is no way to insert a column in the middle.
 
 ## How to test
 
 Before we do it, we have to know how to verify that our solution is good.
 
-1. Current table Not data lost
-2. Current table o table definition change
+1. Current table no data lost
+2. Current table no table definition change
 3. Other tables don't lose data
 4. Other tables don't have definition change
 
@@ -57,7 +57,7 @@ Before we do it, we have to know how to verify that our solution is good.
 5. `\d reference table`
 6. `select count(ref_id)`
 7. check views
-8. NB check all triggers to see if there is a `select * from currentTable`  statement. If there is, we also need to back up and rebuild this table.
+8. NB: check all triggers to see if there is a `select * from currentTable`  statement. If there is, we also need to back up and rebuild this table.
 
 ### Export schema and table definition
 

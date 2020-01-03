@@ -11,7 +11,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Should use enums any time you need to represent a fixed set of constants.
+Should use Enums any time you need to represent a fixed set of constants
 
 - A simple instruction to Java Enum
 - How to use Enum
@@ -27,31 +27,32 @@ An enum type (or enumerated type) is a type whose fields consist of a fixed set 
 4. We can use `==` to compare enum constants effectively because constants are final and we cannot call an enum’s constructors to create more constants.
 5. Enums supports switch statement.
 
-**Example**
 ```java
 public enum Season {
     SPRING,
     SUMMER,
     AUTUMN,
-    WINTER; 
+    WINTER;
 }
 ```
 
 ### Enum fields and methods
 
 Enum constructor:
+
 ```java
 protected Enum(String name, int ordinal)
 ```
 
 Parameters:
+
 1. `name`
-    - The name of this enum constant, which is the identifier used to declare it. 
+    - The name of this enum constant, which is the identifier used to declare it.
     - Should use toString to return a more user-friendly name.
 
-2. `ordinal`: 
+2. `ordinal`:
     - Its position in its enum declaration, starts from 0.
-    - Should avoid to use it. 
+    - Should avoid to use it.
     - It is designed for use by sophisticated enum-based data structures, such as `EnumSet` and `EnumMap`.
 
 Overridden methods:
@@ -64,11 +65,13 @@ Overridden methods:
 6. `compareTo()` – Enum implements Comparable.
 
 Important methods
-1. `name()` – returns constant’s name. 
+
+1. `name()` – returns constant’s name.
 
 2. `ordinal()` – position of the constant within enum type. compareTo () compares ordinals.
 
-3. ` The values()` static method of the enum returns an array of all constants that are declared in the enum. It's not part of Enum’s java documentation. It's added by the compiler.
+3. `The values()` static method of the enum returns an array of all constants that are declared in the enum. It's not part of Enum’s java documentation. It's added by the compiler.
+
     ```java
     for (Planet p : Planet.values()) {
         System.out.printf("Your weight on %s is %f%n", p, p.surfaceWeight(mass));
@@ -84,47 +87,42 @@ Important methods
 Enums are POJOs. They can be represented as a JSON.
 //todo
 
-### Benefits of using Enum:
+### Benefits of using Enum
 
-1. More readable code. 
+1. More readable code.
 2. Enum is type-safe. You cannot assign anything else other than predefined Enum constants to an Enum variable
 3. Set of Constant declaration.
 4. Can be usable in switch-case.
 
-
-## Implement Design Patterns using Enum
-// todo
-### ingleton Pattern
-### Strategy Pattern
-
 ## Persisting Enums in JPA
 
-1. persist the ordinal with `@Enumerated(EnumType.ORDINAL) `
+1. persist the ordinal with `@Enumerated(EnumType.ORDINAL)`
 2. persist the String with `@Enumerated(EnumType.STRING)`.
-3.  JPA 2.1 `@Converter` Annotation
-4.  Database specification for Enum data type // todo
+3. JPA 2.1 `@Converter` Annotation
+4. Database specification for Enum data type // todo
     1. Postgres
     2. MySQL
 
 ### Ordinal
 
 The Good
+
 - `ORDINAL`  can use a SMALLINT which is the most compact db option.
 - Rename filed without pressure.
 
-
 The Bad
+
 - New enum elements must be added to the end of the list. If we add a new value in the middle or rearrange the enum’s order, we’ll break the existing data model.
 - Removing existing elements from ann Enum will require to shift all entries in case you are using `ORDINAL`.
 
 The Others
-- `@Enumerated` column does not need to take the `ORDINAL` EnumType value since that’s used by default. 
+
+- `@Enumerated` column does not need to take the `ORDINAL` EnumType value since that’s used by default.
 
 ### String Value
 
 1. A string is bigger than, like, int. So will use more space and hence slower.
 2. Renaming an enum value will still break the database data.
-
 
 ### Using `@Converter`
 
@@ -142,6 +140,7 @@ public enum Season {
     }
 }
 ```
+
 ```java
 @Entity @Data
 public class Flower {
@@ -149,6 +148,7 @@ public class Flower {
     private Season season;
 }
 ```
+
 ```java
 @Converter(autoApply = true)
 public class SeasonConverter implements AttributeConverter<Season, String> {
@@ -172,20 +172,20 @@ public class SeasonConverter implements AttributeConverter<Season, String> {
     }
 }
 ```
+
 ```java
 @Test
 public void canSave() {
 
-	Flower flower = new Flower();
-	flower.setId(1L);
-	flower.setSeason(Season.SPRING);
+ Flower flower = new Flower();
+ flower.setId(1L);
+ flower.setSeason(Season.SPRING);
 
-	final Flower save = flowerRepository.save(flower);
+ final Flower save = flowerRepository.save(flower);
 
-	Assert.assertTrue(save != null);
+ Assert.assertTrue(save != null);
 }
 ```
-
 
 ## References
 
