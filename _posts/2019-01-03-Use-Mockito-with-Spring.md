@@ -47,6 +47,8 @@ However, you’re forced to use the second way, such as when stubbing a real met
 
 ## Enable Mockito annotations
 
+### With jUnit 4
+
 Two ways
 
 1. Annotate the JUnit testing class
@@ -66,6 +68,13 @@ Two ways
        MockitoAnnotations.initMocks(this);
    }
    ```
+
+### With jUnit 5
+
+```java
+@ExtendWith(MockitoExtension.class)
+class MockitoAnnotationTest {}
+```
 
 ## Annotations
 
@@ -262,7 +271,6 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
 
 ## Spy
 
-You create a spy and stub some of its methods to get the behaviour you want.
 //todo
 
 ## What Mockito cannot do
