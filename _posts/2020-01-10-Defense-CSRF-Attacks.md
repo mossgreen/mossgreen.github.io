@@ -56,11 +56,35 @@ Explained:
 
 ## Questions in real scenario
 
-//to do
-
 ### 1. In Spring Security, I want to enable csrf to only one from and leaves others disabled
 
+```java
+@Configuration
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        RequestMatcher csrfRequestMatcher = new RequestMatcher() {
+            private RegexRequestMatcher matcher = new RegexRequestMatcher("/login",  HttpMethod.POST.name());
+
+              @Override
+              public boolean matches(HttpServletRequest request) {
+                  if (matcher.matches(request)) {
+                      return true;
+                  } else {
+                      return false;
+                  }
+              }
+            };
+
+        http.csrf().requireCsrfProtectionMatcher(csrfRequestMatcher);
+    }
+}
+```
+
 ### 2. In Spring Security, how to disable csrf to Swagger or postman
+
+//todo
 
 ## References
 
