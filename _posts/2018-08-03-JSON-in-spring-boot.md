@@ -12,7 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-> "JSON is the new DTO."
+Converting Json in Spring projects.
 
 ## Returning JSON in Spring Boot
 

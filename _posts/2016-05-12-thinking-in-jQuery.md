@@ -9,8 +9,7 @@ toc_icon: "cog"
 classes: single
 ---
 
-Long live the jQuery.
-
+jQuery, live long and prosper!
 
 ## 1. How to select DOM elements
 
@@ -26,13 +25,13 @@ $('input[name=first]') // the input element whose name attribute is 'first'
 ```
 
 the select expression can also be JQ expression
-	
+
 ```javascript
 $('a:first')        // to select the first element in the page
 $('tr:odd')         // to select odd rows
 $('#myform :input') // to select input element in the form
 $('div:visible')    // to select visible elements
-$('div:gt(2)')      //to select all div elements except the first three (index starts from 0)   
+$('div:gt(2)')      //to select all div elements except the first three (index starts from 0)
 $('div:animated')   // to select those elements that is currently animating
 ```
 
@@ -41,7 +40,7 @@ $('div:animated')   // to select those elements that is currently animating
 jQ provides various of filter so that you can filter the result set to get your data.
 
 ```javascript
-$('div').has('p');          // select div elements have p 
+$('div').has('p');          // select div elements have p
 $('div').not('.myClass');   // select classes the don't have myClass
 $('div').filter('.myClass'); //select class = myClass
 $('div').fist();            //fist div
@@ -58,7 +57,7 @@ $('div').children();    //select all child elements of div
 $('div').siblings();    //select all div elements with same level
 ```
 
-## 3. Chainning 
+## 3. Chainning
 
 After selecting your target element from DOM, you can also manipulate it. Like `$('div').find('h3').eq(2).html('hello');`, to be specific:
 
@@ -74,9 +73,9 @@ Note that, each jQuery returns a jQuery object so that we can do the chainning.
 In jQuery, there is a `.end()` method. It basically goes back to the parent set.
 
 ```javascript
-$('div') 
+$('div')
     .find('h3')
-        .eq(2) 
+        .eq(2)
         .html('hello')
         .end() //go back one step, to -> .find('h3')
         .eq(0) //select first h2
@@ -91,6 +90,7 @@ Parameters will decide whether it is to set or get value.
 $('h1').html();         //no parameters, it will get value of h1
 $('h1').html('Hello');  //It will set value "Hello" to h1
 ```
+
 ```javascript
 .html()     //set or get html values
 .text()     //set or get text contents
@@ -101,12 +101,12 @@ $('h1').html('Hello');  //It will set value "Hello" to h1
 ```
 
 ** if there are multipul elements in the result set, setting values will set to everty element.
-** However, we only the first element's value. Exception is `.text()` it gets all elements text content 
+** However, we only the first element's value. Exception is `.text()` it gets all elements text content
 
 ## 5. DOM manipulating: position
 
 Two ways to update element's position, first is to move this element directly and second is to move other elements.
-If we want to move a div, make it in the end of p element: 
+If we want to move a div, make it in the end of p element:
 
 ```javascript
 //first way, just move div after p. Returns div element
@@ -117,26 +117,29 @@ $('p').after($('div'));
 ```
 
 ```javascript
-.insertAfter()  vs. .after() 
+.insertAfter()  vs. .after()
 .insertBefore() vs. .before()
 .appendTo()     vs. .append()
 .prependTo()    vs. .prepend()
 ```
+
 ## 6. DOM manipulating: copy and create  elements
 
 - Clone element: `.clone`
-- Delete element:   
+- Delete element:
     `.remove()` will delete element  
     `.detach()` will retain element, can insert to other places
 - Empty element: `.empty()`
 - Create element
+
   ```javascript
   $('<p>Hello</p>');
   $('<li class="new">new list item</li>');
   $('ul').append('<li>list item</li>');
   ```
 
-7. Tools
-8. Event
-9. Special effect
+## 7. Tools //todo
 
+## 8. Event //todo
+
+## 9. Special effect //todo

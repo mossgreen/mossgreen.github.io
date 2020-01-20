@@ -14,7 +14,6 @@ classes: wide
 
 Parse JSON using jq in the bash command line.
 
-
 ## My challenge
 
 - Got a Json from curl get request
@@ -22,22 +21,22 @@ Parse JSON using jq in the bash command line.
 - I need to get the base64 and convert it to an image
 
 Here is an example Json
+
 ```json
-{ 
+{
    "id":"001",
-   "image":{ 
-      "full_size":{ 
+   "image":{
+      "full_size":{
          "data":"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII="
       },
-      "half_size":{ 
+      "half_size":{
          "data":"iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAQAAAAnZu5uAAAAEElEQVR42mNk+M8ABYwkMAGbQQUBEvGWBAAAAABJRU5ErkJggg=="
       }
    }
 }
 ```
 
-
-##  The solution
+## The solution
 
 ```bash
 curl -H "Authorization: Basic myCredentialis" https://togetmyjsonurl.com/getjson | jq -r '.["image"]["full_size"]["data"]' | base64 --decode > randomfilename.jpg
@@ -68,8 +67,7 @@ $ which base64
 $ man base64
 ```
 
-
-##  jq Details
+## jq Details
 
 Let's move on with the same example.
 
@@ -100,7 +98,7 @@ $ resulttext | jq '.[]''
 }
 ```
 
-###  4.  get one from key: 
+### 4.  get one from key:
 
 ```bash
 $ resulttext | jq '.image''
@@ -121,7 +119,7 @@ $ resulttext | jq '.image''
 - Objects: number of key-value pairs
 - length of null is 0
 
-```
+```bash
 $ resulttext | jq '.image |  length'
 2
 ```
@@ -148,7 +146,6 @@ I got an error with `.`, so this example could be:
 $ resulttext | jq -r '.["image"]["full_size"]["data"]'
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII=
 ```
-
 
 ## References
 

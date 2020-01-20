@@ -8,6 +8,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
+
 The cache size may be controlled by `-XX:AutoBoxCacheMax=<size>` option.
 
 1. `==` compares references, `equals` compares value. Comparing Long values should use latter.
@@ -15,6 +16,7 @@ The cache size may be controlled by `-XX:AutoBoxCacheMax=<size>` option.
 2. Another way is to use `longA.compareTo(longB) == 0`
 
 3. LongCache[-128,127], which means Long value between -128 to 127 would return same object, because it run `Long.valueOf(String)` internally.
+
   ```java
   public static Long  valueOf(long l) {
       final int offset = 128;
@@ -24,7 +26,9 @@ The cache size may be controlled by `-XX:AutoBoxCacheMax=<size>` option.
       return new Long(l);
   }
   ```
+
 4. Same reason, it has IntegerCache
+
   ```java
   public static Integer valueOf(int i) {
       if(i >= -128 && i <= IntegerCache.high)
