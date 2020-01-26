@@ -12,7 +12,7 @@ classes: wide
 
 AWS SAA Certificatin Resilient Architectures
 
-## Versions
+## Certificate Versions
 
 ### Versions before March 2020
 
@@ -61,6 +61,43 @@ Amazon Simple Email Service
 AWS Import/Export
 AWS connect
 
+## Services
+
+### Core services in SAA
+
+Amazon EC2
+Amazon VPC
+Amazon S3
+Amazon EBS
+Amazon RDS
+Amazon DynamoDB
+Elastic Load Balancing
+Amazon CloudWatch
+AWS Identity & Access Management
+Amazon Simple Queue Service
+
+### Other important services
+
+Amazon Storage Gateway
+Amazon Directory Service
+Aws key Management-KMS
+Amazon Kinesis
+Amazon Glacier
+Amazon ElastiCache
+Amazon Redshift
+Amazon CloudFront
+Amazon DND
+Amazon Route53
+AWS CloudFormation
+AWS Config
+AWS CloudTrial
+AWS WAF
+Amazon Simple Notification Service
+Amazon Simple Email Service
+AWS Import/Export
+AWS connect
+Amazon ElastiCache
+
 ## References
 
-- [title](url)
+- [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
