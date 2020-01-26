@@ -170,4 +170,11 @@ du -h . | sort -n -r | head -n 10
 du -a / | sort -n -r | head -n 10
 ```
 
+### How to remove all files that were created n minutes ago in linux
+
+```bash
+find . -type f -cmin -1
+find . -type f -cmin -1 -delete
+```
+
 Last update: Dec 2019
