@@ -61,42 +61,56 @@ Amazon Simple Email Service
 AWS Import/Export
 AWS connect
 
-## Services
+## Services in SAA
 
-### Core services in SAA
+1. Compute and Networking Services
 
-Amazon EC2
-Amazon VPC
-Amazon S3
-Amazon EBS
-Amazon RDS
-Amazon DynamoDB
-Elastic Load Balancing
-Amazon CloudWatch
-AWS Identity & Access Management
-Amazon Simple Queue Service
+    - Amazon EC2 ★★
+    - Elastic Load Balancing  ★★
+    - Amazon VPC ★★
+    - AWS Lambda
+    - Auto Scaling
+    - AWS Elastic Beanstalk
+    - Amazon Virtual Private Cloud (Amazon VPC) ★★
+    - AWS Direct Connect
+    - Amazon Route 53 ★★
 
-### Other important services
+2. Storage and Content Delivery
 
-Amazon Storage Gateway
-Amazon Directory Service
-Aws key Management-KMS
-Amazon Kinesis
-Amazon Glacier
-Amazon ElastiCache
-Amazon Redshift
-Amazon CloudFront
-Amazon DND
-Amazon Route53
-AWS CloudFormation
-AWS Config
-AWS CloudTrial
-AWS WAF
-Amazon Simple Notification Service
-Amazon Simple Email Service
-AWS Import/Export
-AWS connect
-Amazon ElastiCache
+    - Amazon S3 ★★
+    - Amazon Glacier ★
+    - Amazon EBS ★★
+    - AWS Storage Gateway ★
+    - Amazon CloudFront
+
+3. Database Services
+
+    - Amazon RDS ★★
+    - Amazon DynamoDB
+    - Amazon Redshift ★
+    - Amazon ElastiCache ★
+
+4. Management Tools
+    - Amazon CloudWatch ★★
+    - AWS CloudFormation ★
+    - Amazon CloudFront ★
+    - AWS CloudTrail
+
+5. Security and Identity
+    - AWS Identity and Access Management (IAM) ★★
+    - AWS Key Management Service (KMS) ★
+    - AWS Directory Service ★
+    - AWS Certificate Manager
+    - AWS Web Application Firewall (WAF)
+    - AWS Kinesis ★
+
+6. Application Services
+    - Amazon API Gateway
+    - Amazon Elastic Transcoder
+    - Amazon Simple Notification Service (Amazon SNS) ★
+    - Amazon Simple Email Service (Amazon SES) ★
+    - Amazon Simple Workflow Service (Amazon SWF)
+    - Amazon Simple Queue Service (Amazon SQS) ★★
 
 ## References
 
