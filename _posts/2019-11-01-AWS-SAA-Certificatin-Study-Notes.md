@@ -135,8 +135,6 @@ Amazon S3 object storage is cloud object storeage
 
 1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
 2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
-3. each object contains data and meta data
-    - data:
 
 Note:
 
@@ -153,6 +151,129 @@ If you need the traditioanl block or file storage in addition tot Amazon S3 stor
 4. Bucket names are glocal, must be unique across all AWS accounts.
 5. can contain up to 63 lowercase letters, numbers, hyphens, and periods.
 6. Best practice: use bucket names that contain your domain name and conform to the rules for DNS names. It ensures that your bucket names can be used in all reqioins and can host static websites.
+7. For each bucket you can choose a particular place that close to your user to minimize latency, or apply compliance.
+
+### Objects
+
+1. Size: 0 ~ 5TB
+2. A bucket can store unlimited number of objects.
+3. Each object consists of data and metadata
+    - data: the file itself, treated as a stream of bytes.
+    - metadata: data about the file. A set of name/value pairs. Two types
+        - system metadata, created and used by Amazon S3: date last modified, object size, md5 digest, http content type
+        - user metadata, optional, can only be specified at the time the object is created.
+4. Each object is identified by a unique key. A key can be up to 1024 bytes of Unicode UTF-8 characters, inclusing: embedded slashes, backslashes, dots and dashes.
+5. Key must be unique within a bucket. Combination of bucket, key and optional version ID uniquely identifies and Amazon S3 object.
+6. Each object can be addressed by a unique URL.
+
+### Amazon S3 Operations
+
+native interface and higher level interfaces
+
+1. native interface
+    - Bucket: Create, delete, **list keys in a bucket**
+    - Object: Write, Read, delete an object
+
+2. higher level interfaces
+    - AWS Software Development Kits (SDKs)
+    - AWS Command line interface (CLI)
+    - AWS Management Console
+
+### Durability
+
+ Durability: Will my data still be there in the future? 99.999999999%. (9)
+
+### Availability
+
+Availability: Can I access my data right now? 99.99%.
+
+### Data Consistency
+
+Amazon s3 is an eventually consistent system, changes in data may take some time to propagate to replicated locations.
+
+- Puts to the new object, all good, read-after-write consistence.
+- Puts to existing objects, and DEKETES, may return stale data
+- Updates to a single key are atomic. means, you get the new or old data, but never a mix.
+
+### Access control
+
+By default, it's secured. Only you have access.
+
+Coarse-grained access control:
+    - Amazon S3 Access Control Lists, ACLs: READ,
+        - WRITE, or FULL-CONTROL at the object or bucket level.
+        - Legacy mechanisim
+        - best for: enabling bucket logging, or making a bucket that hosts a static website be world readable
+
+Fine grained access controls
+    - Amazon S3 bucket policies: can specify who can access that bucket, from where and during that time of day
+    - AWS Identity and Access Management, IAM policies
+    - query-string authentication
+
+### Static Website Hosting
+
+- It's a very common use case for Amazon S3 storage. Suitable for micro-sites.
+- Static website means website contains only static content and don't need server-sie process.
+- Advantages: fast, scalable, securer than a typical dynamic website
+
+To host a static website:
+
+1. Create a bucket with the same name as the desired website hostname
+2. Upload the static fiels to the bucket
+3. Make all the fiels public
+4. Enable static website hosting for the bucket.
+5. The website will be available at the S3 website, url: `<bucket-name>.s3-website-<AWS-region>.amazonaws.com`
+6. Create a friendly DNS name in your own domain, using a DNS CNAME, or Amazon Route 53 alias that resolved to the url
+7. The website will now be available at your website domain name.
+
+Consider to use Amazon CloudFront distribution as a caching layer for best performance.
+
+### Storage class
+
+- Amazon S3 standard: frequently accessed data
+- Amazon S3 Standard - Infrequent Access (Standard-IA):
+  - designed for long-lived, less frequently accessed data.
+  - Lower per GB-month cost.
+  - minumum object size: 128K
+  - minumum duration: 30 days
+- Amazon S3 Reduced Redundancy Storage (RRS)
+  - lower durability: 4 nines
+  - reduced cost
+  - good for derived data that can be easily repreduced, like image thumbnails
+
+### Object Lifecycle Management
+
+Lifecycle configurations are attached to the bucket and can apply to all objects in the bucket, or objects specified by a prefix.
+
+Data has natural lifecycle:
+    - Hot, frequently accessed
+    - Warm, less frequently access
+    - Cold, long term backup or archive, eventual deletion
+
+Reduce cost lifecycle rules:
+
+1. Store backup data initially in Amazon S3 standard
+2. After 30 days, transition to amazon Standard-IA
+3. After 90 days, transition tot Amazon Glacier
+4. After 3 years, delete
+
+### Encryption
+
+1. in flight: use Amazon S3 secure sockets layer, SSL API endpoints. ensures that data send to and from Amazon S3 is encrypted with HTTPS
+
+2. At rest:Server-side Encryption, SSE:
+    - SSE-S3, AWS handles keys  <- should use this for simplicity
+    - SSE-KMS, Amazon handles your key mangement, you manage the keys <- should use this for simplicity
+    - SSE-C, customer proviced keys
+
+### Multipart Upload
+
+Upload large objects as a set of parts,
+better network utilization through parallel transfers
+the ability to pause and resume
+should use multipart upload for objects larger than 10M
+must use for objects larger than 5G
+Object lifecycle policy on a bucket tot abort incomplete uploads after a specified number of days.
 
 ## References
 
