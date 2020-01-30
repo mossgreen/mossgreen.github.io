@@ -240,6 +240,10 @@ Consider to use Amazon CloudFront distribution as a caching layer for best perfo
   - lower durability: 4 nines
   - reduced cost
   - good for derived data that can be easily repreduced, like image thumbnails
+- Amazon Glacier
+  - Low cost, curable
+  - for rarely access data
+  - accept a three-to-five hour retrieval time
 
 ### Object Lifecycle Management
 
@@ -274,6 +278,22 @@ the ability to pause and resume
 should use multipart upload for objects larger than 10M
 must use for objects larger than 5G
 Object lifecycle policy on a bucket tot abort incomplete uploads after a specified number of days.
+
+### Amazon Glacier
+
+- Extremely low-cost, durable, 11 Nines.
+- designed for infrequently accessed data
+  - data archiving, long term backup
+  - archived for compliance purpose
+- Data is stored in **archives**, each archive can contain up to 40TB. Automatically encrypted, cannot be modified if created.
+- Vaults are containers for archives. Each AWS account ca nhave up to 1000 vaults.
+- Cost: retrieve up to 5% of your data stored in Amazon Glacier is free each month, calculated on a daily prorated basis.
+
+### Amazon S3 VS Glacier
+
+1. S3 max object is 5TB. Glacier is 40TB.
+2. S3 has user friendly key name. Glacier uses system generated archive ids.
+3. S3 uses optional encryption. Glacier is auto encrypted.
 
 ## References
 
