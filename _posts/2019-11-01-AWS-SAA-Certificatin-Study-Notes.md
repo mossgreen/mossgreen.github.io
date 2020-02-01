@@ -295,6 +295,109 @@ Object lifecycle policy on a bucket tot abort incomplete uploads after a specifi
 2. S3 has user friendly key name. Glacier uses system generated archive ids.
 3. S3 uses optional encryption. Glacier is auto encrypted.
 
+## Amazon Elastic Compute Cloud, Amazon EC2
+
+Amazon Ec2 provides resizable compute capacity in cloud.
+
+Compute refers to the amount of computational power required to fullfill your workload.
+
+Two concepts key to launching instances:
+
+1. The acount of virtual hardware dedicated to the instance
+2. The software loaded on the instance
+
+### Instance Type
+
+Instance type varies in the following dimensions;
+
+- Virtual CPUs, vCPUs
+- Memory
+- Storage, size and type
+- Network performance
+
+Instance types are grouped into families.
+
+- c4: Compute optimized: for workloads requiring significant processing
+- r3: memory optimized: for memory-intensive workloads
+- i2: Storage optimized: for workloads requiring high amounts of fast SSD storage
+- g2: GPU-based instances: intented for graphics and general-purposed GPU compute workloads
+
+### Amazon Machine Images, AMIs
+
+The initial software that wil lbe on an isntance when it's launched.
+
+- Operating system and its configuration
+- the initial state of any patches
+- Application or system software
+
+Four sources of AMIs
+
+1. published By aWS
+2. The AWS Marketplace. two benefies:
+    - The customer doesn not need to install the software
+    - The license agreement is appropriate for the cloud
+3. Generated from Exsiting Instances
+4. Uploaded Virtual Servers
+
+### Securely Using an instance
+
+Addressing an instance
+
+1. Public Domain Name System Name, DNS.
+    - It's generated automatically and cannot be specified by the customer.
+    - cannot transfer to another instance.
+
+2. Public IP.
+    - AWS reserved IP, cannot be spedified
+    - cannot transfer to another instance
+
+3. Elastic IP
+    - associated with an Amazon EC3 isntance
+    - It can be transferred toa replacement instance in the event of an instance failure
+    - it's a public address that can be sharedexternally without coupling clients to the particular isntance.
+
+### Virtual Firewall Protection
+
+Security Groups, allow you control traffic based on port, protocal and source/destination.
+
+By default, it doesn't allow any traffic that is not explicitly allowed by a security group rule.
+
+### Instance Lifecycle
+
+1. Launching
+    1.1 Bootstrapping. You can pass in the OS a string named **UserData**.
+    1.2 VM import/export
+    1.3 Instance Metadata
+
+2. Modifying an instance
+    1. modify instance type. Instances can be resized
+    2. Security groups
+    3. Termination protection
+
+### Price options
+
+three price options:
+
+1. On-Demand Instances
+    - The most flexible pricing
+    - requires no up-frount commitment
+    - customer controls when to launch and terminate
+    - for unpredictable workloads
+
+2. Reserved Instances
+    - for predictable workloads, can save up to 75% over on0demand hourly rate
+    - two factors that determine the cost: the term commitment and payment
+
+3. Spot instances
+    - for workloads that are not time critical and are tolerant of interruption. Analytics, financial modeling, big data, media encoding, scientific computing, testing.
+    - Spot isntances offer the greatest discount
+
+### Tenancy options
+
+1. Shared Tenancy: default model for all Amazon EC2.
+2. Dedicated Instances, run on hardware that's decicated t oa single customer.
+3. Dedicated Host: An Amazon EC2 Host
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
