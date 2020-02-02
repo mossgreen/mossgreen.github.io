@@ -398,6 +398,56 @@ three price options:
 2. Dedicated Instances, run on hardware that's decicated t oa single customer.
 3. Dedicated Host: An Amazon EC2 Host
 
+## Amazon elastic Block Store, Amazon EBS
+
+Instance stores, like S3, have their limitations. Amazon EBS provides durable block storage for use with Amazon EC2 instance.
+
+### Types of Amazon EBS Volumes
+
+It varies in areas like underlying hardware, performance, and cost.
+
+1. Magnetic volumes
+    - lowest cost
+    - lowest performance
+    - size: 1GB - 1TB
+    - average 100 IOPS
+    - Best for:
+      - workloads where data is accessed infrequently,
+      - Sequential reads,
+      - requires low-cost storage
+
+2. General Purpose SSD
+    - cost effective storage, strong performance at a moderate price, suitable for a wide range of workloads
+    - size: 1GB - 16TB
+    - a baseline performance of three IOPS per gig provisioned, capping at 10,000 IOPS
+    - whenever you are not using your IOPS, they're accumulated as IO credits.
+    - For workloads:
+        - System boot volumes
+        - Small to medium sized databases
+        - Development and test environments
+
+3. Provisioned IOPS SSD
+    - For IO intensive workloads. databse workloads that are sensitive to storage performance and consistency in random access IO throughtput
+    - size: 4GB - 16TB
+    - Additional monthly fee is applied based on  the number of IOPS provisioned, whether they are comsumed or not.
+    - Best for:
+      - Critical business applications that require sustained IOPS performance
+      - Large databse workloads
+
+### Amazon EBS-Optimized Instances
+
+Use Amazon EBS-optimized isntances to ensure that Amazon EC2 instance is prepared to take advantage of the IO.
+
+need to pay additional hourly charge for that instance.
+
+### Protecting Data
+
+You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved.
+
+You recover data by detach the volume from the failed instance and attach the backed up one.
+
+You can create avolume fro ma snapshot. Best practice is to initialize a volume created fro ma snapshot by accessing all the blocks in the volume.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
