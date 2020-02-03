@@ -448,6 +448,42 @@ You recover data by detach the volume from the failed instance and attach the ba
 
 You can create avolume fro ma snapshot. Best practice is to initialize a volume created fro ma snapshot by accessing all the blocks in the volume.
 
+## Amazon Virtual Private Cloud, Amazon VPC
+
+Amazon VPC is a custom-defined virtual network within the AWS Cloud.
+It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
+
+In your Amazon, VPC, uou can control:
+
+1. Selecting your own IP address range
+2. creating your own subnets and configuring your own route tables
+3. network gateways
+4. security settings
+
+When you create an Amazon VPC, you must specify the IPv4 address range by choosing a Classless Inter-Domain routing block, CIDR, such as `10.0.0.0/16`. The address range cannot be changed after the VPC is created.
+
+Amazon VPC Components
+
+1. Subnets
+2. Route tables
+3. Dynamic Host Configuration Protocal option sets, DHCP
+4. Security groups
+5. Network Access Control List, ACLs
+
+Optional components:
+
+- internet Gateways, IGWs
+- Elastic IP addresses, EIP
+- Elastic Network interfaces, ENIs
+- Endpoints
+- Peering
+- Network Address Translation instances, NATs, and NAT Gateways
+- Virtual Private Gateway, VPG, Customer Gateways, CGWs, and Virtual private Networks, VPNs
+
+## Subnets
+
+//todo
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
