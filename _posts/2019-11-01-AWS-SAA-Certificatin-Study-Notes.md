@@ -480,9 +480,33 @@ Optional components:
 - Network Address Translation instances, NATs, and NAT Gateways
 - Virtual Private Gateway, VPG, Customer Gateways, CGWs, and Virtual private Networks, VPNs
 
-## Subnets
+### Subnets
 
-//todo
+A subnet is a segment of an amazon VPC's IP address range where you can launch Amazon EC2 instances, amazon RDS dtabases and other AWS recources.
+
+Classless Inter-Domain routing block, CIDR, define subnets, e.g., 10.0.1.0/24 and 192.168.0.0/24.
+
+The smallest subnet that you can create is a /28(16 IP address)
+
+AWS reserves that first four IP address and the last IP address of every subnet for internal networking purposes.
+
+After creating an Amazon VPC, you can add one or more subnets in each Availability Zone.
+Subnets reside within one Availability Zone and cannot span zone.
+
+Subnets can be classified as public, private, or VPN-only.
+
+- public: the associated route table directs the subnet's traffic to the Amazon VPC's IGW.
+- private: the associated route table doesn't direct the subnets' traffic to the Amazon VPC's TGW.
+- VPN-only: the associated route table directs the subnet's traffic to the Amazon VPC's VPG and doesn't have a route to the IGW.
+
+The internal IP address range of the subnet is walys private, that is, non-routable on the internet.
+
+Default Amazon VPCs contain one public subnet in every Availability Zone within the region with a netmask of /20.
+
+todo:
+
+1. what is netmask
+2. how to calculate VPC's IP address
 
 ## References
 
