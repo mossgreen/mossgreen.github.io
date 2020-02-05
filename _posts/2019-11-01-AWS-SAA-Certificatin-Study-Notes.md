@@ -508,6 +508,45 @@ todo:
 1. what is netmask
 2. how to calculate VPC's IP address
 
+### Internet Gateways
+
+An Internet Gateway, IGW, is a horizontally scaled, redundant, and highly available Amazon VPC component that sllows communication between instances in you Amazon VPC and the Internet.
+
+An IGW provides a target in your Amazon VPC route tables for the Internet-routable traffic, and it performs network address translation for instances that have been assigned public IP address.
+
+Amazon Ec2 instances within an Amazon VPC are only aware of their private IP addresses.
+
+- When traffic is sent from the instance to the Internet, the IGW translates the reply address to the instance's public IP address, and maintains the one to tone map of the isntance priate IP address and public IP address.
+- When an instance receives traffic from the internet, the IGW translates the destination address to the instance's private IP address and forwards the traffic to the Amazon VPC.
+
+to create a public subnet with internet access:
+
+1. Attach an IGW to your Amazon VPC
+2. Create a subnet route table rule to send all non-local traffic (0.0.0.0/0) to the IGW.
+3. Configure your network ACLs and security group rules to allow relevant traffic to flow to and from your instance.
+
+In order to enable an Amazon EC2 instance to send and receive traffic from the internet, you need to assign a public IP address or EIP address.
+
+You can scope the route to all destinations not explicitly known to the route table (0.0.0.0/0), or you can scope the route to a narrower range of IP addresses, such as the public IP addresses of your company's public endpoints outside of WS or the EIP addresses of the other Amazon EC2 instances outside your Amazon VPC.
+
+E.g., an Amazon VPC, on subnet, one route table and an attached IGW and a single Amazon EC2 with a private IP Address  and an EIP address.
+
+The route table contians two routes:
+
+- The local route that permits inter-VPC communication and
+- a route that sends all non-local traffic to the IGW
+
+### Dynamic Host Configuration protocal (DHCP) Option Sets
+
+Dynamic host Configuration Protocol (DHCP) privides a standard for passing configuration information to hosts on a TCP/IP network. the Options field of a DHCP message contains the configuration parameters. Some of those parameters are the domain name, domain name server, and the netbios-node-type.
+
+AWS automatically creates and associates a DHCP option set for your Amazon VPC upon creation and sets two options:
+
+- domain-name-servers, default to Amazon proviced DNS. This option enables DNS for isntances that need to communicate over the Amazon VPC's IGW.
+- domain-name, default to the domain name for your region.
+
+The DHCP option sets element of an Amazon VPC allows you to direct Amazon EC2 host name assignmetns to your own recources. To assign your own domai nname to your instances, create a custom DHCP option set and assign it to your Amazon VPC. You can configure the following values within a DHCP option set. Every Amazon VPC must have only one DHCP option set assigned to it.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
