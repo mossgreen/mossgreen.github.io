@@ -466,9 +466,9 @@ Amazon VPC Components
 
 1. Subnets
 2. Route tables
-3. Dynamic Host Configuration Protocal option sets, DHCP
+3. Dynamic Host Configuration Protocal (DHCP) option sets
 4. Security groups
-5. Network Access Control List, ACLs
+5. Network Access Control List (ACLs)
 
 Optional components:
 
@@ -482,70 +482,64 @@ Optional components:
 
 ### Subnets
 
-A subnet is a segment of an amazon VPC's IP address range where you can launch Amazon EC2 instances, amazon RDS dtabases and other AWS recources.
+It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources. 
+Subnets are defined by CIDR blocks, are cotnained within an Availability zone. 
 
-Classless Inter-Domain routing block, CIDR, define subnets, e.g., 10.0.1.0/24 and 192.168.0.0/24.
+Can be public, private or VPN-only.
 
-The smallest subnet that you can create is a /28(16 IP address)
+1. public: the associated route table directs the subnet's traffic to  the amazon VPC's IGW.
+2. private: the associated route table doesn't direct the subnet's traffic to the Amazon VPC's IGW
+3. VPN-only: the associated route table directs the subnet's traffic to the Amazon VPC's VPG and doesn't have a route to the IGW.
 
-AWS reserves that first four IP address and the last IP address of every subnet for internal networking purposes.
+### Rotue table
 
-After creating an Amazon VPC, you can add one or more subnets in each Availability Zone.
-Subnets reside within one Availability Zone and cannot span zone.
+- A logical construct within an Amazon VPC that contians a set of rules (called routes)that are applied to the subnet and used to determine where network traffic is directed.
+- You can use route tables to specify which subnets are public, which are private.
+- The router also enables subnets, IGWs and VPGs to communicate with each other.
 
-Subnets can be classified as public, private, or VPN-only.
+### IGW
 
-- public: the associated route table directs the subnet's traffic to the Amazon VPC's IGW.
-- private: the associated route table doesn't direct the subnets' traffic to the Amazon VPC's TGW.
-- VPN-only: the associated route table directs the subnet's traffic to the Amazon VPC's VPG and doesn't have a route to the IGW.
+It's horizontally scaled, redundant and highly available Amazon vPC component that allows communication between instances in your Amazon VPC and the Inernet.
 
-The internal IP address range of the subnet is walys private, that is, non-routable on the internet.
+An IGW provides a target in your Amazon VPC route tables for Internet-routeable traffic, and it performs network address translation for instances that have been assigned public IP address.
 
-Default Amazon VPCs contain one public subnet in every Availability Zone within the region with a netmask of /20.
+### DHCP 
 
-todo:
+Allows ytou to direct Amazon EC2 host name assignment to your own resources.
 
-1. what is netmask
-2. how to calculate VPC's IP address
+### EIP
 
-### Internet Gateways
+A static, public IP address in the pool for the region that you can allocate to your account and release.
 
-An Internet Gateway, IGW, is a horizontally scaled, redundant, and highly available Amazon VPC component that sllows communication between instances in you Amazon VPC and the Internet.
+It allows you to maintain a set of IP addresses that remain fixed while the underlying infrastructure may change over time.
 
-An IGW provides a target in your Amazon VPC route tables for the Internet-routable traffic, and it performs network address translation for instances that have been assigned public IP address.
+### VPC endpoint
 
-Amazon Ec2 instances within an Amazon VPC are only aware of their private IP addresses.
+It enables you to create a private connection between your Amazon VPC and another AWS service without requiring access over the Internet or through a NAT isntance, VPN connection, or AWS Direct Connect.
 
-- When traffic is sent from the instance to the Internet, the IGW translates the reply address to the instance's public IP address, and maintains the one to tone map of the isntance priate IP address and public IP address.
-- When an instance receives traffic from the internet, the IGW translates the destination address to the instance's private IP address and forwards the traffic to the Amazon VPC.
+### VPC peering
 
-to create a public subnet with internet access:
+It's a networking connection between two Amazon VPCs that enabled instances in either Amazon VPC t o communicate with each otehr as if they were within the same network.
 
-1. Attach an IGW to your Amazon VPC
-2. Create a subnet route table rule to send all non-local traffic (0.0.0.0/0) to the IGW.
-3. Configure your network ACLs and security group rules to allow relevant traffic to flow to and from your instance.
+### security group
 
-In order to enable an Amazon EC2 instance to send and receive traffic from the internet, you need to assign a public IP address or EIP address.
+It's avirtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
 
-You can scope the route to all destinations not explicitly known to the route table (0.0.0.0/0), or you can scope the route to a narrower range of IP addresses, such as the public IP addresses of your company's public endpoints outside of WS or the EIP addresses of the other Amazon EC2 instances outside your Amazon VPC.
+### network ACL
 
-E.g., an Amazon VPC, on subnet, one route table and an attached IGW and a single Amazon EC2 with a private IP Address  and an EIP address.
+It's another layer of security that acts as a stateless firewall on a subnet level.
 
-The route table contians two routes:
+### NAT instance
 
-- The local route that permits inter-VPC communication and
-- a route that sends all non-local traffic to the IGW
+It's a customer-managed isntances that is designed to accept traffic from instances within a private subnet, translate the source IP address to the public IP address of the NAT instance and forward the traffic to the IGW.
 
-### Dynamic Host Configuration protocal (DHCP) Option Sets
+### NAT getway
 
-Dynamic host Configuration Protocol (DHCP) privides a standard for passing configuration information to hosts on a TCP/IP network. the Options field of a DHCP message contains the configuration parameters. Some of those parameters are the domain name, domain name server, and the netbios-node-type.
+It's an AWS-managed service that is designed to accept traffic from instances within a private subnet, traslate the source IP address to the public IP address of the NAT gateway and forward the traffic to the IGW.
 
-AWS automatically creates and associates a DHCP option set for your Amazon VPC upon creation and sets two options:
+### VPG & CGW
 
-- domain-name-servers, default to Amazon proviced DNS. This option enables DNS for isntances that need to communicate over the Amazon VPC's IGW.
-- domain-name, default to the domain name for your region.
-
-The DHCP option sets element of an Amazon VPC allows you to direct Amazon EC2 host name assignmetns to your own recources. To assign your own domai nname to your instances, create a custom DHCP option set and assign it to your Amazon VPC. You can configure the following values within a DHCP option set. Every Amazon VPC must have only one DHCP option set assigned to it.
+A VPG is the VPN concentrator on the AWS side of the VPN connection between the two networks. A CGW represents a physical device or a software application on the customer’s side of the VPN connection. The VPN connection must be initiated from the CGW side, and the connection consists of two IPSec tunnels.
 
 ## References
 
