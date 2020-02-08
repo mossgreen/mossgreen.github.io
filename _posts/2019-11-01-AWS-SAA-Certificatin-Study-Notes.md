@@ -482,8 +482,8 @@ Optional components:
 
 ### Subnets
 
-It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources. 
-Subnets are defined by CIDR blocks, are cotnained within an Availability zone. 
+It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources.
+Subnets are defined by CIDR blocks, are cotnained within an Availability zone.
 
 Can be public, private or VPN-only.
 
@@ -503,7 +503,7 @@ It's horizontally scaled, redundant and highly available Amazon vPC component th
 
 An IGW provides a target in your Amazon VPC route tables for Internet-routeable traffic, and it performs network address translation for instances that have been assigned public IP address.
 
-### DHCP 
+### DHCP
 
 Allows ytou to direct Amazon EC2 host name assignment to your own resources.
 
@@ -540,6 +540,43 @@ It's an AWS-managed service that is designed to accept traffic from instances wi
 ### VPG & CGW
 
 A VPG is the VPN concentrator on the AWS side of the VPN connection between the two networks. A CGW represents a physical device or a software application on the customer’s side of the VPN connection. The VPN connection must be initiated from the CGW side, and the connection consists of two IPSec tunnels.
+
+## ELB, Amazon CloudWatch, Auto Scaling
+
+ELB, Amazon CloudWatch and Auto Scaling allows you to maintain the availability of your Applications by scaling Amazon EC2 capacity up or down in accordance with conditions you set.
+
+### Elastic Loading Balancing
+
+ELB is a highly available service that distributes traffic across Amazon EC2 instances and includes options that provideflexibility and control of incoming requests tot Amazon EC2 instances.
+
+Types of Load Balancers
+
+1. internet-facing load balancers.
+    It receives a public DNS name that clients can use to send requests to your application. The DBS servers resolve the DBS name to your load balancer's public IP address.
+
+    it's best practice to reference a load balancer by its DNS name, instead of by the IP address of the load balancer, in order to provide a single, stable entry point.
+
+2. internal load balancers.
+    Works in EC2 VPCs with private subnets
+
+3. Https load balancers
+    In order to use SSL, you must install an SSL certificate on the load balancer that it uses to terminate the connection and then decrypt requests from clients before endign requests tot the back-end Amazon Ec2 isntances.
+
+Listeners proteocols: HTTP, HTTPS, TCP, SSL
+
+Configuring Elastic Load Balancing
+
+- **Idle Connection Timeout**: for each request that a client makes through a load balancer, the load balancer maintains two connection. One is with the client and the other is to the backend. By default, the timeout is 60 seconds for both connection.
+
+- **Cross-Zone load Balancing**: it's recommended t hat you maintain approximately equivalent numbers of instancesin each Availibility Zone for higher fault tolerance.
+
+- **Connection Draining**: Enable it to ensure that the load balancer stops sending requests to instances that are deregistering or unhealthy, while keeping the existing connections open.
+
+- **Procy Protocol**: Enable it, a human readable header is added tothe request header with connection information.
+
+- **Sticky Sessions**: It enables loading balander tot cind a user'ssession to a specific instance, and insures that all requests fro mthe user during the session are snet to the same instance.
+
+- **Health Checks**: The status of the isntances that are healthy at the time of the health check is inServcie, otherwise is outOfService. A health check is a ping, a conenction attempt, or a page that is checked periodically.
 
 ## References
 
