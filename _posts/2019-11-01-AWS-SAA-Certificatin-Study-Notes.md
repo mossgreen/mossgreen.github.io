@@ -578,6 +578,38 @@ Configuring Elastic Load Balancing
 
 - **Health Checks**: The status of the isntances that are healthy at the time of the health check is inServcie, otherwise is outOfService. A health check is a ping, a conenction attempt, or a page that is checked periodically.
 
+### Amazon CloudWatch
+
+It monitors AWS resources and applications in real time. It collects and tracks metrics, create alarms that send notifications, and make changes to the resources being monitored based on rules you define.
+
+Types:
+
+1. Basic monitorning. It sends data points to Amazon CloudWatch **every five minutes** for a limited number of preselected metrics at no charge. Default option.
+2. Detaild monitorning. It sends data points to Amazon CloudWatch **every minutes** and allows data aggregation for an additional charge. Need to enable it manually.
+
+Amazon CloudWatch metrics can be retrieved by performaing a GET request.
+
+Amazon CloudWatch Logs can be used to monitor, store and acsess log files from Amazon EC2 instances, aWS CloudTrail, and other sources.
+
+Each AWS account is limited to 5,000 alarms per AWS account, and metrics data is retained for two weeks by default.
+
+### Auto Scaling
+
+It allows you to scale your Amazon EC2 capacity automatically by scaling out and scaling in according to criteria that you define.
+
+Auto Scalling Plans
+
+- Maintain Current Instance Levels: configure your Auto Saling group to maintain a mininum or spedific number of runnign instances at all times.
+- Manual Scaling: most basic way to scale your resources. Case like, release of a new game version that will be available for downoad and require a user registration.
+- Scheduled Scaling: need arises on a predicteable schedule. E.g., recurring events in end-of-month
+- Dynamic Scaling: lets you define parameters that control the Auto Scaling process in a scaling policy.
+
+Auto Scalling Components
+
+1. launch configuration
+2. Auto Scaling Group. A collection of Amazon EC2 instances managed by the Auto caling servcie.
+3. an optional scaling policy
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
