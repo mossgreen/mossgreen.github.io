@@ -610,6 +610,30 @@ Auto Scalling Components
 2. Auto Scaling Group. A collection of Amazon EC2 instances managed by the Auto caling servcie.
 3. an optional scaling policy
 
+## AWS Identity and Access Management (IAM)
+
+IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users traditional identity concepts such as users, groups, and accesscontrol policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
+
+What IAM is **NOT**"
+
+- IAM is not an identity store/authorization system for your applications. The permissions that you assign are permissions to manipulate AWS infrastructure, not permissions within your application. If you works with a mobile app, cosnider _Amazon Connito_ for identity management for mobile apps.
+- IAM is not operating system identity management.
+
+### Principals
+
+A principal is an IAM entity that allowed to interact with AWS recources.
+A principal can be permanent or temporary, and can represent a human or an app.
+There are three types of principals: root users, IAM users, and roles/temporary security tokens.
+
+Root user: It can be used for both console and prgrammatic access to AWS resources. It has full privileges to do anything in the account, including closing the account.
+
+IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI or SDKs.
+
+Roles/Temporary Security Tokens: roles and temporary security tokens enbable a number of use cases:
+    - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
+    - Crosss-Acount Access: Granting permissions to users fro mother AWS accounts, whether you control those accounts or not
+    - Federation: Granting permissiongs to users authenticatedby a trusted external system.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
