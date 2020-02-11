@@ -634,6 +634,37 @@ Roles/Temporary Security Tokens: roles and temporary security tokens enbable a n
     - Crosss-Acount Access: Granting permissions to users fro mother AWS accounts, whether you control those accounts or not
     - Federation: Granting permissiongs to users authenticatedby a trusted external system.
 
+### Authentication
+
+three ways that IAM authenticates a principal:
+
+1. User Name/Password
+2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters)
+3. Access key/ session token.
+
+### Authorization
+
+After IAM has authenticated a principal, the process of specifiying exactly what actions a principal can and cannot perform is called Authorization.
+
+### Policies
+
+A _policy_ is a JSOn document that fully defines a set of permissions to access and manipulate AWS resources. Each policy contain one or more permissions, each permission defining:
+
+- Effect: a signle word: Allow or Deny
+- Service: for what service does this permission apply.
+- Resource: the resource value specifies that specific AWS infrastructure for which this permission applies. This is specified as an Amazon Resource Name (ARN).
+
+format of a ARN: `arn:aws:service:region:account-id:[resourcetype:]resource`
+
+e.g.,
+
+1. Amazon S2 bucket: `arn:aws:s3:us-east-1:123456789012:my_private_bucket`
+2. IAM User: `arn:aws:iam:us-east-1:123456789012:user/moss`
+3. Amazon Dynamo DB Table: `arn:aws:dynamodb:us-east-1:123456789012:table/tablename`
+
+Action: specifies that subset of actions within a service that the permission allows or denies.
+Condition: optionally defines one or more additional restrictions that limit the actions allowed by the permission.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
