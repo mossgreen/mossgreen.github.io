@@ -623,13 +623,11 @@ What IAM is **NOT**"
 
 A principal is an IAM entity that allowed to interact with AWS recources.
 A principal can be permanent or temporary, and can represent a human or an app.
-There are three types of principals: root users, IAM users, and roles/temporary security tokens.
+There are **three types of principals**: root users, IAM users, and roles/temporary security tokens.
 
-Root user: It can be used for both console and prgrammatic access to AWS resources. It has full privileges to do anything in the account, including closing the account.
-
-IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI or SDKs.
-
-Roles/Temporary Security Tokens: roles and temporary security tokens enbable a number of use cases:
+1. Root user: It's associated with the actual AWS account and cannot be restricted in any way so it has full privileges to do anything, including closing the account.
+2. IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI or SDKs.
+3. Roles/Temporary Security Tokens: roles and temporary security tokens enbable a number of use cases:
     - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
     - Crosss-Acount Access: Granting permissions to users fro mother AWS accounts, whether you control those accounts or not
     - Federation: Granting permissiongs to users authenticatedby a trusted external system.
@@ -638,9 +636,9 @@ Roles/Temporary Security Tokens: roles and temporary security tokens enbable a n
 
 three ways that IAM authenticates a principal:
 
-1. User Name/Password
-2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters)
-3. Access key/ session token.
+1. User Name/Password. E.g., you login in AWS Management Console as an IAM user or root user.
+2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters). E.g., a proram that access the API with an IAM user or root user uses a two-part acess key.
+3. Access key/ session token. E.g., a temporary security token authenticates with an access key plus and additional session token unique to that temporary security token.
 
 ### Authorization
 
@@ -648,7 +646,9 @@ After IAM has authenticated a principal, the process of specifiying exactly what
 
 ### Policies
 
-A _policy_ is a JSOn document that fully defines a set of permissions to access and manipulate AWS resources. Each policy contain one or more permissions, each permission defining:
+A _policy_ is a JSOn document that fully defines a set of permissions to access and manipulate AWS resources.
+
+Each permission includes that effect, servcie, action and resource. It may include one or more conditions.
 
 - Effect: a signle word: Allow or Deny
 - Service: for what service does this permission apply.
@@ -664,6 +664,21 @@ e.g.,
 
 Action: specifies that subset of actions within a service that the permission allows or denies.
 Condition: optionally defines one or more additional restrictions that limit the actions allowed by the permission.
+
+Associating Policies with Principals
+
+A policy can be associated directly with an IAM user in one of two ways:
+
+- User Policy: these policies exist only in the context of the user to which they're attached. In the console, a user policy is entered intot the user interface on the IAM user page.
+- Manged Policies: createdi nthe Policies tab on the IAM page and exist independently of any individual user.
+
+### Multi-Factor Authentication (MFA)
+
+MFA requires you to verify your identity with both something you know and something you have.
+
+### Key rotation
+
+To protect your AWS infrastructure, access keys should be rotated regularly.
 
 ## References
 
