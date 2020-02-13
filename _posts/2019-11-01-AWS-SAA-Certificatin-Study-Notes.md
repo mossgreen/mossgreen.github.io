@@ -680,6 +680,44 @@ MFA requires you to verify your identity with both something you know and someth
 
 To protect your AWS infrastructure, access keys should be rotated regularly.
 
+## Database and AWS
+
+The database needs to meet the performance demands, the availability needs, and the recoverability characteristics of the system.
+
+1. RDBS: relational database management system
+2. NoSQL: non-relationsal database
+
+### Relational Database
+
+Types based on how the tables are organized and how the application uses the relational database:
+
+1. OLTP: Online Transactin Processing. regquently writing and changing data, e.g., data entry and e-commerce
+2. OLAP: Online Analytical processing. reporting or analyzing large data sets.
+
+Amazon RDS significantly simplifies the setup and maintenance of OLTP and OLAP database.
+
+### Data Warehouse
+
+A _data warehouse_ is a central repository for data that can come fromone ormore sources, used for reportign and analysis via OLAP using highly complex queries.
+
+_Amazon Redshif_ is a high-performance data warehouse designed for OLAP use cases.
+
+### NoSQL Database
+
+Simple, flexible and can achieve performance levels that are difficult with tradictional relational databases.
+A common case is managing user session state, user profiles, shopping cart data, or time-series data.
+
+### Amazon RDS
+
+Amazon RDS is a service that simplifies the setup, operations and scaling of a relational database on AWS. Amazon is responsible for backups, patching, scaling and replication.
+
+Amazon RDS does not provideshell access to DB isntances and it restricts access to certain system procedures and tables that require advanced privileges.
+
+### DB isntances
+
+A DB isntance isan isolated databse environment deployed in your private network segments the could.
+One DB instance can contain multiple differenct databases.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
