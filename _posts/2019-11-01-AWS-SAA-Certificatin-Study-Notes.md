@@ -711,12 +711,104 @@ A common case is managing user session state, user profiles, shopping cart data,
 
 Amazon RDS is a service that simplifies the setup, operations and scaling of a relational database on AWS. Amazon is responsible for backups, patching, scaling and replication.
 
-Amazon RDS does not provideshell access to DB isntances and it restricts access to certain system procedures and tables that require advanced privileges.
+Amazon RDS does not provideshell access to DB instances and it restricts access to certain system procedures and tables that require advanced privileges.
 
-### DB isntances
+### DB instances
 
-A DB isntance isan isolated databse environment deployed in your private network segments the could.
+A DB instance isan isolated databse environment deployed in your private network segments the could.
 One DB instance can contain multiple differenct databases.
+
+### Operational Benefits
+
+Amazon RDS increases the operational **reliability** of your database by applying a nery consistent deployment and operational model.
+
+E.g., you cannot use Secure Shall (SHH) to log in to the host instance and install a custom pieve of software.
+
+If you want full control of the OS or require elevated permissions tot run, then consider installing your db on Amazon EC2 instead of Amazon RDS.
+
+### Oracle
+
+Amazon RDS Oracle supports three different editions of the db engine:
+
+1. standard One
+2. Standard
+3. Enterprise
+
+### Licensing
+
+AWS offers two licensing models: License Included and Bring Your Own license (BYOL).
+
+1. License Included: license is held by AWS and is included in the Amazon RDS instance price.
+2. BYOL: you privide your own license.
+
+### Amazon Aurora
+
+It's afully managed servcie, is MySQL-compatible our of the box and privides for increated reliability and performance over standard MySQL deployments.
+
+It can deliver up to five times the performance of MySQL without requiring changes to most of your exsiting web apps.
+
+A Amazon Aurora DB cluster consists of two difference types of instances:
+
+- Primary Instance: main instance, supports read and write.
+- Amazon Aurora Replica: secondary instance that supports only read operations. You can locate your Amazon Aurora Replicas in multiple Availability Zones to increase your database availavility.
+
+### Backup and Recovery
+
+Amazon RDS provices two mechanisms for backing up the databse: automated backups and manual snapshots.
+
+Recovery Point Objective (RPO). It's defined as the maximum period of data loss that is acceptable in the event of a failure or incident. Enterprise systems have RPO measured in minutes.
+Recovery Time Objective (RTO). It's defined as the maximum amount of downtime that is permitted to recover from backup and to resume processing. Enterprise systems have RTO measured in hours or even days.
+
+- Automated Backups
+
+An automated back is an Amazon RDS fearure that continuously tracks changes and backs up your database. Default one day of backup, up to 35 days. All automated backup snapshots are deleted and cannot be recoverd.
+
+Automated backups will occur daily during a configurable 30-minute maintenance window called the backup window.
+
+Automated backups are kept for a configurable number of days, called the _backup retention period_.
+
+- Manual DB Snapshots
+You can perform manual DB snapshots at any time.
+Manual DB snapshots are kept until you explicitly delete them with the Amazon RDS console or the _DeleteDBSnapshot_ action.
+
+### Recovery
+
+You cannot restore from a DB snapshot to an existing DB instance.
+
+A new DB instance is created when you restore.
+
+### High Availabilty with Multi-AZ
+
+It allows you to create a dtabse cluster across multiple Availability Zones. Highly available, fault-tolerant.
+
+Multi-AZ lets you meet the most demanding RPO and RTO targest by using synchronous replication to minimize PRO and fast failover to mnimize RTO to minutes.
+
+It's for disaster recovery oinly, they're not meant to enhance databse performance. Use read replicas or other DB caching technologies such as Amazon ElastiCache to improve database performance.
+
+### Scaling up and out
+
+AS the number of transactions increase tothe relatiosnal database, you can do:
+
+- Scaling up, vertically, get a larger machine allows you to process more reads and writes.
+- Scaling out, horizontally, more difficult.
+
+Horizontal Scalability with Partitioning
+
+  Partitioning a large relational database into multiple isntances or shards is a common technique for handling more requests beyond the capabilities of a single instance. It allows you to scal horizontally to handle more users and requests but requires additional logic in the application layer. The app needs to decide how to route database requests to the correct shard and becoems limited in the types of queri3es that can be performed across server bundaries. NoSQL database like Amazon DynamoDB or Cassandra are desinged to scale horizontally.
+
+Horizontal Scalability with Read Replicas
+
+  use read replicas to offload read transactions from the primary database and increase the overall number of transactions. Commen scenarios:
+    - Scale beyond the capacity of a single DB Instance for read heavy workloads
+    - Handle read traffic while the source DB Instance is unavailable. E.g., I/O suspension for backups or scheduled maintenance, you can direct read trffic to a replica.
+    - Offload reporting or data warehousing scenarios.
+
+### Security
+
+infrastructure resources, the database, and the network levels.
+
+1. Infrastructure resources: using Amazon IAM
+2. Deploy your Amazon RDS DB Instances into a private subnet within an Amazon Virtual Private Cloud (Amazon VPC) that limits network access to the DB Instance.
 
 ## References
 
