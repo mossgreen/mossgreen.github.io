@@ -752,7 +752,7 @@ A Amazon Aurora DB cluster consists of two difference types of instances:
 - Primary Instance: main instance, supports read and write.
 - Amazon Aurora Replica: secondary instance that supports only read operations. You can locate your Amazon Aurora Replicas in multiple Availability Zones to increase your database availavility.
 
-### Backup and Recovery
+#### Backup and Recovery
 
 Amazon RDS provices two mechanisms for backing up the databse: automated backups and manual snapshots.
 
@@ -771,13 +771,13 @@ Automated backups are kept for a configurable number of days, called the _backup
 You can perform manual DB snapshots at any time.
 Manual DB snapshots are kept until you explicitly delete them with the Amazon RDS console or the _DeleteDBSnapshot_ action.
 
-### Recovery
+#### Recovery
 
 You cannot restore from a DB snapshot to an existing DB instance.
 
 A new DB instance is created when you restore.
 
-### High Availabilty with Multi-AZ
+#### High Availabilty with Multi-AZ
 
 It allows you to create a dtabse cluster across multiple Availability Zones. Highly available, fault-tolerant.
 
@@ -785,7 +785,7 @@ Multi-AZ lets you meet the most demanding RPO and RTO targest by using synchrono
 
 It's for disaster recovery oinly, they're not meant to enhance databse performance. Use read replicas or other DB caching technologies such as Amazon ElastiCache to improve database performance.
 
-### Scaling up and out
+#### Scaling up and out
 
 AS the number of transactions increase tothe relatiosnal database, you can do:
 
@@ -803,12 +803,58 @@ Horizontal Scalability with Read Replicas
     - Handle read traffic while the source DB Instance is unavailable. E.g., I/O suspension for backups or scheduled maintenance, you can direct read trffic to a replica.
     - Offload reporting or data warehousing scenarios.
 
-### Security
+#### Security
 
 infrastructure resources, the database, and the network levels.
 
 1. Infrastructure resources: using Amazon IAM
 2. Deploy your Amazon RDS DB Instances into a private subnet within an Amazon Virtual Private Cloud (Amazon VPC) that limits network access to the DB Instance.
+
+### Amazon Redshift
+
+It's a data warehouse service, a relational database designed for OLAP scenarios and optimized for high-performance analysis and reporting of very large database. It's based on industry-standard PostgreSQL.
+
+#### Clusters and Nodes
+
+The key component of an Amazon Redshift data warehouse is a cluster that composed of
+
+1. a leader node. The client app interacts only with the leader node
+2. one or more compute nodes. transparent tot external apps.
+
+six node types into two categories
+
+1. Dense compute, up to 326TB using fast SSDs
+2. Dense storage, up to 2PB using large magnetic disks.
+
+You can increase query performance by adding multiple nodes to a cluster.
+
+#### Distribution Strategy
+
+The data distribution style that you select for your database has a big impact on query performance, storage requirements, data loading and maintenance. So, when creating a table, you choose from three distribution styles:
+
+1. Even distribution: defalt option
+2. Key distribution, rows are distributed according to the values in one column. The leader node will store matching values close together and increase query performance for joins.
+3. All distribution, a full copy of the entire table is distributed to every node. Useful for loopup tables and other large tables that are not updated frequently.
+
+#### Loading data
+
+_COPY_ command can load data into a table in the most efficient manner. Best way to load data into Amazon Redshift is doing bulk data loads from flat files stored in an Amazon S3 bucket or from an Amazon Dynamo DB table.
+
+#### Querying data
+
+Workload management (WLM) queue and prioritize queries. It allows you define multiple queues and set the concurrency level for each query.
+
+#### Snapshots
+
+- automated snapshots
+- manual snapshots
+
+#### Redshift Security
+
+- infrastructure level: IAM policies
+- network level: Amazon Redshift clusters can be deployed within the private IP Address of your Amazon VPC.
+- Database level
+- Encryption of data
 
 ## References
 
