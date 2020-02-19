@@ -849,12 +849,76 @@ Workload management (WLM) queue and prioritize queries. It allows you define mul
 - automated snapshots
 - manual snapshots
 
-#### Redshift Security
+#### Amazon Redshift Security
 
 - infrastructure level: IAM policies
 - network level: Amazon Redshift clusters can be deployed within the private IP Address of your Amazon VPC.
 - Database level
 - Encryption of data
+
+### Amazon DynamoDB
+
+It's a fully managed NoSQL database service. Fast. Low-latency performance. Scales with ease.
+
+All table data is stored on high performance SSD disk drives.
+
+Performance metrics, including transactions rates, can be monitored using Amazon CloudWatch.
+
+Automatic high-availability and durability protections by replicating data across multiple Availavility Zones within an AWS Region.
+
+#### Data Model
+
+Tables, Items, Attributes.
+
+A table is a collection of items and each item is a collection of one or more attributes.
+Each item also has a primary key that uniquely identifies the item.
+Each attribute in an item is a name/value pair.
+An attribute can be a single valued or multi-value set.
+
+E.g.,
+
+- table: Albums
+- item: Song01, song02, song03
+- primary key: song track id, 01,02,03...;
+  - Attributes: name: song1, length:2min,...
+
+Best practice:
+use the AWS SDK to interact with items and tables, rather than using Amazon DynamoDB services endpoints.
+
+Data types in 3 categories:
+
+1. Scalar: represents one value. String, Number, Binary (images), Boolean, Null
+2. Set: represent a unique list of one or more scalar values. Each value in a set needs to be unique and must be the same data type. String Set, Number Set, Binary Set.
+3. Document: represent nultiple nested attributes, like JSON file.
+    - List: each list stores an ordered list of attributes of different data types
+    - Map: Each map stores anunordered list of key/value pairs,. structure of any JSOn object.
+
+Primary Key
+
+1. Partition key: made of one attribute, a partition (or hsh) key.
+2. Partition and Sort key. the primary key is made of two attributes. the partiion key and the second one is the sort key.
+
+Best practice:
+Read/write performance will not be benefit from Amazon DynamoDB cluster.
+To maximize your throughput by distributing requests across the full range of partition keys.
+
+#### Eventual Consistency
+
+- Eventually consistent reads
+- Strongly consistent reads
+
+#### Scaling and Partitioning
+
+A table can scale horizontally through the use of partions to meet the storage and performance requirements of your app.
+
+To maximize Amazon Dynamo DB throughput, create tables with a partition key that has a large number of distinct values and ensure that the values are requested fairly uniformaly.
+
+#### Amazon DynamoDB Security
+
+- IAM policies
+- All operations must be authenticated as a valid user or user session.
+
+Best practice is to use a combination of web identity federation with the AWS Security Token Service (AWS STS) to issue temporary keys taht expire after a short period.
 
 ## References
 
