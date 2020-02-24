@@ -920,6 +920,63 @@ To maximize Amazon Dynamo DB throughput, create tables with a partition key that
 
 Best practice is to use a combination of web identity federation with the AWS Security Token Service (AWS STS) to issue temporary keys taht expire after a short period.
 
+### Amazon Simple Queue Service (Amazon SQS)
+
+- Fast, reliable, scalable, and fully managed.
+- Simple and cost effective.
+- Decople the componetns of a cloud application.
+- It's basically a buffer between t he app components that receive data and those components that process the data.
+- Amazon SQS ensures delivery of each message at lease once and supports multiple readears and writers interacting with the same queue.
+- It doesn't guarantee FIFO delivery of mesages. If you need the order be preserved ,you can place sequncencing info in each message and recorder them after retrieving.
+
+#### Message Lifecycle
+
+1. Component1 sends message A to a queue, and the mesage is **redundantly distributed** across the Amazon SQS servers.
+2. When component2 is ready to process a message, it retrives mesages from teh queue, the Message A is returned. While Message A is being processed, it remains in the queue and is not returned to subsequently receive requests for the duration of the visibility timeout.
+3. Component 2 deletes message A from the queue to prevent the message from being received and processed again after the visibility timeout expires.
+
+#### Delay Queues and Visibility Timeouts
+
+- Delay queues allow you to postpone the delivery of new messages in a queue for a specific number of seconds.
+- Create a Delay Queues. Default delay is 0
+- turn a existing queue into a delay queue `SetQueueAttributes`
+- When a message is in the queue but is neither delayed nor in a visibility timeout, it is considered to be “**in flight**.”
+
+#### Queue and Message Identifiers
+
+Amazon SQS uses three identifiers: queue URLs, message IDs, and receipt handles.
+
+1. a queue name that is unique within the scope of all of your queues.
+2. Amazon SQS assigns each message a unique ID that it returns to you in the SendMessage response. This identifier is useful for identifying messages. The maximum length of a message ID is 100 characters.
+3. Each time you receive a message from a queue, you receive a receipt handle for that message. 
+    - The handle is associated with the **act of receiving the message, not with the message itself**.
+    - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID. 
+    - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it). 
+    - The maximum length of a receipt handle is 1,024 characters.
+
+
+#### Message Attributes
+
+- Amazon SQS provides support for message attributes.
+- Message attributes allow you to provide structured metadata items (such as timestamps, geospatial data, signatures, and identifiers) about the message.
+- Message attributes are optional and separate from, but sent along with, the message body.
+- Each message can have up to 10 attributes.
+
+#### Long Polling
+
+With long polling, you send a WaitTimeSeconds argument to ReceiveMessage of up to 20 seconds. If there is no message in the queue, then the call will wait up to WaitTimeSeconds for a message to appear before returning. If a message appears before the time expires, the call will return the message right away. Long polling drastically reduces the amount of load on your client.
+
+If your code makes periodic calls to the queue, this pattern is sufficient. If your SQS client is just a loop that repeatedly checks for new messages, however, then this pattern becomes problematic, as the constant calls to ReceiveMessage burn CPU cycles and tie up a thread.
+
+#### Dead Letter Queues
+
+It's a queue that other (source) queues can target to send messages that for some reason could not be successfully processed.
+
+A primary benefit of using a dead letter queue is the ability to sideline and isolate the unsuccessfully processed messages. You can then analyze any messages sent to the dead letter queue to try to determine the cause of failure.
+
+#### Access Control
+
+Amazon SQS Access Control allows you to assign policies to queues that grant specific interactions to other accounts without that account having to assume IAM roles from your account.
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
