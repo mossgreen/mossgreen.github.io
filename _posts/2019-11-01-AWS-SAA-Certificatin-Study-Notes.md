@@ -948,12 +948,11 @@ Amazon SQS uses three identifiers: queue URLs, message IDs, and receipt handles.
 
 1. a queue name that is unique within the scope of all of your queues.
 2. Amazon SQS assigns each message a unique ID that it returns to you in the SendMessage response. This identifier is useful for identifying messages. The maximum length of a message ID is 100 characters.
-3. Each time you receive a message from a queue, you receive a receipt handle for that message. 
+3. Each time you receive a message from a queue, you receive a receipt handle for that message.
     - The handle is associated with the **act of receiving the message, not with the message itself**.
-    - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID. 
-    - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it). 
+    - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID.
+    - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it).
     - The maximum length of a receipt handle is 1,024 characters.
-
 
 #### Message Attributes
 
@@ -977,6 +976,44 @@ A primary benefit of using a dead letter queue is the ability to sideline and is
 #### Access Control
 
 Amazon SQS Access Control allows you to assign policies to queues that grant specific interactions to other accounts without that account having to assume IAM roles from your account.
+
+### Amazon Simple Workflow Service (Amazon SWF)
+
+- Amazon SWF makes it easy to build applications that coordinate work across distributed components.
+- you implement workers to perform tasks
+- workers can run either on cloud infrastructure, such as Amazon EC2, or on your own premises
+- Amazon SWF stores tasks, assigns them to workers when they are ready, monitors their progress, and maintains their state, including details on their completion
+
+#### Workflows
+
+Workflows coordinate and manage the execution of activities that can be run asynchronously across multiple computing devices and that can feature both sequential and parallel processing.
+
+The workflow’s coordination logic determines the order in which activities are executed.
+
+**Workflow Domains** provides a way of scoping Amazon SWF resources within your AWS account. workflows in different domains cannot interact with one another.
+
+**Workflow history** is a detailed, complete, and consistent record of every event that occurred since the workflow execution started
+
+**Actors** can be workflow starters, deciders, or activity workers.
+
+1. **starter** is any application that can initiate workflow executions. For example, one workflow starter could be an e-commerce website where a customer places an order.
+
+2. **decider** is the logic that coordinates the tasks in a workflow. It schedules the activity tasks and provides input data to the activity workers.
+
+3. An **activity worker** is a single computer process (or thread) that performs the activity tasks in your workflow.
+
+#### Tasks
+
+Three types of tasks: activity tasks, AWS Lambda tasks, and decision tasks.
+
+1. An activity task tells an activity worker to perform its function, such as to check inventory or charge a credit card. The activity task contains all the information that the activity worker needs to perform its function.
+2. An AWS Lambda task is similar to an activity task, but executes an AWS Lambda function.
+3. A decision task tells a decider that the state of the workflow execution has changed so that the decider can determine the next activity that needs to be performed.
+
+#### Object Identifiers
+
+Amazon SWF objects are uniquely identified by workflow type, activity type, decision and activity tasks, and workflow execution.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
