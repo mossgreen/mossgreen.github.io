@@ -922,6 +922,8 @@ Best practice is to use a combination of web identity federation with the AWS Se
 
 ### Amazon Simple Queue Service (Amazon SQS)
 
+Amazon SQS is a unique service designed by Amazon to help you decouple your infrastructure.
+
 - Fast, reliable, scalable, and fully managed.
 - Simple and cost effective.
 - Decople the componetns of a cloud application.
@@ -1013,6 +1015,39 @@ Three types of tasks: activity tasks, AWS Lambda tasks, and decision tasks.
 #### Object Identifiers
 
 Amazon SWF objects are uniquely identified by workflow type, activity type, decision and activity tasks, and workflow execution.
+
+---
+
+### Amazon Simple Notification Service (Amazon SNS)
+
+- It is a web service for mobile and enterprise messaging.
+- It follows the publish-subscribe (pub-sub) messaging paradigm
+- notifications being delivered to clients using a push mechanism
+- two types of clients: publishers and subscribers, or producers and consumers
+  - Publishers communicate to subscribers asynchronously by sending a message to a topic.
+  - A topic is simply a logical access point/communication channel that contains a list of subscribers and the methods used to communicate to them
+- When you send a message to a topic, it is automatically forwarded to each subscriber.
+- a publisher sends a message to the topic, and Amazon SNS delivers the message to each subscriber for that topic
+
+Common Amazon SNS Scenarios
+
+E.g., monitoring applications, workflow systems, time-sensitive information updates, mobile applications, and any other application that generates or consumes notifications.
+
+#### Fanout
+
+when an Amazon SNS message is sent to a topic and then replicated and pushed to multiple Amazon SQS queues, HTTP endpoints, or email addresses.
+
+#### Application and System Alerts
+
+SMS and/or email notifications that are triggered by predefined thresholds.
+
+#### Push Email and Text Messaging
+
+to transmit messages to individuals or groups via email and/or SMS. For example, you can use Amazon SNS to push targeted news headlines to subscribers by email or SMS
+
+#### Mobile Push Notifications
+
+to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
 
 ## References
 
