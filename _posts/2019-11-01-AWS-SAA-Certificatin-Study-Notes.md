@@ -1049,6 +1049,64 @@ to transmit messages to individuals or groups via email and/or SMS. For example,
 
 to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
 
+### DNS
+
+The Internet Protocol (IP) address of your website is like your phone number—it could change if you move to a new area. DNS is like the phonebook. look you up by name in the phonebook. When a visitor wants to access your website, their computer takes the domain name typed in (www.amazon .com, for example) and looks up the IP address for that domain using DNS.
+
+Amazon Route 53 is an authoritative DNS system.
+
+#### Top-Level Domains (TLDs)
+
+- Common TLDs are .com, .net, .org, .gov, .edu, and .io.
+- Internet Corporation for Assigned Names and Numbers (ICANN) controls TLDs.
+- Each domain name becomes registered in a central database, known as the **WhoIS** database.
+
+#### IP Addresses
+
+- Each IP address must be unique within its network. For public websites, this network is the entire Internet.
+- **IPv4 addresses**: four sets of numbers separated by a dot, with each set having up to three digits. For example, 111.222.111.222
+- Pv4 address range has quickly been depleted. **IPv6** was created to solve this depletion issue, it has an address space of 128 bits.
+
+#### Hosts
+
+- Within a domain, the domain owner can define individual hosts
+- Web host: example.com, www.example.com
+- API host (api.example.com)
+- Files host: ftp.example.com, files.example.com
+
+#### Subdomains
+
+The difference between a host name and a subdomain is that a host defines a computer or resource, while a subdomain extends the parent domain. Subdomains are a method of subdividing the domain itself.
+
+#### Fully Qualified Domain Name (FQDN)
+
+
+##### Name Servers
+
+A name server is a computer designated to translate domain names into IP addresses.
+
+do most of the work in the DNS
+
+#### Zone Files
+
+A zone file is a simple text file that contains the mappings between domain names and IP addresses.
+
+#### Domain Name System (DNS) Resolution
+
+1. You type a domain name in broswer
+2. It checks host file in your local computer, to see if it's domain name stores locally, if not
+3. Check its DNS cache to see if you have visited the same site before, if not
+4. contact a DNS server to resolve the domain name
+
+#### A and AAAA
+
+A record: map a host to an IPv4 IP address
+AAAA record: map a host to an IPv6 address
+
+#### Canonical Name (CNAME)
+
+It is a type of resource record in the DNS that defines an alias for the CNAME for your server.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
