@@ -1080,7 +1080,6 @@ The difference between a host name and a subdomain is that a host defines a comp
 
 #### Fully Qualified Domain Name (FQDN)
 
-
 ##### Name Servers
 
 A name server is a computer designated to translate domain names into IP addresses.
@@ -1106,6 +1105,51 @@ AAAA record: map a host to an IPv6 address
 #### Canonical Name (CNAME)
 
 It is a type of resource record in the DNS that defines an alias for the CNAME for your server.
+
+### Amazon Route 53
+
+It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
+
+three main functions:
+
+1. Domain registration.
+  It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
+
+2. DNS service: translates friendly domain names into IP address.
+  
+- with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
+  
+- with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
+
+3. Health checking
+
+- Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
+- Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+
+#### Hosted Zones
+
+A hosted zone is a collection of resource record sets hosted by Amazon Route 53.
+
+It represents resource record sets that are managed together under a single domain name. Each hosted zone has its own metadata and configuration information.
+
+The resource record sets contained in a hosted zone must share the same suffix.
+
+two types of hosted zones: private and public.
+
+- **private hosted zone**: a container that holds information about how you want to route traffic for a domain and its subdomains within one or more Amazon Virtual Private Clouds (Amazon VPCs)
+- **public hosted zone**: a container that holds information about how you want to route traffic on the Internet for a domain and its subdomains
+
+Use an alias record, not a CNAME, for your hosted zone. CNAMEs are not allowed for hosted zones in Amazon Route 53.
+
+#### routing policies
+
+- Simple: Most commonly used when you have a single resource that performs a given function for your domain.
+- Weighted: When you want to route a percentage of your traffic to one particular resource or resources.
+- Latency-Based—Used to route your traffic based on the lowest latency so that your users get the fastest response times
+- Latency-based routing allows you to route your traffic based on the lowest network latency for your end user (for example, using the AWS region that will give them the fastest response time). Use it when:
+  - you have resources that perform the same function in multiple AWS Availability Zones
+  - regions and you want Amazon Route 53 to respond to DNS queries using the resources that provide the best latency.
+- Geolocation routing lets you choose where Amazon Route 53 will send your traffic based on the geographic location of your users. Geolocation works by mapping IP addresses to locations. It uses geolocation routing to restrict distribution of content to only the locations in which you have distribution rights.
 
 ## References
 
