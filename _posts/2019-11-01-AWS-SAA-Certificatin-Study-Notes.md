@@ -12,6 +12,10 @@ classes: wide
 
 AWS SAA Certificatin Resilient Architectures
 
+Only a subset of services.
+knowledge will be the architecture, how they work together,
+how to achieve well performaing, scaleable, secure and cost effective designs.
+
 ## Certificate Versions
 
 ### Versions before March 2020
@@ -1113,18 +1117,18 @@ It's a highly available and scalable cloud DNS web service to route end users to
 three main functions:
 
 1. Domain registration.
-  It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
+    It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
 
 2. DNS service: translates friendly domain names into IP address.
   
-- with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
+    - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
   
-- with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
+    - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
 
 3. Health checking
 
-- Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
-- Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+    - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
+    - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
 
 #### Hosted Zones
 
