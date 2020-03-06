@@ -1155,6 +1155,19 @@ Use an alias record, not a CNAME, for your hosted zone. CNAMEs are not allowed f
   - regions and you want Amazon Route 53 to respond to DNS queries using the resources that provide the best latency.
 - Geolocation routing lets you choose where Amazon Route 53 will send your traffic based on the geographic location of your users. Geolocation works by mapping IP addresses to locations. It uses geolocation routing to restrict distribution of content to only the locations in which you have distribution rights.
 
+### In Memory Caching
+
+successful application: fast and responsive user experience.
+Caching is one of the most importance performance optimizations. E.g., app session state for a large website can be stored in an in-memory caching engine.
+two engines:
+
+- Memcached: key/value store that can be used to store arbitrary types of data.
+- Redis: can be used as a cache, database, or message broker.
+
+### Amazon ElastiCache
+
+You can start using the servcie with very few or no modifications to your existing app that use Memcached or Redis, becasue Amazon ElastiCache is protocol-compliant with both of thrm. You only need to change the endpoint in your configuration files.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
