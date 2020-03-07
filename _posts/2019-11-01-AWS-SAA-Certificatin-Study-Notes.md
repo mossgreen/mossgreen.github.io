@@ -1168,6 +1168,40 @@ two engines:
 
 You can start using the servcie with very few or no modifications to your existing app that use Memcached or Redis, becasue Amazon ElastiCache is protocol-compliant with both of thrm. You only need to change the endpoint in your configuration files.
 
+You can build and manage a cache cluster on your EC2 instance.
+
+Enhance the reliability of critical deployments.
+
+#### Data Access Patterns
+
+A good example of something to cache is the list of products in a catalog.
+
+should not be cached: if you generate a unique page every request, you probably should not cache the page results
+
+#### Cache Engine: Memcached
+
+Memcached deals with objects as blobs that can be retrieved using a unique key.
+
+The object is typically the serialized results from a database query
+
+#### Cache Engine: Redis
+
+Beyond the object support provided in Memcached, Redis supports a rich set of data types likes strings, lists, and sets.
+Unlike Memcached, Redis supports the ability to persist the in-memory data onto disk.
+Redis also has advanced features that make it easy to sort and rank data.
+
+#### Nodes and Clusters
+
+Each deployment of Amazon ElastiCache consists of one or more nodes in a cluster.
+A single Memcached cluster can contain up to 20 nodes.
+Redis clusters are always made up of a single node; however, multiple clusters can be grouped into a Redis replication group.
+The individual node types are derived from a subset of the Amazon EC2 instance type families, like t2, m3, and r3.
+The t2 cache node family is ideal for development and low-volume applications with occasional bursts, but certain features may not be available. The m3 family is a good blend of compute and memory, while the r3 family is optimized for memory-intensive workloads.
+
+#### Amazon ElastiCache Access Control
+
+Access to your Amazon ElastiCache cluster is controlled primarily by restricting inbound network access to your cluster.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
