@@ -1202,6 +1202,71 @@ The t2 cache node family is ideal for development and low-volume applications wi
 
 Access to your Amazon ElastiCache cluster is controlled primarily by restricting inbound network access to your cluster.
 
+### Storage and Content Delivery: Amazon CloudFront
+
+Amazon CloudFront is a global Content Delivery Network (CDN) service,Amazon CloudFront is AWS CDN, and it's AWS CDN.
+
+CDNs use Domain Name System (DNS) geo-location to determine the geographic location of each request for a web page or other content, then they serve that content from edge caching servers closest to that location instead of the original web server.
+
+It works with:
+
+  1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
+  2. any non-AWS origin server, such as an existing on-premises web server
+  3. Amazon Route 53.
+
+It supports all content that can be served over HTTP or HTTPS, including:
+
+  1. any popular static files that are a part of your web application, such as HTML files, images, JavaScript, and CSS files, and also audio, video, media files.
+  2. serving dynamic web pages, so it can actually be used to deliver your entire website
+  3. media streaming, using both HTTP and RTMP.
+
+Three core concepts: distributions, origins,and cache control.
+
+#### Amazon CloudFront Use Cases
+
+Good for:
+
+- Serving the Static Assets of Popular Websites
+- Serving a Whole Website or Web Application. both dynamic and static content
+- Serving Content to Users Who Are Widely Distributed Geographically
+- Distributing Software or Other Large Files
+- Serving Streaming Media
+  
+Not appropriate:
+
+- All or Most Requests Come From a Single Location. you will not take advantage of multiple edge locations.
+- All or Most Requests Come Through a Corporate VPN.
+
+### Storage and Content Delivery: AWS Storage Gateway
+
+AWS Storage Gateway is a service connecting an on-premises software appliance with cloud-based storage to provide seamless and secure integration between an organization’s onpremises IT environment and AWS storage infrastructure.
+
+The storage associated with the appliance is exposed as an iSCSI device that can be mounted by your on-premises applications.
+
+three configurations for AWS Storage Gateway: Gateway-Cached volumes, Gateway-Stored volumes, and Gateway-Virtual Tape Libraries (VTL).
+
+#### Gateway-Cached volumes
+
+It allows you to expand your local storage capacity into Amazon S3. All data stored on a Gateway-Cached volume is moved to Amazon S3, while recently read data is retained in local storage to provide low-latency access.
+
+#### Gateway-Stored volumes
+
+It allows you to store your data on your on-premises storage and asynchronously back up that data to Amazon S3. This provides lowlatency access to all data, while also providing off-site backups taking advantage of the durability of Amazon S3.
+
+#### Gateway Virtual Tape Libraries (VTL)
+
+A virtual tape is analogous to a physical tape cartridge, except the data is stored on the AWS cloud. Tapes are created blank through the console or programmatically and then filled with backed up data.
+
+Gateway-VTL offers a durable, cost-effective solution to archive your data on the AWS cloud. The VTL interface lets you leverage your existing tape-based backup application infrastructure to store data on virtual tape cartridges that you create on your Gateway-VTL.
+
+#### AWS Storage Gateway Use Cases
+
+- Gateway-Cached volumes enable you to expand local storage hardware to Amazon S3, allowing you to store much more data without drastically increasing your storage hardware or changing your storage processes.
+
+- Gateway-Stored volumes provide seamless, asynchronous, and secure backup of your onpremises storage without new processes or hardware.
+
+- Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
