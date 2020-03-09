@@ -402,7 +402,9 @@ three price options:
 2. Dedicated Instances, run on hardware that's decicated t oa single customer.
 3. Dedicated Host: An Amazon EC2 Host
 
-## Amazon elastic Block Store, Amazon EBS
+## Amazon Elastic Block Store, Amazon EBS
+
+It provides persistent block-level storage volumes for use with Amazon EC2 instances on the AWS Cloud.
 
 Instance stores, like S3, have their limitations. Amazon EBS provides durable block storage for use with Amazon EC2 instance.
 
@@ -455,6 +457,7 @@ You can create avolume fro ma snapshot. Best practice is to initialize a volume 
 ## Amazon Virtual Private Cloud, Amazon VPC
 
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
+Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
 It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
 
 In your Amazon, VPC, uou can control:
@@ -584,7 +587,9 @@ Configuring Elastic Load Balancing
 
 ### Amazon CloudWatch
 
-It monitors AWS resources and applications in real time. It collects and tracks metrics, create alarms that send notifications, and make changes to the resources being monitored based on rules you define.
+It is a monitoring service.
+It monitors AWS resources and applications in real time.
+It allows organizations to collect and track metrics, collect and monitor log files, and set alarms, and make changes to the resources being monitored based on rules you define.
 
 Types:
 
@@ -862,7 +867,9 @@ Workload management (WLM) queue and prioritize queries. It allows you define mul
 
 ### Amazon DynamoDB
 
-It's a fully managed NoSQL database service. Fast. Low-latency performance. Scales with ease.
+It's a fully managed NoSQL database service. Fast, Low-latency, Scales with ease.
+
+It's for all applications that need consistent, single-digit millisecond latency at any scale.
 
 All table data is stored on high performance SSD disk drives.
 
@@ -926,7 +933,9 @@ Best practice is to use a combination of web identity federation with the AWS Se
 
 ### Amazon Simple Queue Service (Amazon SQS)
 
-Amazon SQS is a unique service designed by Amazon to help you decouple your infrastructure.
+Amazon SQS is a fast, reliable, scalable, fully managed message queuing service that allows organizations to decouple the components of a cloud application.
+
+Amazon SNS provides a messaging bus complement to Amazon SQS; however, it doesn’t provide the decoupling of components.
 
 - Fast, reliable, scalable, and fully managed.
 - Simple and cost effective.
@@ -1204,7 +1213,9 @@ Access to your Amazon ElastiCache cluster is controlled primarily by restricting
 
 ### Storage and Content Delivery: Amazon CloudFront
 
-Amazon CloudFront is a global Content Delivery Network (CDN) service,Amazon CloudFront is AWS CDN, and it's AWS CDN.
+Amazon CloudFront is a global Content Delivery Network (CDN) service; Amazon CloudFront is AWS CDN.
+
+It's to speed up distribution of your static and dynamic web content—for example, .html, .css, .php, image, and media files—to end users.
 
 CDNs use Domain Name System (DNS) geo-location to determine the geographic location of each request for a web page or other content, then they serve that content from edge caching servers closest to that location instead of the original web server.
 
@@ -1266,6 +1277,32 @@ Gateway-VTL offers a durable, cost-effective solution to archive your data on th
 - Gateway-Stored volumes provide seamless, asynchronous, and secure backup of your onpremises storage without new processes or hardware.
 
 - Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
+
+### AWS CloudTrail
+
+It records API calls made on your account and delivers log files to your Amazon S3 bucket. AWS CloudTrail’s benefit is visibility into account activity by recording API calls made on your account.
+
+AWS CloudTrail records the following information about each API call:
+
+- The name of the API
+- The identity of the caller
+- The time of the API call
+- The request parameters
+- The response elements returned by the AWS Cloud service
+
+Validated log files are invaluable in security and forensic investigations
+
+### Software Architecture Best Practices
+
+tenets of architecture best practices
+
+- Design for failure and nothing will fail.
+- Implement elasticity.
+- Leverage different storage options.
+- Build security in every layer.
+- Think parallel.
+- Loose coupling sets you free.
+- Don’t fear constraints.
 
 ## References
 
