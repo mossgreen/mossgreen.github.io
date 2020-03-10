@@ -1,5 +1,5 @@
 ---
-title: AWS SAA Certificatin Resilient Architectures
+title: AWS SAA Certification Study Notes
 search: true
 tags: 
   - AWS
@@ -16,56 +16,18 @@ Only a subset of services.
 knowledge will be the architecture, how they work together,
 how to achieve well performaing, scaleable, secure and cost effective designs.
 
-## Certificate Versions
+## Key Concepts
 
-### Versions before March 2020
+### Durability and Availability
 
-Domain 1: Design Resilient Architectures
+**Durability** addresses the question, “Will my data still be there in the future?”
+**Availability** addresses the question, “Can I access my data right now?”
 
-1.1 Choose reliable/resilient storage.
-1.2 Determine how to design decoupling mechanisms using AWS services.
-1.3 Determine how to design a multi-tier architecture solution.
-1.4 Determine how to design high availability and/or fault tolerant architectures.
+Amazon S3 is designed to provide both very high durability and very high availability for your data.
 
-### new
+Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% availability of objects over a given year.
 
-Domain 1: Design Resilient Architectures
-
-1.1 Design a multi-tier architecture solution
-1.2 Design highly available and/or fault-tolerant architectures
-1.3 Design decoupling mechanisms using AWS services
-1.4 Choose appropriate resilient storage
-
-## important services
-
-Amazon EC2
-Amazon VPC
-Amazon S3
-Amazon EBS
-Amazon RDS
-Amazon DynamoDB
-Elastic Load Balancing
-Amazon CloudWatch
-AWS Identity & Access Management
-Amazon Simple Queue Service
-
-## other  services need to know
-
-Amazon Glacier
-Amazon ElastiCache
-Amazon Redshift
-Amazon CloudFront
-Amazon Route53
-AWS CloudFormation
-AWS Config
-AWS CloudTrial
-AWS WAF
-Amazon Simple Notification Service
-Amazon Simple Email Service
-AWS Import/Export
-AWS connect
-
-## Services in SAA
+## Amazon Services in SAA
 
 1. Compute and Networking Services
 
@@ -118,12 +80,11 @@ AWS connect
 
 ## Amazon Simple Storage Service (Amazon S3)
 
-### Comman use cases for Amazon S3 storeage
+### Comman use cases for Amazon S3
 
 1. Backup and archive for on-premises or cloud data
-
 2. Content, media, and software storeage and distribution
-3. Big dta analytics
+3. Big data analytics
 4. Static website hosting
 5. Cloud-native mobile and Internet application hosting
 6. Disaster recovery
@@ -149,7 +110,7 @@ If you need the traditioanl block or file storage in addition tot Amazon S3 stor
 
 ### Buckets
 
-1. Buckets are a simple flet structure. You can have multiple buckets, but cannot have a sub-bucket.
+1. Buckets are a simple flat structure. You can have multiple buckets, but cannot have a sub-bucket.
 2. A bucket can store an unlimited number of files.
 3. Files are automatically replicated on multiple devices in multiple facilities, **within a region**.
 4. Bucket names are glocal, must be unique across all AWS accounts.
@@ -169,6 +130,7 @@ If you need the traditioanl block or file storage in addition tot Amazon S3 stor
 4. Each object is identified by a unique key. A key can be up to 1024 bytes of Unicode UTF-8 characters, inclusing: embedded slashes, backslashes, dots and dashes.
 5. Key must be unique within a bucket. Combination of bucket, key and optional version ID uniquely identifies and Amazon S3 object.
 6. Each object can be addressed by a unique URL.
+7. storage in a bucket does not need to be pre-allocated.
 
 ### Amazon S3 Operations
 
@@ -191,13 +153,13 @@ native interface and higher level interfaces
 
 Availability: Can I access my data right now? 99.99%.
 
-### Data Consistency
+### Amazon S3 Data Consistency
 
-Amazon s3 is an eventually consistent system, changes in data may take some time to propagate to replicated locations.
+Amazon S3 is an eventually consistent system, changes in data may take some time to propagate to replicated locations.
 
-- Puts to the new object, all good, read-after-write consistence.
-- Puts to existing objects, and DEKETES, may return stale data
-- Updates to a single key are atomic. means, you get the new or old data, but never a mix.
+Amazon S3 provides read-after-write consistency for PUTs to new objects (new key)
+but eventual consistency for GETs and DELETEs of existing objects (existing key), so it may return stale data
+Updates to a single key are atomic, you get the new or old data, but never a mix.
 
 ### Access control
 
@@ -234,18 +196,22 @@ Consider to use Amazon CloudFront distribution as a caching layer for best perfo
 
 ### Storage class
 
-- Amazon S3 standard: frequently accessed data
-- Amazon S3 Standard - Infrequent Access (Standard-IA):
+Amazon S3 offers a range of storage classes designed for various generic use cases: general purpose, infrequent access, and archive.
+
+- **Amazon S3 Standard** offers high durability, high availability, low latency, and high performance object storage for general purpose use. It's for frequently accessed data.
+- **Standard-IA**: Amazon S3 Standard - Infrequent Access
   - designed for long-lived, less frequently accessed data.
   - Lower per GB-month cost.
   - minumum object size: 128K
   - minumum duration: 30 days
-- Amazon S3 Reduced Redundancy Storage (RRS)
+  - per-GB retrieval costs
+  - best for infrequently accessed data that is stored for longer than 30 days.
+- **RSS**: Amazon S3 Reduced Redundancy Storage
   - lower durability: 4 nines
   - reduced cost
-  - good for derived data that can be easily repreduced, like image thumbnails
+  - good for derived data that can be easily reproduced, such as image thumbnails.
 - Amazon Glacier
-  - Low cost, curable
+  - Low cost, durable
   - for rarely access data
   - accept a three-to-five hour retrieval time
 
@@ -265,7 +231,7 @@ Reduce cost lifecycle rules:
 3. After 90 days, transition tot Amazon Glacier
 4. After 3 years, delete
 
-### Encryption
+### Amazon S3 Encryption
 
 1. in flight: use Amazon S3 secure sockets layer, SSL API endpoints. ensures that data send to and from Amazon S3 is encrypted with HTTPS
 
@@ -273,6 +239,21 @@ Reduce cost lifecycle rules:
     - SSE-S3, AWS handles keys  <- should use this for simplicity
     - SSE-KMS, Amazon handles your key mangement, you manage the keys <- should use this for simplicity
     - SSE-C, customer proviced keys
+
+### Pre-Signed URLs
+
+All Amazon S3 objects by default are private, meaning that only the owner has access.
+
+The owner can share objects with others by creating a pre-signed URL, using their own security credentials to grant time-limited permission to download the objects.
+To enable it, you must provide
+
+1. your security credentials and
+2. specify a bucket name,
+3. an object key,
+4. the HTTP method (GET to download the object),
+5. and an expiration date and time.
+
+This is particularly useful to protect against “content scraping” of web content such as media files stored in Amazon S3.
 
 ### Multipart Upload
 
@@ -282,6 +263,38 @@ the ability to pause and resume
 should use multipart upload for objects larger than 10M
 must use for objects larger than 5G
 Object lifecycle policy on a bucket tot abort incomplete uploads after a specified number of days.
+
+### Cross-region replication
+
+Asynchronously replicate to another region, includes metadata and ACLs.
+
+To enable cross-region replication:
+
+1. **versioning** must be turned on for both source and destination buckets,
+2. you must use an IAM policy to give Amazon S3 permission to replicate objects on your behalf.
+
+Commonly used to:
+
+1. reduce the latency required to access objects in Amazon S3 by placing objects closer to a set of users
+2. meet requirements to store backup data at a certain distance from the original source data.
+
+A second region does not significantly increase durability.
+
+### Logging
+
+In order to track requests to your Amazon S3 bucket, you can enable Amazon S3 server access logs.
+Logging is off by default.
+When you enable logging for a bucket (the source bucket), you must choose where the logs will be stored (the target bucket)
+
+A best practice: to specify a prefix, such as logs/ or yourbucketname/logs/, so that you can more easily identify your logs.
+
+Logs include information such as:
+
+- Requestor account and IP address
+- Bucket name
+- Request time
+- Action (GET, PUT, LIST, and so forth)
+- Response status or error code
 
 ### Amazon Glacier
 
