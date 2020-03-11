@@ -384,22 +384,22 @@ Addressing an instance
     - It can be transferred toa replacement instance in the event of an instance failure
     - it's a public address that can be sharedexternally without coupling clients to the particular instance.
 
+Connecting to a Linux instance using SSH:
+
+The public half of the key pair is stored on the instance, and the private half can then be used to connect via SSH.
+
 ### Virtual Firewall Protection
 
 Security Groups, allow you control traffic based on port, protocal and source/destination.
 
 By default, it doesn't allow any traffic that is not explicitly allowed by a security group rule.
 
-Connecting to a Linux instance using SSH:
-
-The public half of the key pair is stored on the instance, and the private half can then be used to connect via SSH.
-
 ### Instance Lifecycle
 
 1. Launching
-    1.1 Bootstrapping. You can pass in the OS a string named **UserData**.
-    1.2 VM import/export
-    1.3 Instance Metadata
+    1. Bootstrapping. You can pass in the OS a string named **UserData**.
+    2. VM import/export
+    3. Instance Metadata
 
 2. Modifying an instance
     1. modify instance type. Instances can be resized
@@ -491,11 +491,13 @@ need to pay additional hourly charge.
 
 ### Protecting Data
 
-You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved.
+You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved. There is no delay in processing when commencing a snapshot.
 
 You recover data by detach the volume from the failed instance and attach the backed up one.
 
-You can create avolume fro ma snapshot. Best practice is to initialize a volume created fro ma snapshot by accessing all the blocks in the volume.
+You can create a volume from a snapshot. The volume is created immediately but the data is loaded lazily. This means that the volume can be accessed upon creation, and if the data being requested has not yet been restored, it will be restored upon first request.
+
+Best practice is to initialize a volume created from a snapshot by accessing all the blocks in the volume.
 
 ## Amazon Virtual Private Cloud, Amazon VPC
 
