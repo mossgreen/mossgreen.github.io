@@ -10,7 +10,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-AWS SAA Certificatin Resilient Architectures
+AWS Certified Solutions Architect - Associate SAA-C03
 
 Only a subset of services.
 knowledge will be the architecture, how they work together,
@@ -78,7 +78,7 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
     - Amazon Simple Workflow Service (Amazon SWF)
     - Amazon Simple Queue Service (Amazon SQS) ★★
 
-## Amazon Simple Storage Service (Amazon S3)
+## Amazon Simple Storage Service, Amazon S3
 
 ### Comman use cases for Amazon S3
 
@@ -314,7 +314,7 @@ Logs include information such as:
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 
-Amazon Ec2 provides resizable compute capacity in cloud.
+Amazon EC2 provides resizable compute capacity in cloud.
 
 Compute refers to the amount of computational power required to fullfill your workload.
 
@@ -339,9 +339,15 @@ Instance types are grouped into families.
 - i2: Storage optimized: for workloads requiring high amounts of fast SSD storage
 - g2: GPU-based instances: intented for graphics and general-purposed GPU compute workloads
 
+While changing the instance type,
+
+1. Can only within the same instance type family,
+2. you can change the Availability Zone.
+3. You **cannot** change the operating system nor the instance type family.
+
 ### Amazon Machine Images, AMIs
 
-The initial software that wil lbe on an isntance when it's launched.
+The initial software that will be on an instance when it's launched.
 
 - Operating system and its configuration
 - the initial state of any patches
@@ -349,12 +355,17 @@ The initial software that wil lbe on an isntance when it's launched.
 
 Four sources of AMIs
 
-1. published By aWS
+1. published By AWS
 2. The AWS Marketplace. two benefies:
     - The customer doesn not need to install the software
     - The license agreement is appropriate for the cloud
 3. Generated from Exsiting Instances
 4. Uploaded Virtual Servers
+
+While launching a new EC2 instance, You must specify
+
+1. instance type, which defines the virtual hardware
+2. AMI, which defines the initial software state.
 
 ### Securely Using an instance
 
@@ -369,15 +380,19 @@ Addressing an instance
     - cannot transfer to another instance
 
 3. Elastic IP
-    - associated with an Amazon EC3 isntance
+    - associated with an Amazon EC3 instance
     - It can be transferred toa replacement instance in the event of an instance failure
-    - it's a public address that can be sharedexternally without coupling clients to the particular isntance.
+    - it's a public address that can be sharedexternally without coupling clients to the particular instance.
 
 ### Virtual Firewall Protection
 
 Security Groups, allow you control traffic based on port, protocal and source/destination.
 
 By default, it doesn't allow any traffic that is not explicitly allowed by a security group rule.
+
+Connecting to a Linux instance using SSH:
+
+The public half of the key pair is stored on the instance, and the private half can then be used to connect via SSH.
 
 ### Instance Lifecycle
 
@@ -399,15 +414,26 @@ three price options:
     - The most flexible pricing
     - requires no up-frount commitment
     - customer controls when to launch and terminate
-    - for unpredictable workloads
+    - for unpredictable workloads, traffic spikes, such as on the last day of the month.
+    - good for temporary workloads, but don’t offer the cost savings of Spot Instances
 
 2. Reserved Instances
     - for predictable workloads, can save up to 75% over on0demand hourly rate
     - two factors that determine the cost: the term commitment and payment
+    - provide cost savings when you can commit to running instances full time, such as to handle the base traffic.
 
 3. Spot instances
-    - for workloads that are not time critical and are tolerant of interruption. Analytics, financial modeling, big data, media encoding, scientific computing, testing.
-    - Spot isntances offer the greatest discount
+    - a very cost-effective way to address temporary compute needs that are not urgent and are tolerant of interruption.
+    - E.g., analytics, financial modeling, big data, media encoding, scientific computing, testing.
+    - Spot instances offer the greatest discount
+
+### Networking
+
+Benefits of Enhanced Networking:
+
+1. More packets per second (PPS)
+2. Lower latency
+3. Less jitter
 
 ### Tenancy options
 
@@ -417,9 +443,13 @@ three price options:
 
 ## Amazon Elastic Block Store, Amazon EBS
 
-It provides persistent block-level storage volumes for use with Amazon EC2 instances on the AWS Cloud.
+Instance stores are low-durability, high-IOPS storage that is included for free with the hourly cost of an instance. Data is lost when the instance stops.
 
 Instance stores, like S3, have their limitations. Amazon EBS provides durable block storage for use with Amazon EC2 instance.
+
+Amazon EBS provides persistent block-level storage volumes for use with Amazon EC2 instances on the AWS Cloud.
+
+Amazon EBS volumes persist when the instance is stopped.
 
 ### Types of Amazon EBS Volumes
 
@@ -455,9 +485,9 @@ It varies in areas like underlying hardware, performance, and cost.
 
 ### Amazon EBS-Optimized Instances
 
-Use Amazon EBS-optimized isntances to ensure that Amazon EC2 instance is prepared to take advantage of the IO.
+Use Amazon EBS-optimized instances to ensure that Amazon EC2 instance is prepared to take advantage of the IO.
 
-need to pay additional hourly charge for that instance.
+need to pay additional hourly charge.
 
 ### Protecting Data
 
@@ -535,7 +565,7 @@ It allows you to maintain a set of IP addresses that remain fixed while the unde
 
 ### VPC endpoint
 
-It enables you to create a private connection between your Amazon VPC and another AWS service without requiring access over the Internet or through a NAT isntance, VPN connection, or AWS Direct Connect.
+It enables you to create a private connection between your Amazon VPC and another AWS service without requiring access over the Internet or through a NAT instance, VPN connection, or AWS Direct Connect.
 
 ### VPC peering
 
@@ -551,7 +581,7 @@ It's another layer of security that acts as a stateless firewall on a subnet lev
 
 ### NAT instance
 
-It's a customer-managed isntances that is designed to accept traffic from instances within a private subnet, translate the source IP address to the public IP address of the NAT instance and forward the traffic to the IGW.
+It's a customer-managed instances that is designed to accept traffic from instances within a private subnet, translate the source IP address to the public IP address of the NAT instance and forward the traffic to the IGW.
 
 ### NAT getway
 
@@ -580,7 +610,7 @@ Types of Load Balancers
     Works in EC2 VPCs with private subnets
 
 3. Https load balancers
-    In order to use SSL, you must install an SSL certificate on the load balancer that it uses to terminate the connection and then decrypt requests from clients before endign requests tot the back-end Amazon Ec2 isntances.
+    In order to use SSL, you must install an SSL certificate on the load balancer that it uses to terminate the connection and then decrypt requests from clients before endign requests tot the back-end Amazon Ec2 instances.
 
 Listeners proteocols: HTTP, HTTPS, TCP, SSL
 
@@ -596,7 +626,7 @@ Configuring Elastic Load Balancing
 
 - **Sticky Sessions**: It enables loading balander tot cind a user'ssession to a specific instance, and insures that all requests fro mthe user during the session are snet to the same instance.
 
-- **Health Checks**: The status of the isntances that are healthy at the time of the health check is inServcie, otherwise is outOfService. A health check is a ping, a conenction attempt, or a page that is checked periodically.
+- **Health Checks**: The status of the instances that are healthy at the time of the health check is inServcie, otherwise is outOfService. A health check is a ping, a conenction attempt, or a page that is checked periodically.
 
 ### Amazon CloudWatch
 
@@ -816,7 +846,7 @@ AS the number of transactions increase tothe relatiosnal database, you can do:
 
 Horizontal Scalability with Partitioning
 
-  Partitioning a large relational database into multiple isntances or shards is a common technique for handling more requests beyond the capabilities of a single instance. It allows you to scal horizontally to handle more users and requests but requires additional logic in the application layer. The app needs to decide how to route database requests to the correct shard and becoems limited in the types of queri3es that can be performed across server bundaries. NoSQL database like Amazon DynamoDB or Cassandra are desinged to scale horizontally.
+  Partitioning a large relational database into multiple instances or shards is a common technique for handling more requests beyond the capabilities of a single instance. It allows you to scal horizontally to handle more users and requests but requires additional logic in the application layer. The app needs to decide how to route database requests to the correct shard and becoems limited in the types of queri3es that can be performed across server bundaries. NoSQL database like Amazon DynamoDB or Cassandra are desinged to scale horizontally.
 
 Horizontal Scalability with Read Replicas
 
