@@ -504,6 +504,8 @@ Best practice is to initialize a volume created from a snapshot by accessing all
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
 Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
 It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
+The size of subnet that you can have in an Amazon VPC: small to large, /28 (16 available address) to /16(65,536 available address)
+The default limit for the number of Amazon VPCs that a customer may have in a region is 5.
 
 In your Amazon, VPC, uou can control:
 
@@ -512,7 +514,13 @@ In your Amazon, VPC, uou can control:
 3. network gateways
 4. security settings
 
-When you create an Amazon VPC, you must specify the IPv4 address range by choosing a Classless Inter-Domain routing block, CIDR, such as `10.0.0.0/16`. The address range cannot be changed after the VPC is created.
+When you create an Amazon VPC,
+
+- you must specify
+    1. the IPv4 address range by choosing a Classless Inter-Domain routing block, CIDR, such as `10.0.0.0/16`. The address range cannot be changed after the VPC is created.
+    2. exactly one region
+- A route table is created by default.
+- You must manually create subnets and an IGW.
 
 Amazon VPC Components
 
@@ -536,6 +544,7 @@ Optional components:
 
 It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources.
 Subnets are defined by CIDR blocks, are cotnained within an Availability zone.
+The smallest subnet that you can create is a /28 (16 IP addresses).
 
 Can be public, private or VPN-only.
 
@@ -549,17 +558,36 @@ Can be public, private or VPN-only.
 - You can use route tables to specify which subnets are public, which are private.
 - The router also enables subnets, IGWs and VPGs to communicate with each other.
 
-### IGW
+### IGW, Internet Gateways
 
 It's horizontally scaled, redundant and highly available Amazon vPC component that allows communication between instances in your Amazon VPC and the Inernet.
 
 An IGW provides a target in your Amazon VPC route tables for Internet-routeable traffic, and it performs network address translation for instances that have been assigned public IP address.
 
-### DHCP
+You may only have one IGW for each Amazon VPC.
+
+To create a public subnet with Internet access:
+
+1. Attache an IGW to your Amazon VPC
+2. Create a subnet route table rule to send all non-local traffic(0.0.0.0/0) to the IGW
+3. Configure your network ACLs and security group rules to allow relevant traffic to flow to and from your instance
+
+To enable an Amazon EC2 instance to send and receive traffic from the Internet:
+
+- Assign a public IP address or EIP address
+
+### DHCP, Dynamic Host Configuration Protocol
 
 Allows ytou to direct Amazon EC2 host name assignment to your own resources.
 
-### EIP
+A DHCP **option set** allows customers to
+
+- define DNS servers for DNS name resolution,
+- establish domain names for instances within an Amazon VPC,
+- define NTP servers,
+- and define the NetBIOS name servers.
+
+### EIP, Elastic IP Addresses
 
 A static, public IP address in the pool for the region that you can allocate to your account and release.
 
@@ -573,13 +601,31 @@ It enables you to create a private connection between your Amazon VPC and anothe
 
 It's a networking connection between two Amazon VPCs that enabled instances in either Amazon VPC t o communicate with each otehr as if they were within the same network.
 
-### security group
+### Security Group
 
 It's avirtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
+You can specify allow rules, but not deny rules. This is an important difference between security groups and ACLs.
 
-### network ACL
+Default security group:
+
+- allows communication between all resources within the security group,
+- allows all outbound traffic, and
+- no inbound traffic is allowed until you add inbound rules to the security group.
+- denies all other traffic.
+
+### ACLs, Network Access Control Lists
 
 It's another layer of security that acts as a stateless firewall on a subnet level.
+
+Security Group VS. ACLS
+
+|Security Group|Network ACLs|
+|-- |-- |
+|Operates at the instance level (first layer of defense)|Operates at the subnet level (second layer of defense)|
+|Supports allow rules only|Supports allow rules and deny rules|
+|Stateful: Return traffic is automatically allowed, regardless of any rules|Stateless: Return traffic must be explicitly allowed by rules.|
+|AWS evaluates all rules before deciding whether to allow traffic|AWS processes rules in number order when deciding whether to allow traffic.|
+|Applied selectively to individual instances|Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group.|
 
 ### NAT instance
 
@@ -591,7 +637,14 @@ It's an AWS-managed service that is designed to accept traffic from instances wi
 
 ### VPG & CGW
 
-A VPG is the VPN concentrator on the AWS side of the VPN connection between the two networks. A CGW represents a physical device or a software application on the customer’s side of the VPN connection. The VPN connection must be initiated from the CGW side, and the connection consists of two IPSec tunnels.
+- A VPG is the Amazon side of a VPN connection.
+- A CGW is the customer side of a VPN connection
+- The VPN connection must be initiated from the CGW side, and the connection consists of two IPSec tunnels.
+- IPsec is the security protocol supported by Amazon VPC.
+
+### ENI, Elastic Network Interface
+
+Attaching an ENI associated with a different subnet to an instance can make the instance dual-homed.
 
 ## ELB, Amazon CloudWatch, Auto Scaling
 
