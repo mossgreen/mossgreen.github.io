@@ -451,6 +451,11 @@ Amazon EBS provides persistent block-level storage volumes for use with Amazon E
 
 Amazon EBS volumes persist when the instance is stopped.
 
+To replicate an EBS:
+
+You need to use Snapshot.
+> “Snapshots can be used to instantiate multiple new volumes, expand the size of a volume, or move volumes across Availability Zones. When a new volume is created, you may choose to create it based on an existing Amazon EBS snapshot. In that scenario, the new volume begins as an exact replica of the snapshot.”
+
 ### Types of Amazon EBS Volumes
 
 It varies in areas like underlying hardware, performance, and cost.
@@ -1401,6 +1406,141 @@ tenets of architecture best practices
 - Think parallel.
 - Loose coupling sets you free.
 - Don’t fear constraints.
+
+## AWS Well-Architected Framework
+
+Best practices for designing and operating reliable, secure, eﬃcient, and cost-eﬀective systems in the cloud.
+
+The **AWS WellArchitected Tool** (AWS WA Tool) is a service reviews and measures your architecture whether using the AWS WellArchitected Framework, and provides recommendations for making your workloads more reliable, secure, eﬃcient, and cost-eﬀective.
+
+Definitions:
+
+- Component: code, configuration and AWS Resources that together deliver against a requirement. Normally decoupled.
+- Workload: a set of componetns. It's the detail the business and tech leaders communicate about.
+- Milestones: key changes in your architecture
+- Architecture: how componetns work together in a workload
+- Technology portfolio: the collection of workloads that are requried for business to operate
+
+Five pillars:
+
+1. **Operational Excellence**: The ability to run and monitor systems
+2. **Security**: protect infomation, systems and assets
+3. **Reliability**: system recover from failure
+4. **Performance Efficientcy**: use computing resources efficiently
+5. **Cost Optimization**
+
+You may need to optimize
+
+- to reduce cost, downgrade reliability of dev env
+- for mission critical solution, optimize reliability with increased costs
+- In ecommerce solutions, performance should be optimized
+- Security and operational excellence are generally not traded-off against the other pillars.
+
+### General Design Principles
+
+- Stop guessing your capacity needs: n use as much or as little capacity as you need, and scale up and down automatically.
+- Test systems at production scale: only pay for the test environment when it's running
+- Automate to make architectural experimentation easier: use Automation to avoid the expense of manual eﬀort.
+- Allow for evolutionary architectures: the capability to automate and test on demand lowers the risk of impact from design changes
+- Drive architectures using data: collect data, make fact-based decisions and improve workload.
+- Improve through game days: simulate events in production which will help you understand where to improvement.
+
+### Pillar One: Operational Excellence
+
+It includes the ability to run and monitor systems to deliver business value and to continually improve supporting processes and procedures.
+
+**Design Principles**:
+
+- **Perform operations as code**: deﬁne your entire workload (applications, infrastructure) as code, limit human error and enable consistent responses to events.
+- **Annotate documentation**: automate the creation of annotated documentation after every build
+- **Make frequent, small, reversible changes**
+- **Reﬁne operations procedures frequently**
+- **Anticipate failure**: Test your failure scenarios
+- **Learn from all operational failures**
+
+**Three best practice areas**: Prepare, Operate, Evolve
+
+Key AWS Services
+
+The AWS service that is essential to Operational Excellence is **AWS CloudFormation**, which you can use to create templates based on best practices. This enables you to provision resources in an orderly and consistent fashion from your development through production environments.
+
+1. Prepare:
+    - **AWS Conﬁg and AWS Conﬁg rules** can be used to create standards for workloads and to determine if environments are compliant with those standards before being put into production.
+    - **AWS CloudFormation** enables you to have consistent, templated, sandbox development, test, and production environments with increasing levels of operations control.
+    - Data on use of resources, application programming interfaces (APIs), and network ﬂow logs can be collected using **Amazon CloudWatch**, **AWS CloudTrail**, and **VPC Flow Logs**.
+
+2. Operaete
+    - **Amazon CloudWatch** allows you to monitor the operational health of a workload.
+    - AWS provides workload insights through logging capabilities including **AWS X-Ray**, **CloudWatch**, **CloudTrail**
+    - **VPC Flow Logs** enabling the identiﬁcation of workload issues in support of root cause analysis and remediation.
+
+3. Evolve
+    - **Amazon Elasticsearch Service (Amazon ES)** allows you to analyze your log data to gain actionable insights quickly and securely.
+    - With **AWS Developer Tools** you can implement continuous delivery build, test, and deployment activities that work with a variety of source code, build, testing, and deployment tools from AWS and third parties.
+
+### Pillar Two: Security
+
+It includes the ability to protect information, systems, and assets while delivering business value through risk assessments and mitigation strategies.
+
+Design Principles
+
+- **Implement a strong identity foundation**: appropriate authorization for each interaction with your AWS resources
+- **Enable traceability**
+- **Apply security at all layers**: E.g., edge network, VPC, subnet, load balancer, every instance, operating system, and application
+- **Automate security best practices**
+- Protect data in transit and at rest
+- Keep people away from data
+- Prepare for security events
+
+5 Best Practices:
+
+1. Identity and Access Management
+    - only authorized and authenticated users are able to access your resources.
+    - privilege management is primarily supported by the **AWS Identity and Access Management (IAM)** service, which allows you to control user and programmatic access to AWS services and resources.
+    - best practices including password requirements and MFA enforced
+    - key Services:
+        - **IAM** enables you to securely control access to AWS services and resources.
+        - **MFA** adds an additional layer of protection on user access.
+        - **AWS Organizations** lets you centrally manage and enforce policies for multiple AWS accounts.
+2. Detective Controls
+    - use detective controls to identify a potential security threat or incident.
+    - you can implement detective controls by processing logs, events, and monitoring that allows for auditing, automated analysis, and alarming.
+    - CloudTrail logs, AWS API calls, and CloudWatch provide monitoring of metrics with alarming
+    - AWS Conﬁg provides conﬁguration history.
+    - Amazon GuardDuty is a managed threat detection service that continuously monitors for malicious or unauthorized behavior to help you protect your AWS accounts and workloads.
+    - Service-level logs are also available, for example, you can use Amazon Simple Storage Service (Amazon S3) to log access requests.
+    - Log management is important to a well-architected design for reasons ranging from security or forensics to regulatory or legal requirements.
+    - Key Services:
+        - **AWS CloudTrail** records AWS API calls,
+        - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration.
+        - **Amazon GuardDuty** is a managed threat detection service that continuously monitors for malicious or unauthorized behavior.
+        - **Amazon CloudWatch** is a monitoring service for AWS resources which can trigger CloudWatch Events to automate security responses.
+3. Infrastructure Protection
+    - use **Amazon Virtual Private Cloud (Amazon VPC)** to create a private, secured, and scalable environment in which you can deﬁne your topology—including gateways, routing tables, and public and private subnets.
+    - Multiple layers of defense are advisable in any type of environment.
+    - Key Services:
+        - **Amazon Virtual Private Cloud (Amazon VPC)** enables you to launch AWS resources into a virtual network that you've deﬁned.
+        - **Amazon CloudFront** is a global content delivery network that securely delivers data, videos, applications, and APIs to your viewers which integrates with **AWS Shield** for DDoS mitigation.
+        - **AWS WAF** is a web application ﬁrewall that is deployed on either **Amazon CloudFront** or **Application Load Balancer** to help protect your web applications from common web exploits.
+4. Data Protection
+    - AWS provides multiple means for encrypting data at rest and in transit.
+    - server-side encryption (SSE) for Amazon S3 to make it easier for you to store your data in an encrypted form.
+    - You can also arrange for the entire HTTPS encryption and decryption process (generally known as SSL termination) to be handled by Elastic Load Balancing (ELB).
+    - Key Services:
+        - Services such as ELB, Amazon Elastic Block Store (Amazon EBS), Amazon S3, and Amazon Relational Database Service (Amazon RDS) include encryption capabilities to protect your data in transit and at rest.
+        - **Amazon Macie** automatically discovers, classiﬁes and protects sensitive data,
+        - **AWS Key Management Service (AWS KMS)** makes it easy for you to create and control keys used for encryption.
+5. Incident Response
+    - Key Service:
+        - **IAM** should be used to grant appropriate authorization to incident response teams and response tools.
+        - **AWS CloudFormation** can be used to create a trusted environment or clean room for conducting investigations.
+        - **Amazon CloudWatch Events** allows you to create rules that trigger automated responses including AWS Lambda.
+
+### Pillar Three: Reliability
+
+### Pillar Four: Performance Efficientcy
+
+### Pillar Five: Cost Optimization
 
 ## References
 
