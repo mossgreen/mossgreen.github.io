@@ -1492,6 +1492,10 @@ Design Principles
 - Keep people away from data
 - Prepare for security events
 
+Key AWS Services:
+
+The AWS service that is essential to Security is AWS Identity and Access Management (IAM), which allows you to securely control access to AWS services and resources for your users.
+
 5 Best Practices:
 
 1. Identity and Access Management
@@ -1537,6 +1541,41 @@ Design Principles
         - **Amazon CloudWatch Events** allows you to create rules that trigger automated responses including AWS Lambda.
 
 ### Pillar Three: Reliability
+
+It includes the ability of a system to recover from infrastructure or service disruptions, dynamically acquire computing resources to meet demand, and mitigate disruptions such as misconﬁgurations or transient network issues.
+
+Design Principles
+
+1. Test recovery procedures: test how your system fails, and you can validate your recovery procedures.
+2. Automatically recover from failure: automatic notiﬁcation and tracking of failures, and for automated recovery processes that work around or repair the failure.
+3. Scale horizontally to increase aggregate system availability: don't share a common point of failure.
+4. Stop guessing capacity
+5. Manage change in automation
+
+Key Service
+
+The AWS service that is essential to Reliability is Amazon CloudWatch, which monitors runtime metrics.
+
+3 Best Practices:
+
+1. Foundations: foundational requirements that inﬂuence reliability should be in place
+    - key Services:
+        - **Amazon VPC** lets you provision a private, isolated section of the AWS Cloud where you can launch AWS resources in a virtual network.
+        - **AWS Trusted Advisor** provides visibility into service limits.
+        - **AWS Shield** is a managed Distributed Denial of Service (DDoS) protection service that safeguards web applications running on AWS.
+2. Change Management
+    - key services:
+        - **AWS CloudTrail** records AWS API calls for your account and delivers log ﬁles to you for auditing.
+        - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration, and continuously records conﬁguration changes.
+        - **Amazon Auto Scaling** is a service that will provide an automated demand management for a deployed workload.
+        - **Amazon CloudWatch** provides the ability to alert on metrics, including custom metrics.
+        - **Amazon CloudWatch** also has a logging feature that can be used to aggregate log ﬁles from your resources.  
+3. Failure Management
+    - Key Services:
+        - **AWS CloudFormation** provides templates for the creation of AWS resources and provisions them in an orderly and predictable fashion.
+        - **Amazon S3** provides a highly durable service to keep backups.
+        - **Amazon Glacier** provides highly durable archives.
+        - **AWS KMS** provides a reliable key management system that integrates with many AWS services.
 
 ### Pillar Four: Performance Efficientcy
 
