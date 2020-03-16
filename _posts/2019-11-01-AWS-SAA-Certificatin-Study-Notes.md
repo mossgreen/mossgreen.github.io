@@ -1579,6 +1579,67 @@ The AWS service that is essential to Reliability is Amazon CloudWatch, which mon
 
 ### Pillar Four: Performance Efficientcy
 
+the ability to
+
+1. use computing resources eﬃciently to meet system requirements,
+2. and to maintain that eﬃciency as demand changes and technologies evolve.
+
+Design Principles
+
+1. Democratize advanced technologiesanscoding and mechine learning
+    - Rather than having your IT team learn how to host and run a new technology, they can simply consume it as a service. E.g., NoSQL databases, media transcoding, and machine learning.
+    - In the cloud, these technologies become services.
+2. Go global in minutes
+    - serverless architectures remove the need for you to run and maintain servers.
+    - For example, storage services can act as static websites, removing the need for web servers,
+    - and event services can host your code for you.
+3. Use serverless architectures
+4. Experiment more often
+5. Mechanical sympathy
+
+3 Best Practices:
+
+1. Selection, the four main resource types that you should consider (compute, storage, database, and network).
+    - Compute is available in three forms: instances, containers, and functions:
+        - Instances
+        - Containers: a method of operating system virtualization that allow you to run an application and its dependencies in resource-isolated processes.
+        - Functions: abstract the execution environment from the code you want to execute.
+    - Storage:
+        - vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
+        - The optimal storage solution for a particular system will vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
+        - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
+    - Database:
+        - vary based on requirements for availability, consistency, partition tolerance, latency, durability, scalability, and query capability.
+        - Amazon RDS, DynamoDB, Redshift
+        - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
+    - Network
+        - vary based on latency, throughput requirements
+        - AWS oﬀers product features (for example, Enhanced Networking, Amazon EBS-optimized instances, Amazon S3 transfer acceleration, dynamic Amazon CloudFront) to optimize network traﬃc.
+        - AWS also oﬀers networking features (for example, Amazon Route 53 latency routing, Amazon VPC endpoints, and AWS Direct Connect) to reduce network distance or jitter.
+2. Review
+3. Monitoring
+    Amazon CloudWatch provides the ability to monitor and send notiﬁcation alarms. You can use automation to work around performance issues by triggering actions through Amazon Kinesis, Amazon Simple Queue Service (Amazon SQS), and AWS Lambda.
+
+4. Tradeoffs
+    - AWS also offers caching solutions such as Amazon ElastiCache, which provides an in-memory data store or cache,
+    - and Amazon CloudFront, which caches copies of your static content closer to end users.
+    - Amazon DynamoDB Accelerator (DAX) provides a read-through/write-through distributed caching tier in front of Amazon DynamoDB, supporting the same API, but providing sub-millisecond latency for entities that are in the cache.
+
+Key Service
+
+The AWS service that is essential to Performance Eﬃciency is **Amazon CloudWatch**, which monitors your resources and systems, providing visibility into your overall performance and operational health.
+
+1. Selection
+    - Compute: Auto Scaling is key to ensuring that you have enough instances to meet demand and maintain responsiveness.
+    - Storage: Amazon EBS provides a wide range of storage options (such as SSD and provisioned input/output operations per second (PIOPS)) that allow you to optimize for your use case. Amazon S3 provides serverless content delivery, and Amazon S3 transfer acceleration enables fast, easy, and secure transfers of ﬁles over long distances.
+    - Database: Amazon RDS provides a wide range of database features (such as PIOPS and read replicas) that allow you to optimize for your use case. Amazon DynamoDB provides single-digit millisecond latency at any scale.
+    - Network: Amazon Route 53 provides latency-based routing. Amazon VPC endpoints and AWS Direct Connect can reduce network distance or jitter.
+2. Review: The AWS website are resources for learning
+3. Monitoring: Amazon CloudWatch provides metrics, alarms, and notiﬁcations.
+4. Tradeoffs:
+    - Amazon ElastiCache, Amazon CloudFront, and AWS Snowball are services that allow you to improve performance.
+    - Read replicas in Amazon RDS can allow you to scale read-heavy workloads.
+
 ### Pillar Five: Cost Optimization
 
 ## References
