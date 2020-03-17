@@ -1642,6 +1642,57 @@ The AWS service that is essential to Performance Eﬃciency is **Amazon CloudWat
 
 ### Pillar Five: Cost Optimization
 
+the ability to run systems to deliver business value at the lowest price point.
+
+5 Design Principles
+
+1. Adopt a consumption model
+    - Pay only for the computing resources that you require and increase or decrease usage depending on business requirements.
+    - Stopping test environments saves 75% cost
+2. Measure overall eﬃciency
+3. Stop spending money on data center operations
+4. Analyze and attribute expenditure
+    - transparent attribution of IT costs to individual workload owners.
+    - This helps measure return on investment (ROI) and gives workload owners an opportunity to optimize their resources and reduce costs.
+5. Use managed and application level services to reduce cost of ownership
+    - remove the operational burden of maintaining servers for tasks such as sending email or managing databases.
+
+4 Best Practices
+
+1. Expenditure Awareness
+    - Using AWS Budgets, you can send notiﬁcations if your usage or costs are not inline with your forecasts.
+    - You can use tagging on resources to apply business and organization information to your usage and cost; this provides additional insights to optimization from an organization perspective.
+    - Combining tagged resources with entity lifecycle tracking (employees, projects) makes it possible to identify orphaned resources or projects that are no longer generating value to the organization and should be decommissioned.
+    - You can set up billing alerts to notify you of predicted overspending, and the AWS Simple Monthly Calculator allows you to calculate your data transfer costs.
+2. Cost-Effective Resources
+    - Using the appropriate instances and resources for your workload is key to cost savings.
+    - **On-Demand Instances** allow you to pay for compute capacity by the hour, with no minimum commitments required.
+    - **Reserved Instances** allow you to reserve capacity and oﬀer savings of up to 75% off On-Demand pricing.
+    - With **Spot Instances**, you can leverage unused Amazon EC2 capacity and oﬀer savings of up to 90% off On-Demand pricing.
+    - **Spot Instances** are appropriate where the system can tolerate using a ﬂeet of servers where individual servers can come and go dynamically, such as stateless web servers, batch processing, or when using HPC and big data.
+    - Appropriate service selection can also reduce usage and costs; such as **CloudFront** to minimize data transfer, or completely eliminate costs, such as utilizing **Amazon Aurora** on RDS to remove expensive database licensing costs.
+3. Matching supply and demand
+    - you can automatically provision resources to match demand.
+    - Auto Scaling and demand, buffer, and time-based approaches allow you to add and remove resources as needed.
+4. Optimizing Over Time
+    - Managed services from AWS can signiﬁcantly optimize the workload, e.g., running an Amazon RDS database can be cheaper than running your own database on Amazon EC2.
+
+Key AWS Services
+
+The tool that is essential to Cost Optimization is **Cost Explorer**, which helps you gain visibility and insights into your usage, across your workloads and throughout your organization.
+
+1. Expenditure Awareness
+    - **AWS Cost** Explorer allows you to view and track your usage in detail.
+    - **AWS Budgets** notify you if your usage or spend exceeds actual or forecast budgeted amounts.
+2. Cost-Effective Resources
+    - use **Cost Explorer** for Reserved Instance recommendations, and see patterns in how much you spend on AWS resources over time.
+    - Use **Amazon CloudWatch** and **Trusted Advisor** to help right size your resources.
+    - You can use Amazon Aurora on RDS to remove database licensing costs.
+    - **AWS Direct Connect** and **Amazon CloudFront** can be used to optimize data transfer.
+3. Matching supply and demand
+    - **Auto Scaling** allows you to add or remove resources to match demand without overspending.
+4. Optimizing Over Time. AWS websites are resource.
+
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
