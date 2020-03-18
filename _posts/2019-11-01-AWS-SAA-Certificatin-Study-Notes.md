@@ -1540,6 +1540,22 @@ The AWS service that is essential to Security is AWS Identity and Access Managem
         - **AWS CloudFormation** can be used to create a trusted environment or clean room for conducting investigations.
         - **Amazon CloudWatch Events** allows you to create rules that trigger automated responses including AWS Lambda.
 
+Best Practice Details: protect data at rest
+
+- Deﬁne data management and protection at rest requirements.
+- Implement secure key management. Consider using a key management service such as AWS Key Management Service
+- Enforce encryption at rest. 
+- Enforce access control
+- Provide mechanisms to keep people away from data
+
+Best Practice Details: protect data in transit
+
+- Deﬁne data protection in transit requirements
+- Implement secure key and certiﬁcate management: AWS Certiﬁcate Manager
+- Enforce encryption in transit
+- Automate detection of data leak
+- Authenticate network communications
+
 ### Pillar Three: Reliability
 
 It includes the ability of a system to recover from infrastructure or service disruptions, dynamically acquire computing resources to meet demand, and mitigate disruptions such as misconﬁgurations or transient network issues.
