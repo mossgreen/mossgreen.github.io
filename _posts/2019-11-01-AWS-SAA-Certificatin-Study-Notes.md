@@ -108,6 +108,12 @@ If you need the traditioanl block or file storage in addition tot Amazon S3 stor
 1. you can use Amazon EBS for EC2 instances
 2. Amazon Elastic File systems (AWS EFS) provices network-attached shared file storage using the NFX v4 protocol.
 
+Amazon EFS provides a simple, scalable, elastic file system for Linux-based workloads for use with AWS Cloud services and onpremises resources.
+
+It is designed to provide massively parallel shared access to thousands of Amazon EC2 instances, enabling your applications to achieve high levels of aggregate throughput and IOPS with consistent low latencies.
+
+Amazon EFS is a regional service storing data within and across multiple Availability Zones (AZs) for high availability and durability.
+
 ### Buckets
 
 1. Buckets are a simple flat structure. You can have multiple buckets, but cannot have a sub-bucket.
@@ -657,22 +663,22 @@ ELB, Amazon CloudWatch and Auto Scaling allows you to maintain the availability 
 
 ### Elastic Loading Balancing
 
-ELB is a highly available service that distributes traffic across Amazon EC2 instances and includes options that provideflexibility and control of incoming requests tot Amazon EC2 instances.
+ELB is a highly available service that distributes traffic across Amazon EC2 instances and includes options that provide flexibility and control of incoming requests to Amazon EC2 instances.
+
+It can handle the varying load of your application traffic in a single Availability Zone or across multiple Availability Zones.
 
 Types of Load Balancers
 
-1. internet-facing load balancers.
-    It receives a public DNS name that clients can use to send requests to your application. The DBS servers resolve the DBS name to your load balancer's public IP address.
-
-    it's best practice to reference a load balancer by its DNS name, instead of by the IP address of the load balancer, in order to provide a single, stable entry point.
-
-2. internal load balancers.
-    Works in EC2 VPCs with private subnets
-
-3. Https load balancers
-    In order to use SSL, you must install an SSL certificate on the load balancer that it uses to terminate the connection and then decrypt requests from clients before endign requests tot the back-end Amazon Ec2 instances.
-
-Listeners proteocols: HTTP, HTTPS, TCP, SSL
+1. **Application Load Balancer**
+    - is best suited for load balancing of HTTP and HTTPS traffic and provides advanced request routing targeted at the delivery of modern application architectures, including microservices and containers.
+    - Operating at the individual request level (Layer 7), Application Load Balancer routes traffic to targets within Amazon Virtual Private Cloud (Amazon VPC) based on the content of the request.
+2. **Network Load Balancer**
+    - is best suited for load balancing of TCP traffic where extreme performance is required.
+    - Operating at the connection level (Layer 4), Network Load Balancer routes traffic to targets within Amazon Virtual Private Cloud (Amazon VPC) and is capable of handling millions of requests per second while maintaining ultra-low latencies.
+    - Network Load Balancer is also optimized to handle sudden and volatile traffic patterns.
+3. **Classic Load Balancer**
+    - It provides basic load balancing across multiple Amazon EC2 instances and operates at both the request level and connection level.
+    - Classic Load Balancer is intended for applications that were built within the EC2-Classic network.
 
 Configuring Elastic Load Balancing
 
@@ -855,7 +861,7 @@ AWS offers two licensing models: License Included and Bring Your Own license (BY
 
 ### Amazon Aurora
 
-It's afully managed servcie, is MySQL-compatible our of the box and privides for increated reliability and performance over standard MySQL deployments.
+It's a fully managed servcie, MySQL-compatible.
 
 It can deliver up to five times the performance of MySQL without requiring changes to most of your exsiting web apps.
 
@@ -972,7 +978,7 @@ Workload management (WLM) queue and prioritize queries. It allows you define mul
 
 It's a fully managed NoSQL database service. Fast, Low-latency, Scales with ease.
 
-It's for all applications that need consistent, single-digit millisecond latency at any scale.
+DynamoDB can handle more than 10 trillion requests per day and support peaks of more than 20 million requests per second.
 
 All table data is stored on high performance SSD disk drives.
 
@@ -1381,6 +1387,14 @@ Gateway-VTL offers a durable, cost-effective solution to archive your data on th
 
 - Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
 
+### Amazon API Gateway
+
+It's a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale.
+
+you can create an API that acts as a “front door” for applications to access data, business logic, or functionality from your back-end services, such as workloads running on Amazon EC2, code running on AWS Lambda, or any web application.
+
+Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
+
 ### AWS CloudTrail
 
 It records API calls made on your account and delivers log files to your Amazon S3 bucket. AWS CloudTrail’s benefit is visibility into account activity by recording API calls made on your account.
@@ -1544,7 +1558,7 @@ Best Practice Details: protect data at rest
 
 - Deﬁne data management and protection at rest requirements.
 - Implement secure key management. Consider using a key management service such as AWS Key Management Service
-- Enforce encryption at rest. 
+- Enforce encryption at rest.
 - Enforce access control
 - Provide mechanisms to keep people away from data
 
