@@ -27,6 +27,39 @@ Amazon S3 is designed to provide both very high durability and very high availab
 
 Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% availability of objects over a given year.
 
+### High availability VS Fault tolerance
+
+- High availability:
+  - hardware, software and configuration that allowing a system to recover quickly in the event of a failure.
+  - The key part is the recover quickly.
+  - It doesn't prevent a failure from occurring and it doesn't stop that failure from impacting customers.
+  - The primary aim of high availability is to minimize downtime and recover quickly.
+  - It aims to minimize downtime and recover quickly in the event of a failure.
+  - E.g., for a car, if one tyre broken, we have a backup tyre, it may break down, but can be fix quickly
+
+- Fault tolerance:
+  - a system designed to operate through a failure with no user impact.
+  - generally more expensive and more complex to achieve and do so reliably
+  - E.g., a plane. If one engine down, plane can still operate normally
+
+### RPO VS RTO
+
+- RPO, recovery point objective
+  - how much a business can tolerate to lose, expressed in time. The maximum time between a failure and the last successful backup.
+  - E.g., you revoced backup data after data center exploded, you lost the mose recent 1 hour data before exploding.
+
+- RTO, recovery time objective
+  - The maximum amount of time a system can be down. How long a solution takes to recover.
+  - E.g., website can be online again 1 hour after the data center exploded...
+
+### Scaling
+
+- Vertical: addign more resources to a server, e.g., add additional CPU. However, there is a limit. requires reboot of server.
+
+- horizontal: add more machines. No size limitation. Done without outage. More complicated.
+
+- Elasticity, elastic capacity: scale out and in a system, as demand requires. Help to achieve cost optimizatin and performance efficientcy.
+
 ## Amazon Services in SAA
 
 1. Compute and Networking Services
