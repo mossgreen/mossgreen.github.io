@@ -184,14 +184,6 @@ native interface and higher level interfaces
     - AWS Command line interface (CLI)
     - AWS Management Console
 
-### Durability
-
- Durability: Will my data still be there in the future? 99.999999999%. (9)
-
-### Availability
-
-Availability: Can I access my data right now? 99.99%.
-
 ### Amazon S3 Data Consistency
 
 Amazon S3 is an eventually consistent system, changes in data may take some time to propagate to replicated locations.
@@ -350,6 +342,37 @@ Logs include information such as:
 1. S3 max object is 5TB. Glacier is 40TB.
 2. S3 has user friendly key name. Glacier uses system generated archive ids.
 3. S3 uses optional encryption. Glacier is auto encrypted.
+
+### Key knowledge points
+
+- Bucket names have to be globally unique
+- Minumum of three and maximum of 63 characters - no uppercase or underscores
+- Must start with a lowercase or number and can't be formatted as an IP address (1.1.1)
+- Default 100 buckets per account, and hard 1,000 bucket limit via support request
+- Unlimited object in buckets
+- Unlimited total capacity for a bucket
+- An object key is its name
+- An object's value is its data
+- An object size is from 0 to 5TB
+
+## CloudFormation
+
+It's an infrastructure as Code(IAC) product, you can create, manage, and remove infrastructure using JSON or YAML.
+
+1. Template: A CFN template is JSON or YAML. It contains logical resources and configuration.
+2. Stacks are created and modified based on templates, which can be changed and used to update a stack.
+3. Stacks take logical resources from a template and create, update, or delete the physical resources in AWS.
+
+A CloudFormation (CFN/cfn) template is used to initially create a CFN stack.
+A stack creates, updates, and deletes physical AWS resources based on its logical resources, which are based on the contents of a template.
+
+- A CFN template is written in JSON or YAML.
+- A template can create up to 200 resources.
+- If a stack is deleted, then, by default, any resources it has created are also deleted.
+- A stack can be updated by uploading a new version of a template.
+- New logical resources cause new physical resources.
+- Removed logical resources cause the stack to delete physical resources.
+- Changed logial resources update with some disruption or replace physical resources.
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 
