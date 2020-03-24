@@ -846,6 +846,51 @@ A policy can be associated directly with an IAM user in one of two ways:
 - User Policy: these policies exist only in the context of the user to which they're attached. In the console, a user policy is entered intot the user interface on the IAM user page.
 - Manged Policies: createdi nthe Policies tab on the IAM page and exist independently of any individual user.
 
+Policy Evaluation Logic
+
+When a principal tries to use the AWS Management Console, the AWS API, or the AWS CLI, that principal sends a request to AWS. When an AWS service receives the request, AWS completes several steps to determine whether to allow or deny the request.
+
+1. Authentication – AWS first authenticates the principal that makes the request, if necessary. This step is not necessary for a few services, such as Amazon S3, that allow some requests from anonymous users.
+
+2. Processing the Request Context – AWS processes the information gathered in the request to determine which policies apply to the request.
+    - Actions (or operations) – The actions or operations that the principal wants to perform.
+    - Resources – The AWS resource object upon which the actions or operations are performed.
+    - Principal – The user, role, federated user, or application that sent the request. Information about the principal includes the policies that are associated with that principal.
+    - Environment data – Information about the IP address, user agent, SSL enabled status, or the time of day.
+    - Resource data – Data related to the resource that is being requested. This can include information such as a DynamoDB table name or a tag on an Amazon EC2 instance.
+3. Evaluating Policies Within a Single Account – AWS evaluates all of the policy types, which affect the order in which the policies are evaluated.
+
+4. Determining Whether a Request Is Allowed or Denied Within an Account – AWS then processes the policies against the request context to determine whether the request is allowed or denied.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Principal": { "AWS": "arn:aws:iam::111122223333:user/carlossalazar" },
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+This policy specifies that only the carlossalazar user can access the carlossalazar bucket.
+
+Exam Tips: IAM Policies
+
+- If a request isn't explicitly allowed, it's implicity (default) denied
+- If a request is explicity denied, it **overrides everyint else**
+- If a request is explicitly allowed, it's allowed unless denied by an explicit deny.
+- Only attached policies have any impact.
+- When evaluating policies, all applicable policies are merged: All identity (user,group, role) and any resoure policies
+- Merged policies allow the same policy to impact many identities.
+- Inline policies allow exceptions to be applied to identities.
+- AWS-managed policies are low overhead but lack flexibility.
+- Customer-manged policies are flexible but require administration
+- inline and manged policies can apply to users, groups and roles
+
 ### Multi-Factor Authentication (MFA)
 
 MFA requires you to verify your identity with both something you know and something you have.
