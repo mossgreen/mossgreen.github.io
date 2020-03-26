@@ -376,9 +376,17 @@ A stack creates, updates, and deletes physical AWS resources based on its logica
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 
-Amazon EC2 provides resizable compute capacity in cloud.
+- It's an Infrastructure-as-a-Service (IaaS) product
+- EC2 is a core AWS product that provides virtual machines known as instances.
+- Amazon EC2 provides resizable compute capacity in cloud.
+- Compute refers to the amount of computational power required to fullfill your workload.
 
-Compute refers to the amount of computational power required to fullfill your workload.
+EC2 is ideal for:
+
+- Monolithic applications
+- Consistent, long-running compute scenarios
+- Applications that require full OS/runtime installations
+- Services, endpoints, and/or applications that require high availability
 
 Two concepts key to launching instances:
 
