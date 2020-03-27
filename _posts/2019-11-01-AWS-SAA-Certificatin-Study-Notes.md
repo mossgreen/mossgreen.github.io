@@ -393,7 +393,7 @@ Two concepts key to launching instances:
 1. The acount of virtual hardware dedicated to the instance
 2. The software loaded on the instance
 
-### Instance Type
+### Instance Types and Sizes
 
 Instance type varies in the following dimensions;
 
@@ -404,10 +404,25 @@ Instance type varies in the following dimensions;
 
 Instance types are grouped into families.
 
-- c4: Compute optimized: for workloads requiring significant processing
-- r3: memory optimized: for memory-intensive workloads
-- i2: Storage optimized: for workloads requiring high amounts of fast SSD storage
-- g2: GPU-based instances: intented for graphics and general-purposed GPU compute workloads
+- General Purpose
+  - provide a balance of compute, memory and networking resources
+  - ideal for applications that use these resources in equal proportions such as web servers and code repositories
+  - Types: A, T, M
+- Compute Optimized
+  - ideal for compute bound applications that benefit from high performance processors
+  - well suited for batch processing workloads, media transcoding, high performance web servers, high performance computing (HPC), scientific modeling, dedicated gaming servers and ad server engines, machine learning inference and other compute intensive applications.
+  - Types: C
+- Memory Optimized
+  - designed to deliver fast performance for workloads that process large data sets in memory.
+  - Types: R, X, z, High Memory
+- Accelerated Computing
+  - use hardware accelerators
+  - to perform functions, such as floating point number calculations, graphics processing, or data pattern matching, more efficiently than is possible in software running on CPUs.
+  - Types: P, Inf, G, F
+- Storage Optimized
+  - designed for workloads that require high, sequential read and write access to very large data sets on local storage
+  - optimized to deliver tens of thousands of low-latency, random I/O operations per second (IOPS) to applications
+  - Types: I, D, H
 
 While changing the instance type,
 
@@ -510,6 +525,17 @@ Benefits of Enhanced Networking:
 1. Shared Tenancy: default model for all Amazon EC2.
 2. Dedicated Instances, run on hardware that's decicated t oa single customer.
 3. Dedicated Host: An Amazon EC2 Host
+
+### Amazon EC2 Instance Store
+
+- temporary block-level storage for your EC2 instance.
+- This storage is located on disks that are physically attached to the host computer.
+
+Ideal for
+
+- temporary storage of information that changes frequently, such as buffers, caches, scratch data
+- other temporary content
+- data that is replicated across a fleet of instances, such as a load-balanced pool of web servers.
 
 ## Amazon Elastic Block Store, Amazon EBS
 
