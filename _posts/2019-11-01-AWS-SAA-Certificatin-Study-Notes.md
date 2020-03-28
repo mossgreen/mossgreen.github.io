@@ -539,56 +539,62 @@ Ideal for
 
 ## Amazon Elastic Block Store, Amazon EBS
 
-Instance stores are low-durability, high-IOPS storage that is included for free with the hourly cost of an instance. Data is lost when the instance stops.
+Amazon EC2 Instance Stores are low-durability, high-IOPS storage that is included for free with the hourly cost of an instance. Data is lost when the instance stops.
 
-Instance stores, like S3, have their limitations. Amazon EBS provides durable block storage for use with Amazon EC2 instance.
+Amazon EBS provides durable block storage for use with Amazon EC2 instance.
 
-Amazon EBS provides persistent block-level storage volumes for use with Amazon EC2 instances on the AWS Cloud.
+Amazon EBS is a storage service that creates and manages volumnes based on four underlying storage types.  Volumes are persistent, can be attached and removed from EC2 instances, and are replicated within a single AZ.
 
-Amazon EBS volumes persist when the instance is stopped.
+EBS supports a maximum per-instance throughput of 1,750MiB/s and 80,000 IOPS.
+If you need more... use **Amazon EC2 Instance Store**.
 
-To replicate an EBS:
+### Amazon EBS Volumes Types
 
-You need to use Snapshot.
-> “Snapshots can be used to instantiate multiple new volumes, expand the size of a volume, or move volumes across Availability Zones. When a new volume is created, you may choose to create it based on an existing Amazon EBS snapshot. In that scenario, the new volume begins as an exact replica of the snapshot.”
+1. Mechanical: sc1, st1
+    - sc1: low cost, infrequest access, cannot be boot volume
+    - st1: low cost, throughput intensive, cannot be a boot volume
+2. Solid State: gp2, io1
+    - gp2: Default, balance of IOPS/MiB/s - burst pool IOPS per GB
+    - io1: highest performance, can adjust size and IOPS seperately
 
-### Types of Amazon EBS Volumes
+Details:
+<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html>
 
-It varies in areas like underlying hardware, performance, and cost.
+- General Purpose (gp2): SSD,
+  - default for most workloads
+  - 3 IOPS/GiB (100 IOPS - 16,000IOPS)
+  - Bursts up to 3,000 IOPS (credit based)
+  - 1 GiB - 16 TiB size, max throughput p/vol of 250 MiB/s
+- Provisioned IOPS SSD (io1): SSD
+  - used for applications that require sustained IOPS performance
+  - large database workloads
+  - volume size of 4 GiB - 16 TiB up to 64,000 IOPS per volume
+  - max throughput p/vol of 1,000 MiB/s
+- Throughput Optimized (st1): HDD
+  - Low storage cost
+  - used for frequently accessed, throughput-intensive workloads (streaming, big data)
+  - Cannot be a boot volume
+  - Volume sized of 500 GiB - 15 TiB
+  - Per-volume max throughput of 500 MiB/s and IOPS 500
+- Cold HDD (sc1): HDD
+  - lowest cost
+  - infrequestly accessed data
+  - cannot be a boot volume
+  - Volume size of 500 GiB - 16 TiB
+  - per-volume max throughput of 250 MiB/s and 250 IOPS
 
-1. Magnetic volumes
-    - lowest cost
-    - lowest performance
-    - size: 1GB - 1TB
-    - average 100 IOPS
-    - Best for:
-      - workloads where data is accessed infrequently,
-      - Sequential reads,
-      - requires low-cost storage
+### EBS Snapshots
 
-2. General Purpose SSD
-    - cost effective storage, strong performance at a moderate price, suitable for a wide range of workloads
-    - size: 1GB - 16TB
-    - a baseline performance of three IOPS per gig provisioned, capping at 10,000 IOPS
-    - whenever you are not using your IOPS, they're accumulated as IO credits.
-    - For workloads:
-        - System boot volumes
-        - Small to medium sized databases
-        - Development and test environments
+EBS volumes occupy a single Availability Zone (AZ), and while they do replicate within this AZ, this replication isn’t shared to other AZs. This makes EBS volumes vulnerable to AZ failure. EBS snapshots not only provide data backup capabilities but also enable you to move your data to other AZs and regions.
 
-3. Provisioned IOPS SSD
-    - For IO intensive workloads. databse workloads that are sensitive to storage performance and consistency in random access IO throughtput
-    - size: 4GB - 16TB
-    - Additional monthly fee is applied based on  the number of IOPS provisioned, whether they are comsumed or not.
-    - Best for:
-      - Critical business applications that require sustained IOPS performance
-      - Large databse workloads
+EBS snapshots are a point-in-time backup of an EBS volume stored in S3.
+The initial snapshot is a full copy of the volume.
+Future snapshots only store the data change since the last snapshot.
 
-### Amazon EBS-Optimized Instances
+Snapshots can be used to create new volumes and a great way to move or copy instances between AZs.
+When creating a snapshot of the root/boot volume of an instance or budy volume, it's recommended that instance is powered off, or disks are "flused".
 
-Use Amazon EBS-optimized instances to ensure that Amazon EC2 instance is prepared to take advantage of the IO.
-
-need to pay additional hourly charge.
+Snapshots can be copied between regions, shared, and automated using Data Lifecycle Manager (DLM).
 
 ### Protecting Data
 
