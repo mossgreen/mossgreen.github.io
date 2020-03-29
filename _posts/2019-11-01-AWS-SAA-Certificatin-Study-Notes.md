@@ -432,6 +432,10 @@ While changing the instance type,
 
 ### Amazon Machine Images, AMIs
 
+AMIs are used to build instances.
+They sotre snapshots of EBS volumes, permissions and a block device mapping, which configures how the instance OS sees the ttached volumes.
+AMIs can be shared, free, or paid and can be copied to other AWS regions.
+
 The initial software that will be on an instance when it's launched.
 
 - Operating system and its configuration
@@ -473,11 +477,24 @@ Connecting to a Linux instance using SSH:
 
 The public half of the key pair is stored on the instance, and the private half can then be used to connect via SSH.
 
+### EC2 Instance Roles
+
+EC2 instance roles are IAM roles that can be "assumed" by EC2 using an intermediary called instance profile. An instance profile is either created automatically when using the console UI or manaully when using the CLI. It's a contianer for the role that is associated with an EC2 instance.
+
+The instance profile allows applications on the EC2 instance to access the credentials from the role using the instance metadata.
+
 ### Virtual Firewall Protection
 
 Security Groups, allow you control traffic based on port, protocal and source/destination.
 
 By default, it doesn't allow any traffic that is not explicitly allowed by a security group rule.
+
+### EC2 bootstrapping
+
+Bootstrapping is a process where instructions are executed on an instane during its launch process.
+Bootstrapping is used to configure the instance, perform software installatin, and add application configuration.
+
+In EC2, user data can be used to run shell scripts or run clout-init directives.
 
 ### Instance Lifecycle
 
@@ -485,6 +502,9 @@ By default, it doesn't allow any traffic that is not explicitly allowed by a sec
     1. Bootstrapping. You can pass in the OS a string named **UserData**.
     2. VM import/export
     3. Instance Metadata
+        - Instance metadata is data relating to the instance that can be accessed from within the instance itself using a utility capable of accessing HTTP and using the URL: <http://169.254.169.254/latest/meta-data>
+        - Instance metadata is a way that scripts and aplications running on EC2 can get visibility of data they would normaly need API calls for.
+        - The metadata can provide the curent external IPv4 address for the instance, which isn't configured on the instance itself but provided by the internet gateway in the VPC. It provides the AZ the instance was launched in and the security groups applied to the instance.
 
 2. Modifying an instance
     1. modify instance type. Instances can be resized
@@ -605,6 +625,16 @@ You recover data by detach the volume from the failed instance and attach the ba
 You can create a volume from a snapshot. The volume is created immediately but the data is loaded lazily. This means that the volume can be accessed upon creation, and if the data being requested has not yet been restored, it will be restored upon first request.
 
 Best practice is to initialize a volume created from a snapshot by accessing all the blocks in the volume.
+
+### EC2 Security Groups
+
+Security groups are an essential part of the EC2 and VPC security toolset. They operate like a virtual firewall, controlling traffic originating from or destined for a network interface (or an instance).
+
+Security Groups each have inbound rules and outbound rules. A rule allows traffic to or from a source (IP, network, named AWS entity) and protocol.
+
+Security groups have a hidden implicit/default deny rule but cannot explicitly deny traffic.
+
+They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
 
 ## Amazon Virtual Private Cloud, Amazon VPC
 
