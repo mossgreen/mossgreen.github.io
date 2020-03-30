@@ -483,6 +483,20 @@ EC2 instance roles are IAM roles that can be "assumed" by EC2 using an intermedi
 
 The instance profile allows applications on the EC2 instance to access the credentials from the role using the instance metadata.
 
+### AWS CLI Credential Order
+
+1. Command Line Options. It uses longer term credentials stored locally on the instance and is NOT RECOMMENDED for production environments.
+
+2. Environment Variables. You can store values in the environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,and AWS_SESSION_TOKEN. Recommended for temporary use in non-production environments.
+
+3. AWS CLI credentials file. `aws configure` This command creates a credentials file stored at `~/.aws/credentials` on Linux. This file can contian the credentials for the default profile and any named profiles. This approach uses longer term credentials stored locally on the instance and is NOT RECOMMENED for production environments.
+
+4. Contianer Credentials. IAM roles associated with AWS Elastic Container Service (ECS) Task Definitions. Temporary credentials are available to the Task's contianers. This is recommened for ECS environments.
+
+5. Instance Profile Credentials
+
+IAM Roles associated with Amazon EC2 instances via instance Profiles. Temporary credentials are available to the Instance. This is recommended for EC2 environments.
+
 ### Virtual Firewall Protection
 
 Security Groups, allow you control traffic based on port, protocal and source/destination.
