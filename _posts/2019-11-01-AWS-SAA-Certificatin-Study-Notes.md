@@ -557,8 +557,14 @@ Benefits of Enhanced Networking:
 ### Tenancy options
 
 1. Shared Tenancy: default model for all Amazon EC2.
-2. Dedicated Instances, run on hardware that's decicated t oa single customer.
+2. Dedicated Instances, run on hardware that's decicated to a single customer.
 3. Dedicated Host: An Amazon EC2 Host
+
+### Replacement Groups
+
+- Cluster PG, for maximum performane, every instancecan talk to every other instance at the same time at full speed. Workswith enhanced networking for peek performance.
+- Spread PG, for maximum availability. Each instance occupies a partition and has an isolated fault domain. Great for email servers, domain controllers, file servers, and application HA pairs.
+- Partition PG: instances are separated into partitions (max of sever per AZ), each occupying isolated racks in AZs/regions. It minimize failure toa partiion and give you visibility on placement
 
 ### Amazon EC2 Instance Store
 
@@ -629,6 +635,8 @@ Snapshots can be used to create new volumes and a great way to move or copy inst
 When creating a snapshot of the root/boot volume of an instance or budy volume, it's recommended that instance is powered off, or disks are "flused".
 
 Snapshots can be copied between regions, shared, and automated using Data Lifecycle Manager (DLM).
+
+Volume encryption uses EC2 host hardware to encrypt data at rest and in transit between EBS and EC2 instances. Encryption generates a data encryption key (DEK) from a customer master key (CMK) in each region. A unique DEK encrypts each volume. Snapshots of that volume are encrypted with the same DEK, as are any volumes created from that snapshot.
 
 ### Protecting Data
 
