@@ -658,6 +658,19 @@ Security groups have a hidden implicit/default deny rule but cannot explicitly d
 
 They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
 
+## Serverless Compute
+
+A microservices architecture is the inverse of a monolithis architecture. Instead of having all system functions in one codebase, components are separated into microservices and operate independently. A microservice does one thing - and does it well. Operations, updates, and scaling can be done on a per-microservice basis.
+
+When using an **event-driven architecture**, a system operates around "events" that represent an action or a change of state, e.g., a button being clicked, a file being uploaded, or a temperature dropping below a certain level. it's efficient because events are generated and pushed, rather than things being polled. Polling requires always-on compute and doesn't scale well.
+
+Serverless architecture consists of two main principles, including Baas and Faas.
+
+1. Baas, Backend as a Service, using 3rd party services where possible rather than running your own. Examples include Auth0 or Cognito for authentication and Firebase or DynamoDB for data storage.
+
+2. Faas, Function as a Service, using an event-driven architecture  to provide application logic. These functions are only active (invoked) when they are needed (when an event is received)
+    - Lambda is a Faas product. Functions are code, which run in a runtime. Functions are invoked by events, perform actions for up to 15 minutes, and terminate. Functions are also stateless - each run is clean.
+
 ## Amazon Virtual Private Cloud, Amazon VPC
 
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
