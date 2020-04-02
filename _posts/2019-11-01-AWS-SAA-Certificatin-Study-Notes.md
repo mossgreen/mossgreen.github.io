@@ -664,12 +664,32 @@ A microservices architecture is the inverse of a monolithis architecture. Instea
 
 When using an **event-driven architecture**, a system operates around "events" that represent an action or a change of state, e.g., a button being clicked, a file being uploaded, or a temperature dropping below a certain level. it's efficient because events are generated and pushed, rather than things being polled. Polling requires always-on compute and doesn't scale well.
 
+### Baas VS Faas VS AWS Lambda
+
 Serverless architecture consists of two main principles, including Baas and Faas.
 
 1. Baas, Backend as a Service, using 3rd party services where possible rather than running your own. Examples include Auth0 or Cognito for authentication and Firebase or DynamoDB for data storage.
 
 2. Faas, Function as a Service, using an event-driven architecture  to provide application logic. These functions are only active (invoked) when they are needed (when an event is received)
     - Lambda is a Faas product. Functions are code, which run in a runtime. Functions are invoked by events, perform actions for up to 15 minutes, and terminate. Functions are also stateless - each run is clean.
+
+### Amazon API Gateway
+
+- It's a managed service.
+- It allows the creation, management, and optimization of highly scalable API endpoints.
+- API Gateway is a key component of serverless architectures in AWS.
+
+API Gateway can use other AWS services for compute (Faas/Iaas) as well as to store and recall data.
+
+Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
+
+### AWS Step Fuctions
+
+It's a serverless visual workflow service that provices state machines.
+A state machine can orchestrate other AWS services with simple logic, branching, and parallel execution, and it maintains a state.
+Workflow steps are known as states, and they can perform work via tasks.
+A state machine can be defined using Amazon States language (ASL).
+With Stap Functions, lambda functions could only run for 15 minutes. lambda functions are stateless. State machiens maintain state and allow longer-running processes. Step Functions "replaces" SWF with a serverless version.
 
 ## Amazon Virtual Private Cloud, Amazon VPC
 
@@ -1648,14 +1668,6 @@ Gateway-VTL offers a durable, cost-effective solution to archive your data on th
 - Gateway-Stored volumes provide seamless, asynchronous, and secure backup of your onpremises storage without new processes or hardware.
 
 - Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
-
-### Amazon API Gateway
-
-It's a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale.
-
-you can create an API that acts as a “front door” for applications to access data, business logic, or functionality from your back-end services, such as workloads running on Amazon EC2, code running on AWS Lambda, or any web application.
-
-Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
 
 ### AWS CloudTrail
 
