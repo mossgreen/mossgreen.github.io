@@ -691,6 +691,28 @@ Workflow steps are known as states, and they can perform work via tasks.
 A state machine can be defined using Amazon States language (ASL).
 With Stap Functions, lambda functions could only run for 15 minutes. lambda functions are stateless. State machiens maintain state and allow longer-running processes. Step Functions "replaces" SWF with a serverless version.
 
+## Amazon ECS, Elastic Container Service
+
+A container is a package that contains an application, libraries and file system required to run it. Contianers run on a container engine which generally runs within a single OS sunch as Linux. Containers provide the isolation benefits of virtualisation - but are more lightweight allowing faster starts and more dense packing within a host.
+
+An image is a collection of file system layers. Docker file system are differential - each layer stores differeces from previous layers.
+
+A populat contianer enginer is Docker and is the basis for ECS.
+
+Elastic Container Service (ECS) is a managed container solution. It can operate in either EC2 mode or Fargate mode.
+
+1. in which EC2 instances running as Docker hosts are visible in your account,
+2. in Fargate mode, in which AWS manages the container hosts.
+
+Details:
+
+- **Cluster**: A logical collection of ECS resources - either ECS EC2 instances or a logical representation of managed Fargate infrastructure.
+- **Task Definition**: Defines your application. Similar to a Dockerfile but for running containers in ECS. Can contain multiple containers.
+- **Container Definition**: Inside a Task Definition a contianer definition defines the individual containers a Task uses. It controls the CPU and MEMORY each container has, in addition to port mappings for the contianer.
+- **Task**: A single running copy of any contianers defined by a task definition. One working copy of an application e.g. DB and WEB contianers.
+- **Service**: Services allow task definitions to be scaled by adding additional tasks. Defines Minimum and Maximum values.
+- **Registry**: Storage for container images... i.e., ECS Container Registry or Dockerhub. Used to download image to create containers.
+
 ## Amazon Virtual Private Cloud, Amazon VPC
 
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
