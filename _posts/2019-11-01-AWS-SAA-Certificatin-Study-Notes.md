@@ -715,6 +715,28 @@ Details:
 
 ## Amazon Virtual Private Cloud, Amazon VPC
 
+### Sever Layer OSI Model
+
+It provides a good overview of how networking works at all levels of abstraction.  Each layer uses the layers below and adds additional capabilities. Data between two devices moves down the stack at the A side (and wrapped at each layer) ... is transmitted .. before moving up the stack at the B side (and the wrapping stripped at each stage). This process is called encapsulation.
+
+![IMAGE](quiver-image-url/4F30ED3FA24FFDA1F05261CD507F8225.jpg =621x559)
+
+1. L1, uses a shared medium Hardware can transmit and listen. The layer 1 standard agrees how to transmit and recieve. The medium, the voltages, the RF details
+2. L2, Data Link, addes MAC Address which can be used for named communication between two devices on a local network. Additionally L2 adds controls over the media, avoiding cross-talk and allows for backoff and retransmission. L2 communications use L1 to broadcast and listen. Le runs on top of L1.
+3. L3, The Network layer, allows for unique devide to device communication over interconnected networks. L3 devices can pass packets over 10's or even 100's of L2 networks. The packets remain largely unchanged during this journey -travelling within different L2 frames as they passover different networks.
+    - A client Machine Generates a l3 Packet with its IP as the sourceIP and the destinationIP of the server.
+    - The packet is encapsulated and un-encapsulated in a l2 frame at each step, passing between routers, orver networks.
+    - The original packet is received by the server, acted on, and a reply sent back in the same way.
+    - L3 allows for an IP to communicate with another IP - but only a single stream, so one conversation between the two
+4. L4, Transport adds TCP and UDP.
+    - Tcp is desinged for reliable transport. It uses segments to ensure data is recieved in the correct order, adds error checking and ports allowing different streams of communicatins to the same host, e.g., tcp/22 and tcp/80
+    - UDP is aimed at speed.
+5. L5, Session adds the concept of sessions, so that request and reply communication streams are viewed as a single session of communication between client and server
+6. L6, Presentation adds data conversion, envryption, compression and standards which L7 can use.
+7. L7, Application is where protocols such as HTTP, SSH, FTP are added. E.g., HTTP (L7) running over TLS (L6) is HTTPS.
+
+### Amazon VPC basic
+
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
 Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
 It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
