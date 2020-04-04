@@ -735,6 +735,46 @@ It provides a good overview of how networking works at all levels of abstraction
 6. L6, Presentation adds data conversion, envryption, compression and standards which L7 can use.
 7. L7, Application is where protocols such as HTTP, SSH, FTP are added. E.g., HTTP (L7) running over TLS (L6) is HTTPS.
 
+### IP V4 Address
+
+IPv4 addressess are how to devices can communicate at layer 4 and above of the OSI 7-layer model. IP Address are actually 32-bit binary values.. but are represented in dotted-decimal notation to make them easier for humans to read and understand.
+
+IPs (IP Address) are split into a Network part and a Node or Host Part. The netmask (e.g., 255.255.255.0) or prefix (e.g., /24) shows where this split occurs.
+
+Within the IPv4 address space (0.0.0.0 to 255.255.255.255) there are certain addrewsses which are reserved, or special in some way:
+
+- 0.0.0.0&0.0.0.0/0: represents all IP Addresses
+- 255.255.255.255: IP Address used to broadcast to all IP addresses everywhere ( this is generally filtered and not passed betweeen networks)
+- 127.0.0.1: localhost. Whatever the IP address of the device you're using, it can be referenced by itself as 127.0.0.1. So a local web server can be found with 127.0.0.1:80
+- 169.254.0.1 to 169.254.255.254: A range of IP addresses which a device can auto confiture with if its using DHCP and fails to automatically get an IP from a DHCP server.
+
+Historically IP Addresses were split into classes: (including)
+
+1. Class A (/8): 1.0.0.0 to 126.255.255.255. 126 Net works, 16,777,217 Nodes in each.
+2. Class B (/16): 128.0.0.0.0 to 191.255.255.255. 16,382 Networks, 65,534 Nodes in each.
+3. Class C (/24): 192.0.0.0 to 233.255.255.255. 2,097,150 networks, 254 Nodes in each.
+
+Class A networks were initially allocated to large organisations. Class B to medium and Class C to small businesses. As the supply of IPv4 addresses became low, the class system of IPs were related with CIDR.
+
+IP Classes have a number of ranges within  then used for private networking only:
+
+- 10.0.0.0 to 10.255.255.255 private networking within the Class A range.
+- 172.16.0.0 to 172.31.255.255 private networking within the Class B range 916 class B networks)
+- 192.168.0.0 to 192.168.255.255 private networking within the Class C range 9256 Class C networks)
+There ranges are often used on private business networks, cloud networks and home networks.
+
+**CIDR**, Classless Inter-Domain Routing is used for IPv4 IP Networking rather than the Class system. It allows more effective allocation and sub networking.
+
+Either you are allocated a network range to use, or you decided on it. It will be represented as network/prefix, e.g., 10.0.0.0/16.
+
+The network address is your starting point. The prefix is the number of bits the network uses, the remaining bits, the node part is yours to use. The node (or host) partis yours from all 0's to all 1's.
+
+![IMAGE](quiver-image-url/363B0AE9D6E1A45C579F75A61020F6AA.jpg =635x422)
+
+### Subnetting
+
+Subnetting is the process of taking a CIDR range (public or private) and breaking it up into multiple smaller networks. This lesson introduces the concept and illustrates one method of subnetting.
+
 ### Amazon VPC basic
 
 Amazon VPC is a custom-defined virtual network within the AWS Cloud.
@@ -776,7 +816,7 @@ Optional components:
 - Network Address Translation instances, NATs, and NAT Gateways
 - Virtual Private Gateway, VPG, Customer Gateways, CGWs, and Virtual private Networks, VPNs
 
-### Subnets
+### VPC Subnets
 
 It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources.
 Subnets are defined by CIDR blocks, are cotnained within an Availability zone.
