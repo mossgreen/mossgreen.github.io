@@ -773,7 +773,60 @@ The network address is your starting point. The prefix is the number of bits the
 
 ### Subnetting
 
-Subnetting is the process of taking a CIDR range (public or private) and breaking it up into multiple smaller networks. This lesson introduces the concept and illustrates one method of subnetting.
+Subnetting is the process of breaking a network down into smaller sub-networks. You might be allocated a public range for your business, or decided on a privte range for a VPC. Subnetting allows you to break it into smaller allocations for use in smaller networks, e.g., VPC subnets.
+
+If you pick 10.0.0.0/16 for your VPC. It's a single network from 10.0.0.0 to 10.0.255.255 and offers 65,536 addresses. That VPC could have a single subnet within it also 10.0.0.0/16.
+
+With a certain size of VPC, increasing the prefix creates 2 smaller sized networks. Increasing again, creates 4 even smaller networks. Increasing again creates 8 even smaller and so on.
+
+For instance:
+
+10.0.0.0/60
+    - 10.0.0.0/17
+        - 10.0.0.0/18
+        - 10.0.64.0/18
+    - 10.0.128.0/17
+        - 10.0.128.0/18
+        - 10.0.192.0/18
+
+### IP Routering
+
+Local device-to-device communication takes place using L1 (phycial) and L2 (Datalink) using Mac Addresses and Physical 0's and 1's. This doesn't scale across LANs and so a methid of network-to-network transit is needed. Here comes IP Routing.
+IP routing is the process required to get a layer 3 packet from source to destination. It uses a series of layer 2 hops between routers to create a single layer 3 path. The method used depends on if the two devices are local, in a known remote network or and an unknown network.
+
+Local network communication
+Known remote network
+Unknown remote network
+
+Local network communication
+
+IP-to-IP communications which occurs locally doesn't use a router. ARP is used to find the mac address for the destination IP address. The IP packet is created at L3, passed to L2 where its encapsulated inside an ethernet (L2) frame. The frame is sent to the destination MAC address. Once recieved that L2 frame is removed and the IP packet passed to L3.
+
+Known remote network
+
+If Instance A wants to communicate with instance B, it can use it's IP and subnet mask to determin if B is local. If its not, the following process occurs:
+
+1. A generates a L3 packets, the SRC is the IP A, the DST si the IP B
+2. A knows its default gateway (Router) IP, so it used ARP to fidn the Rotuer MAC.
+3. A passes the L3 packet to the L2, wraps it in a L2 frame and sends this to the R-MAC address (not the mac address of B)
+4. R recieves this, strips away the layer 2 Frame, and checks the DST IP.
+5. It knows the network of IP B because its connected to it.
+6. R uses ARP to find the MAC of B, generates a frame to B, puts the unaltered IP packet inside and sends to MAC B.
+7. B recieves the frame, strips it away and passes the packet to L3.
+At scale, unchagned packets being passed around from router to router, each time usign a new L2 conenction.
+
+### Firewall
+
+A firewall is a device which historically sits at the border between differenct networks, and monitors traffic flowing between them. A firewall is capable of reading packet data and either allowing of denying traffic based on that data.
+
+Firewall establish a barrier between networks of differenct security levels and historically have been the first line of defence against perimeter attacks.
+
+Waht data a firewall can read and act on depends on the OSI Layer the firewall operates at:
+
+- Layer 3, Network: source/destination IP address or ranges
+- Layer 4, Transport: Protocal (TCP/UDP) & port nubmers
+- Layer 5, Session: As Layer 4, but understand response traffic
+- Layer 7, application: Application specifics, e.g., HTMl paths, images
 
 ### Amazon VPC basic
 
