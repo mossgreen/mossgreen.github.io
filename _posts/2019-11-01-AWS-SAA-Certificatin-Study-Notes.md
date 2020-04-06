@@ -830,27 +830,57 @@ Waht data a firewall can read and act on depends on the OSI Layer the firewall o
 
 ### Amazon VPC basic
 
-Amazon VPC is a custom-defined virtual network within the AWS Cloud.
-Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
+- a custom-defined virtual network within the AWS Cloud.
+- Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
 It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
-The size of subnet that you can have in an Amazon VPC: small to large, /28 (16 available address) to /16(65,536 available address)
-The default limit for the number of Amazon VPCs that a customer may have in a region is 5.
+- A private network within AWS. It's your private data center inside the AWS platform.
+- Can be configured to be public/private or a mixture
+- Regional (Cannot span regions), highly available, and can be connected to your data center and corporate networks
+- Isolated from other VPCs by default
+- VPC and subnet: max/16 (65,536 IPs) and minimum /28 (16 Ips)
+- VPC subnets cannot span AZs (1:1 mapping)
+- Certain IPs are reserved in subnets
 
-In your Amazon, VPC, uou can control:
+Region default VPC:
 
-1. Selecting your own IP address range
-2. creating your own subnets and configuring your own route tables
-3. network gateways
-4. security settings
+- Requried for some servcies, used as default for most
+- Pre-configured with all required networking/security
+- A /20 public subnet in each AZ, allocating a public IP by default
+- Attached internet gateway with a "main" route table sending all IPv4 traffic to the internet gateway using a 0.0.0.0/0 route
+- A default DHCP option set attached
+- SG: default - all from itself, all outbound
+- NACL: Default - allow all inbound and outbound
 
-When you create an Amazon VPC,
+Custom VPC:
 
-- you must specify
-    1. the IPv4 address range by choosing a Classless Inter-Domain routing block, CIDR, such as `10.0.0.0/16`. The address range cannot be changed after the VPC is created.
-    2. exactly one region
-- A route table is created by default.
-- You must manually create subnets and an IGW.
+- Can be desined an configured in any valid way
+- You need to allocate IP ranges, create subnets, and provision gateways and networking, as well as design and implement security
+- When you need multiple tiers or a more complex set of networking
+- Best practice is to not use default for most production things
 
+VPC Routing:
+
+- Every VPC has a virtual routing device called the VPC router
+- It has an iterface in any VPC subnet known as the "subnet + 1" address, for 10.0.1.0/24, this would be 10.0.1.1/32
+- The router is highly available, scalable, and controls data entering and leaving the VPC and its subnets.
+- Each VPC has a "main" route table, which is allocated to all subnets in the VPC by default. A subnet must have one route table.
+- Additional "custom" route tables can be created and associated with subnets, but only one route table (RT) per subnet.
+- A route table controls what the VPC router does with traffic leaving a subnet.
+- An internet gateway is created and attached to a VPC (1:1). It can route traffic for public IPs to and from the internet.
+
+Routes:
+
+- A RT is a colelction of routers that are used when traffic fro ma subnet arrives at the VPC router.
+- Every route table has a local route, which matches  the CIDR of the VPC and lets traffic be routed between subnets.
+- A route cotnians a destination and a target. Traffic is forwared to the target if its destination matches the route destination.
+- If nultiple routes apply, the most specific is chosen. A /32 is chose before a /24, before a /16.
+- Default routes (0.0.0.0/0 v4 and ::/0 v6) can be added that match any traffic not already matched.
+- Targets can be IPs or AWS networking gateways/objects
+- A subnet is a public subnet if it's
+- configured to allocate public IPs
+- if the VPC has an associated internet gateway
+- if that subnet has a default route to that internet gateway.
+  
 Amazon VPC Components
 
 1. Subnets
@@ -955,14 +985,6 @@ Security Group VS. ACLS
 |Stateful: Return traffic is automatically allowed, regardless of any rules|Stateless: Return traffic must be explicitly allowed by rules.|
 |AWS evaluates all rules before deciding whether to allow traffic|AWS processes rules in number order when deciding whether to allow traffic.|
 |Applied selectively to individual instances|Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group.|
-
-### NAT instance
-
-It's a customer-managed instances that is designed to accept traffic from instances within a private subnet, translate the source IP address to the public IP address of the NAT instance and forward the traffic to the IGW.
-
-### NAT getway
-
-It's an AWS-managed service that is designed to accept traffic from instances within a private subnet, traslate the source IP address to the public IP address of the NAT gateway and forward the traffic to the IGW.
 
 ### VPG & CGW
 
