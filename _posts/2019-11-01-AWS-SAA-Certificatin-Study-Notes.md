@@ -880,8 +880,43 @@ Routes:
 - configured to allocate public IPs
 - if the VPC has an associated internet gateway
 - if that subnet has a default route to that internet gateway.
-  
-Amazon VPC Components
+
+### Bastion Hosts, or Jumpboxes
+
+- A host that sits at the perimeter of a VPC
+- It functions as an entry point to the VPC for trusted admins.
+- Allows for updates or configuration tweaks remotely while allowing the VPC to stay private and protected
+- Generally connected to via SSH or RDP
+- Bastion hosts must be kept updated, and security hardened and audited regularly
+- Multifactor authentication, ID federation, and/or IP blocks.
+
+### NAT, Network address translation
+
+NAT (network address translation) is a process where the source or destination attributes of an IP packet are changed.
+
+- NAT instance: It's a customer-managed instances.
+- NAT getway: an AWS-managed service.
+
+- Static NAT: A private IP is mapped to a public IP (what IGWs do). the process of 1:1 translation where an internet gateway converts a private address to a public IP address.
+- Dynamic NAT: A range of private addresses are mapped onto one or more public (used by your home router and NAT gateways). Dynamic NAT is a variation that allows many private IP addresses to get outgoing internet access using a smaller number of public IPs (generally one). Dynamic NAT is provided within AWS using a NAT gateway that allows private subnets in an AWS VPC to access the internet.
+
+### NACLs, Network Access Control List
+
+- NACLs operate at layer 4 of the OSI model (TCP/UDP and below).
+- A subnet has to be associated with a NACL - either the VPC default or a custom NACL
+- NACLs only impact traffic crossing the boundary of a subnet.
+- NACLs are collections of rules that can explicitly **allow** or **deny** traffic based on its protocaol, port range, and source/destination
+- Rules are processed in number order, lowest first. When a match is found, that action is taken and processing stops.
+- The `*` rule is processed last and is an implicit deny.
+- NACLs have two sets of rules: **inbound** and **outbound**.
+
+Ephemeral Ports:
+
+- When a client initiates communications with a server, its to a well-known port number (e.g., tcp/443) on that server.
+- The response is from that well-known port to an ephemeral port on the client. The client decides the port.
+- NACLs are stateless, they have to consider both initiating and response traffic - state is a session-layer concept.
+
+### Amazon VPC Components
 
 1. Subnets
 2. Route tables
