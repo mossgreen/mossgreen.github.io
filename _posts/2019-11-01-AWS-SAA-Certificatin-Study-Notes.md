@@ -987,13 +987,50 @@ A static, public IP address in the pool for the region that you can allocate to 
 
 It allows you to maintain a set of IP addresses that remain fixed while the underlying infrastructure may change over time.
 
-### VPC endpoint
-
-It enables you to create a private connection between your Amazon VPC and another AWS service without requiring access over the Internet or through a NAT instance, VPN connection, or AWS Direct Connect.
-
 ### VPC peering
 
-It's a networking connection between two Amazon VPCs that enabled instances in either Amazon VPC t o communicate with each otehr as if they were within the same network.
+VPC peering is a feature that allows isolated VPCs to be connected at layer 3. VPC peering uses a peering connection, which is a gateway object linking two VPCs.
+
+- Allows direct communication between VPCs.
+- Services can communicate using private IPs from VPC to VPC.
+- VPC peers can span AWS accounts and even regions (with limitations)
+- Dat is encrypted and transits via the AWS global backbone.
+- VPC peers are used to link two VPCs at layer3: company mergers, shared servcies, companyand vendor, auditing
+
+Important Limits and considerations
+
+- VPC CIDR blocks cannot overlap
+- VPC peers connect two VPCs - routing is not ransitive
+- Routes are required at both sides (remote CIDR -> peer connection)
+- NACLs and SGs can be used to control access
+- SGs can be referenced but not cross-region
+- IPv6 support is not available cross-region.
+- DNS resolution to private IPs ca nbe enabled, but it's a setting needed at both sides.
+
+### VPC Endpoints
+
+VPC Endpoints are gateway objects created within a VPC. They can be used to connect to AWS public services without the need for the VPC to have an attached internet gateway and be public.
+
+VPC Endpoint Types:
+
+- Gateway endpoints: Can be used for DynamoDB and S3
+- Interface endpoints: can be used for everything else (e.g., SNS, SQS)
+
+When to use a VPC Endpoint:
+
+- If the entire VPC is private eith no IGW
+- If a specific instance has no public IP/NATGW and needs to access public services
+- To access resources restricted to specific VPCs or endpoints (private S3 bucket)
+
+Limitations and Considerations
+
+- Gateway endpoints are used via route table entries - they're gateway devices. Prefix lists for a service are used in the destination field with the gateway as the target.
+- Gateway endpoints can be restricted via policies.
+- Gateway endpoints are HA across AZs in a region.
+- Interface endpoints are interfaces in a specific subnet. for HA, you need to add multiple interfaces - one per AZ.
+- Interface endpoitns are controlled via SGs on that interface. NACLs also impact traffic.
+- Interface endpoints and replace the DNS for the service - no route table updates are requried.
+- Code chagnes to use the endpoint DNS, or enable private DNS to override the default service DNS.
 
 ### Security Group
 
