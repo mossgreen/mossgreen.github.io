@@ -785,7 +785,7 @@ For instance:
     - 10.0.0.0/17
         - 10.0.0.0/18
         - 10.0.64.0/18
-    - 10.0.128.0/17
+    - 10.0.128.0/17 <-- 128 = 256/2
         - 10.0.128.0/18
         - 10.0.192.0/18
 
@@ -900,7 +900,21 @@ NAT (network address translation) is a process where the source or destination a
 - Static NAT: A private IP is mapped to a public IP (what IGWs do). the process of 1:1 translation where an internet gateway converts a private address to a public IP address.
 - Dynamic NAT: A range of private addresses are mapped onto one or more public (used by your home router and NAT gateways). Dynamic NAT is a variation that allows many private IP addresses to get outgoing internet access using a smaller number of public IPs (generally one). Dynamic NAT is provided within AWS using a NAT gateway that allows private subnets in an AWS VPC to access the internet.
 
+### Security Group
+
+It's avirtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
+You can specify allow rules, but not deny rules. This is an important difference between security groups and ACLs.
+
+Default security group:
+
+- allows communication between all resources within the security group,
+- allows all outbound traffic, and
+- no inbound traffic is allowed until you add inbound rules to the security group.
+- denies all other traffic.
+
 ### NACLs, Network Access Control List
+
+It's another layer of security that acts as a stateless firewall on a subnet level.
 
 - NACLs operate at layer 4 of the OSI model (TCP/UDP and below).
 - A subnet has to be associated with a NACL - either the VPC default or a custom NACL
@@ -909,6 +923,16 @@ NAT (network address translation) is a process where the source or destination a
 - Rules are processed in number order, lowest first. When a match is found, that action is taken and processing stops.
 - The `*` rule is processed last and is an implicit deny.
 - NACLs have two sets of rules: **inbound** and **outbound**.
+
+Security Group VS. ACLS
+
+|Security Group|Network ACLs|
+|-- |-- |
+|Operates at the instance level (first layer of defense)|Operates at the subnet level (second layer of defense)|
+|Supports allow rules only|Supports allow rules and deny rules|
+|Stateful: Return traffic is automatically allowed, regardless of any rules|Stateless: Return traffic must be explicitly allowed by rules.|
+|AWS evaluates all rules before deciding whether to allow traffic|AWS processes rules in number order when deciding whether to allow traffic.|
+|Applied selectively to individual instances|Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group.|
 
 Ephemeral Ports:
 
@@ -1032,38 +1056,44 @@ Limitations and Considerations
 - Interface endpoints and replace the DNS for the service - no route table updates are requried.
 - Code chagnes to use the endpoint DNS, or enable private DNS to override the default service DNS.
 
-### Security Group
-
-It's avirtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
-You can specify allow rules, but not deny rules. This is an important difference between security groups and ACLs.
-
-Default security group:
-
-- allows communication between all resources within the security group,
-- allows all outbound traffic, and
-- no inbound traffic is allowed until you add inbound rules to the security group.
-- denies all other traffic.
-
-### ACLs, Network Access Control Lists
-
-It's another layer of security that acts as a stateless firewall on a subnet level.
-
-Security Group VS. ACLS
-
-|Security Group|Network ACLs|
-|-- |-- |
-|Operates at the instance level (first layer of defense)|Operates at the subnet level (second layer of defense)|
-|Supports allow rules only|Supports allow rules and deny rules|
-|Stateful: Return traffic is automatically allowed, regardless of any rules|Stateless: Return traffic must be explicitly allowed by rules.|
-|AWS evaluates all rules before deciding whether to allow traffic|AWS processes rules in number order when deciding whether to allow traffic.|
-|Applied selectively to individual instances|Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group.|
-
 ### VPG & CGW
 
 - A VPG is the Amazon side of a VPN connection.
 - A CGW is the customer side of a VPN connection
 - The VPN connection must be initiated from the CGW side, and the connection consists of two IPSec tunnels.
 - IPsec is the security protocol supported by Amazon VPC.
+
+### IPv6
+
+IPv6 is the next generation of IP available within AWS. It's not fully supported across all AWS services, and it isn't enabled by default.
+
+IPv6 VPC Setup:
+
+- It's currently opt-in - it's desabled by default
+- To use it, the first step is to request an IPv6 allocatin. Each VPC is allocated a `/56` CIDR from the AWS pool - this cannot be adjusted.
+- Within the VPC IPv6 range allocated, subnets can be allocated a `/64` CIDR from within the `/56` range
+- Resources launched into a subnet with an IPv6 range can be allocated a IPv6 address via DHCP6.
+
+Limitations and Considerations:
+
+- DNS names are not allocated to IPv6 addresses.
+- IPv6 addresses are all public routable - there is no concept of private vs. public wiht IPv6 (unlike IPv4 addresses)
+- With IPv6, the OS is confired with this public address via DHCP6.
+- Elastic IPs aren't relevant with IPv6.
+- Not currently supported for VPCs, customer gateways and VPC endpoints.
+
+#### IPv6 Egress-Only Gateway
+
+Egress-only internet gateways provide **outgoing-only** (and response) access for an IPv6-enabled VPC resource.
+
+NAT gateways provide two functions for IPv4 resources:
+
+1. Sharing a single public IP address for private resources
+2. Outgoing-only access
+
+NAT as a process isn't needed for IPv6 because all addresses are public. Egress-only gateways provide this outgoing-only access that NAT gateways provide, without the incompatible elements of functionality.
+
+Architecturally, they're otherwise the same as an IGW.
 
 ### ENI, Elastic Network Interface
 
