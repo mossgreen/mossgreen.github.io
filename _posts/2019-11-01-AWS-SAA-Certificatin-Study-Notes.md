@@ -1082,7 +1082,7 @@ Limitations and Considerations:
 - Elastic IPs aren't relevant with IPv6.
 - Not currently supported for VPCs, customer gateways and VPC endpoints.
 
-#### IPv6 Egress-Only Gateway
+### IPv6 Egress-Only Gateway
 
 Egress-only internet gateways provide **outgoing-only** (and response) access for an IPv6-enabled VPC resource.
 
@@ -1095,9 +1095,118 @@ NAT as a process isn't needed for IPv6 because all addresses are public. Egress-
 
 Architecturally, they're otherwise the same as an IGW.
 
-### ENI, Elastic Network Interface
 
-Attaching an ENI associated with a different subnet to an instance can make the instance dual-homed.
+## Amazon Route 53
+
+It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
+
+three main functions:
+
+1. Domain registration.
+    It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
+
+2. DNS service: translates friendly domain names into IP address.
+  
+    - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
+  
+    - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
+
+3. Health checking
+
+    - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
+    - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+
+### Amazon Route 53 basic
+
+DNS Terms
+
+- DNS Root Servers: Trust starts somewhere. The DNS root servers are that trust - a group of servers that are authoriative to give answers about the root zone. TLDs are controlled by the root zone.
+- Top-Level Domain (TLD0: The top tier in the DNS hierarchy. Generally structured into geographic codes - such as `.au`, `.us`, `.uk` - and generic TKDs - such as `.com`. `.org` and `.edu`. large orgs or country orgs are delegated control of these by the root servers to be authoritative.
+- Subdomain: Anyting between a host and a TLD is a subdomain. Anorganization is delegated control of subdomains and is authoritative.
+- Zone and Zone File: A zone or zone file is a mapping of OPs and hosts for a given subdomain. The zone file for linuxacademy.com would contrain a record for www.
+- Records: DNS has lots of record tyes - A, MZ, AAAA, CNAME. TXT, NS
+- Name Server: A name server is a server that runs a DNS service and can either store or cache information for the DNS platform. Whether a name server caches or acts as an authority depends on if it's referenced from a higher level.
+- Authoritative:
+- The root servers are authoritative for the root zone - they are trusted by every operating system and networking stack globally. The root servers delegate ownership of a part of the hierarchy, such as `.com`, to an organization. That organization runs name servers that become authoritative - they can answer queries with authority. Because the root points at these servers, they are authoritative. These `.com` name servers can point at servers for sub domains that then become authoritative.
+- Hosts: A record in a zone file
+- FQDN: Fully qualified domain name - the host and domains: www.linuxacademy.com
+
+DNS Flow
+
+use `linuxacademy.com` as an example. The domain name system (DNS) does many things, but the common use case is  to turn DNS names into IP address - like turning linuxcademay.com into `52.86.183.13`. It's a distributed system - no one part knows all.
+
+1. Step 1: Query your ISP. If it doesn't know, it handles it for ou.
+2. Step 2: The ISP queries the DNS root servers. If they don't know, they help by providing servers authoritative for `.com`.
+3. Step 3: The `.com` servers are queried. If they don't have an IP, they provide the linuxacademy.com authoritative servers.
+4. Step 4: These servers are run by LA. They will know and return one of more IPs.
+
+Registering a domain with DNS in Route 53
+
+1. Step 1: Check the domain is available.
+2. Step 2: Purchase the domain via a registrar
+3. Step 3: hosting the domain.
+4. Step 4: Records in the zone file:
+
+DNS zones
+
+A zone or hsoted zone is a container for DNS records relating to a particular domain. Route 53 supports public hosted zones, which influence the domain that is visible from the internet and VPCs. Private hosted zones are similar but accessible only from the VPCs they're associated with.
+
+Public Zones
+
+- a public hosted zone is created when you register a domain with Route 53, when you transfer a domain into Route 53, or if you created on manually
+- a hosted zone has the same name as the domain it relates to - e.g., linuxacademy.com will have a hosted zone called linuxacademy.com
+- a public zone is accessible either from internet-based DNS clients or from with any AWS VPCs.
+- A hosted zone will have "name servers" - these are the IP addresses you can give to a domain operator, so Route 53 becomes "authoritative" for a domain.
+
+Private Zones;
+
+- Private zones are created manually and associated with one or more VPCs - they're only accessible from those VPCs.
+- pribate zones need `enableDnsHostnames` and `enableDnsSupport` enabled on a VPC.
+- Not all route 53 features supported - limits on healthchecks
+- **split-view DNS **is supported, suign the same zone name for public and private zones - providing VPC resources with differenct records, e.g., testing ,internal versions of websites. With split view, private is preferred, if no matches, public is used.
+
+DNS Record Set Types
+
+- A Record (and AAAA): for a given host (wwww), an A record provides an IPv4 address and an AAAA provides an IPv6 address.
+- CNAME Record: allows aliases to be created 9not the same as alias record). A machine might have CNAMES for `www`, `ftp` and images. Each of these CNAMEs oints at an existing record in the domain. CNAMES cannot be used at the APEX of a domain.
+- MX Record: it provides the mail servers for a given domain. Each MX record has a priority. Remote mail server use this to locate the server to use when sending emails.
+- NS Record: used to set the authoritative servers for a subdomain.
+- TXT record: used for descriptive text in a domain - often used to verify domain ownership
+- Alias Records: An extension of CNAME. Can refer to AWS logical services (load balancers, S3 buckets) and AWS doesn't charge for queries of alias records against AWS resources.
+
+### Route 53 Health Checks
+
+It's used to influence route 53 routing decisions.
+
+- health checks that monitor the health of an endpoint - e.g., IP address or hostname
+- health checks that monitor the health of another health check (calculated health checks)
+- health checks that monitor CloudWatch alarms - you might want to consider something unhealthy if your DynamoDB table is experiencing performance issues.
+
+Route 53 health Checkers:
+
+- Global health check system that checks an endpoint in an agreed way with an agreed frequency.
+- **>18%** of checks report healthy = healthy, **<18%** health = unhealthy
+
+Types
+
+- Http, https: connection check in less than four seconds. Report 2xx or 3xx code within 2 seconds.
+- TCP: connection within 10 seconds
+- Http/s with string match: all the checksas with Http/s but the body is checked for a string match
+
+Route 53 and Health Checks
+
+- Records can be linked to health checks. If the check is unhealthy, the record isn't used.
+- Can be used to do failover and other routing architectures.
+
+#### routing policies
+
+- Simple: Most commonly used when you have a single resource that performs a given function for your domain.
+- Weighted: When you want to route a percentage of your traffic to one particular resource or resources.
+- Latency-Based—Used to route your traffic based on the lowest latency so that your users get the fastest response times
+- Latency-based routing allows you to route your traffic based on the lowest network latency for your end user (for example, using the AWS region that will give them the fastest response time). Use it when:
+  - you have resources that perform the same function in multiple AWS Availability Zones
+  - regions and you want Amazon Route 53 to respond to DNS queries using the resources that provide the best latency.
+- Geolocation routing lets you choose where Amazon Route 53 will send your traffic based on the geographic location of your users. Geolocation works by mapping IP addresses to locations. It uses geolocation routing to restrict distribution of content to only the locations in which you have distribution rights.
 
 ## ELB, Amazon CloudWatch, Auto Scaling
 
@@ -1714,108 +1823,6 @@ to transmit messages to individuals or groups via email and/or SMS. For example,
 
 to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
 
-### DNS
-
-The Internet Protocol (IP) address of your website is like your phone number—it could change if you move to a new area. DNS is like the phonebook. look you up by name in the phonebook. When a visitor wants to access your website, their computer takes the domain name typed in (www.amazon .com, for example) and looks up the IP address for that domain using DNS.
-
-Amazon Route 53 is an authoritative DNS system.
-
-#### Top-Level Domains (TLDs)
-
-- Common TLDs are .com, .net, .org, .gov, .edu, and .io.
-- Internet Corporation for Assigned Names and Numbers (ICANN) controls TLDs.
-- Each domain name becomes registered in a central database, known as the **WhoIS** database.
-
-#### IP Addresses
-
-- Each IP address must be unique within its network. For public websites, this network is the entire Internet.
-- **IPv4 addresses**: four sets of numbers separated by a dot, with each set having up to three digits. For example, 111.222.111.222
-- Pv4 address range has quickly been depleted. **IPv6** was created to solve this depletion issue, it has an address space of 128 bits.
-
-#### Hosts
-
-- Within a domain, the domain owner can define individual hosts
-- Web host: example.com, www.example.com
-- API host (api.example.com)
-- Files host: ftp.example.com, files.example.com
-
-#### Subdomains
-
-The difference between a host name and a subdomain is that a host defines a computer or resource, while a subdomain extends the parent domain. Subdomains are a method of subdividing the domain itself.
-
-#### Fully Qualified Domain Name (FQDN)
-
-##### Name Servers
-
-A name server is a computer designated to translate domain names into IP addresses.
-
-do most of the work in the DNS
-
-#### Zone Files
-
-A zone file is a simple text file that contains the mappings between domain names and IP addresses.
-
-#### Domain Name System (DNS) Resolution
-
-1. You type a domain name in broswer
-2. It checks host file in your local computer, to see if it's domain name stores locally, if not
-3. Check its DNS cache to see if you have visited the same site before, if not
-4. contact a DNS server to resolve the domain name
-
-#### A and AAAA
-
-A record: map a host to an IPv4 IP address
-AAAA record: map a host to an IPv6 address
-
-#### Canonical Name (CNAME)
-
-It is a type of resource record in the DNS that defines an alias for the CNAME for your server.
-
-### Amazon Route 53
-
-It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
-
-three main functions:
-
-1. Domain registration.
-    It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
-
-2. DNS service: translates friendly domain names into IP address.
-  
-    - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
-  
-    - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
-
-3. Health checking
-
-    - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
-    - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
-
-#### Hosted Zones
-
-A hosted zone is a collection of resource record sets hosted by Amazon Route 53.
-
-It represents resource record sets that are managed together under a single domain name. Each hosted zone has its own metadata and configuration information.
-
-The resource record sets contained in a hosted zone must share the same suffix.
-
-two types of hosted zones: private and public.
-
-- **private hosted zone**: a container that holds information about how you want to route traffic for a domain and its subdomains within one or more Amazon Virtual Private Clouds (Amazon VPCs)
-- **public hosted zone**: a container that holds information about how you want to route traffic on the Internet for a domain and its subdomains
-
-Use an alias record, not a CNAME, for your hosted zone. CNAMEs are not allowed for hosted zones in Amazon Route 53.
-
-#### routing policies
-
-- Simple: Most commonly used when you have a single resource that performs a given function for your domain.
-- Weighted: When you want to route a percentage of your traffic to one particular resource or resources.
-- Latency-Based—Used to route your traffic based on the lowest latency so that your users get the fastest response times
-- Latency-based routing allows you to route your traffic based on the lowest network latency for your end user (for example, using the AWS region that will give them the fastest response time). Use it when:
-  - you have resources that perform the same function in multiple AWS Availability Zones
-  - regions and you want Amazon Route 53 to respond to DNS queries using the resources that provide the best latency.
-- Geolocation routing lets you choose where Amazon Route 53 will send your traffic based on the geographic location of your users. Geolocation works by mapping IP addresses to locations. It uses geolocation routing to restrict distribution of content to only the locations in which you have distribution rights.
-
 ### In Memory Caching
 
 successful application: fast and responsive user experience.
@@ -1825,7 +1832,7 @@ two engines:
 - Memcached: key/value store that can be used to store arbitrary types of data.
 - Redis: can be used as a cache, database, or message broker.
 
-### Amazon ElastiCache
+## Amazon ElastiCache
 
 You can start using the servcie with very few or no modifications to your existing app that use Memcached or Redis, becasue Amazon ElastiCache is protocol-compliant with both of thrm. You only need to change the endpoint in your configuration files.
 
