@@ -1095,7 +1095,6 @@ NAT as a process isn't needed for IPv6 because all addresses are public. Egress-
 
 Architecturally, they're otherwise the same as an IGW.
 
-
 ## Amazon Route 53
 
 It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
@@ -1198,15 +1197,39 @@ Route 53 and Health Checks
 - Records can be linked to health checks. If the check is unhealthy, the record isn't used.
 - Can be used to do failover and other routing architectures.
 
-#### routing policies
+### Route 53 Routing Policy
 
-- Simple: Most commonly used when you have a single resource that performs a given function for your domain.
-- Weighted: When you want to route a percentage of your traffic to one particular resource or resources.
-- Latency-Based—Used to route your traffic based on the lowest latency so that your users get the fastest response times
-- Latency-based routing allows you to route your traffic based on the lowest network latency for your end user (for example, using the AWS region that will give them the fastest response time). Use it when:
-  - you have resources that perform the same function in multiple AWS Availability Zones
-  - regions and you want Amazon Route 53 to respond to DNS queries using the resources that provide the best latency.
-- Geolocation routing lets you choose where Amazon Route 53 will send your traffic based on the geographic location of your users. Geolocation works by mapping IP addresses to locations. It uses geolocation routing to restrict distribution of content to only the locations in which you have distribution rights.
+It determines how Amazon Route 53 responds to queries:
+
+- Simple Routing Policy:
+  - A simple routing policy is a single recordw ithin a hosted zone that contains one or more values. When queried, a simple routing policy record returns all the values in a randomized order.
+  - use for a single reource that performs a given function for your domain. E.g., a web server that serves content for the `example.com` website.
+  - CANNOT: create nultiple records that have the same name and type
+  - CAN: specify multiple values in the same record, e.g., multiple IP address.
+  - The DNS client (the laptop) receives a randomized list of IPs as a result. The client can select the appropriate one and initiate an HTTP session with a resource.
+  - **Pros**: Simple, the default, even spread ofrequests
+  - **Cons**: No performance control, no granular health checks, for alias type - only a sinle AWS resource.
+- Failover routing policy
+  - it allows you to create two records with the same name. One is designated as the primary and another as secondary. Queries will resolve to the primamry - unless it's unhealthy, in which case Route 53 will respond with the secondary.
+  - use when you want to configure active-passive failover.
+  - used in conjunction with Route 53 health checks to provide failover between a primary record and a secondary record.
+  - Failover can be combined with other types to allow multiple primary and secondary records. Generally, failover is used to provide emergency resources during failures. Like a page says website is under maintenance.
+- Weighted routing policy
+  - allow granular control over queries, allowing a certain percentage of queries to reach specific records.
+  - used to control the amount of traffic that reaches specific resources.
+  - useful when testing new software or when resources are being added or removed from a configuration that doesn't use a load balancer.
+  - Records are returned based on a ratio of their weight to the total weight, assuing records are healthy.
+- Latency routing policy
+  - allows clients to be matched to resources with the lowest latency
+  - use when you have resources in multiple AWS Regions and you wnat to route traffic to the region that provides the best latency
+  - Route53 consults a latency database each time a request occurs to a given latency-based host in DNS fro ma resolver server. Record sets with the same name are considered part of the same latency-based set. Each is allocated to a region. The record set returned is the one with the lowest latency to the resolver server.
+- Geolocation routing policy
+  - use when you want to route traffic based on the location of your users.
+  - A no-result is returned if no match exists between a record set and the query location. Geoproximity allows a bias to expand a geographic area.
+- Geoproximity routing policy
+  - use when you want to route traffic based on the location of your resources and, optionally, shift traffic from resources in one location to resources in another.
+- Multivalue answer routing policy
+  - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
 
 ## ELB, Amazon CloudWatch, Auto Scaling
 
