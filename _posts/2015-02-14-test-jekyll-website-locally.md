@@ -10,9 +10,9 @@ Preview your site and help troubleshoot failed Jekyll builds.
 
 Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous. It's highly recommend installing Jekyll to preview your site and help troubleshoot failed Jekyll builds.
 
-## Requirements
+### Requirements
 
-1. Install Ruby: `$ sodu install ruby`
+1. Install Ruby: `$ sudo install ruby`
 
 2. Install bundler: `$ gem install bundler`
 
@@ -25,9 +25,9 @@ Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous.
 
 4. In project directory, update dependencies:`$ bundle install`
 
-## Run it
+### Run it
 
-- Navigate to the root directory: `cd blog`
+- Navigate to the working directory: `cd blog`
 
 - Run your Jekyll site locally on 'watch mood':
 
@@ -37,8 +37,8 @@ Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous.
 
 - Navigate to: `localhost:4000` or `http://127.0.0.1:4000`
 
-- If you update something, when you hit **Save**, it will automatically update
+If you update something, when you save, it updates automatically.
 
-## End
+### End
 
-- Add your changes and push to the repo on GitHub
+Add your changes and push to the repo on GitHub
