@@ -20,8 +20,8 @@ how to achieve well performaing, scaleable, secure and cost effective designs.
 
 ### Durability and Availability
 
-**Durability** addresses the question, “Will my data still be there in the future?”
-**Availability** addresses the question, “Can I access my data right now?”
+- **Durability** addresses the question, “Will my data still be there in the future?”
+- **Availability** addresses the question, “Can I access my data right now?”
 
 Amazon S3 is designed to provide both very high durability and very high availability for your data.
 
@@ -29,7 +29,7 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 
 ### High availability VS Fault tolerance
 
-- High availability:
+- **High availability**:
   - hardware, software and configuration that allowing a system to recover quickly in the event of a failure.
   - The key part is the recover quickly.
   - It doesn't prevent a failure from occurring and it doesn't stop that failure from impacting customers.
@@ -37,7 +37,7 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
   - It aims to minimize downtime and recover quickly in the event of a failure.
   - E.g., for a car, if one tyre broken, we have a backup tyre, it may break down, but can be fix quickly
 
-- Fault tolerance:
+- **Fault tolerance**:
   - a system designed to operate through a failure with no user impact.
   - generally more expensive and more complex to achieve and do so reliably
   - E.g., a plane. If one engine down, plane can still operate normally
@@ -124,15 +124,15 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 
 ### Object storage VS. traditional block and file storage
 
-traditional IT environments, 2 ways:
+- traditional IT environments, 2 ways:
 
-1. block storage: operates at a lower level, the raw storage device level and amnages data as a set of numberred, fixed size blocks.
-2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
+    1. block storage: operates at a lower level, the raw storage device level and amnages data as a set of numberred, fixed size blocks.
+    2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
 
-Amazon S3 object storage is cloud object storeage
+- Amazon S3 object storage is cloud object storeage
 
-1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
-2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
+    1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
+    2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
 
 Note:
 
@@ -147,7 +147,7 @@ It is designed to provide massively parallel shared access to thousands of Amazo
 
 Amazon EFS is a regional service storing data within and across multiple Availability Zones (AZs) for high availability and durability.
 
-### Buckets
+### AWS S3 Buckets
 
 1. Buckets are a simple flat structure. You can have multiple buckets, but cannot have a sub-bucket.
 2. A bucket can store an unlimited number of files.
@@ -157,7 +157,7 @@ Amazon EFS is a regional service storing data within and across multiple Availab
 6. Best practice: use bucket names that contain your domain name and conform to the rules for DNS names. It ensures that your bucket names can be used in all reqioins and can host static websites.
 7. For each bucket you can choose a particular place that close to your user to minimize latency, or apply compliance.
 
-### Objects
+AWS S3 Objects
 
 1. Size: 0 ~ 5TB
 2. A bucket can store unlimited number of objects.
@@ -192,22 +192,59 @@ Amazon S3 provides read-after-write consistency for PUTs to new objects (new key
 but eventual consistency for GETs and DELETEs of existing objects (existing key), so it may return stale data
 Updates to a single key are atomic, you get the new or old data, but never a mix.
 
-### Access control
+### Amazon S3 Object Versioning
 
-By default, it's secured. Only you have access.
+Versioning is a feature allowing multiple versions of an object to exist in an S3 bucket. Versioning needs to be enabled at a bucket level, meaning every object is given an object ID. When objects are deleted, a version ID is added rather than actually deleting the object.
 
-Coarse-grained access control:
-    - Amazon S3 Access Control Lists, ACLs: READ,
-        - WRITE, or FULL-CONTROL at the object or bucket level.
-        - Legacy mechanisim
-        - best for: enabling bucket logging, or making a bucket that hosts a static website be world readable
+Once Versioning is enalbed on an S3 bucket, any operations that would otherwise modify objects generate new versions of that original object. Once a bucket is version-enabled, it can never be fully switched off - only **suspended**.
 
-Fine grained access controls
-    - Amazon S3 bucket policies: can specify who can access that bucket, from where and during that time of day
-    - AWS Identity and Access Management, IAM policies
-    - query-string authentication
+With versioning enabed, an AWS account is billed for all versions of all objects. Object deletions by default don't delete an object - instead, a delete marker is added to indicate the object can be accessed using the object name and a version ID. Specific version can be deleted.
 
-### Static Website Hosting
+**MFA delete** is a feature designed to prevent accidental deletion of objects. Once enabled, a one-time password is required to delete an object version or when changing the versioning state of a bucket.
+
+### Amazon S3 Permissions
+
+Bucket authorization within S3 is controlled using:
+
+- identity policies on AWS identities
+- bucket policies in the form of resource policies on the bucket
+- bucket or object ACLS
+
+Final authorization is a combination of all aplicable policies. priority order is:
+
+1. Explicit Deny
+2. Explicit Allow
+3. Implicit Deny
+
+When to use IAM policies vs. S3 policies
+
+- Use IAM policies if:
+  - you need to control access to AWS servcies other than S3.
+  - You have numerous S3 buckets each with different permissions requirements.
+  - You prefer to keep access control policiesin the IAM environment
+  - intereset in **"what can this user do in AWS? "**  use IAM policies.
+- Use S3 bucket policies if:
+  - You want a simple way to grant **croll-acount access** to your S3 environment, without using IAM roles.
+  - Your IAM policies bump up against the size limit.
+  - You prefer to keep access control policies in the S3 environment.
+  - intereset in **"Who can acess this S3 bucket"**, use S3 bucket policies.
+
+### Uploads data to Amazon S3 buckets
+
+It can be done using: S3 console, CLI, directly using the APIs. Uploads either use a single operation (PUT) or multipart upload.
+
+- Single PUT upload: object is uploaded i na single stream of data. Limit of 5 GB, can cause performance issues, and if the upload fails the whole upload fails.
+- Multipart upload:
+  - An object is broken up into parts (up to 10,000), each part is 5MB to 5 GB, and the last part can be less.
+  - Multipart upload is faster, and the individual parts can fail and be retried individually.
+  - AWS recommends multipart for anything over 100 MB, but it's required for anything beyond 5 GB.
+  - better network utilization through parallel transfers
+  - the ability to pause and resume
+  - should use multipart upload for objects larger than 10M
+  - must use for objects larger than 5G
+  - Object lifecycle policy on a bucket to abort incomplete uploads after a specified number of days.
+
+### Amazon S3 Static Website Hosting
 
 - It's a very common use case for Amazon S3 storage. Suitable for micro-sites.
 - Static website means website contains only static content and don't need server-sie process.
@@ -225,26 +262,46 @@ To host a static website:
 
 Consider to use Amazon CloudFront distribution as a caching layer for best performance.
 
-### Storage class
+Cross-origin Resource Sharing (CORS)
 
-Amazon S3 offers a range of storage classes designed for various generic use cases: general purpose, infrequent access, and archive.
+CORS is a security measure allowing a web application running in one domain to reference resources in another.
 
-- **Amazon S3 Standard** offers high durability, high availability, low latency, and high performance object storage for general purpose use. It's for frequently accessed data.
-- **Standard-IA**: Amazon S3 Standard - Infrequent Access
-  - designed for long-lived, less frequently accessed data.
-  - Lower per GB-month cost.
-  - minumum object size: 128K
-  - minumum duration: 30 days
-  - per-GB retrieval costs
-  - best for infrequently accessed data that is stored for longer than 30 days.
-- **RSS**: Amazon S3 Reduced Redundancy Storage
-  - lower durability: 4 nines
-  - reduced cost
-  - good for derived data that can be easily reproduced, such as image thumbnails.
-- Amazon Glacier
-  - Low cost, durable
-  - for rarely access data
-  - accept a three-to-five hour retrieval time
+### Amazon S3 Storage Classes
+
+All objects within a S3 bucket use a storage class, known as a storage tier. Storage classes influence the cost, durability, availability, and "first byte latency" for objects in S3. The class used for an object can be changed manually or using lifecycle policies.
+
+- **S3 Standard**
+  - for general-purpose storage of frequently accessed data
+  - Default, all-purpose storage or when usage is unknown
+  - 11 Nines durability and four Nines availability
+  - Replicated in 3+ AZs - no minimum object size or retrieval fee
+
+- **Standard Infrequent Access (Standard-IA)**
+  - Objects where real-time access is required but infrequent
+  - 99.9% availability, 3+ AZs replication, cheaper than Standard
+  - 30-day and 128KB minimum charges and object retrieval fee
+
+- **Amazon S3 One Zone-Infrequent Access (S3 One Zone-IA)**
+  - Non-critical and/or repreducible objects
+  - 99.5% availability, one 1 AZ, 30 day and 128KB minimum charges
+  - cheaper than standard IA
+
+- **Glarcier**
+  - Long-term archival storage 9warm or cold backups)
+  - Retrievals could take minutes or hours (faster = higher cost)
+  - 3+ AZ replication, 90-day and 40KB minimum charge and retrieval
+
+- **Glacier Deep Archive**
+  - Long-term archival (cold backups) - 180 day and 40KB Minimum
+  - Longer retrievals but cheaper than Glacier -replacement for tape-style storage
+
+- **Amazon S3 Intelligent-Tiering (S3 Intelligent-Tiering)**
+  - for data with unknown or changing access patterns
+  - designed to optimize costs by automatically moving data to the most cost-effective access tier, without performance impact or operational overhead.
+  - It works by storing objects in two access tiers: one tier that is optimized for frequent access and another lower-cost tier that is optimized for infrequent access.
+  - Small monthly monitoring and auto-tiering fee
+
+Lifecycle policies allow objects or versions to be transitioned between storage classes or expired when no longer required.
 
 ### Object Lifecycle Management
 
@@ -264,18 +321,41 @@ Reduce cost lifecycle rules:
 
 ### Amazon S3 Encryption
 
-1. in flight: use Amazon S3 secure sockets layer, SSL API endpoints. ensures that data send to and from Amazon S3 is encrypted with HTTPS
+Data between a client and S3 is encrypted **in transit**. Encryption at rest can be configured on a per-object basis.
+S3 is capable of encrypting objects — either allowing the customer to manage keys or providing an end-to-end solution.
 
-2. At rest:Server-side Encryption, SSE:
-    - SSE-S3, AWS handles keys  <- should use this for simplicity
-    - SSE-KMS, Amazon handles your key mangement, you manage the keys <- should use this for simplicity
-    - SSE-C, customer proviced keys
+- **Client-side encryption**. The client/application is responsible for managing both the encryption/decryption process and its keys. This mothed is generally only used when strict security compliance is required - it has significant admin and processing overhead.
+- **Server-side encryption with customer-managed keys (SSE-C)**. S3 handles the encryption and decryption process. The customer is still responsible for key management, and keys must be supplied with each PUT or GET erquest.
+- **Server-side encryption with S3-managed keys (SSE-S3)**: objects are encrypted using AES-256 by S3. The keys are generated by S3 suing KMS on your behalf. keys are stored with object in an encrpted from. If you have permissions on the object (e.g., S3 read or S3 admin), you  can decrypt and access it.
+- **Server-side encryption with AWS KMS-manged keys (SSE-KMS)**. Objects are encrypted suing individual keys generated by KMS. Encrypted keys are stored with the encrypted objects. Decryption of an object needs both S3 and KMS key permissions (role separation)
 
-### Pre-Signed URLs
+Bucket Default Encryption
 
-All Amazon S3 objects by default are private, meaning that only the owner has access.
+Objects are encrypted in S3, not buckets. Each PUT operation needs to specify encryption and type or not. A bucket default captures any put operations where no encryption method/directive is specified. It doesn't enforce that type can and cannot be used. Bucket policies can enforce.
 
-The owner can share objects with others by creating a pre-signed URL, using their own security credentials to grant time-limited permission to download the objects.
+### Amazon S3 Presigned URLs
+
+All Amazon S3 objects by default are private, meaning that only the owner has access. The owner can share objects with others by creating a pre-signed URL, using their own security credentials to grant time-limited permission to download the objects.
+
+Presigned URLs allow access to objects on a temporary basis. They are created, and the bearer of the URL has the same level of authorization as the creator.
+
+A presigned URL can be created by an identity in AWS, providing access to an object using the creator's access permissions. When the presigned URL is used, AWS verifies the creator's access to the object - not yours. The URL is encoded with authenticatin built in and has an expiry time.
+
+Prisigned URLs can be used to download or upload objects.
+
+Any identity can create a presigned URL - even if that identity doesn't have access to the object.
+
+example presigned URL scenarios:
+
+- Stock images website - media stored privately on S3, presigned URLgenerated when an image is purchased.
+- Client access t oupload an image for process to an S3 bucket
+  
+When using presigned URLs, you may get an error. Some common situations include:
+
+- the presigned URL has expired - seven-day maximum
+- the premission of the creator of the URL has changed
+- the URL was created usign a role (360hour max) and the role's temporary credentials have expired (aim to never create presigned URLs using roles)
+
 To enable it, you must provide
 
 1. your security credentials and
@@ -286,18 +366,24 @@ To enable it, you must provide
 
 This is particularly useful to protect against “content scraping” of web content such as media files stored in Amazon S3.
 
-### Multipart Upload
-
-Upload large objects as a set of parts,
-better network utilization through parallel transfers
-the ability to pause and resume
-should use multipart upload for objects larger than 10M
-must use for objects larger than 5G
-Object lifecycle policy on a bucket tot abort incomplete uploads after a specified number of days.
-
 ### Cross-region replication
 
 Asynchronously replicate to another region, includes metadata and ACLs.
+
+By default, replicated objects keep their:
+
+- Storage class
+- Object name (key)
+- Owner
+- Object permissions
+
+Replication configuration is applied to the source bucket, and to do so requires versioning to be enabled on both buckets. Replication requires and IAM role with permissions to replicate objects. With the replication configuration, it's posiible to override the storage class and object permissions as they are written to the destination.
+
+Excluded from Replication
+
+- System actions (lifecycle events)
+- Any existing objects from before replciation is enabled
+- SSE-C encrypted objects - only SSE-S3 and (if enabled) KMS encrypted objects are supported
 
 To enable cross-region replication:
 
@@ -311,7 +397,7 @@ Commonly used to:
 
 A second region does not significantly increase durability.
 
-### Logging
+### Amazon S3 Logging
 
 In order to track requests to your Amazon S3 bucket, you can enable Amazon S3 server access logs.
 Logging is off by default.
@@ -2291,3 +2377,4 @@ The tool that is essential to Cost Optimization is **Cost Explorer**, which help
 ## References
 
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
+- [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
