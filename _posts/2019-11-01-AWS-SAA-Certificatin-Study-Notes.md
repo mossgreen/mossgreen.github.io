@@ -617,7 +617,7 @@ three price options:
 
 1. On-Demand Instances
     - The most flexible pricing
-    - requires no up-frount commitment
+    - requires no up-front commitment
     - customer controls when to launch and terminate
     - for unpredictable workloads, traffic spikes, such as on the last day of the month.
     - good for temporary workloads, but don’t offer the cost savings of Spot Instances
@@ -1559,6 +1559,70 @@ Exam tips:
   - AWS service acess
   - "Break-glass" style extra access
 
+## Amazon CloudFront
+
+- CloudFront is an essential component for global applications.
+- It speeds up distribution of your static and dynamic web content, such as .html, .css, .js, and image files, to your users.
+- It's a content delivery network (CDN).
+- A CDN is a glocal cache that stores copies of your data on edge caches, which are positioned as close to your customers as possible.
+- Main benefits:
+  - lower latency
+  - higher transfer speeds
+  - reduced load on the content server
+  
+CloudFront Components
+
+- **Origin**: The server or service that hosts your content. Can be an S3 bucket, web server, or Amazon MediaStore
+- **Distribution**: the "configuration" entity within CloudFront. It's where you configure all aspects of a specific "implementation" of CloudFront from.
+- **Edge Location**: The lcoal infrastructure that hosts caches of your data. Positioned in over 150 locatins globally in over 30 countries.
+- **Regional Edge Caches**: larger version of edge locations. Less of them but have more capacity and can serve larger areas.
+
+Caching Process:
+
+- Create a distribution and point at one or more origins. A distribution has a DNS address that is used to access it.
+- The DNS Address directs clients at the closest available edge location.
+- If the edge location has a cached copy of your data, it's delivered locally from that edge location.
+- If it's not cached, the edge location attemptes to download it from either a regional cache or fro mthe origin (known as an origin fetch)
+- As the edge location, receives the data, it immediately begins forwarding it and caches it for the next visitor.
+
+Content can expire, be discarded, and be recached. Or you can explicitly invalidate content to remove it from caches.
+
+By default, CloudFront is fully publicly accessible - anyone with the DNS endpoint address can access content cached by the distribution.
+
+A distribution can be configured to be **private** where each access requries a signed URL or cookie. This is done by setting the trusted signers on the distribution.
+
+Private distributions can be bypassed by going straight to the origin (e.g., an S3 bucket).
+
+An **origin access identity (OAI)** is a virtual identity that can be associated with a distribution. As S3 bucket can then be restricted to only allow this OAI to access it - all other identiteis can be denied.
+It works with:
+
+  1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
+  2. any non-AWS origin server, such as an existing on-premises web server
+  3. Amazon Route 53.
+
+It supports all content that can be served over HTTP or HTTPS, including:
+
+  1. any popular static files that are a part of your web application, such as HTML files, images, JavaScript, and CSS files, and also audio, video, media files.
+  2. serving dynamic web pages, so it can actually be used to deliver your entire website
+  3. media streaming, using both HTTP and RTMP.
+
+Three core concepts: distributions, origins,and cache control.
+
+Amazon CloudFront Use Cases
+
+Good for:
+
+- Serving the Static Assets of Popular Websites
+- Serving a Whole Website or Web Application. both dynamic and static content
+- Serving Content to Users Who Are Widely Distributed Geographically
+- Distributing Software or Other Large Files
+- Serving Streaming Media
+  
+Not appropriate:
+
+- All or Most Requests Come From a Single Location. you will not take advantage of multiple edge locations.
+- All or Most Requests Come Through a Corporate VPN.
+
 ## Database and AWS
 
 The database needs to meet the performance demands, the availability needs, and the recoverability characteristics of the system.
@@ -1978,43 +2042,6 @@ The t2 cache node family is ideal for development and low-volume applications wi
 #### Amazon ElastiCache Access Control
 
 Access to your Amazon ElastiCache cluster is controlled primarily by restricting inbound network access to your cluster.
-
-### Storage and Content Delivery: Amazon CloudFront
-
-Amazon CloudFront is a global Content Delivery Network (CDN) service; Amazon CloudFront is AWS CDN.
-
-It's to speed up distribution of your static and dynamic web content—for example, .html, .css, .php, image, and media files—to end users.
-
-CDNs use Domain Name System (DNS) geo-location to determine the geographic location of each request for a web page or other content, then they serve that content from edge caching servers closest to that location instead of the original web server.
-
-It works with:
-
-  1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
-  2. any non-AWS origin server, such as an existing on-premises web server
-  3. Amazon Route 53.
-
-It supports all content that can be served over HTTP or HTTPS, including:
-
-  1. any popular static files that are a part of your web application, such as HTML files, images, JavaScript, and CSS files, and also audio, video, media files.
-  2. serving dynamic web pages, so it can actually be used to deliver your entire website
-  3. media streaming, using both HTTP and RTMP.
-
-Three core concepts: distributions, origins,and cache control.
-
-#### Amazon CloudFront Use Cases
-
-Good for:
-
-- Serving the Static Assets of Popular Websites
-- Serving a Whole Website or Web Application. both dynamic and static content
-- Serving Content to Users Who Are Widely Distributed Geographically
-- Distributing Software or Other Large Files
-- Serving Streaming Media
-  
-Not appropriate:
-
-- All or Most Requests Come From a Single Location. you will not take advantage of multiple edge locations.
-- All or Most Requests Come Through a Corporate VPN.
 
 ### Storage and Content Delivery: AWS Storage Gateway
 
