@@ -441,6 +441,36 @@ Logs include information such as:
 - An object's value is its data
 - An object size is from 0 to 5TB
 
+### Elastic File System, EFS
+
+- It is an AWS-managed implementation of the Network File System (NFS).
+- It's an implementation of the Newwork file System (NFSv4) delivered as a service.
+- File systems can be created and mounted on multiple Linux instances **at the same time**.
+
+Examp points
+
+EFS is an implementation of the NFSv4 protocal within AWS. Use EFS when you need a file system that can be accessed from multiple instances (e.g., shared media, home folders, documentation, shared logs).
+
+- Its base entity is a file system
+- The file system is accessed via "mount targets" that are placed in subnets inside a VPC and have an IP address.
+- The file system is "mounted" on Linux instances. (**important:** EFS is current only supported in Linux)
+- File system are accessbible fro ma VPC or from on-premises locations via a VPN or Direct Connect.
+
+EFS has two performance modes:
+
+1. **General Purpose**: the default and suitable for 99% of needs
+2. **Max IO**: designed for when a large number of instances needs to access the file system
+
+EFS has two throughput modes:
+
+1. **Bursting Throughput**: 100 MB/s base curst. 100 MB/s per 1TB. Earning 50 MB per TB of storage.
+2. **Provisioned Throughtput**: allows control over throughput independently of file system size.
+
+Security groups are used to control access to NFS mount targets
+
+EFS supports two storage classes: **Standard** and **Infrequent Access (IA)**.
+Lifecycle management is used to move files between classes baed on access patterns.
+
 ## CloudFormation
 
 It's an infrastructure as Code(IAC) product, you can create, manage, and remove infrastructure using JSON or YAML.
