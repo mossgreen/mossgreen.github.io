@@ -1662,57 +1662,105 @@ The database needs to meet the performance demands, the availability needs, and 
 
 ### Relational Database
 
-Types based on how the tables are organized and how the application uses the relational database:
+Every table has a schema that defines a fixed layout for each row, which is defined when the table is created. Every row in the table needs to have all the attributes adn the correct data tyeps.
 
 1. OLTP: Online Transactin Processing. regquently writing and changing data, e.g., data entry and e-commerce
 2. OLAP: Online Analytical processing. reporting or analyzing large data sets.
 
 Amazon RDS significantly simplifies the setup and maintenance of OLTP and OLAP database.
 
-### Data Warehouse
-
-A _data warehouse_ is a central repository for data that can come fromone ormore sources, used for reportign and analysis via OLAP using highly complex queries.
-
-_Amazon Redshif_ is a high-performance data warehouse designed for OLAP use cases.
-
 ### NoSQL Database
 
 Simple, flexible and can achieve performance levels that are difficult with tradictional relational databases.
 A common case is managing user session state, user profiles, shopping cart data, or time-series data.
 
+Four main types:
+
+- **Key Value**: Data is stored as key and value pairs. Super fast queries and ability to scale. No relationships and weak schema. E.g., Amazon DynamoDB.
+- **Document**: DAta is stored as structured key and value pairs called documents. Operations on documents are highly performant. E.g., MongoDB
+- **Column**: Data is stored in columns rather than rows. Queries against attribute sets, such as all DOBs or all surnames, are fast. Great for data warehousing and analytics. E.g., Amazon Redshift
+- **Graph**: Designed for dynamic relationships. Stores data as nodes and relationships between those nodes. Ideal for human-related data, such as social media. E.g., Neo4j
+
+### Data Warehouse
+
+A _data warehouse_ is a central repository for data that can come fromone ormore sources, used for reportign and analysis via OLAP using highly complex queries.
+
+_Amazon Redshif_ is a high-performance data warehouse designed for OLAP use cases
+
 ### Amazon RDS
 
-Amazon RDS is a service that simplifies the setup, operations and scaling of a relational database on AWS. Amazon is responsible for backups, patching, scaling and replication.
+- RDS is a Database as a Service (DBaas) product. Amazon is responsible for backups, patching, scaling and replication.
+- It can be used to provision a fully functional database without the admin overhead traditionally associated with DB platforms.
+- It can perform at scale, be made public accessible, and can be configured for demanding availability and durability scenarios.
 
-Amazon RDS does not provideshell access to DB instances and it restricts access to certain system procedures and tables that require advanced privileges.
+RDS is capable of a number of different types of backups. Automated backups to S3 occur daily and can be retrianed from 0 to 35 days. Manual snapshots are taken manually and exist until deleted, and point-in-time log-based backups are also stored on S3.
 
-### DB instances
+1. Primary -> Standby: sychronous data replication from primary to standby
+2. Standby -> S3: Backups occur once per day if enabled. Backups are taken from the standby isntance. Restention is from 0 to 35 days.
+3. Standay -> S3: Manual snapshots can be performed at anytime and are retined until explicitly deleted
+4. S3 -> primary: Restores create a new RDS instance with a new endpoint address - this wil lrequire application changes (or DNS changes).
 
-A DB instance isan isolated databse environment deployed in your private network segments the could.
-One DB instance can contain multiple differenct databases.
+RDS Multi-AZ
 
-### Operational Benefits
+- RDS can be provisioned in single or multi-az mode.
+- Multi-AZ provisions a primary instance and a standby instance in a different AZ of the same region.
+- Only teh primary can be accessed using the instance CNAME.
+- There is no performance benefit, but it provides a better RTO than restoring a snapshot.
 
-Amazon RDS increases the operational **reliability** of your database by applying a nery consistent deployment and operational model.
+RDS Read Replicas
 
-E.g., you cannot use Secure Shall (SHH) to log in to the host instance and install a custom pieve of software.
+They're read only copies of an RDS instance that can be created in the same region of a differenct region from the primary instance.
 
-If you want full control of the OS or require elevated permissions tot run, then consider installing your db on Amazon EC2 instead of Amazon RDS.
+Read Replicas can be addressed independently (each having their own DNS name) and used for read workloads, allowing you to scale reads. Five Read Replicas can be created from RDS instance, allowing a 5X increase in reads. Read Replicas can be created from Read Replicas,and they can be promoted to primary instances and can be themselves Multi-AZ.
 
-### Oracle
+Read Replicas dont' scale writes, which have to occur on the primary instance.
 
-Amazon RDS Oracle supports three different editions of the db engine:
+Reads from a Read Replica are eventually consistent - normally seconds, but the applicatin needs to support it.
 
-1. standard One
-2. Standard
-3. Enterprise
+|Multi-AZ deployments |Read replicas |
+|---|---|
+|Main purpose is high availability | Main purpose is scalability |
+|- Non-Aurora: synchronous replication; <br/>- Aurora: asynchronous replication | Asynchronous replication |
+|- Non-Aurora: only the primary instance is active;<br/>- Aurora: all instances are active| All read replicas are accessible and can be used for readscaling|
+|- Non-Aurora: automated backups are taken from standby;<br/>- Aurora: automated backups are taken from shared storage layer|No backups configured by default |
+|Always span at least two Availability Zones within a single region|Can be within an Availability Zone, Cross-AZ, or Cross-Region|
+|- Non-Aurora: database engine version upgrades happen on primary;<br/>- Aurora: all instances are updated together|- Non-Aurora: database engine version upgrade is independent from source instance;<br>- Aurora: all instances are updated together|
+|- non-Aurora: Automatic failover to standby;<br>- Aurora: read replica when a problem is detected|- non-Aurora: Can be manually promoted to a standalone database instance;<br/>- Aurora: to be the primary instance|
 
-### Licensing
+Exam points
 
-AWS offers two licensing models: License Included and Bring Your Own license (BYOL).
+RDS supports a number of database engines:
 
-1. License Included: license is held by AWS and is included in the Amazon RDS instance price.
-2. BYOL: you privide your own license.
+- MySQL, MariaDB, PostgresQL, Oracle, Microsoft SQL Server
+- Aurora: an in-house developed engine with substantial feature and performance enhancements
+
+RDS can be deployed in single AZ or multi-AZs mode (for resilience) and supports the following instance types:
+
+- General purpose (currently DB.M4 and DB.M5)
+- Memory optimized (currently DB.R4 and DB.R5, and DB.X1e and DB.X1 for Orcale)
+- Burstable (DB.T2 and DB.T3)
+
+Two types of storage are supported:
+
+- General Purpose SSD (gp2): 3 IOPS per GB, burst to 3,000 IOPS (pool architecure like EBS)
+- Provisined IOPS (io1): 1,000 to 80,000 IOPS (engine dependent) size, and IOPS can be confired independetly
+
+RDS instance are charged based on:
+
+- Instance size
+- Provisioned storage (not used)
+- IOPS transferred out
+- Any backups/snapshots beyond the 100% that is free with each DB isntance
+
+RDS supports encryption with the following limits/restrictions/conditions
+
+- Encryption can be configured when creating DB instances.
+- Encryption can be added by taking a snapshot, making an encrypted snapshot, and creating a new encrypted isntance from that encrypted snapshot.
+- Encrytion cannot be removed.
+- Read Replicas need to be the same state as the primary isntance (encrypted or not)
+- encrypted snapshots can be copied between regions - but a new destination region KMS CMK is used (because they're region specific)
+
+Network access to an RDS instance is controlled by a security group (SG) associated with the RDS instance.
 
 ### Amazon Aurora
 
