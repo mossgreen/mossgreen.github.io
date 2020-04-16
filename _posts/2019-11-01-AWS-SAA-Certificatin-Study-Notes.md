@@ -1687,7 +1687,7 @@ A _data warehouse_ is a central repository for data that can come fromone ormore
 
 _Amazon Redshif_ is a high-performance data warehouse designed for OLAP use cases
 
-### Amazon RDS
+## Amazon RDS
 
 - RDS is a Database as a Service (DBaas) product. Amazon is responsible for backups, patching, scaling and replication.
 - It can be used to provision a fully functional database without the admin overhead traditionally associated with DB platforms.
@@ -1700,14 +1700,14 @@ RDS is capable of a number of different types of backups. Automated backups to S
 3. Standay -> S3: Manual snapshots can be performed at anytime and are retined until explicitly deleted
 4. S3 -> primary: Restores create a new RDS instance with a new endpoint address - this wil lrequire application changes (or DNS changes).
 
-RDS Multi-AZ
+### Amazon RDS Multi-AZ
 
 - RDS can be provisioned in single or multi-az mode.
 - Multi-AZ provisions a primary instance and a standby instance in a different AZ of the same region.
 - Only teh primary can be accessed using the instance CNAME.
 - There is no performance benefit, but it provides a better RTO than restoring a snapshot.
 
-RDS Read Replicas
+### Amazon RDS Read Replicas
 
 They're read only copies of an RDS instance that can be created in the same region of a differenct region from the primary instance.
 
@@ -1762,74 +1762,56 @@ RDS supports encryption with the following limits/restrictions/conditions
 
 Network access to an RDS instance is controlled by a security group (SG) associated with the RDS instance.
 
-### Amazon Aurora
+## Amazon Aurora
 
-It's a fully managed servcie, MySQL-compatible.
+Aurora is not just an enhancement of RDS - it's a new architecture with shared storage, addressable replicas, and parallel queries.
 
-It can deliver up to five times the performance of MySQL without requiring changes to most of your exsiting web apps.
+- To improve relilience, use additional replicas.
+- To scale write workloads, scale up the instance size.
+- To scale reads, scale out (adding more replicas).
 
-A Amazon Aurora DB cluster consists of two difference types of instances:
+### Aurora architecture
 
-- Primary Instance: main instance, supports read and write.
-- Amazon Aurora Replica: secondary instance that supports only read operations. You can locate your Amazon Aurora Replicas in multiple Availability Zones to increase your database availavility.
+Aurora is a custom-designed relational database engine that forms part of RDS. Rather than an evolution, Aurora significantly replaces much of the traditional MySQL and PostgreSQL architecture in favor of cluster and shared storage architecture, which is more scalable and resilient with much higher performance.
 
-#### Backup and Recovery
+Aurora operates with a radically differenct architecture as opposed to the other RDS database engines:
 
-Amazon RDS provices two mechanisms for backing up the databse: automated backups and manual snapshots.
+- Autota uses a base configuration of a "cluster"
+- A cluster contains a single primary instance and zero or more repicas
 
-Recovery Point Objective (RPO). It's defined as the maximum period of data loss that is acceptable in the event of a failure or incident. Enterprise systems have RPO measured in minutes.
-Recovery Time Objective (RTO). It's defined as the maximum amount of downtime that is permitted to recover from backup and to resume processing. Enterprise systems have RTO measured in hours or even days.
+### Cluster Storage
 
-- Automated Backups
+- All instances (primary and replicas) use the same shared storage - the cluster volumnes.
+- Cluster volumne is totally SSD based, which can scale to 64 TB in size
+- Replicates data 6 times, across 3 AZs.
+- Aurora can tolerate two failures without writes being impacted and 3 failures without impact reads
+- Aurora storage is auto-healing
 
-An automated back is an Amazon RDS fearure that continuously tracks changes and backs up your database. Default one day of backup, up to 35 days. All automated backup snapshots are deleted and cannot be recoverd.
+### Cluster Scaling and Availability
 
-Automated backups will occur daily during a configurable 30-minute maintenance window called the backup window.
+- Cluster volumne scales automatically, only bills for consumed data, and is constantly backed up to S3.
+- Aurora replicas improve availability, can be promoted to be a primary instance quickly, and allow for efficient read scaling.
+- Reads and writes use the cluster endpoint.
+- Reads can use the reader endpoint, which balances connections over all replica instances.
 
-Automated backups are kept for a configurable number of days, called the _backup retention period_.
+### Aurora Parallel Queries Database features
 
-- Manual DB Snapshots
-You can perform manual DB snapshots at any time.
-Manual DB snapshots are kept until you explicitly delete them with the Amazon RDS console or the _DeleteDBSnapshot_ action.
+- One writer and multiple readers
+- One writer and multiple readers - Parallel query
 
-#### Recovery
+### Auroral Global
 
-You cannot restore from a DB snapshot to an existing DB instance.
+### Aurora Serverless
 
-A new DB instance is created when you restore.
+Aurora Serverless is based on the same database engine as Aurora, but instead of provisioning certain resource allocation, Aurora Serverless handles this as a service.
 
-#### High Availabilty with Multi-AZ
+You simply specify a minimum and maximum number of Aurora capacity units (ACUs) - Aurora Serverless can use the Data API.
 
-It allows you to create a dtabse cluster across multiple Availability Zones. Highly available, fault-tolerant.
+Aurora Serverless provides many of the same features Aurora provisioned does, but it abstracts farther away from the concept of database servers.
 
-Multi-AZ lets you meet the most demanding RPO and RTO targest by using synchronous replication to minimize PRO and fast failover to mnimize RTO to minutes.
+With Aurora Serverless, you indicate your minimum and maxiumum load levels with Aurora Capacity Units, and the product scales based on the incoming load.
 
-It's for disaster recovery oinly, they're not meant to enhance databse performance. Use read replicas or other DB caching technologies such as Amazon ElastiCache to improve database performance.
-
-#### Scaling up and out
-
-AS the number of transactions increase tothe relatiosnal database, you can do:
-
-- Scaling up, vertically, get a larger machine allows you to process more reads and writes.
-- Scaling out, horizontally, more difficult.
-
-Horizontal Scalability with Partitioning
-
-  Partitioning a large relational database into multiple instances or shards is a common technique for handling more requests beyond the capabilities of a single instance. It allows you to scal horizontally to handle more users and requests but requires additional logic in the application layer. The app needs to decide how to route database requests to the correct shard and becoems limited in the types of queri3es that can be performed across server bundaries. NoSQL database like Amazon DynamoDB or Cassandra are desinged to scale horizontally.
-
-Horizontal Scalability with Read Replicas
-
-  use read replicas to offload read transactions from the primary database and increase the overall number of transactions. Commen scenarios:
-    - Scale beyond the capacity of a single DB Instance for read heavy workloads
-    - Handle read traffic while the source DB Instance is unavailable. E.g., I/O suspension for backups or scheduled maintenance, you can direct read trffic to a replica.
-    - Offload reporting or data warehousing scenarios.
-
-#### Security
-
-infrastructure resources, the database, and the network levels.
-
-1. Infrastructure resources: using Amazon IAM
-2. Deploy your Amazon RDS DB Instances into a private subnet within an Amazon Virtual Private Cloud (Amazon VPC) that limits network access to the DB Instance.
+Aurora Serverless is also able to scale down to zero, where the only cost is storage.
 
 ### Amazon Redshift
 
