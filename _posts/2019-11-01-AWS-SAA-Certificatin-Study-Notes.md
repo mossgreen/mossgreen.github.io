@@ -1813,72 +1813,17 @@ With Aurora Serverless, you indicate your minimum and maxiumum load levels with 
 
 Aurora Serverless is also able to scale down to zero, where the only cost is storage.
 
-### Amazon Redshift
+## Amazon Redshift
 
 It's a data warehouse service, a relational database designed for OLAP scenarios and optimized for high-performance analysis and reporting of very large database. It's based on industry-standard PostgreSQL.
 
-#### Clusters and Nodes
+## Amazon DynamoDB
 
-The key component of an Amazon Redshift data warehouse is a cluster that composed of
+DynamoDB is a NoSQL database servcie. It's a global service, partitioned regionally and allows the creation of tables.
 
-1. a leader node. The client app interacts only with the leader node
-2. one or more compute nodes. transparent tot external apps.
-
-six node types into two categories
-
-1. Dense compute, up to 326TB using fast SSDs
-2. Dense storage, up to 2PB using large magnetic disks.
-
-You can increase query performance by adding multiple nodes to a cluster.
-
-#### Distribution Strategy
-
-The data distribution style that you select for your database has a big impact on query performance, storage requirements, data loading and maintenance. So, when creating a table, you choose from three distribution styles:
-
-1. Even distribution: defalt option
-2. Key distribution, rows are distributed according to the values in one column. The leader node will store matching values close together and increase query performance for joins.
-3. All distribution, a full copy of the entire table is distributed to every node. Useful for loopup tables and other large tables that are not updated frequently.
-
-#### Loading data
-
-_COPY_ command can load data into a table in the most efficient manner. Best way to load data into Amazon Redshift is doing bulk data loads from flat files stored in an Amazon S3 bucket or from an Amazon Dynamo DB table.
-
-#### Querying data
-
-Workload management (WLM) queue and prioritize queries. It allows you define multiple queues and set the concurrency level for each query.
-
-#### Snapshots
-
-- automated snapshots
-- manual snapshots
-
-#### Amazon Redshift Security
-
-- infrastructure level: IAM policies
-- network level: Amazon Redshift clusters can be deployed within the private IP Address of your Amazon VPC.
-- Database level
-- Encryption of data
-
-### Amazon DynamoDB
-
-It's a fully managed NoSQL database service. Fast, Low-latency, Scales with ease.
-
-DynamoDB can handle more than 10 trillion requests per day and support peaks of more than 20 million requests per second.
-
-All table data is stored on high performance SSD disk drives.
-
-Performance metrics, including transactions rates, can be monitored using Amazon CloudWatch.
-
-Automatic high-availability and durability protections by replicating data across multiple Availavility Zones within an AWS Region.
-
-#### Data Model
-
-Tables, Items, Attributes.
-
-A table is a collection of items and each item is a collection of one or more attributes.
-Each item also has a primary key that uniquely identifies the item.
-Each attribute in an item is a name/value pair.
-An attribute can be a single valued or multi-value set.
+- A **Table** is a collection of items that share the same partition key (PK) or partition key and sort key (SK) together with other configuration and performance settings.
+- An **Item** is a colelction of attributes (up to 400KB is size) inside a table that shares the same key structure as every other item in the table.
+- An **Attribute** is a key and value - an attribute name and value.
 
 E.g.,
 
@@ -1887,43 +1832,58 @@ E.g.,
 - primary key: song track id, 01,02,03...;
   - Attributes: name: song1, length:2min,...
 
-Best practice:
-use the AWS SDK to interact with items and tables, rather than using Amazon DynamoDB services endpoints.
+### DynamoDB capacity modes
 
-Data types in 3 categories:
+- On-demand
+- Provisioned
+- Provisioned with Auto Scaling
 
-1. Scalar: represents one value. String, Number, Binary (images), Boolean, Null
-2. Set: represent a unique list of one or more scalar values. Each value in a set needs to be unique and must be the same data type. String Set, Number Set, Binary Set.
-3. Document: represent nultiple nested attributes, like JSON file.
-    - List: each list stores an ordered list of attributes of different data types
-    - Map: Each map stores anunordered list of key/value pairs,. structure of any JSOn object.
+DynamoDB has two read/write capacity modes: provisioned throughput (default) and on-demand mode.
 
-Primary Key
+1. on-demand mode, DynamoDB automatically scales to handle performance demands and bills a per-request charge.
 
-1. Partition key: made of one attribute, a partition (or hsh) key.
-2. Partition and Sort key. the primary key is made of two attributes. the partiion key and the second one is the sort key.
+2. provisioned throughput mode, each table is configured with read capacity units (RCU) and write capacity unites (WCU). Every operatin on ITEMS consumes at least 1 RCU or WCU - partial RCU/WCU cannot be consumed.
 
-Best practice:
-Read/write performance will not be benefit from Amazon DynamoDB cluster.
-To maximize your throughput by distributing requests across the full range of partition keys.
+- **Read Capacity Units (RCU)**
+  - One RCU is 4 KB of data read from a table per second in a strongly consistent way.
+  - Reading 2KB of data consumes 1 RCU, reading 4.5 KB of data takes 2 RCU, reading 10*400 bytes takes 10 RCU.
+  - If eventaully consistent reads are okay, 1 RCU can allow for 2*4KB of data reads per second.
+  - Atomic transactions require 2X the RCU.
+- **Write Capacity Units (WCU)**
+  - One WCU is 1 KB of data or less written to a table.
+  - An operation that writes 200 bytes consumes 1 WCU, an operation writes 2 KB consumes 2 WCU.
+  - Five operations of 200 bytes consumes 5 WCU.
+  - Atomic transactions require 2X the WCU to complete.
 
-#### Eventual Consistency
+### DynamoDB Streams
 
-- Eventually consistent reads
-- Strongly consistent reads
+When enabled, streams provide an ordered list of changes that occur to items within a DynamoDB table. A stream is a rolling 24-hour window of changes. Streams are enabled per table and only contian data fro mthe point of being enabled.
 
-#### Scaling and Partitioning
+Every stream has an ARN that identifies it globally across all tables, accounts and regions.
 
-A table can scale horizontally through the use of partions to meet the storage and performance requirements of your app.
+Streams can be configured with one of four view types:
 
-To maximize Amazon Dynamo DB throughput, create tables with a partition key that has a large number of distinct values and ensure that the values are requested fairly uniformaly.
+- **KEYS_ONLY**: whenever an iterm is added, updated, or deleted, the keys of that item are added to the stream
+- **NEW_IMAGE**: the entire item is added to the stream "post-change"
+- **OLD_IMAGE**: the entire item is added to the stream "pre-change"
+- **NEW_AND_OLD_IMAGES**: both the new and old versions of the item are added to the stream.
 
-#### Amazon DynamoDB Security
+Triggers
 
-- IAM policies
-- All operations must be authenticated as a valid user or user session.
+Streams can be integrated with AWS Lambda, invoking a function whenever items are changed in a DynamoDB table(a DB trigger)
 
-Best practice is to use a combination of web identity federation with the AWS Security Token Service (AWS STS) to issue temporary keys taht expire after a short period.
+### AWS DynamoDB Indexes
+
+Local secondary indexes (LSIs) allow an alternative view of a table's data to be created, using the same partition key but with an alternative sort key.
+
+LSIs can be created only at the time of table creation, and there is currently a limit of five LSIs per table.
+
+Indexes provide an alternative representation of data in a table, which is useful for applications with varying query demands.
+Indexes come in two forms: local secondary indexes (LSI) and global secondary indexes (GSI). Indexes are interacted with as though they are tables, but they are just an alternate representation of data in an existing table.
+
+- **Local secondary indexes** must be created at the same time as creating a table. They use the same partition key but an alternative sort key. They share the RCU and WCU values for the main table.
+
+- **Global secondary indexes** can be created at any point after the table is created. They can use differenct partition and sort keys. They have their own RCU and WCU values. GSIs can be used to support alternative data access patterns, allowing efficient use of query operations.
 
 ### Amazon Simple Queue Service (Amazon SQS)
 
@@ -2056,54 +2016,7 @@ to transmit messages to individuals or groups via email and/or SMS. For example,
 
 to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
 
-### In Memory Caching
-
-successful application: fast and responsive user experience.
-Caching is one of the most importance performance optimizations. E.g., app session state for a large website can be stored in an in-memory caching engine.
-two engines:
-
-- Memcached: key/value store that can be used to store arbitrary types of data.
-- Redis: can be used as a cache, database, or message broker.
-
-## Amazon ElastiCache
-
-You can start using the servcie with very few or no modifications to your existing app that use Memcached or Redis, becasue Amazon ElastiCache is protocol-compliant with both of thrm. You only need to change the endpoint in your configuration files.
-
-You can build and manage a cache cluster on your EC2 instance.
-
-Enhance the reliability of critical deployments.
-
-#### Data Access Patterns
-
-A good example of something to cache is the list of products in a catalog.
-
-should not be cached: if you generate a unique page every request, you probably should not cache the page results
-
-#### Cache Engine: Memcached
-
-Memcached deals with objects as blobs that can be retrieved using a unique key.
-
-The object is typically the serialized results from a database query
-
-#### Cache Engine: Redis
-
-Beyond the object support provided in Memcached, Redis supports a rich set of data types likes strings, lists, and sets.
-Unlike Memcached, Redis supports the ability to persist the in-memory data onto disk.
-Redis also has advanced features that make it easy to sort and rank data.
-
-#### Nodes and Clusters
-
-Each deployment of Amazon ElastiCache consists of one or more nodes in a cluster.
-A single Memcached cluster can contain up to 20 nodes.
-Redis clusters are always made up of a single node; however, multiple clusters can be grouped into a Redis replication group.
-The individual node types are derived from a subset of the Amazon EC2 instance type families, like t2, m3, and r3.
-The t2 cache node family is ideal for development and low-volume applications with occasional bursts, but certain features may not be available. The m3 family is a good blend of compute and memory, while the r3 family is optimized for memory-intensive workloads.
-
-#### Amazon ElastiCache Access Control
-
-Access to your Amazon ElastiCache cluster is controlled primarily by restricting inbound network access to your cluster.
-
-### Storage and Content Delivery: AWS Storage Gateway
+## Storage and Content Delivery: AWS Storage Gateway
 
 AWS Storage Gateway is a service connecting an on-premises software appliance with cloud-based storage to provide seamless and secure integration between an organization’s onpremises IT environment and AWS storage infrastructure.
 
@@ -2111,21 +2024,21 @@ The storage associated with the appliance is exposed as an iSCSI device that can
 
 three configurations for AWS Storage Gateway: Gateway-Cached volumes, Gateway-Stored volumes, and Gateway-Virtual Tape Libraries (VTL).
 
-#### Gateway-Cached volumes
+### Gateway-Cached volumes
 
 It allows you to expand your local storage capacity into Amazon S3. All data stored on a Gateway-Cached volume is moved to Amazon S3, while recently read data is retained in local storage to provide low-latency access.
 
-#### Gateway-Stored volumes
+### Gateway-Stored volumes
 
 It allows you to store your data on your on-premises storage and asynchronously back up that data to Amazon S3. This provides lowlatency access to all data, while also providing off-site backups taking advantage of the durability of Amazon S3.
 
-#### Gateway Virtual Tape Libraries (VTL)
+### Gateway Virtual Tape Libraries (VTL)
 
 A virtual tape is analogous to a physical tape cartridge, except the data is stored on the AWS cloud. Tapes are created blank through the console or programmatically and then filled with backed up data.
 
 Gateway-VTL offers a durable, cost-effective solution to archive your data on the AWS cloud. The VTL interface lets you leverage your existing tape-based backup application infrastructure to store data on virtual tape cartridges that you create on your Gateway-VTL.
 
-#### AWS Storage Gateway Use Cases
+### AWS Storage Gateway Use Cases
 
 - Gateway-Cached volumes enable you to expand local storage hardware to Amazon S3, allowing you to store much more data without drastically increasing your storage hardware or changing your storage processes.
 
@@ -2133,7 +2046,7 @@ Gateway-VTL offers a durable, cost-effective solution to archive your data on th
 
 - Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
 
-### AWS CloudTrail
+## AWS CloudTrail
 
 It records API calls made on your account and delivers log files to your Amazon S3 bucket. AWS CloudTrail’s benefit is visibility into account activity by recording API calls made on your account.
 
