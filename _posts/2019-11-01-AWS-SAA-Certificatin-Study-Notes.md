@@ -1885,6 +1885,32 @@ Indexes come in two forms: local secondary indexes (LSI) and global secondary in
 
 - **Global secondary indexes** can be created at any point after the table is created. They can use differenct partition and sort keys. They have their own RCU and WCU values. GSIs can be used to support alternative data access patterns, allowing efficient use of query operations.
 
+## DynamoDB Accelerator (DAX)
+
+- **DAX** is an in-memory cache specifically designed for DynamoDB.
+- It supports caching **eventually consistent** reads for items and query results, **NOT** for strongly consistent
+- Results delivered from DAX are available in microseconds rather than in the single-digit milliseconds available from DynamoDB.
+- DAX is ideal for latency-sensitive applications or for read-heavy workloads on consistent data sets.
+
+DAX maintains two distinct caches: the item cache and the query cache.
+
+- the **item cache** is populated with results from `GetItem` and `BatchGetItem` and has a five-minites default TTL.
+- the **query cache** stores results of `Query` and `Scan` operations and caches based on the parmeters specified.
+
+## ElastiCache
+
+It is an in-memory cache that provides the Memcached and Redis caching engines.
+
+ElastiCache is used for two common use cases:
+
+- Offloading database reads by caching responses, improving application speed and reducing costs
+- Storing user session state, allowing for stateless compute instances (used for fault-tolerant architecures)
+
+Generally, ElastiCache is used with key/value database or to store dimple session data, but it can be sued with SQL database engines.
+
+- good to cache:a list of products in a catalog.
+- not be cached: if you generate a unique page every request, you probably should not cache the page results
+
 ### Amazon Simple Queue Service (Amazon SQS)
 
 Amazon SQS is a fast, reliable, scalable, fully managed message queuing service that allows organizations to decouple the components of a cloud application.
