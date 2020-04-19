@@ -1347,44 +1347,69 @@ It determines how Amazon Route 53 responds to queries:
 - Multivalue answer routing policy
   - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
 
-## ELB, Amazon CloudWatch, Auto Scaling
+## Amazon Load Balancing
 
-ELB, Amazon CloudWatch and Auto Scaling allows you to maintain the availability of your Applications by scaling Amazon EC2 capacity up or down in accordance with conditions you set.
+- Load balancing is a method used to distribute incoming conenctions across a group o servers of services.
+- Incoming connections are made to the load balancer, which distributes them to associated services.
+- Elastic Load Balancing (ELB) is a service that provides a set of highly available and scalable load balancers in one of three versions:
+  - Classic: CLB
+  - Application: ALB
+  - Network: NLB
+- ELBs can be paired with Auto Scaling groups to enhance high availability and fault tolerance - automating scaling/elasticity
+- An elastic load balancer has a DNS record, which allows access at the external side.
 
-### Elastic Loading Balancing
+A node is placed in each AZ the load balancer is active in. Each node gets 1/N of the traffic, where N is the number of nodes. Historically, each node could only load balance to instances in the same AZ. The reuslts in uneven traffic distribution. Cross-zone load balancing allows each node to distribute traffic to all instances.
 
-ELB is a highly available service that distributes traffic across Amazon EC2 instances and includes options that provide flexibility and control of incoming requests to Amazon EC2 instances.
+An elastic load balancer can be public facing, meaning it accepts traffic from the public internet, or internal, which is only accessible from inside a VPC and is often used between application tiers.
 
-It can handle the varying load of your application traffic in a single Availability Zone or across multiple Availability Zones.
+An elastic load balancer accepts traffic via listeners using proteocol and ports. It can strip HTTPS at this point, meaning it handles encryption/decryption, reducing CPU usage on instances.
 
-Types of Load Balancers
+### Classic Load Balancer, Amazon CLB
 
-1. **Application Load Balancer**
-    - is best suited for load balancing of HTTP and HTTPS traffic and provides advanced request routing targeted at the delivery of modern application architectures, including microservices and containers.
-    - Operating at the individual request level (Layer 7), Application Load Balancer routes traffic to targets within Amazon Virtual Private Cloud (Amazon VPC) based on the content of the request.
-2. **Network Load Balancer**
-    - is best suited for load balancing of TCP traffic where extreme performance is required.
-    - Operating at the connection level (Layer 4), Network Load Balancer routes traffic to targets within Amazon Virtual Private Cloud (Amazon VPC) and is capable of handling millions of requests per second while maintaining ultra-low latencies.
-    - Network Load Balancer is also optimized to handle sudden and volatile traffic patterns.
-3. **Classic Load Balancer**
-    - It provides basic load balancing across multiple Amazon EC2 instances and operates at both the request level and connection level.
-    - Classic Load Balancer is intended for applications that were built within the EC2-Classic network.
+Classic Load Balancers are the oldest type of load balancer and generally should be avoid for new projects.
 
-Configuring Elastic Load Balancing
+- support layer 3 &4 (TCP and SSL) and some HTTP/S features
+- it isn't a layer 7 device, so no real HTTP/S
+- one SSL certificate per CLB - can get expensive for complex projects
+- can **offload** SSL connections - HTTPS to the load balancer and HTTP to the instance (lower CPU and admin overhead on instances)
+- can be associated with Auto Scaling groups
+- DNS A record is uded to conenct to the CLB
 
-- **Idle Connection Timeout**: for each request that a client makes through a load balancer, the load balancer maintains two connection. One is with the client and the other is to the backend. By default, the timeout is 60 seconds for both connection.
+### Application Load Balancer, ALB
 
-- **Cross-Zone load Balancing**: it's recommended t hat you maintain approximately equivalent numbers of instancesin each Availibility Zone for higher fault tolerance.
+Application Load Balancers (ALBs) are devices that operate at Layer 7 of the OSI network model — understanding the HTTP/S protocol. In addition, ALBs introduce a number of advanced features that result in a cost reduction, performance increase, and added flexibility. ALBs are, in most cases, the recommended load balancer to use for projects.
 
-- **Connection Draining**: Enable it to ensure that the load balancer stops sending requests to instances that are deregistering or unhealthy, while keeping the existing connections open.
+- ALBs operate at layer 7 of the OSI model. They undertand HTTP and HTTPS and can load balance based on this protoccol layer.
+- ALBs are now recommended as the default LB for VPCs. They perform better than CLBs and are almost always cheaper.
+- Content rules can direct certain traffic to specific target groups.
+  - Host-based rules: Route traffic based on the host used
+  - Path-based ruels: Route traffic based on URL path
+- ALBs support EC2, ECS, EKS, Lambda, HTTPS, HTTP/2 and WebSockets, and they can be integrated with AWS Web Application Firewall (WAF).
+- Use an ALB if you need to use containers or microservices.
+- Targets -> target groups -> content rules
+- An ALB can host multiple SSL Certificates using SNI.
 
-- **Procy Protocol**: Enable it, a human readable header is added tothe request header with connection information.
+### Network Load Balancer, NLB
 
-- **Sticky Sessions**: It enables loading balander tot cind a user'ssession to a specific instance, and insures that all requests fro mthe user during the session are snet to the same instance.
+NLBs are the newest type of load balancer and operate at layer 4 of the OSI network model. There are a few scenarios and benefits to using an NLB versus and ALB:
 
-- **Health Checks**: The status of the instances that are healthy at the time of the health check is inServcie, otherwise is outOfService. A health check is a ping, a conenction attempt, or a page that is checked periodically.
+- can support protocols other than HTTP/S because it forwards upper layers unchanged
+- Less latency because no processing above layer 4 is required
+- IP addressable - static address
+- Best local balancing performance within AWS
+- Source IP address preservation - packets unchagned
+- Targets can be addreseed using IP address
 
-### Amazon CloudWatch
+-> NLB ->
+
+- TCP 80 ->
+  - 10.0.1.126
+  - 10.0.1.128
+- TCP 8080 ->
+  - 10.0.2.126
+  - 10.0.2.128
+
+## Amazon CloudWatch
 
 It is a monitoring service.
 It monitors AWS resources and applications in real time.
@@ -1400,23 +1425,6 @@ Amazon CloudWatch metrics can be retrieved by performaing a GET request.
 Amazon CloudWatch Logs can be used to monitor, store and acsess log files from Amazon EC2 instances, aWS CloudTrail, and other sources.
 
 Each AWS account is limited to 5,000 alarms per AWS account, and metrics data is retained for two weeks by default.
-
-### Auto Scaling
-
-It allows you to scale your Amazon EC2 capacity automatically by scaling out and scaling in according to criteria that you define.
-
-Auto Scalling Plans
-
-- Maintain Current Instance Levels: configure your Auto Saling group to maintain a mininum or spedific number of runnign instances at all times.
-- Manual Scaling: most basic way to scale your resources. Case like, release of a new game version that will be available for downoad and require a user registration.
-- Scheduled Scaling: need arises on a predicteable schedule. E.g., recurring events in end-of-month
-- Dynamic Scaling: lets you define parameters that control the Auto Scaling process in a scaling policy.
-
-Auto Scalling Components
-
-1. launch configuration
-2. Auto Scaling Group. A collection of Amazon EC2 instances managed by the Auto caling servcie.
-3. an optional scaling policy
 
 ## AWS Identity and Access Management (IAM)
 
