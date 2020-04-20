@@ -1409,6 +1409,46 @@ NLBs are the newest type of load balancer and operate at layer 4 of the OSI netw
   - 10.0.2.126
   - 10.0.2.128
 
+### Launch templates and Lunch configurations
+
+They allow you to configure various configuration attributes that can be set include:
+
+- AMI to use for EC2 launch
+- Instance type
+- Storage
+- Key pair
+- IAM role
+- User data
+- Purchase options
+- newwork configuration
+- Security group(s)
+
+Launch templates address some of the weaknesses of the legacy launch configurations and add the following features:
+
+- Versioning and inheritance
+- Tagging
+- More advanced purchasing options
+- new instance features, like:
+  - Elastic graphics
+  - T2/T3 unlimited settings
+  - Placement groups
+  - Capacity reservations
+  - Tenacy options
+
+Launch templates should be used over launch configurations where possible. Neither can be edited after creation - a few version of the template or a new launch configuration should be created.
+
+### Auto Scaling Groups
+
+Auto Scaling groups allow EC2 instances to scale in a way that allows elasticity. When used in conjunction with load balancers and launch templates and configurations, it allows for a self-healing infrastructure that can also scale based on demand.
+
+Auto Scaling groups use launch configurations or launch templates and allow automatic scale-out or scale-in based on configurable metrics. Auto Scaling groups are often paired with elastic load balancers.
+
+Auto Scaling groups can be configured to use multiple AZs to improve high availability. Unhealthy instances are terminated and recreated. ELB health checks or EC2 status can be used.
+
+Metrics such as CPU unilization or network transfer can be used either to scale out or scal in using scaling policies. Scaling can be manaul, scheduled, or dynamic. Cooldowns can be defined to ensure rapid in/out events don't occur.
+
+Scaling policies can be simple, step scaling, or target tracking.
+
 ## Amazon CloudWatch
 
 It is a monitoring service.
