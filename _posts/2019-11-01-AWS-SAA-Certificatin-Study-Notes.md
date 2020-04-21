@@ -1,12 +1,12 @@
 ---
 title: AWS SAA Certification Study Notes
 search: true
-tags: 
+tags:
   - AWS
   - SAA Certificatin
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: 'My Table of Contents'
+toc_icon: 'cog'
 classes: wide
 ---
 
@@ -30,6 +30,7 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 ### High availability VS Fault tolerance
 
 - **High availability**:
+
   - hardware, software and configuration that allowing a system to recover quickly in the event of a failure.
   - The key part is the recover quickly.
   - It doesn't prevent a failure from occurring and it doesn't stop that failure from impacting customers.
@@ -45,6 +46,7 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 ### RPO VS RTO
 
 - RPO, recovery point objective
+
   - how much a business can tolerate to lose, expressed in time. The maximum time between a failure and the last successful backup.
   - E.g., you revoced backup data after data center exploded, you lost the mose recent 1 hour data before exploding.
 
@@ -64,52 +66,54 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 
 1. Compute and Networking Services
 
-    - Amazon EC2 ★★
-    - Elastic Load Balancing  ★★
-    - Amazon VPC ★★
-    - AWS Lambda
-    - Auto Scaling
-    - AWS Elastic Beanstalk
-    - Amazon Virtual Private Cloud (Amazon VPC) ★★
-    - AWS Direct Connect
-    - Amazon Route 53 ★★
+   - Amazon EC2 ★★
+   - Elastic Load Balancing ★★
+   - Amazon VPC ★★
+   - AWS Lambda
+   - Auto Scaling
+   - AWS Elastic Beanstalk
+   - Amazon Virtual Private Cloud (Amazon VPC) ★★
+   - AWS Direct Connect
+   - Amazon Route 53 ★★
 
 2. Storage and Content Delivery
 
-    - Amazon S3 ★★
-    - Amazon Glacier ★
-    - Amazon EBS ★★
-    - AWS Storage Gateway ★
-    - Amazon CloudFront
+   - Amazon S3 ★★
+   - Amazon Glacier ★
+   - Amazon EBS ★★
+   - AWS Storage Gateway ★
+   - Amazon CloudFront
 
 3. Database Services
 
-    - Amazon RDS ★★
-    - Amazon DynamoDB
-    - Amazon Redshift ★
-    - Amazon ElastiCache ★
+   - Amazon RDS ★★
+   - Amazon DynamoDB
+   - Amazon Redshift ★
+   - Amazon ElastiCache ★
 
 4. Management Tools
-    - Amazon CloudWatch ★★
-    - AWS CloudFormation ★
-    - Amazon CloudFront ★
-    - AWS CloudTrail
+
+   - Amazon CloudWatch ★★
+   - AWS CloudFormation ★
+   - Amazon CloudFront ★
+   - AWS CloudTrail
 
 5. Security and Identity
-    - AWS Identity and Access Management (IAM) ★★
-    - AWS Key Management Service (KMS) ★
-    - AWS Directory Service ★
-    - AWS Certificate Manager
-    - AWS Web Application Firewall (WAF)
-    - AWS Kinesis ★
+
+   - AWS Identity and Access Management (IAM) ★★
+   - AWS Key Management Service (KMS) ★
+   - AWS Directory Service ★
+   - AWS Certificate Manager
+   - AWS Web Application Firewall (WAF)
+   - AWS Kinesis ★
 
 6. Application Services
-    - Amazon API Gateway
-    - Amazon Elastic Transcoder
-    - Amazon Simple Notification Service (Amazon SNS) ★
-    - Amazon Simple Email Service (Amazon SES) ★
-    - Amazon Simple Workflow Service (Amazon SWF)
-    - Amazon Simple Queue Service (Amazon SQS) ★★
+   - Amazon API Gateway
+   - Amazon Elastic Transcoder
+   - Amazon Simple Notification Service (Amazon SNS) ★
+   - Amazon Simple Email Service (Amazon SES) ★
+   - Amazon Simple Workflow Service (Amazon SWF)
+   - Amazon Simple Queue Service (Amazon SQS) ★★
 
 ## Amazon Simple Storage Service, Amazon S3
 
@@ -126,13 +130,13 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 
 - traditional IT environments, 2 ways:
 
-    1. block storage: operates at a lower level, the raw storage device level and amnages data as a set of numberred, fixed size blocks.
-    2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
+  1. block storage: operates at a lower level, the raw storage device level and amnages data as a set of numberred, fixed size blocks.
+  2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
 
 - Amazon S3 object storage is cloud object storeage
 
-    1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
-    2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
+  1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
+  2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
 
 Note:
 
@@ -162,10 +166,10 @@ AWS S3 Objects
 1. Size: 0 ~ 5TB
 2. A bucket can store unlimited number of objects.
 3. Each object consists of data and metadata
-    - data: the file itself, treated as a stream of bytes.
-    - metadata: data about the file. A set of name/value pairs. Two types
-        - system metadata, created and used by Amazon S3: date last modified, object size, md5 digest, http content type
-        - user metadata, optional, can only be specified at the time the object is created.
+   - data: the file itself, treated as a stream of bytes.
+   - metadata: data about the file. A set of name/value pairs. Two types
+     - system metadata, created and used by Amazon S3: date last modified, object size, md5 digest, http content type
+     - user metadata, optional, can only be specified at the time the object is created.
 4. Each object is identified by a unique key. A key can be up to 1024 bytes of Unicode UTF-8 characters, inclusing: embedded slashes, backslashes, dots and dashes.
 5. Key must be unique within a bucket. Combination of bucket, key and optional version ID uniquely identifies and Amazon S3 object.
 6. Each object can be addressed by a unique URL.
@@ -176,13 +180,14 @@ AWS S3 Objects
 native interface and higher level interfaces
 
 1. native interface
-    - Bucket: Create, delete, **list keys in a bucket**
-    - Object: Write, Read, delete an object
+
+   - Bucket: Create, delete, **list keys in a bucket**
+   - Object: Write, Read, delete an object
 
 2. higher level interfaces
-    - AWS Software Development Kits (SDKs)
-    - AWS Command line interface (CLI)
-    - AWS Management Console
+   - AWS Software Development Kits (SDKs)
+   - AWS Command line interface (CLI)
+   - AWS Management Console
 
 ### Amazon S3 Data Consistency
 
@@ -222,7 +227,7 @@ When to use IAM policies vs. S3 policies
   - you need to control access to AWS servcies other than S3.
   - You have numerous S3 buckets each with different permissions requirements.
   - You prefer to keep access control policiesin the IAM environment
-  - intereset in **"what can this user do in AWS? "**  use IAM policies.
+  - intereset in **"what can this user do in AWS? "** use IAM policies.
 - Use S3 bucket policies if:
   - You want a simple way to grant **croll-acount access** to your S3 environment, without using IAM roles.
   - Your IAM policies bump up against the size limit.
@@ -271,27 +276,32 @@ CORS is a security measure allowing a web application running in one domain to r
 All objects within a S3 bucket use a storage class, known as a storage tier. Storage classes influence the cost, durability, availability, and "first byte latency" for objects in S3. The class used for an object can be changed manually or using lifecycle policies.
 
 - **S3 Standard**
+
   - for general-purpose storage of frequently accessed data
   - Default, all-purpose storage or when usage is unknown
   - 11 Nines durability and four Nines availability
   - Replicated in 3+ AZs - no minimum object size or retrieval fee
 
 - **Standard Infrequent Access (Standard-IA)**
+
   - Objects where real-time access is required but infrequent
   - 99.9% availability, 3+ AZs replication, cheaper than Standard
   - 30-day and 128KB minimum charges and object retrieval fee
 
 - **Amazon S3 One Zone-Infrequent Access (S3 One Zone-IA)**
+
   - Non-critical and/or repreducible objects
   - 99.5% availability, one 1 AZ, 30 day and 128KB minimum charges
   - cheaper than standard IA
 
 - **Glarcier**
+
   - Long-term archival storage 9warm or cold backups)
   - Retrievals could take minutes or hours (faster = higher cost)
   - 3+ AZ replication, 90-day and 40KB minimum charge and retrieval
 
 - **Glacier Deep Archive**
+
   - Long-term archival (cold backups) - 180 day and 40KB Minimum
   - Longer retrievals but cheaper than Glacier -replacement for tape-style storage
 
@@ -307,10 +317,7 @@ Lifecycle policies allow objects or versions to be transitioned between storage 
 
 Lifecycle configurations are attached to the bucket and can apply to all objects in the bucket, or objects specified by a prefix.
 
-Data has natural lifecycle:
-    - Hot, frequently accessed
-    - Warm, less frequently access
-    - Cold, long term backup or archive, eventual deletion
+Data has natural lifecycle: - Hot, frequently accessed - Warm, less frequently access - Cold, long term backup or archive, eventual deletion
 
 Reduce cost lifecycle rules:
 
@@ -326,7 +333,7 @@ S3 is capable of encrypting objects — either allowing the customer to manage k
 
 - **Client-side encryption**. The client/application is responsible for managing both the encryption/decryption process and its keys. This mothed is generally only used when strict security compliance is required - it has significant admin and processing overhead.
 - **Server-side encryption with customer-managed keys (SSE-C)**. S3 handles the encryption and decryption process. The customer is still responsible for key management, and keys must be supplied with each PUT or GET erquest.
-- **Server-side encryption with S3-managed keys (SSE-S3)**: objects are encrypted using AES-256 by S3. The keys are generated by S3 suing KMS on your behalf. keys are stored with object in an encrpted from. If you have permissions on the object (e.g., S3 read or S3 admin), you  can decrypt and access it.
+- **Server-side encryption with S3-managed keys (SSE-S3)**: objects are encrypted using AES-256 by S3. The keys are generated by S3 suing KMS on your behalf. keys are stored with object in an encrpted from. If you have permissions on the object (e.g., S3 read or S3 admin), you can decrypt and access it.
 - **Server-side encryption with AWS KMS-manged keys (SSE-KMS)**. Objects are encrypted suing individual keys generated by KMS. Encrypted keys are stored with the encrypted objects. Decryption of an object needs both S3 and KMS key permissions (role separation)
 
 Bucket Default Encryption
@@ -349,7 +356,7 @@ example presigned URL scenarios:
 
 - Stock images website - media stored privately on S3, presigned URLgenerated when an image is purchased.
 - Client access t oupload an image for process to an S3 bucket
-  
+
 When using presigned URLs, you may get an error. Some common situations include:
 
 - the presigned URL has expired - seven-day maximum
@@ -454,7 +461,7 @@ EFS is an implementation of the NFSv4 protocal within AWS. Use EFS when you need
 - Its base entity is a file system
 - The file system is accessed via "mount targets" that are placed in subnets inside a VPC and have an IP address.
 - The file system is "mounted" on Linux instances. (**important:** EFS is current only supported in Linux)
-- File system are accessbible fro ma VPC or from on-premises locations via a VPN or Direct Connect.
+- File system are accessbible from a VPC or from on-premises locations via a VPN or Direct Connect.
 
 EFS has two performance modes:
 
@@ -562,8 +569,8 @@ Four sources of AMIs
 
 1. published By AWS
 2. The AWS Marketplace. two benefies:
-    - The customer doesn not need to install the software
-    - The license agreement is appropriate for the cloud
+   - The customer doesn not need to install the software
+   - The license agreement is appropriate for the cloud
 3. Generated from Exsiting Instances
 4. Uploaded Virtual Servers
 
@@ -577,17 +584,19 @@ While launching a new EC2 instance, You must specify
 Addressing an instance
 
 1. Public Domain Name System Name, DNS.
-    - It's generated automatically and cannot be specified by the customer.
-    - cannot transfer to another instance.
+
+   - It's generated automatically and cannot be specified by the customer.
+   - cannot transfer to another instance.
 
 2. Public IP.
-    - AWS reserved IP, cannot be spedified
-    - cannot transfer to another instance
+
+   - AWS reserved IP, cannot be spedified
+   - cannot transfer to another instance
 
 3. Elastic IP
-    - associated with an Amazon EC3 instance
-    - It can be transferred toa replacement instance in the event of an instance failure
-    - it's a public address that can be sharedexternally without coupling clients to the particular instance.
+   - associated with an Amazon EC3 instance
+   - It can be transferred toa replacement instance in the event of an instance failure
+   - it's a public address that can be sharedexternally without coupling clients to the particular instance.
 
 Connecting to a Linux instance using SSH:
 
@@ -629,38 +638,41 @@ In EC2, user data can be used to run shell scripts or run clout-init directives.
 ### Instance Lifecycle
 
 1. Launching
-    1. Bootstrapping. You can pass in the OS a string named **UserData**.
-    2. VM import/export
-    3. Instance Metadata
-        - Instance metadata is data relating to the instance that can be accessed from within the instance itself using a utility capable of accessing HTTP and using the URL: <http://169.254.169.254/latest/meta-data>
-        - Instance metadata is a way that scripts and aplications running on EC2 can get visibility of data they would normaly need API calls for.
-        - The metadata can provide the curent external IPv4 address for the instance, which isn't configured on the instance itself but provided by the internet gateway in the VPC. It provides the AZ the instance was launched in and the security groups applied to the instance.
+
+   1. Bootstrapping. You can pass in the OS a string named **UserData**.
+   2. VM import/export
+   3. Instance Metadata
+      - Instance metadata is data relating to the instance that can be accessed from within the instance itself using a utility capable of accessing HTTP and using the URL: <http://169.254.169.254/latest/meta-data>
+      - Instance metadata is a way that scripts and aplications running on EC2 can get visibility of data they would normaly need API calls for.
+      - The metadata can provide the curent external IPv4 address for the instance, which isn't configured on the instance itself but provided by the internet gateway in the VPC. It provides the AZ the instance was launched in and the security groups applied to the instance.
 
 2. Modifying an instance
-    1. modify instance type. Instances can be resized
-    2. Security groups
-    3. Termination protection
+   1. modify instance type. Instances can be resized
+   2. Security groups
+   3. Termination protection
 
 ### Price options
 
 three price options:
 
 1. On-Demand Instances
-    - The most flexible pricing
-    - requires no up-front commitment
-    - customer controls when to launch and terminate
-    - for unpredictable workloads, traffic spikes, such as on the last day of the month.
-    - good for temporary workloads, but don’t offer the cost savings of Spot Instances
+
+   - The most flexible pricing
+   - requires no up-front commitment
+   - customer controls when to launch and terminate
+   - for unpredictable workloads, traffic spikes, such as on the last day of the month.
+   - good for temporary workloads, but don’t offer the cost savings of Spot Instances
 
 2. Reserved Instances
-    - for predictable workloads, can save up to 75% over on0demand hourly rate
-    - two factors that determine the cost: the term commitment and payment
-    - provide cost savings when you can commit to running instances full time, such as to handle the base traffic.
+
+   - for predictable workloads, can save up to 75% over on0demand hourly rate
+   - two factors that determine the cost: the term commitment and payment
+   - provide cost savings when you can commit to running instances full time, such as to handle the base traffic.
 
 3. Spot instances
-    - a very cost-effective way to address temporary compute needs that are not urgent and are tolerant of interruption.
-    - E.g., analytics, financial modeling, big data, media encoding, scientific computing, testing.
-    - Spot instances offer the greatest discount
+   - a very cost-effective way to address temporary compute needs that are not urgent and are tolerant of interruption.
+   - E.g., analytics, financial modeling, big data, media encoding, scientific computing, testing.
+   - Spot instances offer the greatest discount
 
 ### Networking
 
@@ -699,7 +711,7 @@ Amazon EC2 Instance Stores are low-durability, high-IOPS storage that is include
 
 Amazon EBS provides durable block storage for use with Amazon EC2 instance.
 
-Amazon EBS is a storage service that creates and manages volumnes based on four underlying storage types.  Volumes are persistent, can be attached and removed from EC2 instances, and are replicated within a single AZ.
+Amazon EBS is a storage service that creates and manages volumnes based on four underlying storage types. Volumes are persistent, can be attached and removed from EC2 instances, and are replicated within a single AZ.
 
 EBS supports a maximum per-instance throughput of 1,750MiB/s and 80,000 IOPS.
 If you need more... use **Amazon EC2 Instance Store**.
@@ -707,11 +719,11 @@ If you need more... use **Amazon EC2 Instance Store**.
 ### Amazon EBS Volumes Types
 
 1. Mechanical: sc1, st1
-    - sc1: low cost, infrequest access, cannot be boot volume
-    - st1: low cost, throughput intensive, cannot be a boot volume
+   - sc1: low cost, infrequest access, cannot be boot volume
+   - st1: low cost, throughput intensive, cannot be a boot volume
 2. Solid State: gp2, io1
-    - gp2: Default, balance of IOPS/MiB/s - burst pool IOPS per GB
-    - io1: highest performance, can adjust size and IOPS seperately
+   - gp2: Default, balance of IOPS/MiB/s - burst pool IOPS per GB
+   - io1: highest performance, can adjust size and IOPS seperately
 
 Details:
 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html>
@@ -786,8 +798,8 @@ Serverless architecture consists of two main principles, including Baas and Faas
 
 1. Baas, Backend as a Service, using 3rd party services where possible rather than running your own. Examples include Auth0 or Cognito for authentication and Firebase or DynamoDB for data storage.
 
-2. Faas, Function as a Service, using an event-driven architecture  to provide application logic. These functions are only active (invoked) when they are needed (when an event is received)
-    - Lambda is a Faas product. Functions are code, which run in a runtime. Functions are invoked by events, perform actions for up to 15 minutes, and terminate. Functions are also stateless - each run is clean.
+2. Faas, Function as a Service, using an event-driven architecture to provide application logic. These functions are only active (invoked) when they are needed (when an event is received)
+   - Lambda is a Faas product. Functions are code, which run in a runtime. Functions are invoked by events, perform actions for up to 15 minutes, and terminate. Functions are also stateless - each run is clean.
 
 ### Amazon API Gateway
 
@@ -833,20 +845,20 @@ Details:
 
 ### Sever Layer OSI Model
 
-It provides a good overview of how networking works at all levels of abstraction.  Each layer uses the layers below and adds additional capabilities. Data between two devices moves down the stack at the A side (and wrapped at each layer) ... is transmitted .. before moving up the stack at the B side (and the wrapping stripped at each stage). This process is called encapsulation.
+It provides a good overview of how networking works at all levels of abstraction. Each layer uses the layers below and adds additional capabilities. Data between two devices moves down the stack at the A side (and wrapped at each layer) ... is transmitted .. before moving up the stack at the B side (and the wrapping stripped at each stage). This process is called encapsulation.
 
 ![IMAGE](quiver-image-url/4F30ED3FA24FFDA1F05261CD507F8225.jpg =621x559)
 
 1. L1, uses a shared medium Hardware can transmit and listen. The layer 1 standard agrees how to transmit and recieve. The medium, the voltages, the RF details
 2. L2, Data Link, addes MAC Address which can be used for named communication between two devices on a local network. Additionally L2 adds controls over the media, avoiding cross-talk and allows for backoff and retransmission. L2 communications use L1 to broadcast and listen. Le runs on top of L1.
 3. L3, The Network layer, allows for unique devide to device communication over interconnected networks. L3 devices can pass packets over 10's or even 100's of L2 networks. The packets remain largely unchanged during this journey -travelling within different L2 frames as they passover different networks.
-    - A client Machine Generates a l3 Packet with its IP as the sourceIP and the destinationIP of the server.
-    - The packet is encapsulated and un-encapsulated in a l2 frame at each step, passing between routers, orver networks.
-    - The original packet is received by the server, acted on, and a reply sent back in the same way.
-    - L3 allows for an IP to communicate with another IP - but only a single stream, so one conversation between the two
+   - A client Machine Generates a l3 Packet with its IP as the sourceIP and the destinationIP of the server.
+   - The packet is encapsulated and un-encapsulated in a l2 frame at each step, passing between routers, orver networks.
+   - The original packet is received by the server, acted on, and a reply sent back in the same way.
+   - L3 allows for an IP to communicate with another IP - but only a single stream, so one conversation between the two
 4. L4, Transport adds TCP and UDP.
-    - Tcp is desinged for reliable transport. It uses segments to ensure data is recieved in the correct order, adds error checking and ports allowing different streams of communicatins to the same host, e.g., tcp/22 and tcp/80
-    - UDP is aimed at speed.
+   - Tcp is desinged for reliable transport. It uses segments to ensure data is recieved in the correct order, adds error checking and ports allowing different streams of communicatins to the same host, e.g., tcp/22 and tcp/80
+   - UDP is aimed at speed.
 5. L5, Session adds the concept of sessions, so that request and reply communication streams are viewed as a single session of communication between client and server
 6. L6, Presentation adds data conversion, envryption, compression and standards which L7 can use.
 7. L7, Application is where protocols such as HTTP, SSH, FTP are added. E.g., HTTP (L7) running over TLS (L6) is HTTPS.
@@ -872,12 +884,12 @@ Historically IP Addresses were split into classes: (including)
 
 Class A networks were initially allocated to large organisations. Class B to medium and Class C to small businesses. As the supply of IPv4 addresses became low, the class system of IPs were related with CIDR.
 
-IP Classes have a number of ranges within  then used for private networking only:
+IP Classes have a number of ranges within then used for private networking only:
 
 - 10.0.0.0 to 10.255.255.255 private networking within the Class A range.
 - 172.16.0.0 to 172.31.255.255 private networking within the Class B range 916 class B networks)
 - 192.168.0.0 to 192.168.255.255 private networking within the Class C range 9256 Class C networks)
-There ranges are often used on private business networks, cloud networks and home networks.
+  There ranges are often used on private business networks, cloud networks and home networks.
 
 **CIDR**, Classless Inter-Domain Routing is used for IPv4 IP Networking rather than the Class system. It allows more effective allocation and sub networking.
 
@@ -897,13 +909,7 @@ With a certain size of VPC, increasing the prefix creates 2 smaller sized networ
 
 For instance:
 
-10.0.0.0/60
-    - 10.0.0.0/17
-        - 10.0.0.0/18
-        - 10.0.64.0/18
-    - 10.0.128.0/17 <-- 128 = 256/2
-        - 10.0.128.0/18
-        - 10.0.192.0/18
+10.0.0.0/60 - 10.0.0.0/17 - 10.0.0.0/18 - 10.0.64.0/18 - 10.0.128.0/17 <-- 128 = 256/2 - 10.0.128.0/18 - 10.0.192.0/18
 
 ### IP Routering
 
@@ -929,7 +935,7 @@ If Instance A wants to communicate with instance B, it can use it's IP and subne
 5. It knows the network of IP B because its connected to it.
 6. R uses ARP to find the MAC of B, generates a frame to B, puts the unaltered IP packet inside and sends to MAC B.
 7. B recieves the frame, strips it away and passes the packet to L3.
-At scale, unchagned packets being passed around from router to router, each time usign a new L2 conenction.
+   At scale, unchagned packets being passed around from router to router, each time usign a new L2 conenction.
 
 ### Firewall
 
@@ -948,7 +954,7 @@ Waht data a firewall can read and act on depends on the OSI Layer the firewall o
 
 - a custom-defined virtual network within the AWS Cloud.
 - Amazon VPC lets organizations provision a logically isolated section of the AWS Cloud where they can launch AWS resources in a virtual network that they define.
-It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
+  It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
 - A private network within AWS. It's your private data center inside the AWS platform.
 - Can be configured to be public/private or a mixture
 - Regional (Cannot span regions), highly available, and can be connected to your data center and corporate networks
@@ -986,8 +992,8 @@ VPC Routing:
 
 Routes:
 
-- A RT is a colelction of routers that are used when traffic fro ma subnet arrives at the VPC router.
-- Every route table has a local route, which matches  the CIDR of the VPC and lets traffic be routed between subnets.
+- A RT is a colelction of routers that are used when traffic from a subnet arrives at the VPC router.
+- Every route table has a local route, which matches the CIDR of the VPC and lets traffic be routed between subnets.
 - A route cotnians a destination and a target. Traffic is forwared to the target if its destination matches the route destination.
 - If nultiple routes apply, the most specific is chosen. A /32 is chose before a /24, before a /16.
 - Default routes (0.0.0.0/0 v4 and ::/0 v6) can be added that match any traffic not already matched.
@@ -1042,13 +1048,13 @@ It's another layer of security that acts as a stateless firewall on a subnet lev
 
 Security Group VS. ACLS
 
-|Security Group|Network ACLs|
-|-- |-- |
-|Operates at the instance level (first layer of defense)|Operates at the subnet level (second layer of defense)|
-|Supports allow rules only|Supports allow rules and deny rules|
-|Stateful: Return traffic is automatically allowed, regardless of any rules|Stateless: Return traffic must be explicitly allowed by rules.|
-|AWS evaluates all rules before deciding whether to allow traffic|AWS processes rules in number order when deciding whether to allow traffic.|
-|Applied selectively to individual instances|Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group.|
+| Security Group                                                             | Network ACLs                                                                                                                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Operates at the instance level (first layer of defense)                    | Operates at the subnet level (second layer of defense)                                                                                                                   |
+| Supports allow rules only                                                  | Supports allow rules and deny rules                                                                                                                                      |
+| Stateful: Return traffic is automatically allowed, regardless of any rules | Stateless: Return traffic must be explicitly allowed by rules.                                                                                                           |
+| AWS evaluates all rules before deciding whether to allow traffic           | AWS processes rules in number order when deciding whether to allow traffic.                                                                                              |
+| Applied selectively to individual instances                                | Automatically applied to all instances in the associated subnets; this is a backup layer of defense, so you don’t have to rely on someone specifying the security group. |
 
 Ephemeral Ports:
 
@@ -1082,7 +1088,7 @@ The smallest subnet that you can create is a /28 (16 IP addresses).
 
 Can be public, private or VPN-only.
 
-1. public: the associated route table directs the subnet's traffic to  the amazon VPC's IGW.
+1. public: the associated route table directs the subnet's traffic to the amazon VPC's IGW.
 2. private: the associated route table doesn't direct the subnet's traffic to the Amazon VPC's IGW
 3. VPN-only: the associated route table directs the subnet's traffic to the Amazon VPC's VPG and doesn't have a route to the IGW.
 
@@ -1145,7 +1151,7 @@ Important Limits and considerations
 - NACLs and SGs can be used to control access
 - SGs can be referenced but not cross-region
 - IPv6 support is not available cross-region.
-- DNS resolution to private IPs ca nbe enabled, but it's a setting needed at both sides.
+- DNS resolution to private IPs canbe enabled, but it's a setting needed at both sides.
 
 ### VPC Endpoints
 
@@ -1211,6 +1217,64 @@ NAT as a process isn't needed for IPv6 because all addresses are public. Egress-
 
 Architecturally, they're otherwise the same as an IGW.
 
+## VPC VPN and Direct Connect
+
+### AWS VPC Virtual Private Networks, VPNs
+
+VPC Virtual Private Networks (VPNs) provide a software based secure conenction between a VPC and on premises networks.
+
+VPC VPN Components:
+
+- A virtual private Cloud (VPC)
+- Virtual Private Gateway (VGW) attached to a VPC
+- A customer gateway (CGW) - configuration for on-premises router
+- VPN Connection (using 1 or 2 IPsec tunnels)
+
+Best Practice & HA:
+
+- Use dynamic VPNs (uses BGP) where possible
+- Connect both Tunnels to your CGW - BPC VPN is HA by design
+- Where possible use two VPN connections and two CGWs
+
+### AWS Direct Connect, DX
+
+Direct Connect (DX) is a high-speed, low-latency physical connection providing access to public and private AWS services from your business premises. This lesson details its high-level architecture and the key points required for the exam.
+
+A Direct Connect (DX) is a physical connection between your network and either directly via a cross-connect and customer router at a DX location or via a DX partner.
+
+**Dedicated Connections** are direct via AWS and use single-mode fiber, running either 1 Gbps using 1000Base-LX or 10 Gbps using 10GBASE-LR.
+
+Virtual interfaces (VIFs) run on top of a DX. Public VIFs can access AWS public services such as S3 only. Private VIFs are used to conenct into VPCs. DX is not highly available or encrypted.
+
+### VPN and Direct Connect
+
+Chossing between Direct Connect (DX) and VPC VPN is a critial part of any connectivity-based example questions.
+
+VPC VPN
+
+- Urgent need - can be deployed in minutes
+- Cost constrained - cheap and economical
+- Low end or consumer hardware - DX requires BGP, boarder gateway protocol
+- Encryption required
+- Flexibility to change locations
+- Highly available options aavailable
+- Short-term conenctivity (DX generally has physical minimums due to the physical transit conenctions requried) - not applicatble if you are in a DX location because then it's almost on demand
+
+Direct Connect
+
+- High throughput
+- Consistent performance (throughput)
+- consistent low latency
+- large amounts of data - cheaper than VPN for higher volume
+- No contention with existing internet connection
+
+Both
+
+- VPN as acheaper HA option for DX
+- VPN as an additional layer of HA (in addition to two DX)
+- if some form of connectivity is needed immediately, provides as it before the SX connection is live
+- VPN Can be add ed to add encryption over the top of a DX (public VIF VPN)
+
 ## Amazon Route 53
 
 It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
@@ -1218,18 +1282,18 @@ It's a highly available and scalable cloud DNS web service to route end users to
 three main functions:
 
 1. Domain registration.
-    It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
+   It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
 
 2. DNS service: translates friendly domain names into IP address.
-  
-    - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
-  
-    - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
+
+   - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
+
+   - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
 
 3. Health checking
 
-    - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
-    - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+   - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
+   - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
 
 ### Amazon Route 53 basic
 
@@ -1248,7 +1312,7 @@ DNS Terms
 
 DNS Flow
 
-use `linuxacademy.com` as an example. The domain name system (DNS) does many things, but the common use case is  to turn DNS names into IP address - like turning linuxcademay.com into `52.86.183.13`. It's a distributed system - no one part knows all.
+use `linuxacademy.com` as an example. The domain name system (DNS) does many things, but the common use case is to turn DNS names into IP address - like turning linuxcademay.com into `52.86.183.13`. It's a distributed system - no one part knows all.
 
 1. Step 1: Query your ISP. If it doesn't know, it handles it for ou.
 2. Step 2: The ISP queries the DNS root servers. If they don't know, they help by providing servers authoritative for `.com`.
@@ -1338,7 +1402,7 @@ It determines how Amazon Route 53 responds to queries:
 - Latency routing policy
   - allows clients to be matched to resources with the lowest latency
   - use when you have resources in multiple AWS Regions and you wnat to route traffic to the region that provides the best latency
-  - Route53 consults a latency database each time a request occurs to a given latency-based host in DNS fro ma resolver server. Record sets with the same name are considered part of the same latency-based set. Each is allocated to a region. The record set returned is the one with the lowest latency to the resolver server.
+  - Route53 consults a latency database each time a request occurs to a given latency-based host in DNS from a resolver server. Record sets with the same name are considered part of the same latency-based set. Each is allocated to a region. The record set returned is the one with the lowest latency to the resolver server.
 - Geolocation routing policy
   - use when you want to route traffic based on the location of your users.
   - A no-result is returned if no match exists between a record set and the query location. Geoproximity allows a bias to expand a geographic area.
@@ -1484,9 +1548,9 @@ There are **three types of principals**: root users, IAM users, and roles/tempor
 1. Root user: It's associated with the actual AWS account and cannot be restricted in any way so it has full privileges to do anything, including closing the account.
 2. IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI or SDKs.
 3. Roles/Temporary Security Tokens: roles and temporary security tokens enbable a number of use cases:
-    - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
-    - Crosss-Acount Access: Granting permissions to users fro mother AWS accounts, whether you control those accounts or not
-    - Federation: Granting permissiongs to users authenticatedby a trusted external system.
+   - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
+   - Crosss-Acount Access: Granting permissions to users from other AWS accounts, whether you control those accounts or not
+   - Federation: Granting permissiongs to users authenticatedby a trusted external system.
 
 ### Authentication
 
@@ -1535,26 +1599,26 @@ When a principal tries to use the AWS Management Console, the AWS API, or the AW
 1. Authentication – AWS first authenticates the principal that makes the request, if necessary. This step is not necessary for a few services, such as Amazon S3, that allow some requests from anonymous users.
 
 2. Processing the Request Context – AWS processes the information gathered in the request to determine which policies apply to the request.
-    - Actions (or operations) – The actions or operations that the principal wants to perform.
-    - Resources – The AWS resource object upon which the actions or operations are performed.
-    - Principal – The user, role, federated user, or application that sent the request. Information about the principal includes the policies that are associated with that principal.
-    - Environment data – Information about the IP address, user agent, SSL enabled status, or the time of day.
-    - Resource data – Data related to the resource that is being requested. This can include information such as a DynamoDB table name or a tag on an Amazon EC2 instance.
+   - Actions (or operations) – The actions or operations that the principal wants to perform.
+   - Resources – The AWS resource object upon which the actions or operations are performed.
+   - Principal – The user, role, federated user, or application that sent the request. Information about the principal includes the policies that are associated with that principal.
+   - Environment data – Information about the IP address, user agent, SSL enabled status, or the time of day.
+   - Resource data – Data related to the resource that is being requested. This can include information such as a DynamoDB table name or a tag on an Amazon EC2 instance.
 3. Evaluating Policies Within a Single Account – AWS evaluates all of the policy types, which affect the order in which the policies are evaluated.
 
 4. Determining Whether a Request Is Allowed or Denied Within an Account – AWS then processes the policies against the request context to determine whether the request is allowed or denied.
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Principal": { "AWS": "arn:aws:iam::111122223333:user/carlossalazar" },
-            "Resource": "*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Principal": { "AWS": "arn:aws:iam::111122223333:user/carlossalazar" },
+      "Resource": "*"
+    }
+  ]
 }
 ```
 
@@ -1644,10 +1708,11 @@ Exam tips:
 - It's a content delivery network (CDN).
 - A CDN is a glocal cache that stores copies of your data on edge caches, which are positioned as close to your customers as possible.
 - Main benefits:
+
   - lower latency
   - higher transfer speeds
   - reduced load on the content server
-  
+
 CloudFront Components
 
 - **Origin**: The server or service that hosts your content. Can be an S3 bucket, web server, or Amazon MediaStore
@@ -1660,7 +1725,7 @@ Caching Process:
 - Create a distribution and point at one or more origins. A distribution has a DNS address that is used to access it.
 - The DNS Address directs clients at the closest available edge location.
 - If the edge location has a cached copy of your data, it's delivered locally from that edge location.
-- If it's not cached, the edge location attemptes to download it from either a regional cache or fro mthe origin (known as an origin fetch)
+- If it's not cached, the edge location attemptes to download it from either a regional cache or from the origin (known as an origin fetch)
 - As the edge location, receives the data, it immediately begins forwarding it and caches it for the next visitor.
 
 Content can expire, be discarded, and be recached. Or you can explicitly invalidate content to remove it from caches.
@@ -1674,15 +1739,15 @@ Private distributions can be bypassed by going straight to the origin (e.g., an 
 An **origin access identity (OAI)** is a virtual identity that can be associated with a distribution. As S3 bucket can then be restricted to only allow this OAI to access it - all other identiteis can be denied.
 It works with:
 
-  1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
-  2. any non-AWS origin server, such as an existing on-premises web server
-  3. Amazon Route 53.
+1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
+2. any non-AWS origin server, such as an existing on-premises web server
+3. Amazon Route 53.
 
 It supports all content that can be served over HTTP or HTTPS, including:
 
-  1. any popular static files that are a part of your web application, such as HTML files, images, JavaScript, and CSS files, and also audio, video, media files.
-  2. serving dynamic web pages, so it can actually be used to deliver your entire website
-  3. media streaming, using both HTTP and RTMP.
+1. any popular static files that are a part of your web application, such as HTML files, images, JavaScript, and CSS files, and also audio, video, media files.
+2. serving dynamic web pages, so it can actually be used to deliver your entire website
+3. media streaming, using both HTTP and RTMP.
 
 Three core concepts: distributions, origins,and cache control.
 
@@ -1695,7 +1760,7 @@ Good for:
 - Serving Content to Users Who Are Widely Distributed Geographically
 - Distributing Software or Other Large Files
 - Serving Streaming Media
-  
+
 Not appropriate:
 
 - All or Most Requests Come From a Single Location. you will not take advantage of multiple edge locations.
@@ -1765,15 +1830,15 @@ Read Replicas dont' scale writes, which have to occur on the primary instance.
 
 Reads from a Read Replica are eventually consistent - normally seconds, but the applicatin needs to support it.
 
-|Multi-AZ deployments |Read replicas |
-|---|---|
-|Main purpose is high availability | Main purpose is scalability |
-|- Non-Aurora: synchronous replication; <br/>- Aurora: asynchronous replication | Asynchronous replication |
-|- Non-Aurora: only the primary instance is active;<br/>- Aurora: all instances are active| All read replicas are accessible and can be used for readscaling|
-|- Non-Aurora: automated backups are taken from standby;<br/>- Aurora: automated backups are taken from shared storage layer|No backups configured by default |
-|Always span at least two Availability Zones within a single region|Can be within an Availability Zone, Cross-AZ, or Cross-Region|
-|- Non-Aurora: database engine version upgrades happen on primary;<br/>- Aurora: all instances are updated together|- Non-Aurora: database engine version upgrade is independent from source instance;<br>- Aurora: all instances are updated together|
-|- non-Aurora: Automatic failover to standby;<br>- Aurora: read replica when a problem is detected|- non-Aurora: Can be manually promoted to a standalone database instance;<br/>- Aurora: to be the primary instance|
+| Multi-AZ deployments                                                                                                        | Read replicas                                                                                                                      |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Main purpose is high availability                                                                                           | Main purpose is scalability                                                                                                        |
+| - Non-Aurora: synchronous replication; <br/>- Aurora: asynchronous replication                                              | Asynchronous replication                                                                                                           |
+| - Non-Aurora: only the primary instance is active;<br/>- Aurora: all instances are active                                   | All read replicas are accessible and can be used for readscaling                                                                   |
+| - Non-Aurora: automated backups are taken from standby;<br/>- Aurora: automated backups are taken from shared storage layer | No backups configured by default                                                                                                   |
+| Always span at least two Availability Zones within a single region                                                          | Can be within an Availability Zone, Cross-AZ, or Cross-Region                                                                      |
+| - Non-Aurora: database engine version upgrades happen on primary;<br/>- Aurora: all instances are updated together          | - Non-Aurora: database engine version upgrade is independent from source instance;<br>- Aurora: all instances are updated together |
+| - non-Aurora: Automatic failover to standby;<br>- Aurora: read replica when a problem is detected                           | - non-Aurora: Can be manually promoted to a standalone database instance;<br/>- Aurora: to be the primary instance                 |
 
 Exam points
 
@@ -1894,8 +1959,8 @@ DynamoDB has two read/write capacity modes: provisioned throughput (default) and
 
 - **Read Capacity Units (RCU)**
   - One RCU is 4 KB of data read from a table per second in a strongly consistent way.
-  - Reading 2KB of data consumes 1 RCU, reading 4.5 KB of data takes 2 RCU, reading 10*400 bytes takes 10 RCU.
-  - If eventaully consistent reads are okay, 1 RCU can allow for 2*4KB of data reads per second.
+  - Reading 2KB of data consumes 1 RCU, reading 4.5 KB of data takes 2 RCU, reading 10\*400 bytes takes 10 RCU.
+  - If eventaully consistent reads are okay, 1 RCU can allow for 2\*4KB of data reads per second.
   - Atomic transactions require 2X the RCU.
 - **Write Capacity Units (WCU)**
   - One WCU is 1 KB of data or less written to a table.
@@ -1905,7 +1970,7 @@ DynamoDB has two read/write capacity modes: provisioned throughput (default) and
 
 ### DynamoDB Streams
 
-When enabled, streams provide an ordered list of changes that occur to items within a DynamoDB table. A stream is a rolling 24-hour window of changes. Streams are enabled per table and only contian data fro mthe point of being enabled.
+When enabled, streams provide an ordered list of changes that occur to items within a DynamoDB table. A stream is a rolling 24-hour window of changes. Streams are enabled per table and only contian data from the point of being enabled.
 
 Every stream has an ARN that identifies it globally across all tables, accounts and regions.
 
@@ -1992,10 +2057,10 @@ Amazon SQS uses three identifiers: queue URLs, message IDs, and receipt handles.
 1. a queue name that is unique within the scope of all of your queues.
 2. Amazon SQS assigns each message a unique ID that it returns to you in the SendMessage response. This identifier is useful for identifying messages. The maximum length of a message ID is 100 characters.
 3. Each time you receive a message from a queue, you receive a receipt handle for that message.
-    - The handle is associated with the **act of receiving the message, not with the message itself**.
-    - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID.
-    - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it).
-    - The maximum length of a receipt handle is 1,024 characters.
+   - The handle is associated with the **act of receiving the message, not with the message itself**.
+   - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID.
+   - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it).
+   - The maximum length of a receipt handle is 1,024 characters.
 
 #### Message Attributes
 
@@ -2204,18 +2269,20 @@ Key AWS Services
 The AWS service that is essential to Operational Excellence is **AWS CloudFormation**, which you can use to create templates based on best practices. This enables you to provision resources in an orderly and consistent fashion from your development through production environments.
 
 1. Prepare:
-    - **AWS Conﬁg and AWS Conﬁg rules** can be used to create standards for workloads and to determine if environments are compliant with those standards before being put into production.
-    - **AWS CloudFormation** enables you to have consistent, templated, sandbox development, test, and production environments with increasing levels of operations control.
-    - Data on use of resources, application programming interfaces (APIs), and network ﬂow logs can be collected using **Amazon CloudWatch**, **AWS CloudTrail**, and **VPC Flow Logs**.
+
+   - **AWS Conﬁg and AWS Conﬁg rules** can be used to create standards for workloads and to determine if environments are compliant with those standards before being put into production.
+   - **AWS CloudFormation** enables you to have consistent, templated, sandbox development, test, and production environments with increasing levels of operations control.
+   - Data on use of resources, application programming interfaces (APIs), and network ﬂow logs can be collected using **Amazon CloudWatch**, **AWS CloudTrail**, and **VPC Flow Logs**.
 
 2. Operaete
-    - **Amazon CloudWatch** allows you to monitor the operational health of a workload.
-    - AWS provides workload insights through logging capabilities including **AWS X-Ray**, **CloudWatch**, **CloudTrail**
-    - **VPC Flow Logs** enabling the identiﬁcation of workload issues in support of root cause analysis and remediation.
+
+   - **Amazon CloudWatch** allows you to monitor the operational health of a workload.
+   - AWS provides workload insights through logging capabilities including **AWS X-Ray**, **CloudWatch**, **CloudTrail**
+   - **VPC Flow Logs** enabling the identiﬁcation of workload issues in support of root cause analysis and remediation.
 
 3. Evolve
-    - **Amazon Elasticsearch Service (Amazon ES)** allows you to analyze your log data to gain actionable insights quickly and securely.
-    - With **AWS Developer Tools** you can implement continuous delivery build, test, and deployment activities that work with a variety of source code, build, testing, and deployment tools from AWS and third parties.
+   - **Amazon Elasticsearch Service (Amazon ES)** allows you to analyze your log data to gain actionable insights quickly and securely.
+   - With **AWS Developer Tools** you can implement continuous delivery build, test, and deployment activities that work with a variety of source code, build, testing, and deployment tools from AWS and third parties.
 
 ### Pillar Two: Security
 
@@ -2238,46 +2305,46 @@ The AWS service that is essential to Security is AWS Identity and Access Managem
 5 Best Practices:
 
 1. Identity and Access Management
-    - only authorized and authenticated users are able to access your resources.
-    - privilege management is primarily supported by the **AWS Identity and Access Management (IAM)** service, which allows you to control user and programmatic access to AWS services and resources.
-    - best practices including password requirements and MFA enforced
-    - key Services:
-        - **IAM** enables you to securely control access to AWS services and resources.
-        - **MFA** adds an additional layer of protection on user access.
-        - **AWS Organizations** lets you centrally manage and enforce policies for multiple AWS accounts.
+   - only authorized and authenticated users are able to access your resources.
+   - privilege management is primarily supported by the **AWS Identity and Access Management (IAM)** service, which allows you to control user and programmatic access to AWS services and resources.
+   - best practices including password requirements and MFA enforced
+   - key Services:
+     - **IAM** enables you to securely control access to AWS services and resources.
+     - **MFA** adds an additional layer of protection on user access.
+     - **AWS Organizations** lets you centrally manage and enforce policies for multiple AWS accounts.
 2. Detective Controls
-    - use detective controls to identify a potential security threat or incident.
-    - you can implement detective controls by processing logs, events, and monitoring that allows for auditing, automated analysis, and alarming.
-    - CloudTrail logs, AWS API calls, and CloudWatch provide monitoring of metrics with alarming
-    - AWS Conﬁg provides conﬁguration history.
-    - Amazon GuardDuty is a managed threat detection service that continuously monitors for malicious or unauthorized behavior to help you protect your AWS accounts and workloads.
-    - Service-level logs are also available, for example, you can use Amazon Simple Storage Service (Amazon S3) to log access requests.
-    - Log management is important to a well-architected design for reasons ranging from security or forensics to regulatory or legal requirements.
-    - Key Services:
-        - **AWS CloudTrail** records AWS API calls,
-        - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration.
-        - **Amazon GuardDuty** is a managed threat detection service that continuously monitors for malicious or unauthorized behavior.
-        - **Amazon CloudWatch** is a monitoring service for AWS resources which can trigger CloudWatch Events to automate security responses.
+   - use detective controls to identify a potential security threat or incident.
+   - you can implement detective controls by processing logs, events, and monitoring that allows for auditing, automated analysis, and alarming.
+   - CloudTrail logs, AWS API calls, and CloudWatch provide monitoring of metrics with alarming
+   - AWS Conﬁg provides conﬁguration history.
+   - Amazon GuardDuty is a managed threat detection service that continuously monitors for malicious or unauthorized behavior to help you protect your AWS accounts and workloads.
+   - Service-level logs are also available, for example, you can use Amazon Simple Storage Service (Amazon S3) to log access requests.
+   - Log management is important to a well-architected design for reasons ranging from security or forensics to regulatory or legal requirements.
+   - Key Services:
+     - **AWS CloudTrail** records AWS API calls,
+     - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration.
+     - **Amazon GuardDuty** is a managed threat detection service that continuously monitors for malicious or unauthorized behavior.
+     - **Amazon CloudWatch** is a monitoring service for AWS resources which can trigger CloudWatch Events to automate security responses.
 3. Infrastructure Protection
-    - use **Amazon Virtual Private Cloud (Amazon VPC)** to create a private, secured, and scalable environment in which you can deﬁne your topology—including gateways, routing tables, and public and private subnets.
-    - Multiple layers of defense are advisable in any type of environment.
-    - Key Services:
-        - **Amazon Virtual Private Cloud (Amazon VPC)** enables you to launch AWS resources into a virtual network that you've deﬁned.
-        - **Amazon CloudFront** is a global content delivery network that securely delivers data, videos, applications, and APIs to your viewers which integrates with **AWS Shield** for DDoS mitigation.
-        - **AWS WAF** is a web application ﬁrewall that is deployed on either **Amazon CloudFront** or **Application Load Balancer** to help protect your web applications from common web exploits.
+   - use **Amazon Virtual Private Cloud (Amazon VPC)** to create a private, secured, and scalable environment in which you can deﬁne your topology—including gateways, routing tables, and public and private subnets.
+   - Multiple layers of defense are advisable in any type of environment.
+   - Key Services:
+     - **Amazon Virtual Private Cloud (Amazon VPC)** enables you to launch AWS resources into a virtual network that you've deﬁned.
+     - **Amazon CloudFront** is a global content delivery network that securely delivers data, videos, applications, and APIs to your viewers which integrates with **AWS Shield** for DDoS mitigation.
+     - **AWS WAF** is a web application ﬁrewall that is deployed on either **Amazon CloudFront** or **Application Load Balancer** to help protect your web applications from common web exploits.
 4. Data Protection
-    - AWS provides multiple means for encrypting data at rest and in transit.
-    - server-side encryption (SSE) for Amazon S3 to make it easier for you to store your data in an encrypted form.
-    - You can also arrange for the entire HTTPS encryption and decryption process (generally known as SSL termination) to be handled by Elastic Load Balancing (ELB).
-    - Key Services:
-        - Services such as ELB, Amazon Elastic Block Store (Amazon EBS), Amazon S3, and Amazon Relational Database Service (Amazon RDS) include encryption capabilities to protect your data in transit and at rest.
-        - **Amazon Macie** automatically discovers, classiﬁes and protects sensitive data,
-        - **AWS Key Management Service (AWS KMS)** makes it easy for you to create and control keys used for encryption.
+   - AWS provides multiple means for encrypting data at rest and in transit.
+   - server-side encryption (SSE) for Amazon S3 to make it easier for you to store your data in an encrypted form.
+   - You can also arrange for the entire HTTPS encryption and decryption process (generally known as SSL termination) to be handled by Elastic Load Balancing (ELB).
+   - Key Services:
+     - Services such as ELB, Amazon Elastic Block Store (Amazon EBS), Amazon S3, and Amazon Relational Database Service (Amazon RDS) include encryption capabilities to protect your data in transit and at rest.
+     - **Amazon Macie** automatically discovers, classiﬁes and protects sensitive data,
+     - **AWS Key Management Service (AWS KMS)** makes it easy for you to create and control keys used for encryption.
 5. Incident Response
-    - Key Service:
-        - **IAM** should be used to grant appropriate authorization to incident response teams and response tools.
-        - **AWS CloudFormation** can be used to create a trusted environment or clean room for conducting investigations.
-        - **Amazon CloudWatch Events** allows you to create rules that trigger automated responses including AWS Lambda.
+   - Key Service:
+     - **IAM** should be used to grant appropriate authorization to incident response teams and response tools.
+     - **AWS CloudFormation** can be used to create a trusted environment or clean room for conducting investigations.
+     - **Amazon CloudWatch Events** allows you to create rules that trigger automated responses including AWS Lambda.
 
 Best Practice Details: protect data at rest
 
@@ -2314,23 +2381,23 @@ The AWS service that is essential to Reliability is Amazon CloudWatch, which mon
 3 Best Practices:
 
 1. Foundations: foundational requirements that inﬂuence reliability should be in place
-    - key Services:
-        - **Amazon VPC** lets you provision a private, isolated section of the AWS Cloud where you can launch AWS resources in a virtual network.
-        - **AWS Trusted Advisor** provides visibility into service limits.
-        - **AWS Shield** is a managed Distributed Denial of Service (DDoS) protection service that safeguards web applications running on AWS.
+   - key Services:
+     - **Amazon VPC** lets you provision a private, isolated section of the AWS Cloud where you can launch AWS resources in a virtual network.
+     - **AWS Trusted Advisor** provides visibility into service limits.
+     - **AWS Shield** is a managed Distributed Denial of Service (DDoS) protection service that safeguards web applications running on AWS.
 2. Change Management
-    - key services:
-        - **AWS CloudTrail** records AWS API calls for your account and delivers log ﬁles to you for auditing.
-        - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration, and continuously records conﬁguration changes.
-        - **Amazon Auto Scaling** is a service that will provide an automated demand management for a deployed workload.
-        - **Amazon CloudWatch** provides the ability to alert on metrics, including custom metrics.
-        - **Amazon CloudWatch** also has a logging feature that can be used to aggregate log ﬁles from your resources.  
+   - key services:
+     - **AWS CloudTrail** records AWS API calls for your account and delivers log ﬁles to you for auditing.
+     - **AWS Conﬁg** provides a detailed inventory of your AWS resources and conﬁguration, and continuously records conﬁguration changes.
+     - **Amazon Auto Scaling** is a service that will provide an automated demand management for a deployed workload.
+     - **Amazon CloudWatch** provides the ability to alert on metrics, including custom metrics.
+     - **Amazon CloudWatch** also has a logging feature that can be used to aggregate log ﬁles from your resources.
 3. Failure Management
-    - Key Services:
-        - **AWS CloudFormation** provides templates for the creation of AWS resources and provisions them in an orderly and predictable fashion.
-        - **Amazon S3** provides a highly durable service to keep backups.
-        - **Amazon Glacier** provides highly durable archives.
-        - **AWS KMS** provides a reliable key management system that integrates with many AWS services.
+   - Key Services:
+     - **AWS CloudFormation** provides templates for the creation of AWS resources and provisions them in an orderly and predictable fashion.
+     - **Amazon S3** provides a highly durable service to keep backups.
+     - **Amazon Glacier** provides highly durable archives.
+     - **AWS KMS** provides a reliable key management system that integrates with many AWS services.
 
 ### Pillar Four: Performance Efficientcy
 
@@ -2342,12 +2409,12 @@ the ability to
 Design Principles
 
 1. Democratize advanced technologiesanscoding and mechine learning
-    - Rather than having your IT team learn how to host and run a new technology, they can simply consume it as a service. E.g., NoSQL databases, media transcoding, and machine learning.
-    - In the cloud, these technologies become services.
+   - Rather than having your IT team learn how to host and run a new technology, they can simply consume it as a service. E.g., NoSQL databases, media transcoding, and machine learning.
+   - In the cloud, these technologies become services.
 2. Go global in minutes
-    - serverless architectures remove the need for you to run and maintain servers.
-    - For example, storage services can act as static websites, removing the need for web servers,
-    - and event services can host your code for you.
+   - serverless architectures remove the need for you to run and maintain servers.
+   - For example, storage services can act as static websites, removing the need for web servers,
+   - and event services can host your code for you.
 3. Use serverless architectures
 4. Experiment more often
 5. Mechanical sympathy
@@ -2355,45 +2422,45 @@ Design Principles
 3 Best Practices:
 
 1. Selection, the four main resource types that you should consider (compute, storage, database, and network).
-    - Compute is available in three forms: instances, containers, and functions:
-        - Instances
-        - Containers: a method of operating system virtualization that allow you to run an application and its dependencies in resource-isolated processes.
-        - Functions: abstract the execution environment from the code you want to execute.
-    - Storage:
-        - vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
-        - The optimal storage solution for a particular system will vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
-        - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
-    - Database:
-        - vary based on requirements for availability, consistency, partition tolerance, latency, durability, scalability, and query capability.
-        - Amazon RDS, DynamoDB, Redshift
-        - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
-    - Network
-        - vary based on latency, throughput requirements
-        - AWS oﬀers product features (for example, Enhanced Networking, Amazon EBS-optimized instances, Amazon S3 transfer acceleration, dynamic Amazon CloudFront) to optimize network traﬃc.
-        - AWS also oﬀers networking features (for example, Amazon Route 53 latency routing, Amazon VPC endpoints, and AWS Direct Connect) to reduce network distance or jitter.
+   - Compute is available in three forms: instances, containers, and functions:
+     - Instances
+     - Containers: a method of operating system virtualization that allow you to run an application and its dependencies in resource-isolated processes.
+     - Functions: abstract the execution environment from the code you want to execute.
+   - Storage:
+     - vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
+     - The optimal storage solution for a particular system will vary based on the kind of access method (block, ﬁle, or object), patterns of access (random or sequential), throughput required, frequency of access (online, oﬄine, archival), frequency of update (WORM, dynamic), and availability and durability constraints.
+     - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
+   - Database:
+     - vary based on requirements for availability, consistency, partition tolerance, latency, durability, scalability, and query capability.
+     - Amazon RDS, DynamoDB, Redshift
+     - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
+   - Network
+     - vary based on latency, throughput requirements
+     - AWS oﬀers product features (for example, Enhanced Networking, Amazon EBS-optimized instances, Amazon S3 transfer acceleration, dynamic Amazon CloudFront) to optimize network traﬃc.
+     - AWS also oﬀers networking features (for example, Amazon Route 53 latency routing, Amazon VPC endpoints, and AWS Direct Connect) to reduce network distance or jitter.
 2. Review
 3. Monitoring
-    Amazon CloudWatch provides the ability to monitor and send notiﬁcation alarms. You can use automation to work around performance issues by triggering actions through Amazon Kinesis, Amazon Simple Queue Service (Amazon SQS), and AWS Lambda.
+   Amazon CloudWatch provides the ability to monitor and send notiﬁcation alarms. You can use automation to work around performance issues by triggering actions through Amazon Kinesis, Amazon Simple Queue Service (Amazon SQS), and AWS Lambda.
 
 4. Tradeoffs
-    - AWS also offers caching solutions such as Amazon ElastiCache, which provides an in-memory data store or cache,
-    - and Amazon CloudFront, which caches copies of your static content closer to end users.
-    - Amazon DynamoDB Accelerator (DAX) provides a read-through/write-through distributed caching tier in front of Amazon DynamoDB, supporting the same API, but providing sub-millisecond latency for entities that are in the cache.
+   - AWS also offers caching solutions such as Amazon ElastiCache, which provides an in-memory data store or cache,
+   - and Amazon CloudFront, which caches copies of your static content closer to end users.
+   - Amazon DynamoDB Accelerator (DAX) provides a read-through/write-through distributed caching tier in front of Amazon DynamoDB, supporting the same API, but providing sub-millisecond latency for entities that are in the cache.
 
 Key Service
 
 The AWS service that is essential to Performance Eﬃciency is **Amazon CloudWatch**, which monitors your resources and systems, providing visibility into your overall performance and operational health.
 
 1. Selection
-    - Compute: Auto Scaling is key to ensuring that you have enough instances to meet demand and maintain responsiveness.
-    - Storage: Amazon EBS provides a wide range of storage options (such as SSD and provisioned input/output operations per second (PIOPS)) that allow you to optimize for your use case. Amazon S3 provides serverless content delivery, and Amazon S3 transfer acceleration enables fast, easy, and secure transfers of ﬁles over long distances.
-    - Database: Amazon RDS provides a wide range of database features (such as PIOPS and read replicas) that allow you to optimize for your use case. Amazon DynamoDB provides single-digit millisecond latency at any scale.
-    - Network: Amazon Route 53 provides latency-based routing. Amazon VPC endpoints and AWS Direct Connect can reduce network distance or jitter.
+   - Compute: Auto Scaling is key to ensuring that you have enough instances to meet demand and maintain responsiveness.
+   - Storage: Amazon EBS provides a wide range of storage options (such as SSD and provisioned input/output operations per second (PIOPS)) that allow you to optimize for your use case. Amazon S3 provides serverless content delivery, and Amazon S3 transfer acceleration enables fast, easy, and secure transfers of ﬁles over long distances.
+   - Database: Amazon RDS provides a wide range of database features (such as PIOPS and read replicas) that allow you to optimize for your use case. Amazon DynamoDB provides single-digit millisecond latency at any scale.
+   - Network: Amazon Route 53 provides latency-based routing. Amazon VPC endpoints and AWS Direct Connect can reduce network distance or jitter.
 2. Review: The AWS website are resources for learning
 3. Monitoring: Amazon CloudWatch provides metrics, alarms, and notiﬁcations.
 4. Tradeoffs:
-    - Amazon ElastiCache, Amazon CloudFront, and AWS Snowball are services that allow you to improve performance.
-    - Read replicas in Amazon RDS can allow you to scale read-heavy workloads.
+   - Amazon ElastiCache, Amazon CloudFront, and AWS Snowball are services that allow you to improve performance.
+   - Read replicas in Amazon RDS can allow you to scale read-heavy workloads.
 
 ### Pillar Five: Cost Optimization
 
@@ -2402,53 +2469,53 @@ the ability to run systems to deliver business value at the lowest price point.
 5 Design Principles
 
 1. Adopt a consumption model
-    - Pay only for the computing resources that you require and increase or decrease usage depending on business requirements.
-    - Stopping test environments saves 75% cost
+   - Pay only for the computing resources that you require and increase or decrease usage depending on business requirements.
+   - Stopping test environments saves 75% cost
 2. Measure overall eﬃciency
 3. Stop spending money on data center operations
 4. Analyze and attribute expenditure
-    - transparent attribution of IT costs to individual workload owners.
-    - This helps measure return on investment (ROI) and gives workload owners an opportunity to optimize their resources and reduce costs.
+   - transparent attribution of IT costs to individual workload owners.
+   - This helps measure return on investment (ROI) and gives workload owners an opportunity to optimize their resources and reduce costs.
 5. Use managed and application level services to reduce cost of ownership
-    - remove the operational burden of maintaining servers for tasks such as sending email or managing databases.
+   - remove the operational burden of maintaining servers for tasks such as sending email or managing databases.
 
 4 Best Practices
 
 1. Expenditure Awareness
-    - Using AWS Budgets, you can send notiﬁcations if your usage or costs are not inline with your forecasts.
-    - You can use tagging on resources to apply business and organization information to your usage and cost; this provides additional insights to optimization from an organization perspective.
-    - Combining tagged resources with entity lifecycle tracking (employees, projects) makes it possible to identify orphaned resources or projects that are no longer generating value to the organization and should be decommissioned.
-    - You can set up billing alerts to notify you of predicted overspending, and the AWS Simple Monthly Calculator allows you to calculate your data transfer costs.
+   - Using AWS Budgets, you can send notiﬁcations if your usage or costs are not inline with your forecasts.
+   - You can use tagging on resources to apply business and organization information to your usage and cost; this provides additional insights to optimization from an organization perspective.
+   - Combining tagged resources with entity lifecycle tracking (employees, projects) makes it possible to identify orphaned resources or projects that are no longer generating value to the organization and should be decommissioned.
+   - You can set up billing alerts to notify you of predicted overspending, and the AWS Simple Monthly Calculator allows you to calculate your data transfer costs.
 2. Cost-Effective Resources
-    - Using the appropriate instances and resources for your workload is key to cost savings.
-    - **On-Demand Instances** allow you to pay for compute capacity by the hour, with no minimum commitments required.
-    - **Reserved Instances** allow you to reserve capacity and oﬀer savings of up to 75% off On-Demand pricing.
-    - With **Spot Instances**, you can leverage unused Amazon EC2 capacity and oﬀer savings of up to 90% off On-Demand pricing.
-    - **Spot Instances** are appropriate where the system can tolerate using a ﬂeet of servers where individual servers can come and go dynamically, such as stateless web servers, batch processing, or when using HPC and big data.
-    - Appropriate service selection can also reduce usage and costs; such as **CloudFront** to minimize data transfer, or completely eliminate costs, such as utilizing **Amazon Aurora** on RDS to remove expensive database licensing costs.
+   - Using the appropriate instances and resources for your workload is key to cost savings.
+   - **On-Demand Instances** allow you to pay for compute capacity by the hour, with no minimum commitments required.
+   - **Reserved Instances** allow you to reserve capacity and oﬀer savings of up to 75% off On-Demand pricing.
+   - With **Spot Instances**, you can leverage unused Amazon EC2 capacity and oﬀer savings of up to 90% off On-Demand pricing.
+   - **Spot Instances** are appropriate where the system can tolerate using a ﬂeet of servers where individual servers can come and go dynamically, such as stateless web servers, batch processing, or when using HPC and big data.
+   - Appropriate service selection can also reduce usage and costs; such as **CloudFront** to minimize data transfer, or completely eliminate costs, such as utilizing **Amazon Aurora** on RDS to remove expensive database licensing costs.
 3. Matching supply and demand
-    - you can automatically provision resources to match demand.
-    - Auto Scaling and demand, buffer, and time-based approaches allow you to add and remove resources as needed.
+   - you can automatically provision resources to match demand.
+   - Auto Scaling and demand, buffer, and time-based approaches allow you to add and remove resources as needed.
 4. Optimizing Over Time
-    - Managed services from AWS can signiﬁcantly optimize the workload, e.g., running an Amazon RDS database can be cheaper than running your own database on Amazon EC2.
+   - Managed services from AWS can signiﬁcantly optimize the workload, e.g., running an Amazon RDS database can be cheaper than running your own database on Amazon EC2.
 
 Key AWS Services
 
 The tool that is essential to Cost Optimization is **Cost Explorer**, which helps you gain visibility and insights into your usage, across your workloads and throughout your organization.
 
 1. Expenditure Awareness
-    - **AWS Cost** Explorer allows you to view and track your usage in detail.
-    - **AWS Budgets** notify you if your usage or spend exceeds actual or forecast budgeted amounts.
+   - **AWS Cost** Explorer allows you to view and track your usage in detail.
+   - **AWS Budgets** notify you if your usage or spend exceeds actual or forecast budgeted amounts.
 2. Cost-Effective Resources
-    - use **Cost Explorer** for Reserved Instance recommendations, and see patterns in how much you spend on AWS resources over time.
-    - Use **Amazon CloudWatch** and **Trusted Advisor** to help right size your resources.
-    - You can use Amazon Aurora on RDS to remove database licensing costs.
-    - **AWS Direct Connect** and **Amazon CloudFront** can be used to optimize data transfer.
+   - use **Cost Explorer** for Reserved Instance recommendations, and see patterns in how much you spend on AWS resources over time.
+   - Use **Amazon CloudWatch** and **Trusted Advisor** to help right size your resources.
+   - You can use Amazon Aurora on RDS to remove database licensing costs.
+   - **AWS Direct Connect** and **Amazon CloudFront** can be used to optimize data transfer.
 3. Matching supply and demand
-    - **Auto Scaling** allows you to add or remove resources to match demand without overspending.
+   - **Auto Scaling** allows you to add or remove resources to match demand without overspending.
 4. Optimizing Over Time. AWS websites are resource.
 
 ## References
 
-- [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558)
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
+- [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
