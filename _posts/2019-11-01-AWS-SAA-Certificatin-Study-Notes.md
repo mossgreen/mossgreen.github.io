@@ -2155,7 +2155,47 @@ to transmit messages to individuals or groups via email and/or SMS. For example,
 
 to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
 
-## Storage and Content Delivery: AWS Storage Gateway
+## Amazon Snowball
+
+AWS provides three methods for movign large amoutns of data quickly in and out of AWS:
+
+- Snowball
+- Snowball Edge
+- Snowball Mobile
+
+With any snowball devices, you don't need to worry about writing code or the speed or data allocation of your internet, VPN, or DX connection. You just need to log a job and receive and empty device or one full of the data requested. You can perform a data copy with your usual tooling and ship the device back.
+
+### Snowball
+
+- can be used for in or out jobs
+- Log a job and an empty device or device with data is shipped
+- Ideal for TB or PB data transfer
+- Data encryption using KMS
+- Generally used from 10 TB -> 10 PB 9the economical range)
+- larger jobs or multiple locations can use multiple Snowballs
+- End-to-end process time is low for the amount of data
+
+### Snowball Edge
+
+- includes both storage and compute
+- larger capacity
+- compute can be used for lcoal instances or lambda fucntionality
+- three types
+  - Edge storage optimized
+  - Edge compute optimized
+  - Edge compute optimized with GPU
+- compute can be used for lcoal IOT, for data processing prior to ingestion into AWS, and much more
+- used in the same type of situations as Snowballs but when compute is required
+
+### Snowball Mobile
+
+- Portable storage data center within a shipping container on a semitruck
+- Used when single location 10+ PB is requried
+- up to 100 PB
+- Not economical for sub 10 PB and where multiple locations are requried
+- situated  on-site and connected into your data center for the duration of the transfer
+
+## AWS Storage Gateway
 
 AWS Storage Gateway is a service connecting an on-premises software appliance with cloud-based storage to provide seamless and secure integration between an organization’s onpremises IT environment and AWS storage infrastructure.
 
