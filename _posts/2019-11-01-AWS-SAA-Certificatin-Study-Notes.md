@@ -427,7 +427,7 @@ Logs include information such as:
   - data archiving, long term backup
   - archived for compliance purpose
 - Data is stored in **archives**, each archive can contain up to 40TB. Automatically encrypted, cannot be modified if created.
-- Vaults are containers for archives. Each AWS account ca nhave up to 1000 vaults.
+- Vaults are containers for archives. Each AWS account can have up to 1000 vaults.
 - Cost: retrieve up to 5% of your data stored in Amazon Glacier is free each month, calculated on a daily prorated basis.
 
 ### Amazon S3 VS Glacier
@@ -1151,7 +1151,7 @@ Important Limits and considerations
 - NACLs and SGs can be used to control access
 - SGs can be referenced but not cross-region
 - IPv6 support is not available cross-region.
-- DNS resolution to private IPs canbe enabled, but it's a setting needed at both sides.
+- DNS resolution to private IPs can be enabled, but it's a setting needed at both sides.
 
 ### VPC Endpoints
 
@@ -2195,35 +2195,35 @@ With any snowball devices, you don't need to worry about writing code or the spe
 - Not economical for sub 10 PB and where multiple locations are requried
 - situated  on-site and connected into your data center for the duration of the transfer
 
-## AWS Storage Gateway
+## Amazon Storage Gateway
 
-AWS Storage Gateway is a service connecting an on-premises software appliance with cloud-based storage to provide seamless and secure integration between an organization’s onpremises IT environment and AWS storage infrastructure.
+Storage Gateway is a hybrid storage service that allows you to migrate data into AWS, extending your on-premises storage capacity using AWS. It is a virtual appliance used for data center extensions or migrations.
 
-The storage associated with the appliance is exposed as an iSCSI device that can be mounted by your on-premises applications.
+Three main types of Storage Gateway:
 
-three configurations for AWS Storage Gateway: Gateway-Cached volumes, Gateway-Stored volumes, and Gateway-Virtual Tape Libraries (VTL).
+- File gateway: store fiels as objects in Amazon S3, with a local cache for low-ltency access to your most recent used data.
+- volume gateway: block storage in Amazon S3 with point-in-time backups as Amaon EBS.
+- Gateway Virtual Tape Libraries (VTL): Back up data to Aazon S3 and archive in Amazon Glacier using your existing tape-based processes.
 
-### Gateway-Cached volumes
+## Amazon Database Migration Service, DMS
 
-It allows you to expand your local storage capacity into Amazon S3. All data stored on a Gateway-Cached volume is moved to Amazon S3, while recently read data is retained in local storage to provide low-latency access.
+- The Database Migration Service (DMS) is a managed service to migrate relational databases.
+- It's capable of both data migration and schema conversion.
+- It can migrate **to** and **from** any locations with network connectivity to AWS.
 
-### Gateway-Stored volumes
+Details:
 
-It allows you to store your data on your on-premises storage and asynchronously back up that data to Amazon S3. This provides lowlatency access to all data, while also providing off-site backups taking advantage of the durability of Amazon S3.
+- DMS is compatible with a broad range of DB sources, including Oracle, MS SQL, MySQL, MariaDB, PostgreSQL, MongoDB, Aurora, and SAP.
+- Data can be synced to most of the above engines, as well as Redshit, S3, and DynamoDB.
+- You can also use the Schema Conversion Tool (AWS SCT) to transform between different database engiens as part of a migration.
 
-### Gateway Virtual Tape Libraries (VTL)
+With DMS at a high level, you provision a replication instance, define source and destination endpoints that point at source and target database, and create a replication task. DMS handles the rest, and you can continue using your database while the process runs.DMS is useful in a number of common scenarios:
 
-A virtual tape is analogous to a physical tape cartridge, except the data is stored on the AWS cloud. Tapes are created blank through the console or programmatically and then filled with backed up data.
-
-Gateway-VTL offers a durable, cost-effective solution to archive your data on the AWS cloud. The VTL interface lets you leverage your existing tape-based backup application infrastructure to store data on virtual tape cartridges that you create on your Gateway-VTL.
-
-### AWS Storage Gateway Use Cases
-
-- Gateway-Cached volumes enable you to expand local storage hardware to Amazon S3, allowing you to store much more data without drastically increasing your storage hardware or changing your storage processes.
-
-- Gateway-Stored volumes provide seamless, asynchronous, and secure backup of your onpremises storage without new processes or hardware.
-
-- Gateway-VTLs enable you to keep your current tape backup software and processes while storing your data more cost-effectively and simply on the cloud.
+- Scaling database resources up or down without downtime
+- migrating database from on-premises to AWS, from AWS to on-premises, or to/fro mother cloud plateforms
+- moving data between different DB engines, including schema conversion
+- Partical/subset data migration
+- migration with little to no admin overhead, as a service
 
 ## AWS CloudTrail
 
