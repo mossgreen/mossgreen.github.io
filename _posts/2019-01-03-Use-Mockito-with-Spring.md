@@ -269,6 +269,26 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
     });
 ```
 
+## Handle expected exception
+
+```java
+when(myMock.doSomething()).thenThrow(new MyException());
+@Test(expected=MyException.class)
+```
+
+```java
+@Rule
+public ExpectedException expectedException = ExpectedException.none();
+
+@Test
+public void testExceptionMessage() throws Exception {
+    expectedException.expect(AnyException.class);
+    expectedException.expectMessage("The expected message");
+
+    given(foo.bar()).willThrow(new AnyException("The expected message"));
+}
+```
+
 ## Spy
 
 //todo
