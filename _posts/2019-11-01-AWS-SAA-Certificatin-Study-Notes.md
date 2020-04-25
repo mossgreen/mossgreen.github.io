@@ -1342,7 +1342,7 @@ Private Zones;
 - Private zones are created manually and associated with one or more VPCs - they're only accessible from those VPCs.
 - pribate zones need `enableDnsHostnames` and `enableDnsSupport` enabled on a VPC.
 - Not all route 53 features supported - limits on healthchecks
-- **split-view DNS **is supported, suign the same zone name for public and private zones - providing VPC resources with differenct records, e.g., testing ,internal versions of websites. With split view, private is preferred, if no matches, public is used.
+- **split-view DNS**is supported, suign the same zone name for public and private zones - providing VPC resources with differenct records, e.g., testing ,internal versions of websites. With split view, private is preferred, if no matches, public is used.
 
 DNS Record Set Types
 
@@ -1817,7 +1817,7 @@ RDS is capable of a number of different types of backups. Automated backups to S
 
 - RDS can be provisioned in single or multi-az mode.
 - Multi-AZ provisions a primary instance and a standby instance in a different AZ of the same region.
-- Only teh primary can be accessed using the instance CNAME.
+- Only the primary can be accessed using the instance CNAME.
 - There is no performance benefit, but it provides a better RTO than restoring a snapshot.
 
 ### Amazon RDS Read Replicas
@@ -2040,7 +2040,7 @@ Amazon SNS provides a messaging bus complement to Amazon SQS; however, it doesnâ
 #### Message Lifecycle
 
 1. Component1 sends message A to a queue, and the mesage is **redundantly distributed** across the Amazon SQS servers.
-2. When component2 is ready to process a message, it retrives mesages from teh queue, the Message A is returned. While Message A is being processed, it remains in the queue and is not returned to subsequently receive requests for the duration of the visibility timeout.
+2. When component2 is ready to process a message, it retrives mesages from the queue, the Message A is returned. While Message A is being processed, it remains in the queue and is not returned to subsequently receive requests for the duration of the visibility timeout.
 3. Component 2 deletes message A from the queue to prevent the message from being received and processed again after the visibility timeout expires.
 
 #### Delay Queues and Visibility Timeouts
@@ -2204,6 +2204,46 @@ Three main types of Storage Gateway:
 - File gateway: store fiels as objects in Amazon S3, with a local cache for low-ltency access to your most recent used data.
 - volume gateway: block storage in Amazon S3 with point-in-time backups as Amaon EBS.
 - Gateway Virtual Tape Libraries (VTL): Back up data to Aazon S3 and archive in Amazon Glacier using your existing tape-based processes.
+
+## Amazon Identity federation, IDF and SSO
+
+- **Identity federation (IDF)** is an architecture where identities of an external identity provider (IDP) are recognized.
+- **Single sign-on (SSO)** is where the credentials of an external identity are used to allow access to a local system (e.g., AWS).
+
+Types of IDF:
+
+- **Crosee-acount roles**: a remote account (IDP) is allowed to assume a role and access your accout's resource.
+- **SAML 2.0 IDF**: an on-premises or AWS-hosted directory service instance is configured to allow Active Directory users to log in to the AWS console.
+- **Web Identity Federation**: IDPs sunch as Google, Amazon, and Facebook are allowed to assume roels and access resources in your account.
+
+**Congnito** and the **Secure Token Service (STS)** are sued for IDF. A federated identity is verified using an external IDP and by proving the identity (using a token or assertion of some kind) is allowed to swap that ID for temporary AWS credentials by assuming a role.
+
+IDF is the process of allowing external identities to be used to indirectly access AWS services. This lesson covers the architecture of IDF using SAML 2.0 and web identities, and concludes with a brief demo using the Web Identity Federation Playground.
+
+### When and hwo to use IDF
+
+### Enterprise Access to AWS Resources
+
+- users/staff have an existing pool of identities
+- you need those identities to be used across all enterprise systems, including AWS
+- access to AWS resources using SSO
+- potentially tens or hundreds of thousands of users - more than IAM can handle
+- you might have an ID team within your business
+
+### Mobile and Web Application
+
+- Mobile or web application requries access to AWS resources
+- you need a certain level of guest access - and extra once logged in
+- customers have other identities - Google, Twitter, Facebook, etc - and need to use those
+- you don't want credentials stored within the application
+- could be millions or more users - beyond the capabilities of IAM
+- customers might have multiple third-party logins, but they represent one real person
+
+### Centralized identity Management (AWS Accounts)
+
+- tens or hundreds of AWS accounts in an organization
+- need central store of IDs - either IAM or an external provider
+- roels switching used fro man ID account into memeber accounts
 
 ## Amazon Database Migration Service, DMS
 
