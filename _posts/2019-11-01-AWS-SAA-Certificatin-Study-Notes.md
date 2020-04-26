@@ -276,32 +276,27 @@ CORS is a security measure allowing a web application running in one domain to r
 All objects within a S3 bucket use a storage class, known as a storage tier. Storage classes influence the cost, durability, availability, and "first byte latency" for objects in S3. The class used for an object can be changed manually or using lifecycle policies.
 
 - **S3 Standard**
-
   - for general-purpose storage of frequently accessed data
   - Default, all-purpose storage or when usage is unknown
   - 11 Nines durability and four Nines availability
   - Replicated in 3+ AZs - no minimum object size or retrieval fee
 
 - **Standard Infrequent Access (Standard-IA)**
-
   - Objects where real-time access is required but infrequent
   - 99.9% availability, 3+ AZs replication, cheaper than Standard
   - 30-day and 128KB minimum charges and object retrieval fee
 
 - **Amazon S3 One Zone-Infrequent Access (S3 One Zone-IA)**
-
   - Non-critical and/or repreducible objects
   - 99.5% availability, one 1 AZ, 30 day and 128KB minimum charges
   - cheaper than standard IA
 
 - **Glarcier**
-
   - Long-term archival storage 9warm or cold backups)
   - Retrievals could take minutes or hours (faster = higher cost)
   - 3+ AZ replication, 90-day and 40KB minimum charge and retrieval
 
 - **Glacier Deep Archive**
-
   - Long-term archival (cold backups) - 180 day and 40KB Minimum
   - Longer retrievals but cheaper than Glacier -replacement for tape-style storage
 
@@ -317,7 +312,11 @@ Lifecycle policies allow objects or versions to be transitioned between storage 
 
 Lifecycle configurations are attached to the bucket and can apply to all objects in the bucket, or objects specified by a prefix.
 
-Data has natural lifecycle: - Hot, frequently accessed - Warm, less frequently access - Cold, long term backup or archive, eventual deletion
+Data has natural lifecycle:
+
+- Hot, frequently accessed
+- Warm, less frequently access
+- Cold, long term backup or archive, eventual deletion
 
 Reduce cost lifecycle rules:
 
@@ -325,6 +324,10 @@ Reduce cost lifecycle rules:
 2. After 30 days, transition to amazon Standard-IA
 3. After 90 days, transition tot Amazon Glacier
 4. After 3 years, delete
+
+Lifecycle Configuration VS Lifecycle Policy
+
+You can use **lifecycle policies** to define actions you want Amazon S3 to take during an object's lifetime (for example, transition objects to another storage class, archive them, or delete them after a specified period of time).
 
 ### Amazon S3 Encryption
 
@@ -478,7 +481,7 @@ Security groups are used to control access to NFS mount targets
 EFS supports two storage classes: **Standard** and **Infrequent Access (IA)**.
 Lifecycle management is used to move files between classes baed on access patterns.
 
-## CloudFormation
+## Amazon CloudFormation
 
 It's an infrastructure as Code(IAC) product, you can create, manage, and remove infrastructure using JSON or YAML.
 
@@ -656,7 +659,6 @@ In EC2, user data can be used to run shell scripts or run clout-init directives.
 three price options:
 
 1. On-Demand Instances
-
    - The most flexible pricing
    - requires no up-front commitment
    - customer controls when to launch and terminate
@@ -664,7 +666,6 @@ three price options:
    - good for temporary workloads, but don’t offer the cost savings of Spot Instances
 
 2. Reserved Instances
-
    - for predictable workloads, can save up to 75% over on0demand hourly rate
    - two factors that determine the cost: the term commitment and payment
    - provide cost savings when you can commit to running instances full time, such as to handle the base traffic.
@@ -706,6 +707,82 @@ Ideal for
 - data that is replicated across a fleet of instances, such as a load-balanced pool of web servers.
 
 ## Amazon Elastic Block Store, Amazon EBS
+
+### Why you want to use EBS for EC2
+
+**Amazon EC2** Instance Stores are low-durability, high-IOPS storage that is included **for free** with the hourly cost of an instance. **Data is lost when the instance stops**.
+
+**Amazon EBS** provides **durable block storage** for use with Amazon EC2 instance.
+
+- Amazon EBS allows you to create storage volumes and **attach them to Amazon EC2 instances**.
+- Once attached, you can **create a file system on top of these volumes**, run a database, or use them in any other way you would use block storage.
+- **Volumes are persistent**, can be attached and removed from EC2 instances, and are replicated within a single AZ.
+- EBS supports a maximum per-instance throughput of 1,750MiB/s and 80,000 IOPS.
+- If you need more... use **Amazon EC2 Instance Store**.
+
+### Amazon EBS Volumes Types
+
+Two major categories: see link
+
+1. SSD-backed storage: gp2, io1
+   - for transactional workloads, such as databases and boot volumes (performance depends primarily on IOPS)
+   - the **highest performance Provisioned IOPS SSD (io1)**
+     - for latency-sensitive transactional workloads, can adjust size and IOPS seperately
+     - provides **sustained performanc**e for mission-critical low-latency workloads
+   - **Default, General Purpose SSD (gp2)**
+     - balance price and performance for a wide variety of transactional data.
+     - provide **bursts of performance** up to 3,000 IOPS and have a maximum baseline performance of 10,000 IOPS for volume sizes greater than 3.3 TB.
+
+2. HDD-backed storage: sc1, st1
+   - for throughput intensive workloads, such as MapReduce and log processing (performance depends primarily on MB/s).
+   - Throughput Optimized HDD (st1): low cost, frequently accessed, throughput intensive, cannot be a boot volume
+   - the lowest cost Cold HDD (sc1): low cost, infrequest access, cannot be boot volume
+
+Details:[Amazon EBS volume types link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html)
+
+|Type  |  EBS Provisioned IOPS SSD (io1)  |  EBS General Purpose SSD (gp2)*  | Throughput Optimized HDD (st1)|  Cold HDD (sc1)|
+|---|---|---|---|---|
+| Description  | Highest performance   | General Purpose  | frequently accessed  | less frequently accessed |
+| Use Cases  | I/O-intensive DB  | Boot volumes, others  | Big data, processing  | Colder data  |
+| Volume Size  | 4 - 16 TB  |1 - 16 TB| 0.5 - 16 TB  |  0.5 - 16 TB |
+|Max IOPS**/Volume   | 64,000  | 16,000  | 500  | 250  |
+|Max Throughput***/Volume |1,000 MB/s   | 250 MB/s  |500 MB/s    | 250 MB/s|
+|Max IOPS/Instance |80,000  |80,000  |80,000    |80,000||Max Throughput***/Volume |1,000 MB/s   | 250 MB/s  |500 MB/s    | 250 MB/s|
+
+### EBS Snapshots
+
+EBS volumes occupy a single Availability Zone (AZ), and while they do replicate within this AZ, this replication isn’t shared to other AZs. This makes EBS volumes vulnerable to AZ failure. EBS snapshots not only provide data backup capabilities but also enable you to move your data to other AZs and regions.
+
+EBS snapshots are a point-in-time backup of an EBS volume stored in S3.
+The initial snapshot is a full copy of the volume.
+Future snapshots only store the data change since the last snapshot.
+
+Snapshots can be used to create new volumes and a great way to move or copy instances between AZs.
+When creating a snapshot of the root/boot volume of an instance or budy volume, it's recommended that instance is powered off, or disks are "flused".
+
+Snapshots can be copied between regions, shared, and automated using Data Lifecycle Manager (DLM).
+
+Volume encryption uses EC2 host hardware to encrypt data at rest and in transit between EBS and EC2 instances. Encryption generates a data encryption key (DEK) from a customer master key (CMK) in each region. A unique DEK encrypts each volume. Snapshots of that volume are encrypted with the same DEK, as are any volumes created from that snapshot.
+
+### Protecting Data
+
+You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved. There is no delay in processing when commencing a snapshot.
+
+You recover data by detach the volume from the failed instance and attach the backed up one.
+
+You can create a volume from a snapshot. The volume is created immediately but the data is loaded lazily. This means that the volume can be accessed upon creation, and if the data being requested has not yet been restored, it will be restored upon first request.
+
+Best practice is to initialize a volume created from a snapshot by accessing all the blocks in the volume.
+
+### EC2 Security Groups
+
+Security groups are an essential part of the EC2 and VPC security toolset. They operate like a virtual firewall, controlling traffic originating from or destined for a network interface (or an instance).
+
+Security Groups each have inbound rules and outbound rules. A rule allows traffic to or from a source (IP, network, named AWS entity) and protocol.
+
+Security groups have a hidden implicit/default deny rule but cannot explicitly deny traffic.
+
+They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
 
 Amazon EC2 Instance Stores are low-durability, high-IOPS storage that is included for free with the hourly cost of an instance. Data is lost when the instance stops.
 
@@ -786,7 +863,7 @@ Security groups have a hidden implicit/default deny rule but cannot explicitly d
 
 They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
 
-## Serverless Compute
+## Amazon Serverless Compute
 
 A microservices architecture is the inverse of a monolithis architecture. Instead of having all system functions in one codebase, components are separated into microservices and operate independently. A microservice does one thing - and does it well. Operations, updates, and scaling can be done on a per-microservice basis.
 
@@ -841,13 +918,11 @@ Details:
 - **Service**: Services allow task definitions to be scaled by adding additional tasks. Defines Minimum and Maximum values.
 - **Registry**: Storage for container images... i.e., ECS Container Registry or Dockerhub. Used to download image to create containers.
 
-## Amazon Virtual Private Cloud, Amazon VPC
+## Amazon Virtual Private Cloud, VPC
 
 ### Sever Layer OSI Model
 
 It provides a good overview of how networking works at all levels of abstraction. Each layer uses the layers below and adds additional capabilities. Data between two devices moves down the stack at the A side (and wrapped at each layer) ... is transmitted .. before moving up the stack at the B side (and the wrapping stripped at each stage). This process is called encapsulation.
-
-![IMAGE](quiver-image-url/4F30ED3FA24FFDA1F05261CD507F8225.jpg =621x559)
 
 1. L1, uses a shared medium Hardware can transmit and listen. The layer 1 standard agrees how to transmit and recieve. The medium, the voltages, the RF details
 2. L2, Data Link, addes MAC Address which can be used for named communication between two devices on a local network. Additionally L2 adds controls over the media, avoiding cross-talk and allows for backoff and retransmission. L2 communications use L1 to broadcast and listen. Le runs on top of L1.
@@ -897,8 +972,6 @@ Either you are allocated a network range to use, or you decided on it. It will b
 
 The network address is your starting point. The prefix is the number of bits the network uses, the remaining bits, the node part is yours to use. The node (or host) partis yours from all 0's to all 1's.
 
-![IMAGE](quiver-image-url/363B0AE9D6E1A45C579F75A61020F6AA.jpg =635x422)
-
 ### Subnetting
 
 Subnetting is the process of breaking a network down into smaller sub-networks. You might be allocated a public range for your business, or decided on a privte range for a VPC. Subnetting allows you to break it into smaller allocations for use in smaller networks, e.g., VPC subnets.
@@ -909,7 +982,7 @@ With a certain size of VPC, increasing the prefix creates 2 smaller sized networ
 
 For instance:
 
-10.0.0.0/60 - 10.0.0.0/17 - 10.0.0.0/18 - 10.0.64.0/18 - 10.0.128.0/17 <-- 128 = 256/2 - 10.0.128.0/18 - 10.0.192.0/18
+10.0.0.0/60 - 10.0.0.0/17 - 10.0.0.0/18 - 10.0.64.0/18 - 10.0.128.0/17 `<-- 128 = 256/2 - 10.0.128.0/18 - 10.0.192.0/18`
 
 ### IP Routering
 
@@ -1003,6 +1076,25 @@ Routes:
 - if the VPC has an associated internet gateway
 - if that subnet has a default route to that internet gateway.
 
+### Amazon VPC components
+
+- **Subnet**: A subnet is a range of IP addresses in your VPC, where you can place groups of isolated resources
+- **Internet Gateway**: The Amazon VPC side of a connection to the public internet.
+- **NAT Gateway**: a highly available, managed **Network Address Traslation (NAT)** servcie for your resource in a private subnet to access the internet.
+- **Virtual private gateway**: The Amazon VPC side of a VPN connection.
+- **Peering Conenction**: A peering connection enables you to route traffic via private IP address between two peered VPCs.
+- **VPC Endpoints**: Enables private connectivity to services hosted in AWS, from within your CPC without using an Internet Gateway, VPN, NAT devices, or firewall proxies.
+- **Egress-only Internet Gateway**: A stateful gatewy to provide egress only access for IPv6 traffic from the VPC to the internet.
+
+### VPC use scenarios
+
+[Examples for VPC link](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios.html)
+
+1. VPC with a single public subnet only
+2. VPC with publci and private subnets
+3. VPC with public and private subnets and AWS Site-to-Site VPN access
+4. VPC with a private subnet only and AWS Site-to-Site VPN access
+
 ### Bastion Hosts, or Jumpboxes
 
 - A host that sits at the perimeter of a VPC
@@ -1012,19 +1104,28 @@ Routes:
 - Bastion hosts must be kept updated, and security hardened and audited regularly
 - Multifactor authentication, ID federation, and/or IP blocks.
 
-### NAT, Network address translation
+### Network address translation, NAT
 
-NAT (network address translation) is a process where the source or destination attributes of an IP packet are changed.
+You can use a NAT device to enable instances in a private subnet to connect to the internet (for example, for software updates) or other AWS services, but prevent the internet from initiating connections with the instances.
 
-- NAT instance: It's a customer-managed instances.
-- NAT getway: an AWS-managed service.
+Redirect process:
+
+1. When traffic goes to the internet, the source IPv4 address is replaced with the NAT device’s address
+2. when the response traffic goes to those instances, the NAT device translates the address back to those instances’ private IPv4 addresses.
+
+Two types of NAT devices:
+
+1. NAT instance: It's a customer-managed instances.
+2. **NAT getway (recommend)**: an AWS-managed service, better availability and bandwidth
+
+Static VS dynamic NAT
 
 - Static NAT: A private IP is mapped to a public IP (what IGWs do). the process of 1:1 translation where an internet gateway converts a private address to a public IP address.
 - Dynamic NAT: A range of private addresses are mapped onto one or more public (used by your home router and NAT gateways). Dynamic NAT is a variation that allows many private IP addresses to get outgoing internet access using a smaller number of public IPs (generally one). Dynamic NAT is provided within AWS using a NAT gateway that allows private subnets in an AWS VPC to access the internet.
 
 ### Security Group
 
-It's avirtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
+It's a virtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
 You can specify allow rules, but not deny rules. This is an important difference between security groups and ACLs.
 
 Default security group:
@@ -1034,7 +1135,7 @@ Default security group:
 - no inbound traffic is allowed until you add inbound rules to the security group.
 - denies all other traffic.
 
-### NACLs, Network Access Control List
+### Network Access Control List, NACLs
 
 It's another layer of security that acts as a stateless firewall on a subnet level.
 
@@ -1062,23 +1163,7 @@ Ephemeral Ports:
 - The response is from that well-known port to an ephemeral port on the client. The client decides the port.
 - NACLs are stateless, they have to consider both initiating and response traffic - state is a session-layer concept.
 
-### Amazon VPC Components
-
-1. Subnets
-2. Route tables
-3. Dynamic Host Configuration Protocal (DHCP) option sets
-4. Security groups
-5. Network Access Control List (ACLs)
-
-Optional components:
-
-- internet Gateways, IGWs
-- Elastic IP addresses, EIP
-- Elastic Network interfaces, ENIs
-- Endpoints
-- Peering
-- Network Address Translation instances, NATs, and NAT Gateways
-- Virtual Private Gateway, VPG, Customer Gateways, CGWs, and Virtual private Networks, VPNs
+![IMAGE](quiver-image-url/EA880B91FF120B554A58B9FFCAEC9357.jpg =472x506)
 
 ### VPC Subnets
 
@@ -1157,9 +1242,9 @@ Important Limits and considerations
 
 VPC Endpoints are gateway objects created within a VPC. They can be used to connect to AWS public services without the need for the VPC to have an attached internet gateway and be public.
 
-VPC Endpoint Types:
+Two types of VPC endpoints:
 
-- Gateway endpoints: Can be used for DynamoDB and S3
+- Gateway endpoints: Can be used for **DynamoDB** and **S3**
 - Interface endpoints: can be used for everything else (e.g., SNS, SQS)
 
 When to use a VPC Endpoint:
@@ -1216,6 +1301,15 @@ NAT gateways provide two functions for IPv4 resources:
 NAT as a process isn't needed for IPv6 because all addresses are public. Egress-only gateways provide this outgoing-only access that NAT gateways provide, without the incompatible elements of functionality.
 
 Architecturally, they're otherwise the same as an IGW.
+
+### VPC Flow Logs
+
+VPC Flow Logs allows you to capture metadata about the traffic flowing in and out of networking interfaces within a VPC. Flow logs can be placed on a specific network interface, a subnet, or an entire VPC and will capture metadata fro mthe capture poit and anything within it. Flow logs aren't real-time and don't capture the actual traffic - only metadata on the traffic.
+
+Flow logs capture: account-id, interface-id, srcaddr, dstaddr, srcport, dstport, protocol, packets, tytes, start, end, ation, and log-status.
+
+Flow logs don't capture some traffic, including Amazon DNS server, windowns license activation, DHCP traffic ,and VPC router
+It can be enabled on a VPC, subnet, or ENI level and monitor traffic metadata for any included interfaces. Flow logs monitor:
 
 ## VPC VPN and Direct Connect
 
@@ -1998,7 +2092,7 @@ Indexes come in two forms: local secondary indexes (LSI) and global secondary in
 
 - **Global secondary indexes** can be created at any point after the table is created. They can use differenct partition and sort keys. They have their own RCU and WCU values. GSIs can be used to support alternative data access patterns, allowing efficient use of query operations.
 
-## DynamoDB Accelerator (DAX)
+### DynamoDB Accelerator (DAX)
 
 - **DAX** is an in-memory cache specifically designed for DynamoDB.
 - It supports caching **eventually consistent** reads for items and query results, **NOT** for strongly consistent
