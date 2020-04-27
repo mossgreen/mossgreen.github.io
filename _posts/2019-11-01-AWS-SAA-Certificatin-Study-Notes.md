@@ -451,7 +451,7 @@ Logs include information such as:
 - An object's value is its data
 - An object size is from 0 to 5TB
 
-### Elastic File System, EFS
+## Elastic File System, EFS
 
 - It is an AWS-managed implementation of the Network File System (NFS).
 - It's an implementation of the Newwork file System (NFSv4) delivered as a service.
@@ -480,6 +480,17 @@ Security groups are used to control access to NFS mount targets
 
 EFS supports two storage classes: **Standard** and **Infrequent Access (IA)**.
 Lifecycle management is used to move files between classes baed on access patterns.
+
+### EFS VS EBS
+
+|  | EFS | Amazon EBS Provisioned IOPS |
+|---|---|---|
+|type |file storage service   | block level storage |
+| Per-operation latency Low|consistent latency| Lowest, consistent latency|
+| Throughput scale|10+ GB per second| Up to 2 GB per second|
+| Availability and durability| Data is stored redundantly across multiple AZs|Data is stored redundantly in a single AZ|
+|Access  |Up to thousands of Amazon EC2 instances, from multiple AZs, can connect concurrently to a file system|A single Amazon EC2 instance in a single AZ can connect to a file system|
+| Use cases |- Big data and analytics, <br/>- media processing workflows, <br/>- content management, <br/>- web serving, <br/>- home directories.|- Boot volumes, <br/>- transactional and NoSQL databases, <br/>- data warehousing, <br/>- ETL|
 
 ## Amazon CloudFormation
 
@@ -763,105 +774,6 @@ When creating a snapshot of the root/boot volume of an instance or budy volume, 
 Snapshots can be copied between regions, shared, and automated using Data Lifecycle Manager (DLM).
 
 Volume encryption uses EC2 host hardware to encrypt data at rest and in transit between EBS and EC2 instances. Encryption generates a data encryption key (DEK) from a customer master key (CMK) in each region. A unique DEK encrypts each volume. Snapshots of that volume are encrypted with the same DEK, as are any volumes created from that snapshot.
-
-### Protecting Data
-
-You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved. There is no delay in processing when commencing a snapshot.
-
-You recover data by detach the volume from the failed instance and attach the backed up one.
-
-You can create a volume from a snapshot. The volume is created immediately but the data is loaded lazily. This means that the volume can be accessed upon creation, and if the data being requested has not yet been restored, it will be restored upon first request.
-
-Best practice is to initialize a volume created from a snapshot by accessing all the blocks in the volume.
-
-### EC2 Security Groups
-
-Security groups are an essential part of the EC2 and VPC security toolset. They operate like a virtual firewall, controlling traffic originating from or destined for a network interface (or an instance).
-
-Security Groups each have inbound rules and outbound rules. A rule allows traffic to or from a source (IP, network, named AWS entity) and protocol.
-
-Security groups have a hidden implicit/default deny rule but cannot explicitly deny traffic.
-
-They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
-
-Amazon EC2 Instance Stores are low-durability, high-IOPS storage that is included for free with the hourly cost of an instance. Data is lost when the instance stops.
-
-Amazon EBS provides durable block storage for use with Amazon EC2 instance.
-
-Amazon EBS is a storage service that creates and manages volumnes based on four underlying storage types. Volumes are persistent, can be attached and removed from EC2 instances, and are replicated within a single AZ.
-
-EBS supports a maximum per-instance throughput of 1,750MiB/s and 80,000 IOPS.
-If you need more... use **Amazon EC2 Instance Store**.
-
-### Amazon EBS Volumes Types
-
-1. Mechanical: sc1, st1
-   - sc1: low cost, infrequest access, cannot be boot volume
-   - st1: low cost, throughput intensive, cannot be a boot volume
-2. Solid State: gp2, io1
-   - gp2: Default, balance of IOPS/MiB/s - burst pool IOPS per GB
-   - io1: highest performance, can adjust size and IOPS seperately
-
-Details:
-<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html>
-
-- General Purpose (gp2): SSD,
-  - default for most workloads
-  - 3 IOPS/GiB (100 IOPS - 16,000IOPS)
-  - Bursts up to 3,000 IOPS (credit based)
-  - 1 GiB - 16 TiB size, max throughput p/vol of 250 MiB/s
-- Provisioned IOPS SSD (io1): SSD
-  - used for applications that require sustained IOPS performance
-  - large database workloads
-  - volume size of 4 GiB - 16 TiB up to 64,000 IOPS per volume
-  - max throughput p/vol of 1,000 MiB/s
-- Throughput Optimized (st1): HDD
-  - Low storage cost
-  - used for frequently accessed, throughput-intensive workloads (streaming, big data)
-  - Cannot be a boot volume
-  - Volume sized of 500 GiB - 15 TiB
-  - Per-volume max throughput of 500 MiB/s and IOPS 500
-- Cold HDD (sc1): HDD
-  - lowest cost
-  - infrequestly accessed data
-  - cannot be a boot volume
-  - Volume size of 500 GiB - 16 TiB
-  - per-volume max throughput of 250 MiB/s and 250 IOPS
-
-### EBS Snapshots
-
-EBS volumes occupy a single Availability Zone (AZ), and while they do replicate within this AZ, this replication isn’t shared to other AZs. This makes EBS volumes vulnerable to AZ failure. EBS snapshots not only provide data backup capabilities but also enable you to move your data to other AZs and regions.
-
-EBS snapshots are a point-in-time backup of an EBS volume stored in S3.
-The initial snapshot is a full copy of the volume.
-Future snapshots only store the data change since the last snapshot.
-
-Snapshots can be used to create new volumes and a great way to move or copy instances between AZs.
-When creating a snapshot of the root/boot volume of an instance or budy volume, it's recommended that instance is powered off, or disks are "flused".
-
-Snapshots can be copied between regions, shared, and automated using Data Lifecycle Manager (DLM).
-
-Volume encryption uses EC2 host hardware to encrypt data at rest and in transit between EBS and EC2 instances. Encryption generates a data encryption key (DEK) from a customer master key (CMK) in each region. A unique DEK encrypts each volume. Snapshots of that volume are encrypted with the same DEK, as are any volumes created from that snapshot.
-
-### Protecting Data
-
-You back up data by taking snapshots. it's incremental backups, only most recent changed blocks are saved. There is no delay in processing when commencing a snapshot.
-
-You recover data by detach the volume from the failed instance and attach the backed up one.
-
-You can create a volume from a snapshot. The volume is created immediately but the data is loaded lazily. This means that the volume can be accessed upon creation, and if the data being requested has not yet been restored, it will be restored upon first request.
-
-Best practice is to initialize a volume created from a snapshot by accessing all the blocks in the volume.
-
-### EC2 Security Groups
-
-Security groups are an essential part of the EC2 and VPC security toolset. They operate like a virtual firewall, controlling traffic originating from or destined for a network interface (or an instance).
-
-Security Groups each have inbound rules and outbound rules. A rule allows traffic to or from a source (IP, network, named AWS entity) and protocol.
-
-Security groups have a hidden implicit/default deny rule but cannot explicitly deny traffic.
-
-They're stateful - meaning for any traffic allowed in/out, the return traffic is aotumatically allowed. Security groups can reference AWS resources, other security groups, and even themselves.
 
 ## Amazon Serverless Compute
 
@@ -2118,136 +2030,56 @@ Generally, ElastiCache is used with key/value database or to store dimple sessio
 - good to cache:a list of products in a catalog.
 - not be cached: if you generate a unique page every request, you probably should not cache the page results
 
-### Amazon Simple Queue Service (Amazon SQS)
+## Amazon Simple Notification Services, SNS
 
-Amazon SQS is a fast, reliable, scalable, fully managed message queuing service that allows organizations to decouple the components of a cloud application.
+- Simple Notification Service (SNS) is a key part of AWS application integration products.
+- It provides a pub/sub-based notification system, which supports a wide range of subscriber endpoint types.
+- SNS coordinates and manages the sending and delivery of messages. Messages sent to a topic are delivered to subscribers.
+- SNS is intergrated with many AWS servcies and can be used for certain event notifications, e.g., CloudFormation stack creation
+- using SNS, CloudWatch can notify admins of important alerts
+- SNS can be used for mobile push notifications
 
-Amazon SNS provides a messaging bus complement to Amazon SQS; however, it doesn’t provide the decoupling of components.
+### SNS Components
 
-- Fast, reliable, scalable, and fully managed.
-- Simple and cost effective.
-- Decople the componetns of a cloud application.
-- It's basically a buffer between t he app components that receive data and those components that process the data.
-- Amazon SQS ensures delivery of each message at lease once and supports multiple readears and writers interacting with the same queue.
-- It doesn't guarantee FIFO delivery of mesages. If you need the order be preserved ,you can place sequncencing info in each message and recorder them after retrieving.
+- Topic: An isolated configuration for SNS, including permissions.
+  - messages (<= 256KB) are sent to a topic
+  - subscribers to that topic receive messages
+- Subscriber: endpoints  that receive messsages for a top
+  - HTTP(S)
+  - Email and Email-JSON
+  - SQS 9message can be added to one or more queues)
+  - Mobile push notifications (ios, android, Amazon, MS)
+  - lambda fucntions (function invoked)
+  - SMS (cellular message)
+- Publisher: an entity that publishes/sends messages to queue
+  - Application
+  - AWS servcies, including S3 (S3 events), CloudWatch, CloudFormation, etc
 
-#### Message Lifecycle
+## Amazon Simple Queue Service, SQS
 
-1. Component1 sends message A to a queue, and the mesage is **redundantly distributed** across the Amazon SQS servers.
-2. When component2 is ready to process a message, it retrives mesages from the queue, the Message A is returned. While Message A is being processed, it remains in the queue and is not returned to subsequently receive requests for the duration of the visibility timeout.
-3. Component 2 deletes message A from the queue to prevent the message from being received and processed again after the visibility timeout expires.
+- SQS provides fully managed, highly available message queues for inter-process/server/service messaging.
+- SQS is used mainly to create decoupled architectures.
+- Messages are added to a queue and retrieved via polling
 
-#### Delay Queues and Visibility Timeouts
+Polling Types:
 
-- Delay queues allow you to postpone the delivery of new messages in a queue for a specific number of seconds.
-- Create a Delay Queues. Default delay is 0
-- turn a existing queue into a delay queue `SetQueueAttributes`
-- When a message is in the queue but is neither delayed nor in a visibility timeout, it is considered to be “**in flight**.”
+- Short polling: Available messages are returned ASAP - a short poll might return 0 messages. Causes increated number of API calls
+- Long polling: Waits for messages for a given `WaitTimeSeconds`, it's more Efficient: less empty api calls/responses
 
-#### Queue and Message Identifiers
+there are two types of queues
 
-Amazon SQS uses three identifiers: queue URLs, message IDs, and receipt handles.
+1. standard queues
+  Standard queues are distributed and scalable to nearly unlimited message volume. the order is not guaranteed, best-effort only, and messages are guaranteed to be delivered at lease once but sometimes more than once.
+2. FIFO queues
+  first-in, first-out. Messages are delivered once only - duplicates do not occur. The throughput is limited to ~3,000 messages per second with batching or ~300 without by default.
 
-1. a queue name that is unique within the scope of all of your queues.
-2. Amazon SQS assigns each message a unique ID that it returns to you in the SendMessage response. This identifier is useful for identifying messages. The maximum length of a message ID is 100 characters.
-3. Each time you receive a message from a queue, you receive a receipt handle for that message.
-   - The handle is associated with the **act of receiving the message, not with the message itself**.
-   - to delete the message or to change the message visibility, you must provide the receipt handle and not the message ID.
-   - This means you must always receive a message before you can delete it (that is, you can’t put a message into the queue and then recall it).
-   - The maximum length of a receipt handle is 1,024 characters.
+Each SQS message can contain up to 256KB of data but can link data stored in S3 for any larger payloads.
 
-#### Message Attributes
+When a message is polled, it's hidden in the queue. It can be deleted when processing is completed - otherwise, after a `VisibilityTimeOut` period, it will return to the queue.
 
-- Amazon SQS provides support for message attributes.
-- Message attributes allow you to provide structured metadata items (such as timestamps, geospatial data, signatures, and identifiers) about the message.
-- Message attributes are optional and separate from, but sent along with, the message body.
-- Each message can have up to 10 attributes.
+Queues can be configured with a `maxReveiveCount`, allowing message that are failing to be moved to a dead-letter queue.
 
-#### Long Polling
-
-With long polling, you send a WaitTimeSeconds argument to ReceiveMessage of up to 20 seconds. If there is no message in the queue, then the call will wait up to WaitTimeSeconds for a message to appear before returning. If a message appears before the time expires, the call will return the message right away. Long polling drastically reduces the amount of load on your client.
-
-If your code makes periodic calls to the queue, this pattern is sufficient. If your SQS client is just a loop that repeatedly checks for new messages, however, then this pattern becomes problematic, as the constant calls to ReceiveMessage burn CPU cycles and tie up a thread.
-
-#### Dead Letter Queues
-
-It's a queue that other (source) queues can target to send messages that for some reason could not be successfully processed.
-
-A primary benefit of using a dead letter queue is the ability to sideline and isolate the unsuccessfully processed messages. You can then analyze any messages sent to the dead letter queue to try to determine the cause of failure.
-
-#### Access Control
-
-Amazon SQS Access Control allows you to assign policies to queues that grant specific interactions to other accounts without that account having to assume IAM roles from your account.
-
-### Amazon Simple Workflow Service (Amazon SWF)
-
-- Amazon SWF makes it easy to build applications that coordinate work across distributed components.
-- you implement workers to perform tasks
-- workers can run either on cloud infrastructure, such as Amazon EC2, or on your own premises
-- Amazon SWF stores tasks, assigns them to workers when they are ready, monitors their progress, and maintains their state, including details on their completion
-
-#### Workflows
-
-Workflows coordinate and manage the execution of activities that can be run asynchronously across multiple computing devices and that can feature both sequential and parallel processing.
-
-The workflow’s coordination logic determines the order in which activities are executed.
-
-**Workflow Domains** provides a way of scoping Amazon SWF resources within your AWS account. workflows in different domains cannot interact with one another.
-
-**Workflow history** is a detailed, complete, and consistent record of every event that occurred since the workflow execution started
-
-**Actors** can be workflow starters, deciders, or activity workers.
-
-1. **starter** is any application that can initiate workflow executions. For example, one workflow starter could be an e-commerce website where a customer places an order.
-
-2. **decider** is the logic that coordinates the tasks in a workflow. It schedules the activity tasks and provides input data to the activity workers.
-
-3. An **activity worker** is a single computer process (or thread) that performs the activity tasks in your workflow.
-
-#### Tasks
-
-Three types of tasks: activity tasks, AWS Lambda tasks, and decision tasks.
-
-1. An activity task tells an activity worker to perform its function, such as to check inventory or charge a credit card. The activity task contains all the information that the activity worker needs to perform its function.
-2. An AWS Lambda task is similar to an activity task, but executes an AWS Lambda function.
-3. A decision task tells a decider that the state of the workflow execution has changed so that the decider can determine the next activity that needs to be performed.
-
-#### Object Identifiers
-
-Amazon SWF objects are uniquely identified by workflow type, activity type, decision and activity tasks, and workflow execution.
-
----
-
-### Amazon Simple Notification Service (Amazon SNS)
-
-- It is a web service for mobile and enterprise messaging.
-- It follows the publish-subscribe (pub-sub) messaging paradigm
-- notifications being delivered to clients using a push mechanism
-- two types of clients: publishers and subscribers, or producers and consumers
-  - Publishers communicate to subscribers asynchronously by sending a message to a topic.
-  - A topic is simply a logical access point/communication channel that contains a list of subscribers and the methods used to communicate to them
-- When you send a message to a topic, it is automatically forwarded to each subscriber.
-- a publisher sends a message to the topic, and Amazon SNS delivers the message to each subscriber for that topic
-
-Common Amazon SNS Scenarios
-
-E.g., monitoring applications, workflow systems, time-sensitive information updates, mobile applications, and any other application that generates or consumes notifications.
-
-#### Fanout
-
-when an Amazon SNS message is sent to a topic and then replicated and pushed to multiple Amazon SQS queues, HTTP endpoints, or email addresses.
-
-#### Application and System Alerts
-
-SMS and/or email notifications that are triggered by predefined thresholds.
-
-#### Push Email and Text Messaging
-
-to transmit messages to individuals or groups via email and/or SMS. For example, you can use Amazon SNS to push targeted news headlines to subscribers by email or SMS
-
-#### Mobile Push Notifications
-
-to send messages directly to mobile applications. For example, you can use Amazon SNS for sending notifications to an application, indicating that an update is available.
+Lambda fucntions can be invoked based on messages on a queue offering better scaling and faster response than Auto Scaling groups for any messages that can be processed quickly.
 
 ## Amazon Snowball
 
@@ -2296,8 +2128,18 @@ Storage Gateway is a hybrid storage service that allows you to migrate data into
 Three main types of Storage Gateway:
 
 - File gateway: store fiels as objects in Amazon S3, with a local cache for low-ltency access to your most recent used data.
-- volume gateway: block storage in Amazon S3 with point-in-time backups as Amaon EBS.
-- Gateway Virtual Tape Libraries (VTL): Back up data to Aazon S3 and archive in Amazon Glacier using your existing tape-based processes.
+- Tape Gateway: Gateway Virtual Tape Libraries (VTL).Back up data to Aazon S3 and archive in Amazon Glacier using your existing tape-based processes.
+- Volume gateway: iSCSI protocol, block storage in Amazon S3 with point-in-time backups as Amaon EBS.
+
+**Volume gateway** In two modes:  cached and stored.
+
+1. Cached mode:
+    - you store your primary data **in Amazon S3** and retain your frequently accessed data locally in cache.
+    - you can achieve substantial cost savings on primary storage, minimizing the need to scale your storage on-premises, while retaining low-latency access to your frequently accessed data.
+
+2. Stored mode:
+    - you store your entire data set **locally**, while making an asynchronous copy of your volume in Amazon S3 and point-in-time EBS snapshots.
+    - This mode provides durable and **inexpensive offsite backups** that you can recover locally, to another site or in Amazon EC2.  
 
 ## Amazon Identity federation, IDF and SSO
 
@@ -2692,4 +2534,6 @@ The tool that is essential to Cost Optimization is **Cost Explorer**, which help
 ## References
 
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
+- [AWS Certified SAA 2018 - Exam Feedback](https://acloud.guru/forums/aws-certified-solutions-architect-associate/discussion/-KSDNs4nfg5ikp6yBN9l/exam_feedback_-_20_specific_po)
+- [Amazon EBS vs EFS vs S3: Picking the Best AWS Storage Option for Your Business](https://www.missioncloud.com/blog/resource-amazon-ebs-vs-efs-vs-s3-picking-the-best-aws-storage-option-for-your-business)
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
