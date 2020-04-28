@@ -808,13 +808,13 @@ Workflow steps are known as states, and they can perform work via tasks.
 A state machine can be defined using Amazon States language (ASL).
 With Stap Functions, lambda functions could only run for 15 minutes. lambda functions are stateless. State machiens maintain state and allow longer-running processes. Step Functions "replaces" SWF with a serverless version.
 
-## Amazon ECS, Elastic Container Service
+## Amazon Elastic Container Service, ECS
 
-A container is a package that contains an application, libraries and file system required to run it. Contianers run on a container engine which generally runs within a single OS sunch as Linux. Containers provide the isolation benefits of virtualisation - but are more lightweight allowing faster starts and more dense packing within a host.
-
-An image is a collection of file system layers. Docker file system are differential - each layer stores differeces from previous layers.
-
-A populat contianer enginer is Docker and is the basis for ECS.
+- A **container** is a package that contains an application, libraries and file system required to run it.
+- Contianers run on a **container engine** which generally runs within a single OS sunch as Linux. Containers provide the isolation benefits of virtualisation - but are more lightweight allowing faster starts and more dense packing within a host.
+- An image is a collection of file system layers. Docker file system are differential - each layer stores differeces from previous layers.
+- A populat contianer enginer is Docker and is the basis for ECS.
+Amazon ECS is a fully managed container orchestration service.
 
 Elastic Container Service (ECS) is a managed container solution. It can operate in either EC2 mode or Fargate mode.
 
@@ -829,6 +829,13 @@ Details:
 - **Task**: A single running copy of any contianers defined by a task definition. One working copy of an application e.g. DB and WEB contianers.
 - **Service**: Services allow task definitions to be scaled by adding additional tasks. Defines Minimum and Maximum values.
 - **Registry**: Storage for container images... i.e., ECS Container Registry or Dockerhub. Used to download image to create containers.
+
+### ECS use case
+
+1. Hybrid deployment
+2. Machine learning
+3. Batch processing
+4. Web applications
 
 ## Amazon Virtual Private Cloud, VPC
 
@@ -2226,6 +2233,40 @@ tenets of architecture best practices
 - Think parallel.
 - Loose coupling sets you free.
 - Don’t fear constraints.
+
+## AWS Elastic Transcoder
+
+Elastic Transcoder is an AWS service that allows you to convert media fiels from an input format to one or more output formats. it's delivered as a servcie, and you're billed a per-minute charge while using the service.
+
+A pip line is a queue for jobs. It stores source and destination settings, notification, security, and other high settings. Jobs are processed in the ordr they are added as resources allow.
+
+A job defiens the input object and up to 30 output objects/formats. Jobs are added to a pipeline in the same region and use the buckets defined in the pipeline for input/output.
+
+**Presets** contain transcoding settings and can be applied to jobs to ensure output compatible with various devices, such as iPhones, tablets, or other form factors.
+
+## Amazon Athena
+
+Athena is an interactive query servcie that utilizes **schema-on-read**, allowing you to run ad-hoc SQL-like queries on data from a range of sources. Results are returned in seconds, and you arebilled oly for the compute time used and any existing storage costs.
+
+Athena can query many forms of structured, and unstructured data in S3.
+
+Athena can be used to query various AWS logs, including flow logs and ELB logs.
+
+Tables are defined in a data catalog and are applied on read. Athena allows SQL queries against data stored on S3, through the schema-on-read tables.
+
+No data is modified by Anthena, and output can be sent to visualization tools.
+
+## Amazon Elastic MapReduce, EMR
+
+EMR is a tool for large-scale parallel processing of big data and other large data workloads. It is an AWS-managed implementation of the Apache Hadoop ecosystem of products, and is delivered as amanaged cluster using EC2 instance. EMR is sued for huge-scale log analysis, indexing, machine learning, financial analysis, simulations, bioinformatics, and many other large-scale applications.
+
+The **master node** manages the cluster. It manages HDFS naming, distributes workloads, and monitors health. you log in to the master node via SSH. If the master node fails, the cluster fails.
+
+EMR clusters have zero or more **core nodes**, which are managed by the master node. They run tasks and mange data for HDFS. If they fail, it can cause cluster instability.
+
+**Task nodes** are optional. They can be sued to execute tasks, but they ahve no involvement with important cluster fucntions, whhich means they can be used with spot instances. If task nodes fail, a core node starts the task on another task/core node.
+
+Data can be input from and output to S3. Intermediate data can be stored using HDFS in the cluster or EMRFS using S3.
 
 ## AWS Well-Architected Framework
 
