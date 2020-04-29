@@ -180,7 +180,6 @@ AWS S3 Objects
 native interface and higher level interfaces
 
 1. native interface
-
    - Bucket: Create, delete, **list keys in a bucket**
    - Object: Write, Read, delete an object
 
@@ -1424,6 +1423,140 @@ It determines how Amazon Route 53 responds to queries:
 - Multivalue answer routing policy
   - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
 
+It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
+
+three main functions:
+
+1. Domain registration.
+   It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
+
+2. DNS service: translates friendly domain names into IP address.
+
+   - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
+
+   - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
+
+3. Health checking
+
+   - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
+   - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+
+### Amazon Route 53 basic
+
+DNS Terms
+
+- DNS Root Servers: Trust starts somewhere. The DNS root servers are that trust - a group of servers that are authoriative to give answers about the root zone. TLDs are controlled by the root zone.
+- Top-Level Domain (TLD0: The top tier in the DNS hierarchy. Generally structured into geographic codes - such as `.au`, `.us`, `.uk` - and generic TKDs - such as `.com`. `.org` and `.edu`. large orgs or country orgs are delegated control of these by the root servers to be authoritative.
+- Subdomain: Anyting between a host and a TLD is a subdomain. Anorganization is delegated control of subdomains and is authoritative.
+- Zone and Zone File: A zone or zone file is a mapping of OPs and hosts for a given subdomain. The zone file for linuxacademy.com would contrain a record for www.
+- Records: DNS has lots of record tyes - A, MZ, AAAA, CNAME. TXT, NS
+- Name Server: A name server is a server that runs a DNS service and can either store or cache information for the DNS platform. Whether a name server caches or acts as an authority depends on if it's referenced from a higher level.
+- Authoritative:
+- The root servers are authoritative for the root zone - they are trusted by every operating system and networking stack globally. The root servers delegate ownership of a part of the hierarchy, such as `.com`, to an organization. That organization runs name servers that become authoritative - they can answer queries with authority. Because the root points at these servers, they are authoritative. These `.com` name servers can point at servers for sub domains that then become authoritative.
+- Hosts: A record in a zone file
+- FQDN: Fully qualified domain name - the host and domains: www.linuxacademy.com
+
+DNS Flow
+
+use `linuxacademy.com` as an example. The domain name system (DNS) does many things, but the common use case is to turn DNS names into IP address - like turning linuxcademay.com into `52.86.183.13`. It's a distributed system - no one part knows all.
+
+1. Step 1: Query your ISP. If it doesn't know, it handles it for ou.
+2. Step 2: The ISP queries the DNS root servers. If they don't know, they help by providing servers authoritative for `.com`.
+3. Step 3: The `.com` servers are queried. If they don't have an IP, they provide the linuxacademy.com authoritative servers.
+4. Step 4: These servers are run by LA. They will know and return one of more IPs.
+
+Registering a domain with DNS in Route 53
+
+1. Step 1: Check the domain is available.
+2. Step 2: Purchase the domain via a registrar
+3. Step 3: hosting the domain.
+4. Step 4: Records in the zone file:
+
+DNS zones
+
+A zone or hsoted zone is a container for DNS records relating to a particular domain. Route 53 supports public hosted zones, which influence the domain that is visible from the internet and VPCs. Private hosted zones are similar but accessible only from the VPCs they're associated with.
+
+Public Zones
+
+- a public hosted zone is created when you register a domain with Route 53, when you transfer a domain into Route 53, or if you created on manually
+- a hosted zone has the same name as the domain it relates to - e.g., linuxacademy.com will have a hosted zone called linuxacademy.com
+- a public zone is accessible either from internet-based DNS clients or from with any AWS VPCs.
+- A hosted zone will have "name servers" - these are the IP addresses you can give to a domain operator, so Route 53 becomes "authoritative" for a domain.
+
+Private Zones;
+
+- Private zones are created manually and associated with one or more VPCs - they're only accessible from those VPCs.
+- pribate zones need `enableDnsHostnames` and `enableDnsSupport` enabled on a VPC.
+- Not all route 53 features supported - limits on healthchecks
+- **split-view DNS**is supported, suign the same zone name for public and private zones - providing VPC resources with differenct records, e.g., testing ,internal versions of websites. With split view, private is preferred, if no matches, public is used.
+
+DNS Record Set Types
+
+- A Record (and AAAA): for a given host (wwww), an A record provides an IPv4 address and an AAAA provides an IPv6 address.
+- CNAME Record: allows aliases to be created 9not the same as alias record). A machine might have CNAMES for `www`, `ftp` and images. Each of these CNAMEs oints at an existing record in the domain. CNAMES cannot be used at the APEX of a domain.
+- MX Record: it provides the mail servers for a given domain. Each MX record has a priority. Remote mail server use this to locate the server to use when sending emails.
+- NS Record: used to set the authoritative servers for a subdomain.
+- TXT record: used for descriptive text in a domain - often used to verify domain ownership
+- Alias Records: An extension of CNAME. Can refer to AWS logical services (load balancers, S3 buckets) and AWS doesn't charge for queries of alias records against AWS resources.
+
+### Route 53 Health Checks
+
+It's used to influence route 53 routing decisions.
+
+- health checks that monitor the health of an endpoint - e.g., IP address or hostname
+- health checks that monitor the health of another health check (calculated health checks)
+- health checks that monitor CloudWatch alarms - you might want to consider something unhealthy if your DynamoDB table is experiencing performance issues.
+
+Route 53 health Checkers:
+
+- Global health check system that checks an endpoint in an agreed way with an agreed frequency.
+- **>18%** of checks report healthy = healthy, **<18%** health = unhealthy
+
+Types
+
+- Http, https: connection check in less than four seconds. Report 2xx or 3xx code within 2 seconds.
+- TCP: connection within 10 seconds
+- Http/s with string match: all the checksas with Http/s but the body is checked for a string match
+
+Route 53 and Health Checks
+
+- Records can be linked to health checks. If the check is unhealthy, the record isn't used.
+- Can be used to do failover and other routing architectures.
+
+### Route 53 Routing Policy
+
+It determines how Amazon Route 53 responds to queries:
+
+- Simple Routing Policy:
+  - A simple routing policy is a single recordw ithin a hosted zone that contains one or more values. When queried, a simple routing policy record returns all the values in a randomized order.
+  - use for a single reource that performs a given function for your domain. E.g., a web server that serves content for the `example.com` website.
+  - CANNOT: create nultiple records that have the same name and type
+  - CAN: specify multiple values in the same record, e.g., multiple IP address.
+  - The DNS client (the laptop) receives a randomized list of IPs as a result. The client can select the appropriate one and initiate an HTTP session with a resource.
+  - **Pros**: Simple, the default, even spread ofrequests
+  - **Cons**: No performance control, no granular health checks, for alias type - only a sinle AWS resource.
+- Failover routing policy
+  - it allows you to create two records with the same name. One is designated as the primary and another as secondary. Queries will resolve to the primamry - unless it's unhealthy, in which case Route 53 will respond with the secondary.
+  - use when you want to configure active-passive failover.
+  - used in conjunction with Route 53 health checks to provide failover between a primary record and a secondary record.
+  - Failover can be combined with other types to allow multiple primary and secondary records. Generally, failover is used to provide emergency resources during failures. Like a page says website is under maintenance.
+- Weighted routing policy
+  - allow granular control over queries, allowing a certain percentage of queries to reach specific records.
+  - used to control the amount of traffic that reaches specific resources.
+  - useful when testing new software or when resources are being added or removed from a configuration that doesn't use a load balancer.
+  - Records are returned based on a ratio of their weight to the total weight, assuing records are healthy.
+- Latency routing policy
+  - allows clients to be matched to resources with the lowest latency
+  - use when you have resources in multiple AWS Regions and you wnat to route traffic to the region that provides the best latency
+  - Route53 consults a latency database each time a request occurs to a given latency-based host in DNS from a resolver server. Record sets with the same name are considered part of the same latency-based set. Each is allocated to a region. The record set returned is the one with the lowest latency to the resolver server.
+- Geolocation routing policy
+  - use when you want to route traffic based on the location of your users.
+  - A no-result is returned if no match exists between a record set and the query location. Geoproximity allows a bias to expand a geographic area.
+- Geoproximity routing policy
+  - use when you want to route traffic based on the location of your resources and, optionally, shift traffic from resources in one location to resources in another.
+- Multivalue answer routing policy
+  - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
+
 ## Amazon Load Balancing
 
 - Load balancing is a method used to distribute incoming conenctions across a group o servers of services.
@@ -2207,6 +2340,21 @@ With DMS at a high level, you provision a replication instance, define source an
 - moving data between different DB engines, including schema conversion
 - Partical/subset data migration
 - migration with little to no admin overhead, as a service
+
+## Kinesis and Firehose
+
+Kinesis and Kinesis Data Firehose are two essential pieces of any high-performance streaming architecture.
+
+**Kinesis** is a scalable and relilient streaming service from AWS. it's designed to ingetst large amounts of data from hundreds, thousands, or even millions or products. Consumers can access a rolling window of that data, or it can be stored in persistent storage of database products.
+
+- **Kinesis Stream** is where you data put into. It can be used to collect, process, and analyze a large amount of incoming data. A stream is a public service accessible from inside VPCs or from the public internet by an unlimited number of producers. Kinesis streams include storage for all incoming data with a 24-hour default window, which can be increased t oseven days for an additional charge. Data records are added by producers and read by consuemrs.
+- **Kinesis Shard** provides the capacity of the stream. Kinesis shards are added to streams to allow them to scale. A stream stars with at a least one shard, which allows 1 MB of ingetstion and 2 MB of consuption. Shards can be removed from streams.
+- **Kinesis Data Record** the basic entity written to and read from Kinesis streams, a data record can be up to 1MB in size.
+
+You would use Kinesis rather than SQS when you need many producers and many consumers as well as a rolling window of data. SQS is a queue; Kinesis allows lots of independent consumer reading the same data window.
+
+the 24 hours tiem window and can get all the data is the biggest difference between Kinesis and SQS.
+You dont use Kinesis to decouple modules, to inter process messaging.
 
 ## AWS CloudTrail
 
