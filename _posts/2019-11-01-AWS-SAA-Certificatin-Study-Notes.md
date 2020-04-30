@@ -342,6 +342,11 @@ Bucket Default Encryption
 
 Objects are encrypted in S3, not buckets. Each PUT operation needs to specify encryption and type or not. A bucket default captures any put operations where no encryption method/directive is specified. It doesn't enforce that type can and cannot be used. Bucket policies can enforce.
 
+Bucket policy vs. Default encryption
+
+- Bucket policy only prevents users from uploading unencrypted objects. That is to say, users MUST encrypt the objects **before** uploads.
+- While enabling default encryption allows users to upload unencrypted objects to S3 while Amazon encrypts all the objects uploaded to the S3 bucket.
+
 ### Amazon S3 Presigned URLs
 
 All Amazon S3 objects by default are private, meaning that only the owner has access. The owner can share objects with others by creating a pre-signed URL, using their own security credentials to grant time-limited permission to download the objects.
@@ -1081,7 +1086,29 @@ Ephemeral Ports:
 - The response is from that well-known port to an ephemeral port on the client. The client decides the port.
 - NACLs are stateless, they have to consider both initiating and response traffic - state is a session-layer concept.
 
-![IMAGE](quiver-image-url/EA880B91FF120B554A58B9FFCAEC9357.jpg =472x506)
+A use case:
+
+Q: [I host a website on an EC2 instance. How do I allow my users to connect on HTTP (80) or HTTPS (443)?](https://aws.amazon.com/premiumsupport/knowledge-center/connect-http-https-ec2/)
+
+Answer:
+
+1. Security group rules
+    - in bound:
+      - For HTTP traffic, add an inbound rule on port 80 from the source address 0.0.0.0/0.
+      - For HTTPS traffic, add an inbound rule on port 443 from the source address 0.0.0.0/0.
+      - To allow IPv6 traffic, add inbound rules on the same ports from the source address ::/0
+    - Out bound:
+      - security groups are stateful, the return traffic from the instance to users is allowed automatically, so you don't need to modify the security group's outbound rules.
+2. Network ACL
+    - The default network ACL allows all inbound and outbound traffic.
+    - Network ACLs are stateless, so add both inbound and outbound rules to enable the connection to your website.
+    - explicitly allow traffic on port 80 and 443
+
+NB: If the website owner or administrator wants to access other websites from the EC2 instance:
+
+1. Network ACL outbound rules allowing traffic on port 80 or port 443 to the destination IP address
+2. Network ACL inbound rules allowing traffic on ephemeral ports (1024-65535)
+3. Security group rules allowing outbound traffic
 
 ### VPC Subnets
 
@@ -1307,139 +1334,14 @@ three main functions:
    - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
    - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
 
-### Amazon Route 53 basic
+### Active-active and active-passive failover
 
-DNS Terms
-
-- DNS Root Servers: Trust starts somewhere. The DNS root servers are that trust - a group of servers that are authoriative to give answers about the root zone. TLDs are controlled by the root zone.
-- Top-Level Domain (TLD0: The top tier in the DNS hierarchy. Generally structured into geographic codes - such as `.au`, `.us`, `.uk` - and generic TKDs - such as `.com`. `.org` and `.edu`. large orgs or country orgs are delegated control of these by the root servers to be authoritative.
-- Subdomain: Anyting between a host and a TLD is a subdomain. Anorganization is delegated control of subdomains and is authoritative.
-- Zone and Zone File: A zone or zone file is a mapping of OPs and hosts for a given subdomain. The zone file for linuxacademy.com would contrain a record for www.
-- Records: DNS has lots of record tyes - A, MZ, AAAA, CNAME. TXT, NS
-- Name Server: A name server is a server that runs a DNS service and can either store or cache information for the DNS platform. Whether a name server caches or acts as an authority depends on if it's referenced from a higher level.
-- Authoritative:
-- The root servers are authoritative for the root zone - they are trusted by every operating system and networking stack globally. The root servers delegate ownership of a part of the hierarchy, such as `.com`, to an organization. That organization runs name servers that become authoritative - they can answer queries with authority. Because the root points at these servers, they are authoritative. These `.com` name servers can point at servers for sub domains that then become authoritative.
-- Hosts: A record in a zone file
-- FQDN: Fully qualified domain name - the host and domains: www.linuxacademy.com
-
-DNS Flow
-
-use `linuxacademy.com` as an example. The domain name system (DNS) does many things, but the common use case is to turn DNS names into IP address - like turning linuxcademay.com into `52.86.183.13`. It's a distributed system - no one part knows all.
-
-1. Step 1: Query your ISP. If it doesn't know, it handles it for ou.
-2. Step 2: The ISP queries the DNS root servers. If they don't know, they help by providing servers authoritative for `.com`.
-3. Step 3: The `.com` servers are queried. If they don't have an IP, they provide the linuxacademy.com authoritative servers.
-4. Step 4: These servers are run by LA. They will know and return one of more IPs.
-
-Registering a domain with DNS in Route 53
-
-1. Step 1: Check the domain is available.
-2. Step 2: Purchase the domain via a registrar
-3. Step 3: hosting the domain.
-4. Step 4: Records in the zone file:
-
-DNS zones
-
-A zone or hsoted zone is a container for DNS records relating to a particular domain. Route 53 supports public hosted zones, which influence the domain that is visible from the internet and VPCs. Private hosted zones are similar but accessible only from the VPCs they're associated with.
-
-Public Zones
-
-- a public hosted zone is created when you register a domain with Route 53, when you transfer a domain into Route 53, or if you created on manually
-- a hosted zone has the same name as the domain it relates to - e.g., linuxacademy.com will have a hosted zone called linuxacademy.com
-- a public zone is accessible either from internet-based DNS clients or from with any AWS VPCs.
-- A hosted zone will have "name servers" - these are the IP addresses you can give to a domain operator, so Route 53 becomes "authoritative" for a domain.
-
-Private Zones;
-
-- Private zones are created manually and associated with one or more VPCs - they're only accessible from those VPCs.
-- pribate zones need `enableDnsHostnames` and `enableDnsSupport` enabled on a VPC.
-- Not all route 53 features supported - limits on healthchecks
-- **split-view DNS**is supported, suign the same zone name for public and private zones - providing VPC resources with differenct records, e.g., testing ,internal versions of websites. With split view, private is preferred, if no matches, public is used.
-
-DNS Record Set Types
-
-- A Record (and AAAA): for a given host (wwww), an A record provides an IPv4 address and an AAAA provides an IPv6 address.
-- CNAME Record: allows aliases to be created 9not the same as alias record). A machine might have CNAMES for `www`, `ftp` and images. Each of these CNAMEs oints at an existing record in the domain. CNAMES cannot be used at the APEX of a domain.
-- MX Record: it provides the mail servers for a given domain. Each MX record has a priority. Remote mail server use this to locate the server to use when sending emails.
-- NS Record: used to set the authoritative servers for a subdomain.
-- TXT record: used for descriptive text in a domain - often used to verify domain ownership
-- Alias Records: An extension of CNAME. Can refer to AWS logical services (load balancers, S3 buckets) and AWS doesn't charge for queries of alias records against AWS resources.
-
-### Route 53 Health Checks
-
-It's used to influence route 53 routing decisions.
-
-- health checks that monitor the health of an endpoint - e.g., IP address or hostname
-- health checks that monitor the health of another health check (calculated health checks)
-- health checks that monitor CloudWatch alarms - you might want to consider something unhealthy if your DynamoDB table is experiencing performance issues.
-
-Route 53 health Checkers:
-
-- Global health check system that checks an endpoint in an agreed way with an agreed frequency.
-- **>18%** of checks report healthy = healthy, **<18%** health = unhealthy
-
-Types
-
-- Http, https: connection check in less than four seconds. Report 2xx or 3xx code within 2 seconds.
-- TCP: connection within 10 seconds
-- Http/s with string match: all the checksas with Http/s but the body is checked for a string match
-
-Route 53 and Health Checks
-
-- Records can be linked to health checks. If the check is unhealthy, the record isn't used.
-- Can be used to do failover and other routing architectures.
-
-### Route 53 Routing Policy
-
-It determines how Amazon Route 53 responds to queries:
-
-- Simple Routing Policy:
-  - A simple routing policy is a single recordw ithin a hosted zone that contains one or more values. When queried, a simple routing policy record returns all the values in a randomized order.
-  - use for a single reource that performs a given function for your domain. E.g., a web server that serves content for the `example.com` website.
-  - CANNOT: create nultiple records that have the same name and type
-  - CAN: specify multiple values in the same record, e.g., multiple IP address.
-  - The DNS client (the laptop) receives a randomized list of IPs as a result. The client can select the appropriate one and initiate an HTTP session with a resource.
-  - **Pros**: Simple, the default, even spread ofrequests
-  - **Cons**: No performance control, no granular health checks, for alias type - only a sinle AWS resource.
-- Failover routing policy
-  - it allows you to create two records with the same name. One is designated as the primary and another as secondary. Queries will resolve to the primamry - unless it's unhealthy, in which case Route 53 will respond with the secondary.
-  - use when you want to configure active-passive failover.
-  - used in conjunction with Route 53 health checks to provide failover between a primary record and a secondary record.
-  - Failover can be combined with other types to allow multiple primary and secondary records. Generally, failover is used to provide emergency resources during failures. Like a page says website is under maintenance.
-- Weighted routing policy
-  - allow granular control over queries, allowing a certain percentage of queries to reach specific records.
-  - used to control the amount of traffic that reaches specific resources.
-  - useful when testing new software or when resources are being added or removed from a configuration that doesn't use a load balancer.
-  - Records are returned based on a ratio of their weight to the total weight, assuing records are healthy.
-- Latency routing policy
-  - allows clients to be matched to resources with the lowest latency
-  - use when you have resources in multiple AWS Regions and you wnat to route traffic to the region that provides the best latency
-  - Route53 consults a latency database each time a request occurs to a given latency-based host in DNS from a resolver server. Record sets with the same name are considered part of the same latency-based set. Each is allocated to a region. The record set returned is the one with the lowest latency to the resolver server.
-- Geolocation routing policy
-  - use when you want to route traffic based on the location of your users.
-  - A no-result is returned if no match exists between a record set and the query location. Geoproximity allows a bias to expand a geographic area.
-- Geoproximity routing policy
-  - use when you want to route traffic based on the location of your resources and, optionally, shift traffic from resources in one location to resources in another.
-- Multivalue answer routing policy
-  - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
-
-It's a highly available and scalable cloud DNS web service to route end users to Internet applications.
-
-three main functions:
-
-1. Domain registration.
-   It **isn’t required** to use Amazon Route 53 as your DNS service or to configure health checking for your resources.
-
-2. DNS service: translates friendly domain names into IP address.
-
-   - with Amazon Route 53 Domain: automatically configured as the DNS service for the domain, and a hosted zone will be created for your domain. You add resource record sets to the hosted zone, which define how you want Amazon Route 53 to respond to DNS queries for your domain.
-
-   - with another domain registrar: You can transfer DNS service to Amazon Route 53, with or without transferring registration for the domain
-
-3. Health checking
-
-   - Health checks and DNS failover are major tools in the Amazon Route 53 feature set that help make your application highly available and resilient to failures.
-   - Amazon Route 53 health checks are not triggered by DNS queries; they are run periodically by AWS, and results are published to all DNS servers.
+- Active-active failover
+  - use it when you want all of your resources to be available the majority of the time.
+  - When a resource becomes unavailable, Route 53 can detect that it's unhealthy and stop including it when responding to queries.
+- Active-passive failover
+  - use it when you want a primary resource or group of resources to be available the majority of the time and you want a secondary resource or group of resources to be on standby in case all the primary resources become unavailable.
+  - When responding to queries, Route 53 includes only the healthy primary resources. If all the primary resources are unhealthy, Route 53 begins to include only the healthy secondary resources in response to DNS queries.
 
 ### Amazon Route 53 basic
 
@@ -2074,7 +1976,20 @@ Aurora Serverless is also able to scale down to zero, where the only cost is sto
 
 ## Amazon Redshift
 
-It's a data warehouse service, a relational database designed for OLAP scenarios and optimized for high-performance analysis and reporting of very large database. It's based on industry-standard PostgreSQL.
+- It's a petabyte-scale data warehouse product available within AWS.
+- It's capable of being used for ad-hoc warehousing/analytics or long-running deployments.
+- It's a column-based database desinged for analytical workloads.
+- Generally, a relational store like RDS would be used for OLTP workloads (e.g., queries, inserts, updates, and deletes), and Redshift would be used for OLAP (e.g., retrieval and analytics).
+- Multiple databases become source data to be injected into a data warehouse solution such as Redshit.
+
+Data can be loaded from S3 and unloaded to S3. Additionally, backups can be performed to S3, and various AWS services such as Kinesis can inject data into Redshift.
+You can configure Amazon Redshift to automatically copy snapshots (automated or manual) for a cluster to another AWS Region.
+You can restore a single table from a snapshot instead of restoring an entire cluster.
+
+NB:
+
+- Amazon Redshift does not support read replicas and will not automatically scale
+- Amazon Redshift has the ability to automatically back up your cluster to a second AWS region!
 
 ## Amazon DynamoDB
 
@@ -2156,7 +2071,7 @@ DAX maintains two distinct caches: the item cache and the query cache.
 - the **item cache** is populated with results from `GetItem` and `BatchGetItem` and has a five-minites default TTL.
 - the **query cache** stores results of `Query` and `Scan` operations and caches based on the parmeters specified.
 
-## ElastiCache
+## Amazon ElastiCache
 
 It is an in-memory cache that provides the Memcached and Redis caching engines.
 
@@ -2221,6 +2136,11 @@ Queues can be configured with a `maxReveiveCount`, allowing message that are fai
 
 Lambda fucntions can be invoked based on messages on a queue offering better scaling and faster response than Auto Scaling groups for any messages that can be processed quickly.
 
+### SNS + SQS fanout architecture
+
+- SNS pushes them to everywhere they need to go
+- SQS queues the messages
+
 ## Amazon Snowball
 
 AWS provides three methods for movign large amoutns of data quickly in and out of AWS:
@@ -2280,46 +2200,6 @@ Three main types of Storage Gateway:
 2. Stored mode:
     - you store your entire data set **locally**, while making an asynchronous copy of your volume in Amazon S3 and point-in-time EBS snapshots.
     - This mode provides durable and **inexpensive offsite backups** that you can recover locally, to another site or in Amazon EC2.  
-
-## Amazon Identity federation, IDF and SSO
-
-- **Identity federation (IDF)** is an architecture where identities of an external identity provider (IDP) are recognized.
-- **Single sign-on (SSO)** is where the credentials of an external identity are used to allow access to a local system (e.g., AWS).
-
-Types of IDF:
-
-- **Crosee-acount roles**: a remote account (IDP) is allowed to assume a role and access your accout's resource.
-- **SAML 2.0 IDF**: an on-premises or AWS-hosted directory service instance is configured to allow Active Directory users to log in to the AWS console.
-- **Web Identity Federation**: IDPs sunch as Google, Amazon, and Facebook are allowed to assume roels and access resources in your account.
-
-**Congnito** and the **Secure Token Service (STS)** are sued for IDF. A federated identity is verified using an external IDP and by proving the identity (using a token or assertion of some kind) is allowed to swap that ID for temporary AWS credentials by assuming a role.
-
-IDF is the process of allowing external identities to be used to indirectly access AWS services. This lesson covers the architecture of IDF using SAML 2.0 and web identities, and concludes with a brief demo using the Web Identity Federation Playground.
-
-### When and hwo to use IDF
-
-### Enterprise Access to AWS Resources
-
-- users/staff have an existing pool of identities
-- you need those identities to be used across all enterprise systems, including AWS
-- access to AWS resources using SSO
-- potentially tens or hundreds of thousands of users - more than IAM can handle
-- you might have an ID team within your business
-
-### Mobile and Web Application
-
-- Mobile or web application requries access to AWS resources
-- you need a certain level of guest access - and extra once logged in
-- customers have other identities - Google, Twitter, Facebook, etc - and need to use those
-- you don't want credentials stored within the application
-- could be millions or more users - beyond the capabilities of IAM
-- customers might have multiple third-party logins, but they represent one real person
-
-### Centralized identity Management (AWS Accounts)
-
-- tens or hundreds of AWS accounts in an organization
-- need central store of IDs - either IAM or an external provider
-- roels switching used fro man ID account into memeber accounts
 
 ## Amazon Database Migration Service, DMS
 
@@ -2724,5 +2604,4 @@ The tool that is essential to Cost Optimization is **Cost Explorer**, which help
 
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
 - [AWS Certified SAA 2018 - Exam Feedback](https://acloud.guru/forums/aws-certified-solutions-architect-associate/discussion/-KSDNs4nfg5ikp6yBN9l/exam_feedback_-_20_specific_po)
-- [Amazon EBS vs EFS vs S3: Picking the Best AWS Storage Option for Your Business](https://www.missioncloud.com/blog/resource-amazon-ebs-vs-efs-vs-s3-picking-the-best-aws-storage-option-for-your-business)
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
