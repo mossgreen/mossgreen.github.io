@@ -316,7 +316,10 @@ All objects within a S3 bucket use a storage class, known as a storage tier. Sto
   - It works by storing objects in two access tiers: one tier that is optimized for frequent access and another lower-cost tier that is optimized for infrequent access.
   - Small monthly monitoring and auto-tiering fee
 
-Lifecycle policies allow objects or versions to be transitioned between storage classes or expired when no longer required.
+NB:
+
+- Lifecycle policies allow objects or versions to be transitioned between storage classes or expired when no longer required.
+- **S3 and S3-IA has the same retrieval time**. The diff is that you are charged for retrieval. Availability is 99.99 vs 99.9
 
 ### Object Lifecycle Management
 
@@ -1586,23 +1589,6 @@ Metrics such as CPU unilization or network transfer can be used either to scale 
 
 Scaling policies can be simple, step scaling, or target tracking.
 
-## Amazon CloudWatch
-
-It is a monitoring service.
-It monitors AWS resources and applications in real time.
-It allows organizations to collect and track metrics, collect and monitor log files, and set alarms, and make changes to the resources being monitored based on rules you define.
-
-Types:
-
-1. Basic monitorning. It sends data points to Amazon CloudWatch **every five minutes** for a limited number of preselected metrics at no charge. Default option.
-2. Detaild monitorning. It sends data points to Amazon CloudWatch **every minutes** and allows data aggregation for an additional charge. Need to enable it manually.
-
-Amazon CloudWatch metrics can be retrieved by performaing a GET request.
-
-Amazon CloudWatch Logs can be used to monitor, store and acsess log files from Amazon EC2 instances, aWS CloudTrail, and other sources.
-
-Each AWS account is limited to 5,000 alarms per AWS account, and metrics data is retained for two weeks by default.
-
 ## AWS Identity and Access Management (IAM)
 
 IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users traditional identity concepts such as users, groups, and accesscontrol policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
@@ -2332,6 +2318,73 @@ EMR clusters have zero or more **core nodes**, which are managed by the master n
 **Task nodes** are optional. They can be sued to execute tasks, but they ahve no involvement with important cluster fucntions, whhich means they can be used with spot instances. If task nodes fail, a core node starts the task on another task/core node.
 
 Data can be input from and output to S3. Intermediate data can be stored using HDFS in the cluster or EMRFS using S3.
+
+## Logging and Monitoring: CloudWatch, CloudTrail, VPC Flow Logs
+
+## CloudWatch
+
+- Use CloudWatch to monitor your AWS resources and the applications you run on AWS in real time.
+- It's responsible for metirc colectin, monitoring, and virualization for most AWS services and can be extended for no-premises infrastructure and custom applications.
+- It's a service that provides near real-time monitoring of AWS products. In essence, it's a metrics repository. You can import custom metric data in real-time from some AWS services and no-premises platforms.
+
+Data retention is based on granularity:
+
+- one hour metrics are retained for 455 days
+- five minutes metirc for 63 days
+- one minute metrics for 15 days
+
+Metrics can be configured with alarms that can take actiosn, and data can be presented as a dashboard.
+
+### CloudWatch Metric and Alarms
+
+A CloudWatch metric is a set of data points over time. An example is CPU utilization of an EC2 isntance.
+
+Alarms can be created on metircs, taking an action of the alarm is triggerred.
+
+Alarms have three states:
+
+- INSUFFICIENT: not enough data to judge the state - alarms are often start in this state. alarms are oftenstart in this state.
+- ALARM: the alarm threshold has been breached (e.g., > 90% CPU
+- OK: the threshold has not been breached.
+
+Alarms have a number of key components:
+
+- Metric: the data points over time being measured
+- Threshold: exceeding this is bad (static or anomaly)
+- Period: how long the threashold should be bad before an alarm is generated
+- Action: What do to when an alarm triggeres:
+  - SNS
+  - Auto Scaling
+  - EC2
+
+### CloudWatch Logs
+
+- It forms part of the wider CloudWatch product and offers log ingestion, searching, management, and metric filter functionality.
+- CloudWatch Logs is used by many AWS services for log storage and can be extended for custom applications and on-premises servers.
+- It accesses logs from EC2, on-premises servers, Lambda, CloudTrail, Route 53, VPN Flow Logs, custom applications, and much more.
+- Metirc filters can be used to analyze logs and create metrics (e.g., failed SSH logins)
+
+A **metric filter** pattern matches text in all log events in all log streams of whichever log group it's created on, creating a metric.
+A **log group** is a container for log streams. It controls retention, monitoring, and access control.
+A **log event** is a timestamp and a raw message.
+A **log stream** is a sequence of log events with the same source
+
+## Amazon CloudTrail
+
+- It is a critical product within AWS, as it provides full API/account activity logging across all regions in an account and (optionally) all accounts within an AWS Organization.
+- It'a a governace, compliance, risk management, and auditing service that records account activity with an AWS account.
+- Any actions taken by **users, roles, or AWS services** are recorded to the service.
+- Activity is recorded as a CloudTrail event, and by default you can view 90 days via event history.
+- Trails can be created, giving more control over logging and allowing events to be stored in S3 and CloudWatch logs
+
+Events cna be **management events** that log control plane events (e.g., user login, configuring security, and adjustring security groups) or data events (e.g., object-level events in S3 or function-level events in Lambda)
+
+AWS CloudTrail can integrate with AWS KMS to provde with logs of all key usage to help meet regulatory and compliance needs.
+
+### CloudWatch vs. CloudTrail
+
+- CloudWatch: What's happening?
+- CloudTrail: Who do what?
 
 ## AWS Well-Architected Framework
 
