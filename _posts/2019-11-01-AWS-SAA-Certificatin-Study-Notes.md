@@ -566,6 +566,19 @@ Two concepts key to launching instances:
 1. The acount of virtual hardware dedicated to the instance
 2. The software loaded on the instance
 
+### Amazon EC2 Dedicated Hosts
+
+**Dedicated Host** gives you additional visibility and control over how instances are placed on a physical server, and you can consistently deploy your instances to the same physical server over time.
+
+As a result, Dedicated Hosts enable you to use your existing server-bound software licenses and address corporate compliance and regulatory requirements.
+
+Benefis:
+
+1. Save money on licensing costs
+2. Help meet corporate compliance requirements
+
+Comparing Dedicated Hosts to Dedicated Instances
+
 ### Instance Types and Sizes
 
 Instance type varies in the following dimensions;
@@ -1589,7 +1602,31 @@ Metrics such as CPU unilization or network transfer can be used either to scale 
 
 Scaling policies can be simple, step scaling, or target tracking.
 
-## AWS Identity and Access Management (IAM)
+### Route 53 vs. ELB
+
+|Route 53 | ELB |
+|---|---|
+|Route 53 routes domain traffic to ELB load balancer  | distribute traffic to each EC2 instances |
+|help balance traffic 'across' regions  | within one region |
+|only changes the address that your clients' requests resolve to  |ELB actually reroutes traffic  |
+|have to either manually replace the old failed instance with the new one in the route or add some script to your launch configuration to automatically register the new instance with Route53 and remove the failed one.  |can use autoscaling to automatically register new instances added to the group  |
+
+### Monitoring Load Balancer
+
+- CloudWatch metrics
+  - use Amazon CloudWatch to retrieve statistics about data points for your load balancers and targets as an ordered set of time-series data, known as metrics.
+  - use these metrics to verify that your system is **performing as expected**
+- Access logs
+  - use access logs to capture detailed information about the requests made to your load balancer and store them as log files in Amazon S3.
+  - use these access logs to analyze **traffic patterns** and to **troubleshoot issues** with your targets.
+- Request tracing
+  - use request tracing to track HTTP requests.
+  - The load balancer adds a header with a trace identifier to each request it receives.
+- CloudTril logs
+  - capture detailed information about the calls made to the Elastic Load Balancing API and store them as log files in Amazon S3.
+  - to determine which calls were made, the source IP address where the call came from, who made the call, when the call was made, and so on
+
+## AWS Identity and Access Management, IAM
 
 IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users traditional identity concepts such as users, groups, and accesscontrol policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
 
@@ -1825,6 +1862,20 @@ Not appropriate:
 - All or Most Requests Come From a Single Location. you will not take advantage of multiple edge locations.
 - All or Most Requests Come Through a Corporate VPN.
 
+### Invalidate CloudFront Caches
+
+By default, CloudFront caches a response from Amazon S3 for 24 hours (Default TTL of 86,400 seconds). If your request lands at an edge location that served the Amazon S3 response within 24 hours, CloudFront uses the cached response even if you updated the content in Amazon S3.
+
+push the updated S3 content from CloudFront:
+
+- Invalidate the S3 objects:
+  - the next request retrieves the object directly from Amazon S3.
+  - Each AWS account is allowed 1,000 free invalidation paths per month
+- Use object versioning
+  - use if update content frequently
+  - you can revert changes because the previous version of the object remains in Amazon S3 under the previous name
+  - equires more Amazon S3 storage.
+
 ## Database and AWS
 
 The database needs to meet the performance demands, the availability needs, and the recoverability characteristics of the system.
@@ -2008,6 +2059,10 @@ Aurora Serverless is also able to scale down to zero, where the only cost is sto
 Data can be loaded from S3 and unloaded to S3. Additionally, backups can be performed to S3, and various AWS services such as Kinesis can inject data into Redshift.
 You can configure Amazon Redshift to automatically copy snapshots (automated or manual) for a cluster to another AWS Region.
 You can restore a single table from a snapshot instead of restoring an entire cluster.
+
+### Workload management
+
+Amazon Redshift workload management (WLM) enables users to flexibly manage priorities within workloads so that short, fast-running queries won't get stuck in queues behind long-running queries.
 
 NB:
 
@@ -2368,6 +2423,20 @@ A **metric filter** pattern matches text in all log events in all log streams of
 A **log group** is a container for log streams. It controls retention, monitoring, and access control.
 A **log event** is a timestamp and a raw message.
 A **log stream** is a sequence of log events with the same source
+
+### CloudWatch Events
+
+It has a near real-time visibility of changes tht happend within an AWS account. Using rules, you can match against certain events within an account and deliver those events to a number of supported targets.
+
+Within rles, many AWS services are natively supported as event sources and deliver the events directly. For others, CloudWatch allows event pattern matching against CloudTrail events. Additional rules support scheduled events as sources, allowing a cron-style fucntion for periodically passing events to targets.
+
+Some examples of event targets include:
+
+- EC2 instance
+- lambda fucntions
+- Step functions state machines
+- SNS topics
+- SQS queues
 
 ## Amazon CloudTrail
 
