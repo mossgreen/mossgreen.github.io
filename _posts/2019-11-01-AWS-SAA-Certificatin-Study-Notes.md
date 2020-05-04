@@ -126,7 +126,7 @@ AZs
    - Amazon Simple Workflow Service (Amazon SWF)
    - Amazon Simple Queue Service (Amazon SQS) ★★
 
-## Amazon Simple Storage Service, Amazon S3
+## Amazon Simple Storage Service, S3
 
 ### Comman use cases for Amazon S3
 
@@ -2034,7 +2034,30 @@ Aurora operates with a radically differenct architecture as opposed to the other
 - One writer and multiple readers
 - One writer and multiple readers - Parallel query
 
-### Auroral Global
+### Aurora endpoints
+
+Amazon Aurora typically involves a cluster of DB instances instead of a single instance. Each connection is handled by a specific DB instance. When you connect to an Aurora cluster, the host name and port that you specify point to an **intermediate handler called an endpoint**.
+
+Types of Aurora Endpoints
+
+- Cluster endpoint (or writer endpoint)
+  - connects to the current **primary DB** instance
+  - Each Aurora DB cluster has one cluster endpoint and one primary DB instance.
+  - You use the cluster endpoint for all write operations on the DB cluster, including inserts, updates, deletes, and DDL changes.
+  - You can also use the cluster endpoint for read operations, such as queries.
+  - provides failover support for read/write connections to the DB cluster
+- Reader endpoint
+  - provides load-balancing support for read-only connections to the DB cluster.
+  - Each Aurora DB cluster has one reader endpoint.
+  - reduces the overhead on the primary instance
+  - handle simultaneous SELECT queries
+- Custom endpoint
+  - You define which instances this endpoint refers to, and you decide what purpose the endpoint serves
+  - An Aurora DB cluster has no custom endpoints until you create one
+  - You can't use custom endpoints for Aurora Serverless clusters.
+- Instance endpoint
+  - connects to a specific DB
+  - e.g.,  uses instance endpoints to improve connection speed after a failover for Aurora PostgreSQ
 
 ### Aurora Serverless
 
@@ -2299,7 +2322,7 @@ With DMS at a high level, you provision a replication instance, define source an
 - Partical/subset data migration
 - migration with little to no admin overhead, as a service
 
-## Kinesis and Firehose
+## Amazon Kinesis and Firehose
 
 Kinesis and Kinesis Data Firehose are two essential pieces of any high-performance streaming architecture.
 
@@ -2454,6 +2477,36 @@ AWS CloudTrail can integrate with AWS KMS to provde with logs of all key usage t
 
 - CloudWatch: What's happening?
 - CloudTrail: Who do what?
+
+## Amazon Key Management Service, KMS
+
+KMS provides regional, secure key management and encryption and decryption services. KMS is FIPS 140-2 level 2 validated, and certain aspects support level 3 (exam hint). Everything is KMS is regional. KMS can use CloudHSM via Custom key Stores (FIPS 140-2 Level 3)
+
+KMS Manages customer master keys (CMK), which are created in region ans never leave the region or KMS. They can encrypt or decrypt data up to 4KB. CMKs have key policies and can be used to create other keys.
+
+- KMS can **encrypt** data up to 4KB with a CMK - you can supply the data and specify the specify the key to use
+- It can **decrypt** up to 4KB - you provide the ciphertext, and it returns the plaintext.
+- You can **also re-encrypt** up to 4KB - you supply the ciphertext, the new key to use ,and you are returned new cipher text (at no point do you see the plaintext)
+
+KMS can generate a data encyption key (DEK) using a CMK. YOu or a service can use a DEK to encrypt or decrypt data of any size. KMS supplies a plaintext version and an ecrypted version.
+
+The encrypted DEK and encrypted data can be stored together. KMS is used to decrypt the DEK, which can the decrypte the data.
+
+### Envelope encyption
+
+When you encrypt your data, your data is protected, but you have to protect your encryption key. One strategy is to encrypt it.
+
+**Envelope encryption** is the practice of encrypting plaintext data with a data key, and then encrypting the data key under another key.
+
+Eventually, one key must remain in plaintext so you can decrypt the keys and your data. This top-level plaintext key encryption key is known as the **master key**.
+
+AWS KMS helps you to protect your master keys by storing and managing them securely.
+
+### Three types of AWS KMS
+
+1. Customer managed CMK
+2. AWS managed CMK
+3. AWS owned CMK 
 
 ## AWS Well-Architected Framework
 
