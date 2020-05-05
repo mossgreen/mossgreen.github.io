@@ -882,6 +882,16 @@ Details:
 3. Batch processing
 4. Web applications
 
+### ECS Service Load Balancing
+
+It supports:
+
+- Application Load Balancer: route HTTP/HTTPS (or Layer 7) traffic
+- Network Load Balancer: route TCP (or Layer 4) traffic
+- Classic Load Balancer: route TCP (or Layer 4) traffic
+
+Layer 7 routing means it can route based on content metadata.
+
 ## Amazon Virtual Private Cloud, VPC
 
 ### Sever Layer OSI Model
@@ -1086,6 +1096,17 @@ Static VS dynamic NAT
 
 - Static NAT: A private IP is mapped to a public IP (what IGWs do). the process of 1:1 translation where an internet gateway converts a private address to a public IP address.
 - Dynamic NAT: A range of private addresses are mapped onto one or more public (used by your home router and NAT gateways). Dynamic NAT is a variation that allows many private IP addresses to get outgoing internet access using a smaller number of public IPs (generally one). Dynamic NAT is provided within AWS using a NAT gateway that allows private subnets in an AWS VPC to access the internet.
+
+NAT High Availability
+
+If you have resources in multiple Availability Zones and they share one NAT gateway, in the event that the NAT gateway’s Availability Zone is down, resources in the other Availability Zones lose internet access.
+
+To create an Availability Zone-independent architecture, create a NAT gateway in each Availability Zone and configure your routing to ensure that resources use the NAT gateway in the same Availability Zone.
+
+Best practice when sending traffic to Amazon S3 or DynamoDB in the same Region
+
+- To avoid data processing charges for NAT gateways when accessing Amazon S3 and DynamoDB that are in the same Region, set up a gateway endpoint and route the traffic through the gateway endpoint instead of the NAT gateway.
+- There are no charges for using a gateway endpoint.
 
 ### Security Group
 
@@ -1499,6 +1520,13 @@ It determines how Amazon Route 53 responds to queries:
   - use when you want to route traffic based on the location of your resources and, optionally, shift traffic from resources in one location to resources in another.
 - Multivalue answer routing policy
   - use when you want Route 53 to respond to DNS queries with up to eight healthy records selected at random.
+
+Simply put:
+
+1. Simple routing policy – Use for a single resource that performs a given function for your domain, for example, a web server that serves content for the example.com website.
+2. Failover routing policy – Use when you want to configure active-passive failover.
+3. Weighted routing policy – Use to route traffic to multiple resources in proportions that you specify.
+4. use multivalue answer routing when you want to associate your routing records with a Route 53 health check
 
 ## Amazon Load Balancing
 
@@ -1997,6 +2025,18 @@ Two easy-to-use options
 For highly availability and disaster recovery -- Multi AZ
 For performance -- read replicas
 
+### RDS failover
+
+Amazon RDS handles failovers automatically so you can resume database operations as quickly as possible without administrative intervention.
+
+The primary DB instance switches over automatically to the standby replica if any of the following conditions occur:
+
+- An Availability Zone outage
+- The primary DB instance fails
+- The DB instance's server type is changed
+- The operating system of the DB instance is undergoing software patching
+- A manual failover of the DB instance was initiated using Reboot with failover
+
 ## Amazon Aurora
 
 Aurora is not just an enhancement of RDS - it's a new architecture with shared storage, addressable replicas, and parallel queries.
@@ -2210,6 +2250,16 @@ Generally, ElastiCache is used with key/value database or to store dimple sessio
 - Publisher: an entity that publishes/sends messages to queue
   - Application
   - AWS servcies, including S3 (S3 events), CloudWatch, CloudFormation, etc
+
+### Common Amazon SNS scenarios
+
+1. Fanout
+    - SNS message is sent to a topic and then replicated and pushed to multiple Amazon SQS queues, HTTP endpoints, or email addresses.
+    - This allows for parallel asynchronous processing
+2. Application and system alerts
+3. Push email and text messaging
+4. Mobile push notifications
+5. Message durability
 
 ## Amazon Simple Queue Service, SQS
 
@@ -2506,7 +2556,7 @@ AWS KMS helps you to protect your master keys by storing and managing them secur
 
 1. Customer managed CMK
 2. AWS managed CMK
-3. AWS owned CMK 
+3. AWS owned CMK
 
 ## AWS Well-Architected Framework
 
