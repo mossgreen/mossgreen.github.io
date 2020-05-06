@@ -762,6 +762,12 @@ Ideal for
 - other temporary content
 - data that is replicated across a fleet of instances, such as a load-balanced pool of web servers.
 
+### prevent my EBS volumes from being deleted when I terminate my EC2 instances
+
+To preserve the root volume when an instance is terminated, change the `DeleteOnTermination` attribute for the root volume to `false`.
+
+By default, the `DeleteOnTermination` attribute for the root volume of an instance is set to true, but it is set to false for all other volume types.
+
 ## Amazon Elastic Block Store, Amazon EBS
 
 ### Why you want to use EBS for EC2
@@ -1825,6 +1831,28 @@ Exam tips:
   - AWS service acess
   - "Break-glass" style extra access
 
+## AWS Organizations
+
+It's an account management service that lets you consolidate multiple AWS accounts into an organization that you create and centrally manage.
+
+### Service control policies, SCPs
+
+SCPs offer central control over the maximum available permissions for all accounts in your organization, allowing you to ensure your accounts stay within your organization’s access control guidelines.
+
+SCPs are available only in an organization that has all features enabled.
+
+SCPs alone are **not sufficient** for allowing access in the accounts in your organization.
+
+Attaching an SCP to an **AWS Organizations entity** (root, OU, or account) defines a guardrail for what actions the principals can perform.
+
+You still need to attach identity-based or resource-based policies to principals or resources in your organization's accounts to actually grant permissions to them.
+
+### SCPs vs. IAM policy
+
+- AWS Organizations does not replace associating IAM policies with users, groups, and roles within an AWS account.
+- **IAM policies** let you allow or deny access to AWS services (such as Amazon S3), individual AWS resources (such as a specific S3 bucket), or individual API actions (such as s3:CreateBucket). An IAM policy can be applied only to IAM users, groups, or roles, and it can never restrict the root identity of the AWS account.
+- **AWS Organizations** lets you use service control policies (SCPs) to allow or deny access to particular AWS services for individual AWS accounts, or for groups of accounts within an organizational unit (OU). The specified actions from an attached SCP affect all IAM users, groups, and roles for an account, including the root account identity. When an SCP is applied to an OU, it is inherited by all of the AWS accounts in that OU.
+
 ## Amazon CloudFront
 
 - CloudFront is an essential component for global applications.
@@ -2147,6 +2175,15 @@ E.g.,
 - primary key: song track id, 01,02,03...;
   - Attributes: name: song1, length:2min,...
 
+### Read Consistency
+
+- Eventually Consistent Reads: The response might include some stale data
+- Strongly Consistent Reads:
+  - during network delay, may return a server error (HTTP 500).
+  - may have higher latency
+  - not supported on global secondary indexes
+  - use more throughput capacity than eventually consistent reads
+  
 ### DynamoDB capacity modes
 
 - On-demand
@@ -2449,7 +2486,7 @@ Data can be input from and output to S3. Intermediate data can be stored using H
 
 ## Logging and Monitoring: CloudWatch, CloudTrail, VPC Flow Logs
 
-## CloudWatch
+## AWS CloudWatch
 
 - Use CloudWatch to monitor your AWS resources and the applications you run on AWS in real time.
 - It's responsible for metirc colectin, monitoring, and virualization for most AWS services and can be extended for no-premises infrastructure and custom applications.
