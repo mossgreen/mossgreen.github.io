@@ -440,6 +440,18 @@ Commonly used to:
 
 A second region does not significantly increase durability.
 
+### S3 with CloudFront
+
+To allow access to an Amazon S3 bucket only from a CloudFront distribution:
+
+- First add an origin access identity (OAI) to your distribution.
+- Then, review your bucket policy and Amazon S3 access control list (ACL) to be sure that:
+  - Only the OAI can access your bucket.
+  - CloudFront can access the bucket on behalf of requesters.
+  - Users can't access the objects in other ways, such as by using Amazon S3 URLs.
+
+Note: After you restrict access to your bucket using CloudFront, you can optionally add another layer of security by integrating AWS WAF.
+
 ### Amazon S3 Logging
 
 In order to track requests to your Amazon S3 bucket, you can enable Amazon S3 server access logs.
@@ -1567,7 +1579,8 @@ Classic Load Balancers are the oldest type of load balancer and generally should
 Application Load Balancers (ALBs) are devices that operate at Layer 7 of the OSI network model — understanding the HTTP/S protocol. In addition, ALBs introduce a number of advanced features that result in a cost reduction, performance increase, and added flexibility. ALBs are, in most cases, the recommended load balancer to use for projects.
 
 - ALBs operate at layer 7 of the OSI model. They undertand HTTP and HTTPS and can load balance based on this protoccol layer.
-- ALBs are now recommended as the default LB for VPCs. They perform better than CLBs and are almost always cheaper.
+- ALBs are now **recommended as the default** LB for VPCs. They perform better than CLBs and are almost always cheaper.
+- ALBs are also support two additional protocols: WebSocket and HTTP/2.
 - Content rules can direct certain traffic to specific target groups.
   - Host-based rules: Route traffic based on the host used
   - Path-based ruels: Route traffic based on URL path
@@ -2183,7 +2196,11 @@ E.g.,
   - may have higher latency
   - not supported on global secondary indexes
   - use more throughput capacity than eventually consistent reads
-  
+
+### Cross-Region Replication
+
+You can create tables that are automatically replicated across two or more AWS Regions, with full support for multimaster writes. This gives you the ability to build fast, massively scaled applications for a global user base without having to manage the replication process.
+
 ### DynamoDB capacity modes
 
 - On-demand
