@@ -863,6 +863,18 @@ API Gateway can use other AWS services for compute (Faas/Iaas) as well as to sto
 
 Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
 
+### API Gateway control access
+
+API Gateway supports multiple mechanisms of access control using
+
+- AWS Identity and Access Management (IAM)
+- AWS Lambda authorizers, and
+- Amazon Cognito (user pool).
+
+### AWS Lambda requires an API key
+
+Use AWS Systems Manager Parameter Store, you can store data such as passwords, database strings, Amazon Machine Image (AMI) IDs, and license codes as parameter values.
+
 ### AWS Step Fuctions
 
 It's a serverless visual workflow service that provices state machines.
@@ -1587,7 +1599,7 @@ Application Load Balancers (ALBs) are devices that operate at Layer 7 of the OSI
 - ALBs support EC2, ECS, EKS, Lambda, HTTPS, HTTP/2 and WebSockets, and they can be integrated with AWS Web Application Firewall (WAF).
 - Use an ALB if you need to use containers or microservices.
 - Targets -> target groups -> content rules
-- An ALB can host multiple SSL Certificates using SNI.
+- host multiple secure (HTTPS) applications, each with its own SSL certificate, behind one ALB using Server Name Indication (SNI).
 
 ### Network Load Balancer, NLB
 
@@ -1599,6 +1611,7 @@ NLBs are the newest type of load balancer and operate at layer 4 of the OSI netw
 - Best local balancing performance within AWS
 - Source IP address preservation - packets unchagned
 - Targets can be addreseed using IP address
+- Supports SNI too (as ALB)! This allows SaaS applications and hosting services to run behind the same load balancer, improving your service security posture, and simplifying management and operations.
 
 -> NLB ->
 
@@ -1877,6 +1890,7 @@ You still need to attach identity-based or resource-based policies to principals
   - lower latency
   - higher transfer speeds
   - reduced load on the content server
+  - more cost effective if your users access your objects frequently, CloudFront data transfer is lower than the price for Amazon S3 data transfer
 
 CloudFront Components
 
