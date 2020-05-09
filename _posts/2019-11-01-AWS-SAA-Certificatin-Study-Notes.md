@@ -922,6 +922,40 @@ It supports:
 
 Layer 7 routing means it can route based on content metadata.
 
+## Amazon Elastic Beanstalk, EB
+
+Key words:
+
+- least amount of disruption
+- reduce the risk of a business interruption
+
+EB is a Platform as a Service product. It allows you to deploy code and with very little effort or modifications, the service will provision the infrastructure on your behalf.
+
+EB handles provisoning, monitoring, Auto Scaling, load balancing, and software updating for you - you just worry about the cost.
+
+DB supports a number of languages and platforms: Java, .net, Node.js, PHP, Python ...
+
+Patterns and Anti-patterns for EB:
+
+- Yes: To provision an environment for an applciation with little admin overhead
+- Yes: if you use one of the supported languages and can add EB-specific config
+- No: if you want low level infrastructure control
+- No: if you need Chef support
+
+Deployment Options:
+
+- All at once: an updated applciation version is deployed to all instances. Quick and simple but not recommended for production deployments
+- Rolling: Splits instances into batches and deploys one batch at a time.
+- Rolling with additional Batch: as above, but provisons a new batch, deploying and testing before removing the old batch (immutable)
+- Blue/Green: Maintain two environments, deploy, and swap CNAME.
+
+### EB Auto Scaling triggers
+
+- The Auto Scaling group in your EB uses **two** Amazon CloudWatch alarms to trigger scaling operations
+- automatically scales your application **up and down**
+- The **default triggers** scale when the average outbound network traffic from each instance is higher than 6 MB or lower than 2 MB over a period of five minutes.
+- other triggers like: latency, disk I/O, CPU utilization, and request count.
+
 ## Amazon Virtual Private Cloud, VPC
 
 ### Sever Layer OSI Model
@@ -1277,12 +1311,19 @@ Important Limits and considerations
 
 ### VPC Endpoints
 
+Key words:
+
+- isolation
+- never leave the AWS network
+
 VPC Endpoints are gateway objects created within a VPC. They can be used to connect to AWS public services without the need for the VPC to have an attached internet gateway and be public.
 
 Two types of VPC endpoints:
 
 - Gateway endpoints: Can be used for **DynamoDB** and **S3**
-- Interface endpoints: can be used for everything else (e.g., SNS, SQS)
+- Interface endpoints: 
+  - can be used for everything else (e.g., SNS, SQS)
+  - AWS PrivateLink
 
 When to use a VPC Endpoint:
 
@@ -1662,6 +1703,18 @@ Metrics such as CPU unilization or network transfer can be used either to scale 
 
 Scaling policies can be simple, step scaling, or target tracking.
 
+### Auto scaling vs. Termination Policy
+
+- scaling out: adds instances
+- scaling in: removes instances
+
+Default Termination Policy
+
+1. Determine which Availability Zones have the **most instances**, and at least one instance that is not protected from scale in.
+2. Determine which instance. EC2 Auto Scaling tries to gradually shift the On-Demand Instances away from instance types that are lower priority.
+3. Determine whether any of the instances use the oldest launch template or configuration
+4. if there are multiple unprotected instances to terminate, determine which instances are closest to the next billing hour
+
 ### Route 53 vs. ELB
 
 |Route 53 | ELB |
@@ -1715,6 +1768,14 @@ three ways that IAM authenticates a principal:
 1. User Name/Password. E.g., you login in AWS Management Console as an IAM user or root user.
 2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters). E.g., a proram that access the API with an IAM user or root user uses a two-part acess key.
 3. Access key/ session token. E.g., a temporary security token authenticates with an access key plus and additional session token unique to that temporary security token.
+
+### IAM database authentication
+
+An authentication token is a string of characters that you use instead of a password. After you generate an authentication token, it's valid for 15 minutes before it expires. If you try to connect using an expired token, the connection request is denied.
+
+You can use an authentication token when you connect to Amazon Aurora from another AWS service, such as AWS Lambda. By using a token, you can avoid placing a password in your code. Alternatively, you can use the AWS SDK for Java to programmatically create and programmatically sign an authentication token.
+
+After you have a signed IAM authentication token, you can connect to an Aurora DB cluster. 
 
 ### Authorization
 
@@ -1796,10 +1857,6 @@ Exam Tips: IAM Policies
 ### Multi-Factor Authentication (MFA)
 
 MFA requires you to verify your identity with both something you know and something you have.
-
-### Key rotation
-
-To protect your AWS infrastructure, access keys should be rotated regularly.
 
 ### IAM user
 
@@ -1916,6 +1973,7 @@ A distribution can be configured to be **private** where each access requries a 
 Private distributions can be bypassed by going straight to the origin (e.g., an S3 bucket).
 
 An **origin access identity (OAI)** is a virtual identity that can be associated with a distribution. As S3 bucket can then be restricted to only allow this OAI to access it - all other identiteis can be denied.
+
 It works with:
 
 1. other AWS cloud service: Amazon S3 buckets, Amazon S3 static websites, Amazon Elastic Compute Cloud (Amazon EC2), and Elastic Load Balancing.
@@ -2450,10 +2508,43 @@ Kinesis and Kinesis Data Firehose are two essential pieces of any high-performan
 - **Kinesis Shard** provides the capacity of the stream. Kinesis shards are added to streams to allow them to scale. A stream stars with at a least one shard, which allows 1 MB of ingetstion and 2 MB of consuption. Shards can be removed from streams.
 - **Kinesis Data Record** the basic entity written to and read from Kinesis streams, a data record can be up to 1MB in size.
 
+### Kinesis Data Streams vs. SQS
+
 You would use Kinesis rather than SQS when you need many producers and many consumers as well as a rolling window of data. SQS is a queue; Kinesis allows lots of independent consumer reading the same data window.
 
-the 24 hours tiem window and can get all the data is the biggest difference between Kinesis and SQS.
-You dont use Kinesis to decouple modules, to inter process messaging.
+Amazon Kinesis Data Streams:
+
+  1. real-time processing of streaming big data, it provides ordering of records
+  2. the 24 hours time window and can get all the data is the biggest difference between Kinesis and SQS.
+  3. for performing counting, aggregation, filtering
+  4. You dont use Kinesis to decouple modules, to inter process messaging.
+
+SQS:
+
+  1. reliable, higly scalable hosted queue for storing messages as they travel between computers
+
+### Amazon Kinesis Data Streams use case
+
+- Accelerate log and data feed intake
+- Real-time metrics and reproting
+- Real-time data analytics
+- Complex stream processing
+
+### Amazon Kinesis Data Streams vs. Firehose
+
+Kinesis Streams
+
+- Kinesis Streams is capable of capturing large amounts of data (terabytes per hour) from data producers, and streaming it into custom applications for data processing and analysis.
+- Streaming data is replicated by Kinesis across three separate availability zones within AWS to ensure reliability and availability of your data.
+- It is possible to load data into Streams using a number of methods, including HTTPS, the Kinesis Producer Library, the Kinesis Client Library, and the Kinesis Agent.
+- Monitoring is available through Amazon Cloudwatch.
+
+Kinesis Firehose
+
+- Kinesis Firehose is Amazon’s data-ingestion product offering for Kinesis. It is used to capture and load streaming data into other Amazon services such as S3 and Redshift.
+- From there, you can load the streams into data processing and analysis tools like Elastic Map Reduce, and Amazon Elasticsearch Service. It is also possible to load the same data into S3 and Redshift at the same time using Firehose.
+- As with Kinesis Streams, it is possible to load data into Firehose using a number of methods, including HTTPS, the Kinesis Producer Library, the Kinesis Client Library, and the Kinesis Agent. Currently, it is only possible to stream data via Firehose to S3 and Redshift, but once stored in one of these services, the data can be copied to other services for further processing and analysis.
+- Monitoring is available through Amazon Cloudwatch.
 
 ## AWS CloudTrail
 
@@ -2467,7 +2558,11 @@ AWS CloudTrail records the following information about each API call:
 - The request parameters
 - The response elements returned by the AWS Cloud service
 
-Validated log files are invaluable in security and forensic investigations
+Validated log files are invaluable in security and forensic investigations.
+
+Key words:
+
+- Audit log
 
 ### Software Architecture Best Practices
 
