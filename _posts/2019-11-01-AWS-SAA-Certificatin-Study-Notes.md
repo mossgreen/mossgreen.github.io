@@ -302,7 +302,7 @@ All objects within a S3 bucket use a storage class, known as a storage tier. Sto
   - cheaper than standard IA
 
 - **Glarcier**
-  - Long-term archival storage 9warm or cold backups)
+  - Long-term archival storage (warm or cold backups)
   - Retrievals could take minutes or hours (faster = higher cost)
   - 3+ AZ replication, 90-day and 40KB minimum charge and retrieval
 
@@ -877,11 +877,17 @@ Use AWS Systems Manager Parameter Store, you can store data such as passwords, d
 
 ### AWS Step Fuctions
 
-It's a serverless visual workflow service that provices state machines.
-A state machine can orchestrate other AWS services with simple logic, branching, and parallel execution, and it maintains a state.
-Workflow steps are known as states, and they can perform work via tasks.
-A state machine can be defined using Amazon States language (ASL).
-With Stap Functions, lambda functions could only run for 15 minutes. lambda functions are stateless. State machiens maintain state and allow longer-running processes. Step Functions "replaces" SWF with a serverless version.
+It enables you to coordinate the components of distributed applications and microservices using visual workflows. You build applications from individual components that each perform a discrete function, or task, allowing you to scale and change applications quickly.
+
+It automatically triggers and tracks each step, and retries when there are errors, so your application executes in order and as expected, every time. 
+
+Step Functions logs the state of each step, so when things go wrong, you can diagnose and debug problems quickly.
+
+Step Functions manages the operations and underlying infrastructure for you to ensure your application is available at any scale.
+
+Without Stap Functions, lambda functions could only run for 15 minutes.
+lambda functions are stateless. State machiens maintain state and allow longer-running processes.
+Step Functions "replaces" SWF with a serverless version.
 
 ## Amazon Elastic Container Service, ECS
 
@@ -1124,12 +1130,10 @@ Routes:
 - **VPC Endpoints**: Enables private connectivity to services hosted in AWS, from within your CPC without using an Internet Gateway, VPN, NAT devices, or firewall proxies.
 - **Egress-only Internet Gateway**: A stateful gatewy to provide egress only access for IPv6 traffic from the VPC to the internet.
 
-### VPC use scenarios
-
-[Examples for VPC link](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios.html)
+### VPC examples
 
 1. VPC with a single public subnet only
-2. VPC with publci and private subnets
+2. VPC with public and private subnets
 3. VPC with public and private subnets and AWS Site-to-Site VPN access
 4. VPC with a private subnet only and AWS Site-to-Site VPN access
 
@@ -1389,11 +1393,9 @@ Flow logs capture: account-id, interface-id, srcaddr, dstaddr, srcport, dstport,
 Flow logs don't capture some traffic, including Amazon DNS server, windowns license activation, DHCP traffic ,and VPC router
 It can be enabled on a VPC, subnet, or ENI level and monitor traffic metadata for any included interfaces. Flow logs monitor:
 
-## VPC VPN and Direct Connect
+### VPN connection, VPNs
 
-### AWS VPC Virtual Private Networks, VPNs
-
-VPC Virtual Private Networks (VPNs) provide a software based secure conenction between a VPC and on premises networks.
+A VPN connection refers to the connection between your VPC and your own on-premises network.
 
 VPC VPN Components:
 
@@ -1407,6 +1409,12 @@ Best Practice & HA:
 - Use dynamic VPNs (uses BGP) where possible
 - Connect both Tunnels to your CGW - BPC VPN is HA by design
 - Where possible use two VPN connections and two CGWs
+
+AWS Site-to-site VPN
+
+- By default, instances that you launch into an Amazon VPC can't communicate with your own (remote) network.
+- You can enable access to your remote network from your VPC by creating an AWS Site-to-Site VPN (Site-to-Site VPN) connection, and configuring routing to pass traffic through the connection.
+- Site-to-Site VPN supports Internet Protocol security (IPsec) VPN connections.
 
 ### AWS Direct Connect, DX
 
@@ -1528,7 +1536,7 @@ Private Zones;
 DNS Record Set Types
 
 - A Record (and AAAA): for a given host (wwww), an A record provides an IPv4 address and an AAAA provides an IPv6 address.
-- CNAME Record: allows aliases to be created 9not the same as alias record). A machine might have CNAMES for `www`, `ftp` and images. Each of these CNAMEs oints at an existing record in the domain. CNAMES cannot be used at the APEX of a domain.
+- CNAME Record: allows aliases to be created (not the same as alias record). A machine might have CNAMES for `www`, `ftp` and images. Each of these CNAMEs oints at an existing record in the domain. CNAMES cannot be used at the APEX of a domain.
 - MX Record: it provides the mail servers for a given domain. Each MX record has a priority. Remote mail server use this to locate the server to use when sending emails.
 - NS Record: used to set the authoritative servers for a subdomain.
 - TXT record: used for descriptive text in a domain - often used to verify domain ownership
@@ -1691,6 +1699,14 @@ Launch templates address some of the weaknesses of the legacy launch configurati
 
 Launch templates should be used over launch configurations where possible. Neither can be edited after creation - a few version of the template or a new launch configuration should be created.
 
+### EC2 Placement Groups
+
+When you launch a new EC2 instance, the EC2 service attempts to place the instance in fllowing ways:
+
+- Cluster – packs instances close together inside an Availability Zone. This strategy enables workloads to achieve the low-latency network performance necessary for tightly-coupled node-to-node communication that is typical of HPC applications.
+- Partition – spreads your instances across logical partitions such that groups of instances in one partition do not share the underlying hardware with groups of instances in different partitions. This strategy is typically used by large distributed and replicated workloads, such as Hadoop, Cassandra, and Kafka.
+- Spread – strictly places a small group of instances across distinct underlying hardware to reduce correlated failures.
+
 ### Auto Scaling Groups
 
 Auto Scaling groups allow EC2 instances to scale in a way that allows elasticity. When used in conjunction with load balancers and launch templates and configurations, it allows for a self-healing infrastructure that can also scale based on demand.
@@ -1760,6 +1776,18 @@ There are **three types of principals**: root users, IAM users, and roles/tempor
    - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
    - Crosss-Acount Access: Granting permissions to users from other AWS accounts, whether you control those accounts or not
    - Federation: Granting permissiongs to users authenticatedby a trusted external system.
+
+### Web Identity Federation
+
+Web identity federation is the best architecture to use where an external IDP is trusted to assume an IAM role.
+
+If you are writing an application targeted at large numbers of users, you can optionally use web identity federation for authentication and authorization. Web identity federation removes the need for creating individual IAM users. Instead, users can sign in to an identity provider and then obtain temporary security credentials from AWS Security Token Service (AWS STS). The app can then use these credentials to access AWS services.
+
+Web identity federation supports the following identity providers:
+
+- Login with Amazon
+- Facebook
+- Google
 
 ### Authentication
 
@@ -2148,7 +2176,7 @@ The primary DB instance switches over automatically to the standby replica if an
 - The primary DB instance fails
 - The DB instance's server type is changed
 - The operating system of the DB instance is undergoing software patching
-- A manual failover of the DB instance was initiated using Reboot with failover
+- A manual failover of the DB instance was initiated using **Reboot with failover**
 
 ## Amazon Aurora
 
@@ -2260,6 +2288,8 @@ E.g.,
 - primary key: song track id, 01,02,03...;
   - Attributes: name: song1, length:2min,...
 
+Sort key structure doesn't influence performance — it just allows range selection or ordering.
+
 ### Read Consistency
 
 - Eventually Consistent Reads: The response might include some stale data
@@ -2282,7 +2312,6 @@ You can create tables that are automatically replicated across two or more AWS R
 DynamoDB has two read/write capacity modes: provisioned throughput (default) and on-demand mode.
 
 1. on-demand mode, DynamoDB automatically scales to handle performance demands and bills a per-request charge.
-
 2. provisioned throughput mode, each table is configured with read capacity units (RCU) and write capacity unites (WCU). Every operatin on ITEMS consumes at least 1 RCU or WCU - partial RCU/WCU cannot be consumed.
 
 - **Read Capacity Units (RCU)**
@@ -2311,7 +2340,11 @@ Streams can be configured with one of four view types:
 
 Triggers
 
-Streams can be integrated with AWS Lambda, invoking a function whenever items are changed in a DynamoDB table(a DB trigger)
+Streams can be integrated with AWS Lambda, invoking a function whenever items are changed in a DynamoDB table(a DB trigger).
+
+Immediately after an item in the table is modified, a new record appears in the table's stream. AWS Lambda polls the stream and invokes your Lambda function synchronously when it detects new stream records.
+
+The Lambda function can perform any actions you specify, such as sending a notification or initiating a workflow.
 
 ### AWS DynamoDB Indexes
 
@@ -2320,10 +2353,10 @@ Local secondary indexes (LSIs) allow an alternative view of a table's data to be
 LSIs can be created only at the time of table creation, and there is currently a limit of five LSIs per table.
 
 Indexes provide an alternative representation of data in a table, which is useful for applications with varying query demands.
+
 Indexes come in two forms: local secondary indexes (LSI) and global secondary indexes (GSI). Indexes are interacted with as though they are tables, but they are just an alternate representation of data in an existing table.
 
 - **Local secondary indexes** must be created at the same time as creating a table. They use the same partition key but an alternative sort key. They share the RCU and WCU values for the main table.
-
 - **Global secondary indexes** can be created at any point after the table is created. They can use differenct partition and sort keys. They have their own RCU and WCU values. GSIs can be used to support alternative data access patterns, allowing efficient use of query operations.
 
 ### DynamoDB Accelerator (DAX)
@@ -2946,8 +2979,8 @@ Design Principles
      - As with storage, it is critical to consider the access patterns of your workload, and also to consider if other nondatabase solutions could solve the problem more eﬃciently (such as using a search engine or data warehouse).
    - Network
      - vary based on latency, throughput requirements
-     - AWS oﬀers product features (for example, Enhanced Networking, Amazon EBS-optimized instances, Amazon S3 transfer acceleration, dynamic Amazon CloudFront) to optimize network traﬃc.
-     - AWS also oﬀers networking features (for example, Amazon Route 53 latency routing, Amazon VPC endpoints, and AWS Direct Connect) to reduce network distance or jitter.
+     - AWS offers product features (for example, Enhanced Networking, Amazon EBS-optimized instances, Amazon S3 transfer acceleration, dynamic Amazon CloudFront) to optimize network traﬃc.
+     - AWS also offers networking features (for example, Amazon Route 53 latency routing, Amazon VPC endpoints, and AWS Direct Connect) to reduce network distance or jitter.
 2. Review
 3. Monitoring
    Amazon CloudWatch provides the ability to monitor and send notiﬁcation alarms. You can use automation to work around performance issues by triggering actions through Amazon Kinesis, Amazon Simple Queue Service (Amazon SQS), and AWS Lambda.
