@@ -879,7 +879,7 @@ Use AWS Systems Manager Parameter Store, you can store data such as passwords, d
 
 It enables you to coordinate the components of distributed applications and microservices using visual workflows. You build applications from individual components that each perform a discrete function, or task, allowing you to scale and change applications quickly.
 
-It automatically triggers and tracks each step, and retries when there are errors, so your application executes in order and as expected, every time. 
+It automatically triggers and tracks each step, and retries when there are errors, so your application executes in order and as expected, every time.
 
 Step Functions logs the state of each step, so when things go wrong, you can diagnose and debug problems quickly.
 
@@ -1325,7 +1325,7 @@ VPC Endpoints are gateway objects created within a VPC. They can be used to conn
 Two types of VPC endpoints:
 
 - Gateway endpoints: Can be used for **DynamoDB** and **S3**
-- Interface endpoints: 
+- Interface endpoints:
   - can be used for everything else (e.g., SNS, SQS)
   - AWS PrivateLink
 
@@ -1803,7 +1803,7 @@ An authentication token is a string of characters that you use instead of a pass
 
 You can use an authentication token when you connect to Amazon Aurora from another AWS service, such as AWS Lambda. By using a token, you can avoid placing a password in your code. Alternatively, you can use the AWS SDK for Java to programmatically create and programmatically sign an authentication token.
 
-After you have a signed IAM authentication token, you can connect to an Aurora DB cluster. 
+After you have a signed IAM authentication token, you can connect to an Aurora DB cluster.
 
 ### Authorization
 
@@ -2754,6 +2754,36 @@ AWS KMS helps you to protect your master keys by storing and managing them secur
 2. AWS managed CMK
 3. AWS owned CMK
 
+## AWS OpsWorks
+
+It's an AWS implementation of the Chef infrastructure and configuration management platform.
+It's an implementation of the Chef configuration management and deployment platform.
+OpsWorks moves away from the low-level configurability of Cloudformation but not as far as Elastic Beanstalk
+OpsWorks lets you create a stack of resources with layers and manage resources as a unit.
+
+OpsWorks components:
+
+- Stacks
+  - A unit of managed infrastructure
+  - Can use stacks per application or per platform
+  - could use stacks for development, staging, or production environment
+- Layers
+  - comparable to application tiers within a stack
+  - e.g., database layer, appication layer, proxy layer
+  - recipes are generally associated with layers and configure what to install on instances in that layer
+- Instances
+  - Instances are EC2 instances associated with a layer
+  - Configured as 24/7, load based, or time based
+- Apps
+  - apps are deployed to alyers from a source code repo or S3
+  - actual deployment happends using recipes o na layer
+  - other recipes are run when deployments happen, potencially to reconfigure other instanes
+- Recipes
+  - setup: exceuted on an instance when first provisioned
+  - Configure: excuted on all instances when instances are added or removed
+  - Deply and Undeploy: excuted when apps are added or removed
+  - Shutdown: Executed when an instance is shut down but before it's stopped
+  
 ## AWS Well-Architected Framework
 
 Best practices for designing and operating reliable, secure, eﬃcient, and cost-eﬀective systems in the cloud.
