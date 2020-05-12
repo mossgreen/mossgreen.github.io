@@ -29,30 +29,32 @@ Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% a
 
 ### High availability VS Fault tolerance
 
-- **High availability**:
+**High availability**:
 
-  - hardware, software and configuration that allowing a system to recover quickly in the event of a failure.
-  - The key part is the recover quickly.
-  - It doesn't prevent a failure from occurring and it doesn't stop that failure from impacting customers.
-  - The primary aim of high availability is to minimize downtime and recover quickly.
-  - It aims to minimize downtime and recover quickly in the event of a failure.
-  - E.g., for a car, if one tyre broken, we have a backup tyre, it may break down, but can be fix quickly
+- hardware, software and configuration that allowing a system to recover quickly in the event of a failure.
+- The key part is the recover quickly.
+- It doesn't prevent a failure from occurring and it doesn't stop that failure from impacting customers.
+- The primary aim of high availability is to minimize downtime and recover quickly.
+- It aims to minimize downtime and recover quickly in the event of a failure.
+- E.g., for a car, if one tyre broken, we have a backup tyre, it may break down, but can be fix quickly
 
-- **Fault tolerance**:
-  - a system designed to operate through a failure with no user impact.
-  - generally more expensive and more complex to achieve and do so reliably
-  - E.g., a plane. If one engine down, plane can still operate normally
+**Fault tolerance**:
+
+- a system designed to operate through a failure with no user impact.
+- generally more expensive and more complex to achieve and do so reliably
+- E.g., a plane. If one engine down, plane can still operate normally
 
 ### RPO VS RTO
 
-- RPO, recovery point objective
+RPO, recovery point objective
 
-  - how much a business can tolerate to lose, expressed in time. The maximum time between a failure and the last successful backup.
-  - E.g., you revoced backup data after data center exploded, you lost the mose recent 1 hour data before exploding.
+- how much a business can tolerate to lose, expressed in time. The maximum time between a failure and the last successful backup.
+- E.g., you revoced backup data after data center exploded, you lost the mose recent 1 hour data before exploding.
 
-- RTO, recovery time objective
-  - The maximum amount of time a system can be down. How long a solution takes to recover.
-  - E.g., website can be online again 1 hour after the data center exploded...
+RTO, recovery time objective
+
+- The maximum amount of time a system can be down. How long a solution takes to recover.
+- E.g., website can be online again 1 hour after the data center exploded...
 
 ### Scaling
 
@@ -93,12 +95,12 @@ AZs
    - Amazon Glacier ★
    - Amazon EBS ★★
    - AWS Storage Gateway ★
-   - Amazon CloudFront
+   - Amazon CloudFront *
 
 3. Database Services
 
    - Amazon RDS ★★
-   - Amazon DynamoDB
+   - Amazon DynamoDB **
    - Amazon Redshift ★
    - Amazon ElastiCache ★
 
@@ -106,14 +108,13 @@ AZs
 
    - Amazon CloudWatch ★★
    - AWS CloudFormation ★
-   - Amazon CloudFront ★
    - AWS CloudTrail
 
 5. Security and Identity
 
    - AWS Identity and Access Management (IAM) ★★
    - AWS Key Management Service (KMS) ★
-   - AWS Directory Service ★
+   - AWS Directory Service
    - AWS Certificate Manager
    - AWS Web Application Firewall (WAF)
    - AWS Kinesis ★
@@ -141,7 +142,7 @@ AZs
 
 - traditional IT environments, 2 ways:
 
-  1. block storage: operates at a lower level, the raw storage device level and amnages data as a set of numberred, fixed size blocks.
+  1. block storage: operates at a lower level, the raw storage device level and manages data as a set of numberred, fixed size blocks.  
   2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
 
 - Amazon S3 object storage is cloud object storeage
@@ -1755,6 +1756,58 @@ Default Termination Policy
   - capture detailed information about the calls made to the Elastic Load Balancing API and store them as log files in Amazon S3.
   - to determine which calls were made, the source IP address where the call came from, who made the call, when the call was made, and so on
 
+## AWS Auto Scaling
+
+Multiple options for scaling resources:
+
+- Amazon EC2 Auto Scaling: applications gain better fault tolerance, availability, and cost management.
+- Application Auto Scaling API: To scale a resource **other than EC2**, for developers and system admins.
+
+### AWS Auto Scaling
+
+AWS Auto Scaling enables you to configure automatic scaling for the AWS resources that are part of your application in a matter of minutes.
+
+you configure and manage scaling for your resources through a scaling plan.
+
+This ensures that you add the required computing power to handle the load on your application and then remove it when it's no longer required.
+
+AWS Auto Scaling is useful for applications that experience daily or weekly variations in traffic flow, including the following:
+
+- Cyclical traffic such as high use of resources during regular business hours and low use of resources overnight
+- On and off workload patterns, such as batch processing, testing, or periodic analysis
+- Variable traffic patterns, such as marketing campaigns with periods of spiky growth
+
+dynamic scaling and predictive scaling
+
+1. Dynamic scaling
+    - creates target tracking scaling policies for the scalable resources in your application.
+2. Predictive scaling
+    - Load forecasting: forecasts the future demand for the next two days
+    - Scheduled scaling actions
+    - Maximum capacity behavior
+    - Currently, predictive scaling is only available for Amazon EC2 Auto Scaling groups.
+
+Two of the dynamic scaling options: Scaling Policies and Simple Scaling Policies
+
+- Both require you to create CloudWatch alarms for the scaling policies
+- In most cases, step scaling policies are a better choice than simple scaling policies
+
+### Application Auto Scaling
+
+- Target tracking scaling—Scale a resource based on a target value for a specific CloudWatch metric.
+- Step scaling— Scale a resource based on a set of scaling adjustments that vary based on the size of the alarm breach.
+- Scheduled scaling—Scale a resource based on the date and time.
+
+### AWS Auto Scaling vs. Amazon EC2 Auto scaling
+
+| AWS Auto Scaling | Amazon EC2 Auto scaling |
+|---|---|
+| for multiple resources across multiple services | only need to scale Amazon EC2 Auto Scaling groups, or if you are only interested in maintaining the health of your EC2 fleet |
+| define dynamic scaling policies for multiple EC2 Auto Scaling groups or other resources using predefined scaling strategies |  |
+|  includes predefined scaling strategies that simplify the setup of scaling policies | you need to create or configure Amazon EC2 Auto Scaling groups, or if you need to set up scheduled or step scaling policies |
+| use AWS Auto Scaling if you want to create predictive scaling for EC2 resources. |  |
+|  |  |
+
 ## AWS Identity and Access Management, IAM
 
 IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users traditional identity concepts such as users, groups, and accesscontrol policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
@@ -2533,6 +2586,13 @@ With DMS at a high level, you provision a replication instance, define source an
 
 ## Amazon Kinesis and Firehose
 
+key words:
+
+- IOT
+- Streaming data
+- collect and analyze streams
+- real time
+
 Kinesis and Kinesis Data Firehose are two essential pieces of any high-performance streaming architecture.
 
 **Kinesis** is a scalable and relilient streaming service from AWS. it's designed to ingetst large amounts of data from hundreds, thousands, or even millions or products. Consumers can access a rolling window of that data, or it can be stored in persistent storage of database products.
@@ -2725,6 +2785,11 @@ AWS CloudTrail can integrate with AWS KMS to provde with logs of all key usage t
 - CloudTrail: Who do what?
 
 ## Amazon Key Management Service, KMS
+
+key words:
+
+- In EBS, encrypted at rest
+- In EBS, use KMS to generate encryption keys which can be used to encrypt the volume.
 
 KMS provides regional, secure key management and encryption and decryption services. KMS is FIPS 140-2 level 2 validated, and certain aspects support level 3 (exam hint). Everything is KMS is regional. KMS can use CloudHSM via Custom key Stores (FIPS 140-2 Level 3)
 
