@@ -1763,8 +1763,6 @@ Multiple options for scaling resources:
 - Amazon EC2 Auto Scaling: applications gain better fault tolerance, availability, and cost management.
 - Application Auto Scaling API: To scale a resource **other than EC2**, for developers and system admins.
 
-### AWS Auto Scaling
-
 AWS Auto Scaling enables you to configure automatic scaling for the AWS resources that are part of your application in a matter of minutes.
 
 you configure and manage scaling for your resources through a scaling plan.
@@ -2848,7 +2846,57 @@ OpsWorks components:
   - Configure: excuted on all instances when instances are added or removed
   - Deply and Undeploy: excuted when apps are added or removed
   - Shutdown: Executed when an instance is shut down but before it's stopped
-  
+
+## Amazon Identity federation, IDF and SSO
+
+- **Identity federation (IDF)** is an architecture where identities of an external identity provider (IDP) are recognized.
+- **Single sign-on (SSO)** is where the credentials of an external identity are used to allow access to a local system (e.g., AWS).
+
+Types of IDF:
+
+- **Crosee-acount roles**: a remote account (IDP) is allowed to assume a role and access your accout's resource.
+- **SAML 2.0 IDF**: an on-premises or AWS-hosted directory service instance is configured to allow Active Directory users to log in to the AWS console.
+- **Web Identity Federation**: IDPs sunch as Google, Amazon, and Facebook are allowed to assume roels and access resources in your account.
+
+**Congnito** and the **Secure Token Service (STS)** are used for IDF. A federated identity is verified using an external IDP and by proving the identity (using a token or assertion of some kind) is allowed to swap that ID for temporary AWS credentials by assuming a role.
+
+IDF is the process of allowing external identities to be used to indirectly access AWS services. This lesson covers the architecture of IDF using SAML 2.0 and web identities, and concludes with a brief demo using the Web Identity Federation Playground.
+
+### When and hwo to use IDF
+
+### Enterprise Access to AWS Resources
+
+- users/staff have an existing pool of identities
+- you need those identities to be used across all enterprise systems, including AWS
+- access to AWS resources using SSO
+- potentially tens or hundreds of thousands of users - more than IAM can handle
+- you might have an ID team within your business
+
+### Mobile and Web Application
+
+- Mobile or web application requries access to AWS resources
+- you need a certain level of guest access - and extra once logged in
+- customers have other identities - Google, Twitter, Facebook, etc - and need to use those
+- you don't want credentials stored within the application
+- could be millions or more users - beyond the capabilities of IAM
+- customers might have multiple third-party logins, but they represent one real person
+
+### Centralized identity Management (AWS Accounts)
+
+- tens or hundreds of AWS accounts in an organization
+- need central store of IDs - either IAM or an external provider
+- roels switching used fro man ID account into memeber accounts
+
+### Congito vs. others
+
+Amazon Cognito lets you add user sign-up, sign-in, and access control to your web and mobile apps quickly and easily. Amazon Cognito scales to millions of users and supports sign-in with social identity providers, such as Facebook, Google, and Amazon, and enterprise identity providers via SAML 2.0.
+
+Congito user pool provides sign up and sign in funcitonality along with identity pool which provides temp credentials for using aws services.
+
+- KMS is for encryption, not for IAM
+- Directory Service is for connecting on Prep AD.
+- IAM is not suitable for mobile platform
+
 ## AWS Well-Architected Framework
 
 Best practices for designing and operating reliable, secure, eﬃcient, and cost-eﬀective systems in the cloud.
