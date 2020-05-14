@@ -18,14 +18,19 @@ how to achieve well performaing, scaleable, secure and cost effective designs.
 
 ## Key Concepts
 
-### Durability and Availability
+### Durability vs. Availability
 
-- **Durability** addresses the question, “Will my data still be there in the future?”
-- **Availability** addresses the question, “Can I access my data right now?”
+Durability
+
+- addresses the question, “Will my data still be there in the future?”
+- e.g., a file copies to two sites, copies to three AZs
+
+Availability
+
+- addresses the question, “Can I access my data right now?”
+- e.g., in one site, we keep two copies of one file
 
 Amazon S3 is designed to provide both very high durability and very high availability for your data.
-
-Amazon S3 standard storage is designed for 99.999999999% durability and 99.99% availability of objects over a given year.
 
 ### High availability VS Fault tolerance
 
@@ -138,30 +143,30 @@ AZs
 5. Cloud-native mobile and Internet application hosting
 6. Disaster recovery
 
-### Object storage VS. traditional block and file storage
+### Block Storage vs. File Storage vs. Object Storage
 
-- traditional IT environments, 2 ways:
+Block Storage:
 
-  1. block storage: operates at a lower level, the raw storage device level and manages data as a set of numberred, fixed size blocks.  
-  2. file storage: operates at a higher level, the operating system level, and manages data as a named hierarchy of files and folders.
+- Raw storage
+- Data organised as an array of unrelated blocks
+- Host File System places data on disk
+- Amazon EBS provides block level storage volumes for use with EC2 instances
+- E.g., MS NTFS, Unix ZFS
 
+File Storage
+
+- Unrelated data blocks managed by a file (serving) system
+- Native file system places data on disk
+- Amazon EFS provides a simple, scalable, fully managed elastic NFS file system
+
+Object Storage
+
+- Stores Virtual containers that encapsulate the data, data attributes, metadata and Object Ids
+- APIs access to data
+- Metadata Driven, Policy-based
 - Amazon S3 object storage is cloud object storeage
-
   1. data is manged as objects using an API with http verbs. operating on the whole object at once, cannot incrementally updateing portions of the object as you do with a file.
   2. objects reside in containers called buckets and each object is identified by a unique user-specified key (filename).
-
-Note:
-
-If you need the traditioanl block or file storage in addition tot Amazon S3 storage,
-
-1. you can use Amazon EBS for EC2 instances
-2. Amazon Elastic File systems (AWS EFS) provices network-attached shared file storage using the NFX v4 protocol.
-
-Amazon EFS provides a simple, scalable, elastic file system for Linux-based workloads for use with AWS Cloud services and onpremises resources.
-
-It is designed to provide massively parallel shared access to thousands of Amazon EC2 instances, enabling your applications to achieve high levels of aggregate throughput and IOPS with consistent low latencies.
-
-Amazon EFS is a regional service storing data within and across multiple Availability Zones (AZs) for high availability and durability.
 
 ### AWS S3 Buckets
 
@@ -286,11 +291,19 @@ CORS is a security measure allowing a web application running in one domain to r
 
 All objects within a S3 bucket use a storage class, known as a storage tier. Storage classes influence the cost, durability, availability, and "first byte latency" for objects in S3. The class used for an object can be changed manually or using lifecycle policies.
 
+From Hot to Cold: S3 Standard -> S3 Intelligent-Tiering -> S3 Standard-IA -> S3 One Zone-IA -> S3 Glacier -> S3 Glacier Deep Archieve
+
 - **S3 Standard**
   - for general-purpose storage of frequently accessed data
   - Default, all-purpose storage or when usage is unknown
   - 11 Nines durability and four Nines availability
   - Replicated in 3+ AZs - no minimum object size or retrieval fee
+
+- **Amazon S3 Intelligent-Tiering (S3 Intelligent-Tiering)**
+  - for data with unknown or changing access patterns
+  - designed to optimize costs by automatically moving data to the most cost-effective access tier, without performance impact or operational overhead.
+  - It works by storing objects in two access tiers: one tier that is optimized for frequent access and another lower-cost tier that is optimized for infrequent access.
+  - Small monthly monitoring and auto-tiering fee
 
 - **Standard Infrequent Access (Standard-IA)**
   - Objects where real-time access is required but infrequent
@@ -311,16 +324,28 @@ All objects within a S3 bucket use a storage class, known as a storage tier. Sto
   - Long-term archival (cold backups) - 180 day and 40KB Minimum
   - Longer retrievals but cheaper than Glacier -replacement for tape-style storage
 
-- **Amazon S3 Intelligent-Tiering (S3 Intelligent-Tiering)**
-  - for data with unknown or changing access patterns
-  - designed to optimize costs by automatically moving data to the most cost-effective access tier, without performance impact or operational overhead.
-  - It works by storing objects in two access tiers: one tier that is optimized for frequent access and another lower-cost tier that is optimized for infrequent access.
-  - Small monthly monitoring and auto-tiering fee
+### Amazon S3 Storage Classes use cases
 
-NB:
-
-- Lifecycle policies allow objects or versions to be transitioned between storage classes or expired when no longer required.
-- **S3 and S3-IA has the same retrieval time**. The diff is that you are charged for retrieval. Availability is 99.99 vs 99.9
+- **Standard**
+  - Cloud App
+  - Big Data Analytics
+  - Content Distribution
+  - Primary Data
+  - Temporary & Small Objects
+- **IA**
+  - File Sync & Share
+  - Active Archive
+  - Enterprise Backup
+  - Media Transcoding
+  - Disaster Recovery/ Geo redundancy
+- **One Zone IA**
+  - Secondary Backups
+  - Easily re-Creatable Data
+  - S3 Cross-Region replication Target
+- **Glacier**
+  - Depp/ Offline Archives
+  - Tape Vaulting replacement
+  - WORM Compliant Data
 
 ### Object Lifecycle Management
 
@@ -343,6 +368,10 @@ Lifecycle Configuration VS Lifecycle Policy
 
 You can use **lifecycle policies** to define actions you want Amazon S3 to take during an object's lifetime (for example, transition objects to another storage class, archive them, or delete them after a specified period of time).
 
+Lifecycle policies allow objects or versions to be transitioned between storage classes or expired when no longer required.
+
+**S3 and S3-IA has the same retrieval time**. The diff is that you are charged for retrieval. Availability is 99.99 vs 99.9
+
 ### Amazon S3 Encryption
 
 Data between a client and S3 is encrypted **in transit**. Encryption at rest can be configured on a per-object basis.
@@ -352,16 +381,19 @@ S3 is capable of encrypting objects — either allowing the customer to manage k
   - The client/application is responsible for managing both the encryption/decryption process and its keys.
   - This mothed is generally only used when strict security compliance is required
   - it has significant admin and processing overhead.
+
 - **Server-side encryption with customer-managed keys (SSE-C)**
   - You manage both data key and master key
   - S3 handles the encryption and decryption process.
   - keys must be supplied with each PUT or GET erquest.
+
 - **Server-side encryption with S3-managed keys (SSE-S3)**
   - AWS manages both data key and master key
   - objects are encrypted using AES-256 by S3.
   - The keys are generated by S3 suing KMS on your behalf.
   - keys are stored with object in an encrpted from.
   - If you have permissions on the object (e.g., S3 read or S3 admin), you can decrypt and access it.
+
 - **Server-side encryption with AWS KMS-manged keys (SSE-KMS)**
   - AWS manages data key and you manage master key
   - Objects are encrypted suing individual keys generated by KMS.
@@ -1642,23 +1674,25 @@ Application Load Balancers (ALBs) are devices that operate at Layer 7 of the OSI
 
 - ALBs operate at layer 7 of the OSI model. They undertand HTTP and HTTPS and can load balance based on this protoccol layer.
 - ALBs are now **recommended as the default** LB for VPCs. They perform better than CLBs and are almost always cheaper.
-- ALBs are also support two additional protocols: WebSocket and HTTP/2.
-- Content rules can direct certain traffic to specific target groups.
+- ALBs are also support two additional protocols: **WebSocket** and **HTTP/2**.
+- **Content-Based Routing**: rules can direct certain traffic to specific target groups.
   - Host-based rules: Route traffic based on the host used
   - Path-based ruels: Route traffic based on URL path
 - ALBs support EC2, ECS, EKS, Lambda, HTTPS, HTTP/2 and WebSockets, and they can be integrated with AWS Web Application Firewall (WAF).
-- Use an ALB if you need to use containers or microservices.
+- **Containerized Application Support**: ECS, EKS. Use an ALB if you need to use containers or microservices.
 - Targets -> target groups -> content rules
 - host multiple secure (HTTPS) applications, each with its own SSL certificate, behind one ALB using Server Name Indication (SNI).
 
 ### Network Load Balancer, NLB
 
-NLBs are the newest type of load balancer and operate at layer 4 of the OSI network model. There are a few scenarios and benefits to using an NLB versus and ALB:
+NLBs are the newest type of load balancer and operate at **layer 4** of the OSI network model. There are a few scenarios and benefits to using an NLB versus an ALB:
 
-- can support protocols other than HTTP/S because it forwards upper layers unchanged
-- Less latency because no processing above layer 4 is required
+- **Connection-Based Load Balancing**
+- Best local balancing **performance** within AWS
+  - **Less latency** because no processing above layer 4 is required
+  - **High Throughput**
+- Can support protocols other than HTTP/S because it forwards upper layers unchanged
 - IP addressable - static address
-- Best local balancing performance within AWS
 - Source IP address preservation - packets unchagned
 - Targets can be addreseed using IP address
 - Supports SNI too (as ALB)! This allows SaaS applications and hosting services to run behind the same load balancer, improving your service security posture, and simplifying management and operations.
@@ -2598,6 +2632,15 @@ Kinesis and Kinesis Data Firehose are two essential pieces of any high-performan
 - **Kinesis Stream** is where you data put into. It can be used to collect, process, and analyze a large amount of incoming data. A stream is a public service accessible from inside VPCs or from the public internet by an unlimited number of producers. Kinesis streams include storage for all incoming data with a 24-hour default window, which can be increased t oseven days for an additional charge. Data records are added by producers and read by consuemrs.
 - **Kinesis Shard** provides the capacity of the stream. Kinesis shards are added to streams to allow them to scale. A stream stars with at a least one shard, which allows 1 MB of ingetstion and 2 MB of consuption. Shards can be removed from streams.
 - **Kinesis Data Record** the basic entity written to and read from Kinesis streams, a data record can be up to 1MB in size.
+
+|  |SQS|Kinesis|
+|---|---|---|
+|Strict Ordering| FIFO mode (300 messages/snd)| no striction |
+|No Duplicates| no garantee| yes|
+|Number of consumers|1|unlimited|
+|Capacity management and limits|No capacity management|Needs shard monitoring|
+|Cost for 1Kb x 500 messages / day|$34.56|$0.96|
+|Underlying data structure|multiple queues|like a durable linked list|
 
 ### Kinesis Data Streams vs. SQS
 
