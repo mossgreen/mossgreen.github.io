@@ -45,73 +45,96 @@ Additional capabilities beyond core spring and JPA.
 3. Manage the system’s transactions.
 4. Inject all of that into the DAO.
 
-## 2. Define entities
+## 2. Annotations
 
 Two type of annotations: Persistence annotations vs. mapping annotations, or say physical annotations vs. logical annotaions.
 
-1. **Persistence annotations** describing the **physical** schema, tables, columns, indexes, etc. It can be applied at three different levels: class, method, and field.
+1. **Persistence annotations**
+    - describing the **physical** schema, relate to the concrete **data model in the database**.
+    - They deal with tables, columns, constraints, and other **database-level artifacts** that the object model might never be aware of otherwise.
+    - It can be applied at three different levels: class, method, and field.
 
-2. The **logical mapping annotations**: describing the object model, the association between two entities etc. It can be categorized as being in one of two categories: logical annotations and physical annotations.
+2. The **logical mapping annotations**:
+    - describe the entity model **from an object modeling view**.
+    - They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework.
+    - describing the object model, the association between two entities etc.
+    - By convention, the logical mapping should appear first, followed by the physical mapping. This makes the object model clear.
 
 Understanding and being able to distinguish between these two levels of metadata will help you make decisions about where to declare metadata, and where to use annotations and XML.
 
-### 2.1 Java Persistence Annotations
+### 2.1 Java Persistence Annotations, phycial
 
-```java
-@Entity
-public class Flight implements Serializable {
-    Long id;
+1. `@Table`
+    - default table name is the entity class name.
+    - name element: `@Table(name="EMP")`
+    - database **schema or catalog**
+2. Column Mappings
+    - The `@Basic` annotation can be thought of as a logical indication that a given attribute is persistent.
+    - A number of annotation elements can be specified as part of @Column, but most of them apply only to schema generation.
+    - name element is used when the default column name is not appropriate.
+    -`@Column` can be used with `@Id` mappings.
+3. `@JoinTable` annotation is a physical annotation and must be defined on the owning side of the relationship.
 
-    @Id
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-} 
-```
-- `@Entity` declares the class as an entity (i.e. a persistent POJO class), 
-- `@Id` declares the identifier property of this entity. 
-- The other mapping declarations are implicit. 
-- The class Flight is mapped to the Flight table, using the column id as its primary key column.
-
-
-### 2.1 Mapping annotations
-
-1. The logical annotations:
-describe the entity model **from an object modeling view**. They are tightly bound to the domain model and are the sort of metadata that you might want to specify in UML or any other object modeling language or framework.
-
-2. **The physical annotations**:
-relate to the concrete **data model in the database**. They deal with tables, columns, constraints, and other **database-level artifacts**that the object model might never be aware of otherwise.
-
-Other rules:
-
-1. The mapping annotations for a property must be on the `getter` method.
-2. By convention, the logical mapping should appear first, followed by the physical mapping. This makes the object model clear.
+    Read-Only Mappings using `@Column` and `@JoinColumn` annotations
+    1. options to set individual mappings to be read-only using the insertable and updatable elements of the @Column and @JoinColumn annotations
+    2. default to true
+    3. set to false if we want to ensure that the provider will not insert or update information in the table in response to changes in the entity instance
+    4. Even though all of these mappings are not updatable, the entity as a whole could still be deleted.
 
 ### 2.2 logical annotations (object modeling)
 
-1. `@Entity` and `@Id` annotations need to be specified to create and map an entity to a database table.
-
-2. The `@Id` annotation indicates
-    1. the id field is the persistent identifier or primary key for the entity
-    2. the field access should be assumed private.
-3. `@Access`
-    - entity default access mode is `AccessType.FIELD`.
-    - Override the access of data through field access.
-    - If use property access, filed should be marked as `@Transient`.
+- `@Entity`
+- `@Basic` The annotation takes two optional attributes
+    1. optional and takes a Boolean. Defaulting to true, this can be set to false to provide a hint to schema generation that the associated column should be created NOT NULL.
+    2. The second is named fetch and takes a member of the enumeration FetchType. This is EAGER by default, but can be set to LAZY to permit loading on access of the value.
+- `@Transient`
+- `@Basic`
+- `@Temporal` Some fields, such as calculated values, may be used at runtime only, and they should be discarded from objects as they are persisted into the database.
+- `@Table` 4 attributes
+    1. name of table
+    2. its catalog
+    3. its schema
+    4. enforce unique constraints on columns in the table
 
     ```java
     @Entity
-    @Access(AccessType.FIELD)
-    public class Employee {
-
-        @Transient
-        private String phoneNum;
-
-        @Access(AccessType.PROPERTY)
-        @Column(name="PHONE")
-        protected String getPhoneNumberForDb() { }
-    }
+    @Table( name="customer", uniqueConstraints={@UniqueConstraint(columnNames="name")} )
+    public class Customer { }
     ```
+
+- `@SecondaryTable` annotation provides a way to model an entity bean that is persisted across several different database tables.
+- `@Column`
+  - `name` permits the name of the column to be explicitly specified — by default, this would be the name of the property.
+  - `length` permits the size of the column used to map a value (particularly a String value) to be explicitly defined. The column size defaults to 255.
+  - `nullable` permits the column to be marked NOT NULL when the schema is generated. The default is that fields should be permitted to be null.
+  - `unique` permits the column to be marked as containing only unique values. This defaults to false.
+
+  ```java
+  @Column(name="working_title",length=200,nullable=false)
+  String title;
+  ```
+
+- `@Id`
+- `@GeneratedValue`: it takes a pair of attributes: strategy and generator.
+  - strategy
+
+    ```java
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    ```
+
+    - default is AUTO, let database to decide how identifiers should be created.
+    - IDENTITY: The database is responsible for determining and assigning the next primary key.
+    - SEQUENCE: Some databases support a SEQUENCE column type.
+    - TABLE: This type keeps a separate table with the primary key values.
+  - generator
+
+    ```java
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="COMMENT_ID_SEQ")
+    ```
+
+    - use a sequence, an identity column, or a special table for generating new IDs
+    - UUID-based generation
 
 4. Lazy Fetching
 
@@ -130,6 +153,7 @@ Other rules:
     - At the relationship level, however, lazy loading can be a big boon to enhancing performance. It can reduce the amount of SQL that gets executed, and speed up queries and object loading considerably.
     - on a single-valued relationship, the related object is guaranteed to be loaded eagerly.
     - Collection-valued relationships default to be lazily loaded
+
 5. Enumerated Types  
     - ORDINAL and STRING
     - using strings will solve the problem of inserting additional values in the middle of the enumerated type, but it will leave the data vulnerable to changes in the names of the values.
@@ -153,6 +177,7 @@ Other rules:
 4. Many to Many
 
 Regarding the following questions:
+
 Q1: Can a B belong to more than one A?
 Q2: Can an A have more than one B?
 
@@ -175,18 +200,18 @@ Mappings
 1. X-To-One: Single-Valued Associations
     1. Many-to-one
         - unidirection
-        - idirection
+        - bidirection
     2. One-to-one
         - unidirection
-        - idirection
+        - bidirection
 
 2. X-To-Many: Collection-Valued Associations
     1. One-to-many
         - unidirection
-        - idirection
+        - bidirection
     2. Many-to-many
         - unidirection
-        - idirection
+        - bidirection
 
 ### 2.3.1 X-To-One
 
@@ -324,79 +349,6 @@ In two unidirectional collection-valued cases, the source code is similar to the
             - not specifying any mappedBy
             - we specify a @JoinColumn annotation on the one-to-many attribute to indicate the foreign key column.
             - the join column that we are specifying applies to the table of the target object, not to the source object
-
-### 2.4 physical annotations
-
-1. `@Table`
-    - default table name is the entity class name.
-    - name element: `@Table(name="EMP")`
-    - database **schema or catalog**
-2. Column Mappings
-    - The `@Basic` annotation can be thought of as a logical indication that a given attribute is persistent.
-    - A number of annotation elements can be specified as part of @Column, but most of them apply only to schema generation.
-    - name element is used when the default column name is not appropriate.
-    -`@Column` can be used with `@Id` mappings.
-3. `@JoinTable` annotation is a physical annotation and must be defined on the owning side of the relationship.
-
-    Read-Only Mappings using `@Column` and `@JoinColumn` annotations
-    1. options to set individual mappings to be read-only using the insertable and updatable elements of the @Column and @JoinColumn annotations
-    2. default to true
-    3. set to false if we want to ensure that the provider will not insert or update information in the table in response to changes in the entity instance
-    4. Even though all of these mappings are not updatable, the entity as a whole could still be deleted.
-
-### 2.5 Building the Domain Model
-
-- `@Entity`
-- `@Basic` The annotation takes two optional attributes
-    1. optional and takes a Boolean. Defaulting to true, this can be set to false to provide a hint to schema generation that the associated column should be created NOT NULL.
-    2. The second is named fetch and takes a member of the enumeration FetchType. This is EAGER by default, but can be set to LAZY to permit loading on access of the value.
-- `@Transient`
-- `@Basic`
-- `@Temporal` Some fields, such as calculated values, may be used at runtime only, and they should be discarded from objects as they are persisted into the database.
-- `@Table` 4 attributes
-    1. name of table
-    2. its catalog
-    3. its schema
-    4. enforce unique constraints on columns in the table
-
-    ```java
-    @Entity
-    @Table( name="customer",
-      uniqueConstraints={@UniqueConstraint(columnNames="name")} )
-    public class Customer { }
-    ```
-
-- `@SecondaryTable` annotation provides a way to model an entity bean that is persisted across several different database tables.
-- `@Column`
-  - `name` permits the name of the column to be explicitly specified — by default, this would be the name of the property.
-  - `length` permits the size of the column used to map a value (particularly a String value) to be explicitly defined. The column size defaults to 255.
-  - `nullable` permits the column to be marked NOT NULL when the schema is generated. The default is that fields should be permitted to be null.
-  - `unique` permits the column to be marked as containing only unique values. This defaults to false.
-
-  ```java
-  @Column(name="working_title",length=200,nullable=false)
-  String title;
-  ```
-
-- `@Id`
-- `@GeneratedValue`: it takes a pair of attributes: strategy and generator.
-  - strategy
-    - default is AUTO, let database to decide how identifiers should be created.
-
-            ```java
-            @Id @GeneratedValue(strategy = GenerationType.AUTO)
-            private Long id;
-            ```
-    - IDENTITY: The database is responsible for determining and assigning the next primary key.
-    - SEQUENCE: Some databases support a SEQUENCE column type.
-    - TABLE: This type keeps a separate table with the primary key values.
-  - generator
-    - use a sequence, an identity column, or a special table for generating new IDs
-
-            ```java
-            @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="COMMENT_ID_SEQ")
-            ```
-    - UUID-based generation
 
 ### 2.5  Cascading operation
 
@@ -590,7 +542,15 @@ Three interfaces in Spring Data API:
 
 ## 4. Queries
 
+```java
+//todo
+```
+
 ## 5. Unit tests
+
+```java
+//todo
+```
 
 ## References
 
