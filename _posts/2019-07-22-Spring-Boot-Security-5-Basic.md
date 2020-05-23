@@ -12,7 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Simple demos that explains.
+Simple demos that explains something.
 
 // todo not finish yet...
 
@@ -24,46 +24,14 @@ Simple demos that explains.
 dependencies {
  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
  implementation 'org.springframework.boot:spring-boot-starter-web'
+ implementation 'org.springframework.boot:spring-boot-starter-security'
  developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 ```
 
-### 2. HomeController
+## 1. Default Login/Logout page
 
-```java
-@Controller
-public class HomeController {
-
-    @GetMapping(value = {"/", "/home"})
-    public String home() { return "home"; }
-
-    @GetMapping("/api")
-    @ResponseBody
-    public String api() { return "security api"; }
-}
-```
-
-### 3. HTMLs
-
-```html
-<body> <h2>This is home page</h2> </body>
-```
-
-### 4. Run
-
-1. `http://localhost:8080/` -> home page
-2. `http://localhost:8080/home` -> home page
-3. `http://localhost:8080/api` -> security api
-
-## DEMO 1 - Default Login/Logout page
-
-### 1. Add Spring Boot Security dependency
-
-```gradle
-implementation 'org.springframework.boot:spring-boot-starter-security'
-```
-
-### 2. Spring Security generated default password
+### 1.1 Spring Security generated default password
 
 Run your project, in the log, you'll find your password
 
@@ -75,7 +43,7 @@ Using generated security password: 1d4d7018-a42a-4418-afb1-7565250facdd
 2046-99-21 39:29:44.112  INFO 1733 --- [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Creating filter chain: blah
 ```
 
-### Test with default login
+### 1.2 Test with default login
 
 1. Default login form
     1. `http://localhost:8080/`, directs to `http://localhost:8080/login`, default login form
@@ -100,7 +68,7 @@ Using generated security password: 1d4d7018-a42a-4418-afb1-7565250facdd
 3. Default logout function
     `http://localhost:8080/logout`
 
-### config username/pwd in `application.properties` file
+### 1.3 config username/pwd in `application.properties` file
 
 ```properties
 spring.security.user.name=whatIsYourUserName
@@ -111,9 +79,9 @@ spring.security.user.password=hardToGuess
   the Spring generated security password is gone
 2. username and password is case-senstive
 
-## Demo 2: customised login/logout page
+## 2. Customised login/logout page
 
-### Set it up
+### 2.1 Set it up
 
 1. new `LoginController`
 
@@ -180,7 +148,7 @@ spring.security.user.password=hardToGuess
 </html>
 ```
 
-3. Customize security config
+### 2.2 Customize security config
 
 `SecurityConfig.java`
 
@@ -221,4 +189,159 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-4. // test
+### 2.3 Test customized login page
+
+## 3. Multiple Login Page
+
+### 3.1 Set up vew for multi login pages
+
+Add following files:
+
+1. `resources/templates/admin/home.html`
+2. `resources/templates/admin/login.html`
+3. `resources/templates/user/home.html`
+4. `resources/templates/user/login.html`
+
+Example code from resources/templates/admin/login.html
+
+```html
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Admin Login</title>
+</head>
+<body>
+<h2>Welcome to admin login page</h2>
+<form th:action="@{/admin/login}" method="post">
+    <div id="loginTable">
+        <table>
+            <tbody>
+            <tr>
+                <td><label for="username">Username</label></td>
+                <td><input type="text" id="username" name="username"></td>
+            </tr>
+            <tr>
+                <td><label for="password">Password</label></td>
+                <td><input type="text" name="password" id="password"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Sign In"></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="error" th:if="${param.error}">Invalid username or password.</div>
+                    <div class="info" th:if="${param.logout}">You have been logged out.</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</form>
+</body>
+</html>
+```
+
+### 3.2 Set up MvcConfig
+
+Add new config file `MvcConfig`
+
+```java
+@Configuration
+public class MvcConfig implements WebMvcConfigurer {
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("user/home");
+        registry.addViewController("/admin/login").setViewName("admin/login");
+        registry.addViewController("/admin/home").setViewName("admin/home");
+        registry.addViewController("/user/login").setViewName("user/login");
+        registry.addViewController("/user/home").setViewName("user/home");
+    }
+}
+```
+
+### 3.3 Set up SecurityConfig
+
+1. Add new config file `SecurityConfig`
+2. Add `AdminSecurityConfig`
+3. Add `UserSecurityConfig`
+4. Configure InMemoryUserDetails for ADMIN and User roles
+5. PasswordEncoder
+
+```java
+Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Configuration
+    @Order(1)
+    public static class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.antMatcher("/admin/**")
+                .authorizeRequests()
+                .antMatchers("/css/**").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest()
+                .authenticated()
+
+                .and()
+                .formLogin()
+                .loginPage("/admin/login")
+                .defaultSuccessUrl("/admin/home")
+                .permitAll()
+
+                .and()
+                .logout()
+                .logoutUrl("/admin/logout")
+                .permitAll();
+
+        }
+    }
+
+    @Configuration
+    @Order(2)
+    public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.antMatcher("/user/**")
+                .authorizeRequests()
+                .antMatchers("/css/**").permitAll()
+                .antMatchers("/user/**").hasRole("USER")
+                .anyRequest()
+                .authenticated()
+
+                .and()
+                .formLogin()
+                .loginPage("/user/login")
+                .defaultSuccessUrl("/user/home")
+                .permitAll()
+
+                .and()
+                .logout()
+                .logoutUrl("/user/logout")
+                .permitAll();
+
+        }
+    }
+
+    @Bean
+    public static PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("user")
+            .password(encoder().encode("123456"))
+            .roles("user")
+            .build());
+        manager.createUser(User.withUsername("admin")
+            .password(encoder().encode("123456"))
+            .roles("ADMIN")
+            .build());
+        return manager;
+    }
+```
+
+### 3.4 Test Multi login form
+
+It creates two roles and got two in memory users. You can go to `http://localhost:8080/admin/login` to login admin users or `http://localhost:8080/user/login` to login in as USER role users.
