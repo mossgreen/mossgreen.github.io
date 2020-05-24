@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Databases
+title: AWS Servcies Study Notes, Databases
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
+RDS, Aurora, DynamoDB, ElastiCache, DMS, EMR, Kinesis, etc.
 
 ## Database and AWS
 

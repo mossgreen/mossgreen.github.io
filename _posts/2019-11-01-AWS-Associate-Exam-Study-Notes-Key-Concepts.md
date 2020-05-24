@@ -1,5 +1,5 @@
 ---
-title: AWS SAA Certification Study Notes
+title: AWS SAA Certification Key Concepts
 search: true
 tags:
   - AWS
@@ -12,9 +12,9 @@ classes: wide
 
 AWS SAA: Key Concepts
 
-Only a subset of services.
-knowledge will be the architecture, how they work together,
-how to achieve well performaing, scaleable, secure and cost effective designs.
+- Only a subset of services in SAA exam
+- Only need to how they work together, no need to know implement details
+- Only focusing on how to achieve well performaing, scaleable, secure and cost effective designs.
 
 ## Key Concepts
 

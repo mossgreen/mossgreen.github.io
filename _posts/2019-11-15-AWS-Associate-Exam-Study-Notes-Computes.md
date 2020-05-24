@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Computes
+title: AWS Servcies Study Notes, Computes
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
+EC2, Auto Scaling, EB, Serverless, ECS, CloutFormation, etc.
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 

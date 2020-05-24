@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Security
+title: AWS Servcies Study Notes, Security
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
+IAM, KMS, IDF, etc.
 
 ## AWS Identity and Access Management, IAM
 

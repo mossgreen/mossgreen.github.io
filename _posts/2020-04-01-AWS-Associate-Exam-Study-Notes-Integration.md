@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Integration
+title: AWS Servcies Study Notes, Integration
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
+SNS, SQS, etc.
 
 ## Amazon Simple Notification Services, SNS
 

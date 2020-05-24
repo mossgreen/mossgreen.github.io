@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Storages
+title: AWS Servcies Study Notes, Storages
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
+S3, Glacier, EBS, Stoarage Gateway, SnowX, etc.
 
 ## Amazon Simple Storage Service, S3
 
