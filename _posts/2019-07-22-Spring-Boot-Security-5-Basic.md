@@ -345,3 +345,213 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 ### 3.4 Test Multi login form
 
 It creates two roles and got two in memory users. You can go to `http://localhost:8080/admin/login` to login admin users or `http://localhost:8080/user/login` to login in as USER role users.
+
+## 4. hasRole and hasAuthority
+
+### 4.1 Set up
+
+HomeController.java
+
+```java
+@RestController
+@AllArgsConstructor
+@RequestMapping("/employee")
+public class EmployeeController {
+
+    @GetMapping
+    public String findAll() { return "list"; }
+
+    @DeleteMapping("/{id}")
+    public Long delete(@PathVariable Long id) { return id; }
+}
+```
+
+SecurityConfig.java
+
+```java
+Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Configuration
+    @Order(1)
+    public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .httpBasic();
+        }
+    }
+
+        @Bean
+    public static PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("admin")
+            .password(encoder().encode("123456"))
+            .roles("ADMIN")
+            .build());
+        manager.createUser(User.withUsername("user")
+            .password(encoder().encode("123456"))
+            .roles("USER")
+            .build());
+        manager.createUser(User.withUsername("guest")
+            .password(encoder().encode("123456"))
+            .roles("GUEST")
+            .build());
+        return manager;
+    }
+}
+```
+
+### 4.2 Test users
+
+```bash
+curl -H 'Accept:application/json' -u guest:123456 localhost:8080/employee
+list
+curl -H 'Accept:application/json' -u admin:123456 localhost:8080/employee
+list
+curl -H 'Accept:application/json' -u fake:123456 localhost:8080/employee
+(nothing)
+```
+
+### 4.3 hasRole in HttpSecurity Filter
+
+```java
+    @Configuration
+    @Order(1)
+    public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/employee**").hasRole("USER")
+                .anyRequest()
+                .authenticated()
+                .and()
+                .httpBasic();
+        }
+    }
+```
+
+```bash
+$ curl -H 'Accept:application/json' -u user:123456 localhost:8080/employee
+list
+
+$ curl -H 'Accept:application/json' -u guest:123456 localhost:8080/employee
+{"timestamp":"2020-05-24T07:07:40.496+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee"}
+```
+
+The guest user got `403` error, because it doesn't have `USER` role.
+
+NB:
+
+1. `.antMatchers(HttpMethod.GET, "/employee**").hasRole("USER")` notice the `/` in url
+
+### 4.4 hasRole in method level
+
+SecurityConfig.java
+
+```java
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {}
+```
+
+EmployeeController
+
+```java
+@GetMapping
+@PreAuthorize("hasRole('USER')")
+public String findAll() { return "list"; }
+```
+
+```bash
+$ curl -H 'Accept:application/json' -u user:123456 localhost:8080/employee
+list
+
+$ curl -H 'Accept:application/json' -u guest:123456 localhost:8080/employee
+{"timestamp":"2020-05-24T07:18:16.635+00:00","status":403,"error":"Forbidden","trace":"..."}
+```
+
+NB:
+
+- Mind the annotation on `SecurityConfig.java` `@EnableGlobalMethodSecurity(prePostEnabled = true)`
+
+### 4.5 hasAuthrise in SecurityConfig
+
+```java
+@Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Configuration
+    @Order(1)
+    public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/employee**").hasAuthority("read")
+                .antMatchers(HttpMethod.DELETE, "/employee/**").hasAuthority("delete")
+                .anyRequest()
+                .authenticated()
+                .and()
+                .httpBasic();
+        }
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("admin")
+            .password(encoder().encode("123456"))
+            .authorities("read","delete")
+            .build());
+        manager.createUser(User.withUsername("user")
+            .password(encoder().encode("123456"))
+            .authorities("read")
+            .build());
+        manager.createUser(User.withUsername("guest")
+            .password(encoder().encode("123456"))
+            .roles("GUEST")
+            .build());
+        return manager;
+    }
+```
+
+```bash
+$ curl -X DELETE  -u admin:123456 localhost:8080/employee/100
+100%  
+
+$ curl -X DELETE  -u user:123456 localhost:8080/employee/100  
+{"timestamp":"2020-05-24T07:42:14.023+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%  
+```
+
+NB:
+
+- `.antMatchers(HttpMethod.DELETE, "/employee/**").hasAuthority("delete")` mind the `/employee/`, it has two `/`s
+
+### 4.6 hasAuthrise in method level
+
+EmployeeController.java
+
+```java
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('delete')")
+    public Long delete(@PathVariable Long id) { return id; }
+```
+
+```bash
+$ curl -X DELETE  -u admin:123456 localhost:8080/employee/100
+100%
+$ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
+{"timestamp":"2020-05-24T07:46:33.765+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%
+```
