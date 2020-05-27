@@ -73,6 +73,31 @@ In the log, `scheduling-1` is the thread name. This thread is reused all the tim
     - Query/Update db actions
     - IO
 
+## Fix
+
+After investigation, I've known the tasks that took most of time and how many threads I need.
+
+### 1. Larger ThreadPool size
+
+Add `config/ScheduledTaskConfig.java`
+
+```java
+@Configuration
+public class ScheduledTaskConfig {
+
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler (){
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(3);
+        return taskScheduler;
+    }
+}
+```
+
+## Test
+
+//todo
+
 ## References
 
 - [Methods annotated with @Scheduled stops working in Open Source Spring](https://community.pivotal.io/s/article/methods-annotated-with-scheduled-stops-working?language=en_US)
