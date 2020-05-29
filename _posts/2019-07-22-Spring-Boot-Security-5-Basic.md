@@ -555,3 +555,60 @@ $ curl -X DELETE  -u admin:123456 localhost:8080/employee/100
 $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
 {"timestamp":"2020-05-24T07:46:33.765+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%
 ```
+
+### 5. Whitelist
+
+1. Set up
+
+    ```java
+    @GetMapping("/home/ip")
+    @ResponseBody
+    public String ip(HttpServletRequest request) {
+        return request.getRemoteAddr();
+    }
+    ```
+
+2. Whitelist in your security config
+    In your security config, update:
+
+    ```java
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/home/ip").hasIpAddress("192.168.1.0") // <-- whitelist
+        ...
+        }
+    ```
+
+3. Customize whitelist
+
+    ```java
+    public class CustomIpAuthenticationProvider implements AuthenticationProvider {
+
+        private final List<String> ipWhiteList = new ArrayList<>();
+
+        public CustomIpAuthenticationProvider() {
+
+            // this list can be populated from DB
+            ipWhiteList.add("192.168.1.0");
+            ipWhiteList.add("192.168.1.1");
+            ipWhiteList.add("192.168.1.1");
+        }
+
+        @Override
+        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+            WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+            String ip = details.getRemoteAddress();
+            if (!ipWhiteList.contains(ip)) {
+                throw new BadCredentialsException("Invalid Ip");
+            }
+            return authentication;
+        }
+
+        @Override
+        public boolean supports(Class<?> authentication) {
+            return true;
+        }
+    }
+    ```
