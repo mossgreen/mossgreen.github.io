@@ -1,5 +1,5 @@
 ---
-title: How to Submit a Form
+title: How to Submit a HTML Form
 search: true
 tags: 
   - HTML
@@ -10,25 +10,60 @@ toc_icon: "cog"
 classes: wide
 ---
 
- Submits user's data and sends data to a server.
+A HTML form sends data to a server.
 
+## 1. What is a HTML form
 
- //todo new structure
+- When you're on a website, you read information that the server provides you.
+- When you want to interact with the server, in a simple way, click a button to tell the webiste your preference, or
+- you need a form, you put data in it and submit it to the server. Let the server know more about your thoughts.
 
- /*
- 
- 1. What is a form
+### A tipical form
 
- 2. form elements and possible options
-    - autocomplete
- 3. Input   
- 3. A traditional form
- 4. Submit out of the <form>
- 5. How does it work for get and post
- 6. safty
-    - how it encrypt data
-    - other safty issues
- */
+```html
+```
+
+- form level attributes
+
+## 2. Elements in a HTML form
+
+we call them `from controls` or `widgets`
+
+### 2.1 Input is the most important form control
+
+common attributes and how to use them
+
+### 2.2 Other fomr controls
+
+- `<select>`,
+- `<textarea>`,
+- `<meter>`,
+- `<progress>`
+- checkbox?
+
+common attributes and how to use them
+
+## 3. Submit the form
+
+### 3.1 multipart
+
+### 3.2 Normal submit button
+
+### 3.3 Submit using AJAX
+
+## 4. Security
+
+### 4.1 how it encrypt data
+
+### 4.2 sql injection
+
+### 4.3 autocomplete
+
+### 4.4 Validate data
+
+## 5 Real Scenario issues I met
+
+- multipart cannot upload the same file
 
 ## 0. Quick form demo
 
@@ -52,36 +87,36 @@ In this demo, the form will send 2 pieces of data named `user_name` and `user_em
 
 Users interact application using forms, user can enter data and submit to server.
 
-
 ## 1. Elements in a HTML form
 
 ### 1.1 `<form>`
-- `action` 
+
+- `action`
   - is the ocation that the data should be sent to
   - Must be a valid URL. Can be absolute or relative URL
   - If not provided, the data will be sent to the URL of the page containing the form
   - `<form action="#">`: before `HTML5`, `action` is required. It indicates data send to current page
 
 - `method`
-    - `method="GET"`
-        - `method` by default is "GET"
-        - Data is appended to the URL 
-        - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
-        - `enctype` attribute will be ignored
+  - `method="GET"`
+    - `method` by default is "GET"
+    - Data is appended to the URL
+    - Url is like: `www.foo.com/?user_name=moss&user_mail=haha@haha.com`
+    - `enctype` attribute will be ignored
   
-    - `method="POST"`
-        - Data provided in the body of the HTTP request 
-        - No data appened to URL
-        - `enctype` attribute by default is `application/x-www-form-urlencoded`
+  - `method="POST"`
+    - Data provided in the body of the HTTP request
+    - No data appened to URL
+    - `enctype` attribute by default is `application/x-www-form-urlencoded`
   
     ```yaml
     POST / HTTP/1.1
     Host: foo.com
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 38
-    
+
     user_name=moss&user_mail=haha@haha.com
-    ```    
+    ```
 
 ### 1.2 `<label>`  Attributee
 
@@ -92,25 +127,26 @@ Users interact application using forms, user can enter data and submit to server
   <input id="user_name" type="text" name="username">
 </div>
 ```
+
 When user click on the label, the input with `id="user_name"` shall be activated.
 It is especially useful for radio buttons and checkboxes.
 
 ### 1.3 `<input>`Attribute
 
-  - ~~datetime: `HTML5` will be removed, don't use~~
-  - `button`: A push button with no default behavior
-  - `date`: `HTML5` year, month, and day, with no time
-  - `email`: `HTML5` A field for editing an e-mail address.
-  - `hidden`: not displayed, but value is submitted to the server
-  - `password`: Use the `maxlength` and `minlength` attributes to specify
-  - `range`: `HTML5` number range
-  - `autocomplete`: 
-      - lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, 
-      - guidance to the browser as to the type of information expected in the field.
-      - available on <input> elements that take a text or numeric value as input, <textarea> elements, <select> elements, and <form> elements.
-      - "off": The browser is not permitted to automatically enter or select a value for this field.
-      - "on": The browser is allowed to automatically complete the input. No guidance is provided.
-      - "new-password": prevent autofilling of password fields
+- ~~datetime: `HTML5` will be removed, don't use~~
+- `button`: A push button with no default behavior
+- `date`: `HTML5` year, month, and day, with no time
+- `email`: `HTML5` A field for editing an e-mail address.
+- `hidden`: not displayed, but value is submitted to the server
+- `password`: Use the `maxlength` and `minlength` attributes to specify
+- `range`: `HTML5` number range
+- `autocomplete`:
+  - lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values,
+  - guidance to the browser as to the type of information expected in the field.
+  - available on <input> elements that take a text or numeric value as input, <textarea> elements, <select> elements, and <form> elements.
+  - "off": The browser is not permitted to automatically enter or select a value for this field.
+  - "on": The browser is allowed to automatically complete the input. No guidance is provided.
+  - "new-password": prevent autofilling of password fields
 
 ### 1.4 `<button>`
 
@@ -119,6 +155,7 @@ It is especially useful for radio buttons and checkboxes.
 - `type="button"` : A click does nothing! It's useful when customizing buttons with JavaScript
 
 `<button>` VS `<input>`
+
 - `type` attribute specifies what kind of button is displayed
 - `<input type="submit" />` produces a button, however it only allows plain text as its label
 
@@ -152,7 +189,7 @@ function sendData(data) {
     urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
   }
 
-  // Combine the pairs into a single string and replace all %-encoded spaces to 
+  // Combine the pairs into a single string and replace all %-encoded spaces to
   // the '+' character; matches the behaviour of browser form submissions.
   urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
 
@@ -179,31 +216,33 @@ function sendData(data) {
 
 ### form not submitting in Microsoft Edge
 
-In HTML5, a `<button>` has a form attribute. 
+In HTML5, a `<button>` has a form attribute.
+
 ```html
 <form id="form1" method="get" action="/">
      <input type="text" name="firstname" />
 </form>
- 
+
 <button type="submit" form="form1" value="Submit">Submit</button>
 ```
+
 However, **it doesn't work on IE and Edge**. Since submit button is a type of control, the submit must appear inside a `<form>`.
 
 You can use JavaScript onclick event.
+
 ```html
 <form id="form1">
-	<input type="text" name="firstname" />
+ <input type="text" name="firstname" />
 </form>
- 
+
 <button id="submit-button">Submit</button>
- 
+
 <script type="text/javascript">
-	document.getElementById("submit-button").onclick = function() {
-		document.getElementById("form1").submit();
-	}
+ document.getElementById("submit-button").onclick = function() {
+  document.getElementById("form1").submit();
+ }
 </script>
 ```
-
 
 ## FormData Object
 
@@ -218,15 +257,14 @@ formData.append("serialnumber", serialNumber++);
 request.send(formData);
 ```
 
-
-## Form Validation 
+## Form Validation
 
 When user enter data, form checks if it's correct. It won't allow invalid data to be submited, using `HTML5` validation, Javascript and 3rd party library.
 
 ### `<input>` HTML5 Valid
 
 A quick demo with email validation.
-Show red dashed border when input is invalid. 
+Show red dashed border when input is invalid.
 
 ```html
 <form>
@@ -293,7 +331,7 @@ form.addEventListener("submit", function (event) {
   // Each time the user tries to send the data, we check
   // if the email field is valid.
   if (!email.validity.valid) {
-    
+
     // If the field is not valid, we display a custom
     // error message.
     error.innerHTML = "I expect an e-mail, darling!";
@@ -311,9 +349,15 @@ form.addEventListener("submit", function (event) {
 
 Find more: [MDN Constraint Validation](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation)
 
-
 ## References
+
 - [MDN HTML forms](https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms)
 - [How do I make submit button without form?](https://www.quora.com/How-do-I-make-submit-button-without-form)
 - [Sensible Forms: A Form Usability Checklist](http://alistapart.com/article/sensibleforms)
 - [How to turn off form autocompletion](https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#The_autocomplete_attribute_and_login_fields)
+
+- https://developer.mozilla.org/en-US/docs/Learn/Forms/Basic_native_form_controls
+- https://developer.mozilla.org/en-US/docs/Learn/Forms/HTML5_input_types
+- https://developer.mozilla.org/en-US/docs/Learn/Forms/Other_form_controls
+- https://developer.mozilla.org/en-US/docs/Learn/Forms/Sending_forms_through_JavaScript
+- https://developer.mozilla.org/en-US/docs/Learn/Forms/How_to_structure_a_web_form
