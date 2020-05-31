@@ -556,7 +556,7 @@ $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
 {"timestamp":"2020-05-24T07:46:33.765+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%
 ```
 
-### 5. Whitelist
+## 5. Whitelist
 
 1. Set up
 
@@ -612,3 +612,105 @@ $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
         }
     }
     ```
+
+## 6. Custom Authentication
+
+### 6.1 Set up
+
+application.properteis
+
+```properties
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2
+spring.h2.console.settings.trace=false
+spring.h2.console.settings.web-allow-others=false
+
+spring.datasource.url=jdbc:h2:D://data//test;DB_CLOSE_DELAY=-1;
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+```
+
+SecurityConfig.java
+
+```java
+@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().ignoringAntMatchers("/h2/**")
+            .and()
+            .headers().frameOptions().sameOrigin()
+            .and()
+            .authorizeRequests()
+            .antMatchers("/h2/**").permitAll()
+            .anyRequest()
+            .authenticated()
+            .and()
+            .formLogin();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+CustomUsernamePasswordAuthenticationProvider.java
+
+```java
+@Component
+public class CustomUsernamePasswordAuthenticationProvider implements AuthenticationProvider {
+
+    final private EmployeeRepo employeeRepo;
+
+    public CustomUsernamePasswordAuthenticationProvider(EmployeeRepo employeeRepo) {
+        this.employeeRepo = employeeRepo;
+    }
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
+        String username = authentication.getName();
+        String password = authentication.getCredentials().toString();
+
+        Employee employee = employeeRepo.findByName(username)
+            .orElseThrow(()-> new BadCredentialsException("Invalid username"));
+
+        String usernameDB = employee.getName();
+        String passwordDB = employee.getPassword();
+
+        boolean isPasswordCorrect = BCrypt.checkpw(password, passwordDB);
+
+        if (username.equals(usernameDB) && isPasswordCorrect) {
+            return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
+        } else {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+    }
+}
+```
+
+### 6.2 Set up H2 database
+
+1. Start the project
+2. got to h2 db interface
+    - `Driver Class:org.h2.Driver`
+    - `JDBC URL: jdbc:h2:D://data//test;DB_CLOSE_DELAY=-1;`
+    - `User Name: sa`
+    - `Password: (empty)` // we didn't config it
+3. Insert a demo user
+    - id:1
+    - name: "user"
+    - password, go to `https://www.browserling.com/tools/bcrypt` to generate one
+
+### 6.3 test
