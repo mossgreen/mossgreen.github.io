@@ -700,7 +700,17 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
 }
 ```
 
-### 6.2 Set up H2 database
+### 6.2 Set up Repo
+
+EmployeeRepo.java
+
+```java
+public interface EmployeeRepo extends JpaRepository<Employee, Long> {
+    Optional<Employee> findByName(String name);
+}
+```
+
+### 6.3 Set up H2 database
 
 1. Start the project
 2. got to h2 db interface
@@ -713,4 +723,142 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
     - name: "user"
     - password, go to `https://www.browserling.com/tools/bcrypt` to generate one
 
-### 6.3 test
+### 6.4 test
+
+## 7. Block Attacks from an IP
+
+### 7.1 Set up components
+
+add dependency
+
+```gradle
+compile group: 'com.google.guava', name: 'guava', version: '21.0'
+```
+
+LoginAttemptService.java
+
+```java
+@Service
+public class LoginAttemptService {
+    private static final Integer MAX_ATTAMPT = 3;
+    private LoadingCache<String, Integer> attemptCache;
+
+    public LoginAttemptService() {
+        this.attemptCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(1, TimeUnit.DAYS)
+            .build(new CacheLoader<String, Integer>() {
+                @Override
+                public Integer load(String key) throws Exception {
+                    return 0;
+                }
+            });
+    }
+
+    public void loginSucceed(String ip) {
+        attemptCache.invalidate(ip);
+    }
+
+    public void loginFailed(String ip) {
+        Integer attempts = 0;
+        try {
+            attempts = attemptCache.get(ip);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        attempts ++;
+
+        attemptCache.put(ip, attempts);
+    }
+
+    public boolean isBlocked(String ip) {
+        Integer attempts = 0;
+        try {
+           attempts = attemptCache.get(ip);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return attempts > MAX_ATTAMPT;
+    }
+}
+```
+
+### 7.2 Set up event listeners
+
+AuthenticationLoginFailureEventListener.java
+
+```java
+@Component
+public class AuthenticationLoginFailureEventListener implements ApplicationListener<AuthenticationFailureBadCredentialsEvent> {
+
+    private LoginAttemptService loginAttemptService;
+
+    public AuthenticationLoginFailureEventListener(LoginAttemptService loginAttemptService) {
+        this.loginAttemptService = loginAttemptService;
+    }
+
+    @Override
+    public void onApplicationEvent(AuthenticationFailureBadCredentialsEvent event) {
+        WebAuthenticationDetails details = (WebAuthenticationDetails) event.getAuthentication().getDetails();
+        loginAttemptService.loginFailed(details.getRemoteAddress());
+    }
+}
+```
+
+AuthenticationLoginSuccessEventListener.java
+
+```java
+@Component
+public class AuthenticationLoginSuccessEventListener implements ApplicationListener<AuthenticationSuccessEvent> {
+
+    private LoginAttemptService loginAttemptService;
+
+    public AuthenticationLoginSuccessEventListener(LoginAttemptService loginAttemptService) {
+        this.loginAttemptService = loginAttemptService;
+    }
+
+    @Override
+    public void onApplicationEvent(AuthenticationSuccessEvent event) {
+        WebAuthenticationDetails webAuthenticationDetails = (WebAuthenticationDetails) event.getAuthentication().getDetails();
+        loginAttemptService.loginSucceed(webAuthenticationDetails.getRemoteAddress()
+        );
+    }
+}
+```
+
+### 7.3 Inject services into CustomUsernamePasswordAuthenticationProvider
+
+CustomUsernamePasswordAuthenticationProvider.java
+
+```java
+@Override
+public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
+    final WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+    if (loginAttemptService.isBlocked(details.getRemoteAddress())) {
+        throw new BadCredentialsException("Invalid ip");
+    }
+
+    String username = authentication.getName();
+    String password = authentication.getCredentials().toString();
+
+    Employee employee = employeeRepo.findByName(username)
+        .orElseThrow(()-> new BadCredentialsException("Invalid username"));
+
+    String usernameDB = employee.getName();
+    String passwordDB = employee.getPassword();
+
+    boolean isPasswordCorrect = BCrypt.checkpw(password, passwordDB);
+
+    if (username.equals(usernameDB) && isPasswordCorrect) {
+        return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
+    } else {
+        throw new BadCredentialsException("Invalid username or password");
+    }
+}
+```
+
+### 7.4 test
+
+Try to login but provide wrong password for five times.
+Try to login again, will get invalid ip error message.
