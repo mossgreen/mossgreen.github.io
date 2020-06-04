@@ -862,3 +862,97 @@ public Authentication authenticate(Authentication authentication) throws Authent
 
 Try to login but provide wrong password for five times.
 Try to login again, will get invalid ip error message.
+
+## 8. Acquire user's information
+
+### 8.1 pre setting
+
+application.properties
+
+```properties
+spring.security.user.name=username
+spring.security.user.password=123456
+```
+
+### 8.2 Implement
+
+UserInfoController.java
+
+```java
+
+@RestController
+@Slf4j
+public class UserInfoController {
+
+    @GetMapping("/userInfo")
+    public String userInfo(Authentication authentication) {
+        log.info("name: {}", authentication.getName());
+        log.info("principle: {}", authentication.getPrincipal());
+        log.info("details: {}", authentication.getDetails());
+        log.info("credentials: {}", authentication.getCredentials());
+        log.info("authorities: {}", authentication.getAuthorities());
+        return authentication.getName();
+    }
+}
+```
+
+It logs with:
+
+```log
+c.m.springsecurity.UserInfoController    : name: user
+c.m.springsecurity.UserInfoController    : principle: user
+c.m.springsecurity.UserInfoController    : details: org.springframework.security.web.authentication.WebAuthenticationDetails@380f4: RemoteIpAddress: 0:0:0:0:0:0:0:1; SessionId: D4239E2FC21B82D9BADB6D5F25A29B79
+c.m.springsecurity.UserInfoController    : credentials: null
+c.m.springsecurity.UserInfoController    : authorities: []
+```
+
+details have info like:
+
+- ip,
+- session
+
+### 8.3 keep credentials in the Authenticate object
+
+credentials will be removed by default. If you want the credential to be kept within the Authentication object, in `Securityconfig.java` update:
+
+SecurityConfig.java
+
+```java
+@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+  // something no need to mention
+  
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth)  throws  Exception {
+        auth.eraseCredentials(false);
+        auth.authenticationProvider(customUsernamePasswordAuthenticationProvider);
+    }
+
+}
+```
+
+In the log you'll see: `credentials: 123456`
+
+### 8.4 Other ways you get user's info
+
+1. Current way is to inject `Authentication` directely to the controller's parameter
+2. You can also get `Authentication` inside of method body
+3. You can use `Principle` rather than `Authentication`
+
+```java
+@GetMapping("/userInfo")
+public String userInfo(Authentication authentication) {
+    return authentication.getName();
+}
+
+@GetMapping("/userInfo2")
+public String userInfo2() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication.getName();
+}
+
+@GetMapping("/userInfo3")
+public String userInfo3(Principal principal) {
+    return principal.getName();
+}
+```
