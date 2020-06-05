@@ -956,3 +956,66 @@ public String userInfo3(Principal principal) {
     return principal.getName();
 }
 ```
+
+## 9. httpBasic vs. loginform
+
+httpBasic: interface
+loginForm: web page
+you can use either of them, or both of them.
+
+### 9.1 code
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeRequests()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .httpBasic()
+        .and()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+}
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeRequests()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .formLogin()
+        .successForwardUrl("/home")
+        .and()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+}
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeRequests()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .httpBasic()
+        .and()
+        .formLogin()
+        .defaultSuccessUrl("/index");
+}
+```
+
+### 9.2 httpBasic
+
+- default behaviour
+- A dialog form poped out, user needs to fill in username and password.
+
+### 9.3 formlogin()
+
+- default login page
+- default logout url
+
+### 9.4 Cookie and Session in Spring Security
+
+- `formLogin` use `ifRequired` session policy
+- `httpBasic` use `STATELESS` session policy
