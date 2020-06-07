@@ -1019,3 +1019,237 @@ protected void configure(HttpSecurity http) throws Exception {
 
 - `formLogin` use `ifRequired` session policy
 - `httpBasic` use `STATELESS` session policy
+
+## 10. JWT Basic
+
+Normal token process:
+
+- normal token is just a string and doesn't have user's information
+- the server got the token, then load user's infom then find the resource the user can visit, then find if the user is authenticated
+
+JWT
+
+- jwt.io
+- Algorithm: HS256, HS512
+- Front end sent encoded token string
+- Server side decode it with:
+  - header: algorithm & token type
+
+        ```json
+        {
+          "alg":"HS256",
+          "typ": "JWT"
+        }
+        ```
+  - payload: data
+
+        ```json
+        {
+          "sub":"123456",
+          "name":"moss gu",
+          "iat":"15115115115100"
+        }
+        ```
+  - veifigy signature
+
+### 10.1 set up project
+
+- gradle dependency: `https://github.com/jwtk/jjwt#dependencies`
+
+build.gradle
+
+```gradle
+compile 'io.jsonwebtoken:jjwt-api:0.11.1'
+runtime 'io.jsonwebtoken:jjwt-impl:0.11.1',
+    // Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
+    //'org.bouncycastle:bcprov-jdk15on:1.60',
+    'io.jsonwebtoken:jjwt-jackson:0.11.1' // or 'io.jsonwebtoken:jjwt-gson:0.11.1' for gson
+```
+
+HelloJwt.java
+
+```java
+@Log4j2
+public class HelloJwt {
+    @Test
+    public void generate() {
+
+        //creates a spec-compliant secure-random key:
+        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        var token = Jwts.builder().setSubject("moss").signWith(key).compact();
+        log.info("token: {}", token);
+    }
+}
+```
+
+```log
+13:49:06.951 [main] INFO com.mossj.springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.RyxtLrNNj6TgumuuBe12Z7eaJls-T9rsP5tjp9B8s5o
+```
+
+You've got wrong dependencies if you get the following error message
+
+```json
+Caused by: io.jsonwebtoken.lang.UnknownClassException: Unable to load class named [io.jsonwebtoken.impl.crypto.MacProvider] from the thread context, current, or system/application ClassLoaders.  All heuristics have been exhausted.  Class could not be found.  Have you remembered to include the jjwt-impl.jar in your runtime classpath?
+```
+
+### 10.2 verify token in jwt.io
+
+here is the token `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.0kK2GS_qEX1gUyIbil1PcL1rEpRmjsJinYtuO3iqJpI`
+
+- header: `eyJhbGciOiJIUzI1NiJ9`
+- payload: `eyJzdWIiOiJtb3NzIn0`
+- signature: `0kK2GS_qEX1gUyIbil1PcL1rEpRmjsJinYtuO3iqJpI`
+
+go to `jwt.io`, paste in your encoded token, you will get:
+
+1. Header: `{ "alg": "HS256" }`
+2. Payload: `{  "sub": "moss" }`
+3. Verify signature
+
+    ```json
+    HMACSHA256(
+      base64UrlEncode(header) + "." +
+      base64UrlEncode(payload),
+      (your-256-bit-secret)
+    )
+    ```
+
+### 10.3 my dynamic secret key
+
+```java
+@Test
+public void generate() {
+    SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    final String encoded = Base64.getEncoder().encodeToString(key.getEncoded());
+    log.info("encoded Key: {}", encoded);
+
+    final SecretKey secretKey = Keys.hmacShaKeyFor(encoded.getBytes());
+    var token = Jwts.builder().setSubject("moss").signWith(secretKey).compact();
+    log.info("token: {}", token);
+
+    final String subject = Jwts.parserBuilder()
+        .setSigningKey(secretKey).build()
+        .parseClaimsJws(token)
+        .getBody()
+        .getSubject();
+    log.info("sub: {}",subject);
+
+    assertEquals(subject, "moss");
+}
+```
+
+Run it two times, see the log
+
+```log
+springsecurity.HelloJwt - encoded Key: pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=
+springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.xuBbV7r3wsaXVR9ePmFpmPFcVPaiiMjfDnzji1IuwvM
+springsecurity.HelloJwt - sub: moss
+
+// 2nd time
+springsecurity.HelloJwt - encoded Key: 0jjJrHnpDY0h6mLAsVkbgt2mgauaovjDTjgzd8ep+v0=
+springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.34t0B8XBCn53eAuchvvRI_pyaaHkTIDaaQH0eywfEWg
+springsecurity.HelloJwt - sub: moss
+
+```
+
+the encoded keys are dynamic and random.
+
+## 11.0 Use JWT and vefity
+
+### 11.1 Add JWT filter to SecurityConfig
+
+SecurityConfig.java
+
+```java
+@Override
+public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+}
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .authorizeRequests()
+        .antMatchers("/api/guest").permitAll()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .httpBasic()
+        .and()
+        .addFilter(new JwtAuthenticateFilter(authenticationManager()))
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+}
+```
+
+JwtAuthenticateFilter.java
+
+```java
+public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
+
+    private final AuthenticationManager authenticationManager;
+
+    private final String strKey = "pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=";
+
+    public JwtAuthenticateFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+        setFilterProcessesUrl("/api/token");
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
+        final String username = request.getParameter("username");
+        final String password = request.getParameter("password");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+        return this.authenticationManager.authenticate(token);
+    }
+
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        final User user = (User) authResult.getPrincipal();
+        final List<String> roles = user.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
+
+        SecretKey key = Keys.hmacShaKeyFor(strKey.getBytes());
+        final String token = Jwts.builder()
+            .setHeaderParam("TYP", "JWT")
+            .setIssuer("moss.example")
+            .setAudience("you")
+            .setExpiration(new Date(System.currentTimeMillis() + 1000000))
+            .setSubject(user.getUsername())
+            .setIssuedAt(new Date())
+            .setIssuer("www.moss.example.com")
+            .setSubject(user.getUsername())
+            .signWith(key)
+            .compact();
+
+        response.setHeader("Authorization", "Bearer " + token);
+    }
+}
+```
+
+### 11.2 test on postman
+
+1. user post method and pass in username and password
+2. Parames: `http://localhost:8080/api/token?username=username&password=123456`
+3. got response header:
+
+    ```java
+    Authorization →Bearer eyJUWVAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cubW9zcy5leGFtcGxlLmNvbSIsImF1ZCI6InlvdSIsImV4cCI6MTU5MTUwMDQ1OCwic3ViIjoidXNlcm5hbWUiLCJpYXQiOjE1OTE0OTk0NTh9.0eZRrDcU25ArCVFRdUu2FN2I8YJvAHwDtikqfoSewaY
+    ```
+
+4. response body: `{"apikey":"15e663d8417d5924ed1f959a0d2f931dba500523a896004a4768923c7092aee7"}`
+
+### 11.3 jwtIO decoded header
+
+```json
+{
+  "iss": "www.moss.example.com",
+  "aud": "you",
+  "exp": 1591500458,
+  "sub": "username",
+  "iat": 1591499458
+}
+```
