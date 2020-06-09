@@ -446,7 +446,7 @@ $ curl -H 'Accept:application/json' -u user:123456 localhost:8080/employee
 list
 
 $ curl -H 'Accept:application/json' -u guest:123456 localhost:8080/employee
-{"timestamp":"2020-05-24T07:07:40.496+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee"}
+{"timestamp":"2046-13-24T07:07:40.496+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee"}
 ```
 
 The guest user got `403` error, because it doesn't have `USER` role.
@@ -478,7 +478,7 @@ $ curl -H 'Accept:application/json' -u user:123456 localhost:8080/employee
 list
 
 $ curl -H 'Accept:application/json' -u guest:123456 localhost:8080/employee
-{"timestamp":"2020-05-24T07:18:16.635+00:00","status":403,"error":"Forbidden","trace":"..."}
+{"timestamp":"2046-13-24T07:18:16.635+00:00","status":403,"error":"Forbidden","trace":"..."}
 ```
 
 NB:
@@ -532,7 +532,7 @@ $ curl -X DELETE  -u admin:123456 localhost:8080/employee/100
 100%  
 
 $ curl -X DELETE  -u user:123456 localhost:8080/employee/100  
-{"timestamp":"2020-05-24T07:42:14.023+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%  
+{"timestamp":"2046-13-24T07:42:14.023+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%  
 ```
 
 NB:
@@ -553,7 +553,7 @@ EmployeeController.java
 $ curl -X DELETE  -u admin:123456 localhost:8080/employee/100
 100%
 $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
-{"timestamp":"2020-05-24T07:46:33.765+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%
+{"timestamp":"2046-13-24T07:46:33.765+00:00","status":403,"error":"Forbidden","message":"Forbidden","path":"/employee/100"}%
 ```
 
 ## 5. Whitelist
@@ -1154,18 +1154,18 @@ springsecurity.HelloJwt - sub: moss
 
 the encoded keys are dynamic and random.
 
-## 11.0 Use JWT and vefity
+## 11. Use JWT for Authentication and Authorization
 
-### 11.1 Add JWT filter to SecurityConfig
+Baisicly, they're two filters:
 
-SecurityConfig.java
+- `JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter`
+- `JwtAuthorizationFilter extends BasicAuthenticationFilter`
+
+### 11.1 Register two filters in SecurityConfig
+
+Although they're not impleted yet, we can have a whole idea about how to register them.
 
 ```java
-@Override
-public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
-}
-
 @Override
 protected void configure(HttpSecurity http) throws Exception {
     http.csrf().disable()
@@ -1177,32 +1177,73 @@ protected void configure(HttpSecurity http) throws Exception {
         .httpBasic()
         .and()
         .addFilter(new JwtAuthenticateFilter(authenticationManager()))
+        .addFilter(new JwtAuthorizationFilter(authenticationManager()))
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 }
+
+@Override
+public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+}
 ```
 
-JwtAuthenticateFilter.java
+### 11.2 Set up some constents
+
+SecurityConstants.java
+
+```java
+public class SecurityConstants {
+
+    public static final String AUTH_LOGIN_URL = "/api/token";
+    public static final String JWT_SECRET = "pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=";
+    public static final String TOKEN_HEADER = "Authorization";
+    public static final String TOKEN_PREFIX = "Bearer ";
+    public static final String TOKEN_TYPE = "JWT";
+    public static final String TOKEN_ISSUER = "secure-api";
+    public static final String TOKEN_AUDIENCE = "secure-app";
+
+    private SecurityConstants() {
+        throw new IllegalStateException("Cannot create instance of static util class");
+    }
+}
+```
+
+### 11.3 Set up JwtAuthenticateFilter
+
+1. NB: `setFilterProcessesUrl("/api/token");`
+2. Security enforcement: `parseData()` method. We should not use
+
+    ```java
+    // not safe
+    request.getParameter("username");
+    request.getParameter("password");
+    ```
+
+JwtAuthenticateFilter.class
 
 ```java
 public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
-    private final String strKey = "pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=";
-
     public JwtAuthenticateFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
         setFilterProcessesUrl("/api/token");
     }
 
+    @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        final String username = request.getParameter("username");
-        final String password = request.getParameter("password");
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+        LoginData loginData = parseData(request);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginData.getUsername(), loginData.getPassword());
         return this.authenticationManager.authenticate(token);
+    }
+
+    private LoginData parseData(HttpServletRequest request) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(request.getInputStream(), LoginData.class);
     }
 
     @Override
@@ -1212,7 +1253,7 @@ public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
-        SecretKey key = Keys.hmacShaKeyFor(strKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_SECRET.getBytes());
         final String token = Jwts.builder()
             .setHeaderParam("TYP", "JWT")
             .setIssuer("moss.example")
@@ -1222,34 +1263,100 @@ public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
             .setIssuedAt(new Date())
             .setIssuer("www.moss.example.com")
             .setSubject(user.getUsername())
+            .claim("rol", roles)
             .signWith(key)
             .compact();
 
         response.setHeader("Authorization", "Bearer " + token);
     }
 }
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoginData {
+    private String username;
+    private String password;
+}
 ```
 
-### 11.2 test on postman
+### 11.4 JwtAuthorizationFilter
 
-1. user post method and pass in username and password
-2. Parames: `http://localhost:8080/api/token?username=username&password=123456`
-3. got response header:
+JwtAuthorizationFilter.java
 
-    ```java
+```java
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+        super(authenticationManager);
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        final UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(request);
+        if (authenticationToken == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        chain.doFilter(request, response);
+    }
+
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+        var token = request.getHeader(SecurityConstants.TOKEN_HEADER);
+        if (!StringUtils.isEmpty(token) && token.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+            try {
+                final Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
+                    .build()
+                    .parseClaimsJws(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
+
+                final String username = claimsJws.getBody().getSubject();
+
+                final List<SimpleGrantedAuthority> authorities = ((List<?>)claimsJws.getBody().get("rol")).stream()
+                    .map(authority -> new SimpleGrantedAuthority((String) authority))
+                    .collect(Collectors.toList());
+
+                if (!StringUtils.isEmpty(username)) {
+                    return new UsernamePasswordAuthenticationToken(username, null, authorities);
+                }
+            } catch (ExpiredJwtException e) {
+                log.warn("Request to parse expired JWT: {} failed: {}", token, e.getMessage());
+            } catch (UnsupportedJwtException e) {
+                log.warn("Request to parse unsupported JWT: {} failed: {}", token, e.getMessage());
+            } catch (MalformedJwtException e) {
+                log.warn("Request to parse invalid JWT: {} failed: {}", token, e.getMessage());
+            } catch (SignatureException e) {
+                log.warn("Request to parse JWT with invalid signature: {} faile: {}", token, e.getMessage());
+            } catch (IllegalArgumentException e) {
+                log.warn("Request to parse empty or null JWT: {} failed: {}", token, e.getMessage());
+            }
+        }
+        return null;
+    }
+}
+```
+
+### 11.5 test on postman
+
+1. try to visit GET `http://localhost:8080/api/admin` got 401 error
+2. POST visit `alhost:8080/api/token` with body `{"username":"username","password":"123456"}`,got 200 OK and returned JWT token header, see:
+
+    ```log
     Authorization →Bearer eyJUWVAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cubW9zcy5leGFtcGxlLmNvbSIsImF1ZCI6InlvdSIsImV4cCI6MTU5MTUwMDQ1OCwic3ViIjoidXNlcm5hbWUiLCJpYXQiOjE1OTE0OTk0NTh9.0eZRrDcU25ArCVFRdUu2FN2I8YJvAHwDtikqfoSewaY
     ```
 
-4. response body: `{"apikey":"15e663d8417d5924ed1f959a0d2f931dba500523a896004a4768923c7092aee7"}`
+3. jwtIO verify payload
 
-### 11.3 jwtIO decoded header
+    ```log
+    {
+      "iss": "www.moss.example.com",
+      "aud": "you",
+      "exp": 1591500458,
+      "sub": "username",
+      "iat": 1591499458
+    }
+    ```
 
-```json
-{
-  "iss": "www.moss.example.com",
-  "aud": "you",
-  "exp": 1591500458,
-  "sub": "username",
-  "iat": 1591499458
-}
-```
+4. try to visit GET `http://localhost:8080/api/admin` with Headers
+    - KEY: `Authorization`
+    - VALUE: `Bearer eyJUWVAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cubW9zcy5leGFtcGxlLmNvbSIsImF1ZCI6InlvdSIsImV4cCI6MTU5MTY5MTgyMCwic3ViIjoidXNlcm5hbWUiLCJpYXQiOjE1OTE2OTA4MjAsInJvbCI6WyJST0xFX0FETUlOIl19.64GdIatR22PbFk8ZVeXwO-WXDSa5FJeOb93dWy5afXI`
