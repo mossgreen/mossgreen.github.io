@@ -12,9 +12,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Simple demos that explains something.
-
-// todo not finish yet...
+Powerful and highly customizable authentication and access-control.
 
 ## Initializer
 
@@ -35,7 +33,7 @@ dependencies {
 
 Run your project, in the log, you'll find your password
 
-```log
+```code
 2046-99-21 39:29:44.043  INFO 1733 --- [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration :
 
 Using generated security password: 1d4d7018-a42a-4418-afb1-7565250facdd
@@ -348,7 +346,7 @@ It creates two roles and got two in memory users. You can go to `http://localhos
 
 ## 4. hasRole and hasAuthority
 
-### 4.1 Set up
+### 4.1 Set up controller
 
 HomeController.java
 
@@ -386,7 +384,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
-        @Bean
+    @Bean
     public static PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
@@ -425,20 +423,20 @@ curl -H 'Accept:application/json' -u fake:123456 localhost:8080/employee
 ### 4.3 hasRole in HttpSecurity Filter
 
 ```java
-    @Configuration
-    @Order(1)
-    public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/employee**").hasRole("USER")
-                .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic();
-        }
+@Configuration
+@Order(1)
+public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.GET, "/employee**").hasRole("USER")
+            .anyRequest()
+            .authenticated()
+            .and()
+            .httpBasic();
     }
+}
 ```
 
 ```bash
@@ -558,7 +556,7 @@ $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
 
 ## 5. Whitelist
 
-1. Set up
+1. Set up Controller
 
     ```java
     @GetMapping("/home/ip")
@@ -569,16 +567,15 @@ $ curl -X DELETE  -u guest:123456 localhost:8080/employee/100
     ```
 
 2. Whitelist in your security config
-    In your security config, update:
 
     ```java
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/home/ip").hasIpAddress("192.168.1.0") // <-- whitelist
-        ...
-        }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/home/ip").hasIpAddress("192.168.1.0") // <-- whitelist
+    ...
+    }
     ```
 
 3. Customize whitelist
@@ -840,7 +837,7 @@ public Authentication authenticate(Authentication authentication) throws Authent
     }
 
     String username = authentication.getName();
-    String password = authentication.getCredentials().toString();
+    String password = authentication.getCredentials().toString(); // not safe
 
     Employee employee = employeeRepo.findByName(username)
         .orElseThrow(()-> new BadCredentialsException("Invalid username"));
@@ -860,12 +857,12 @@ public Authentication authenticate(Authentication authentication) throws Authent
 
 ### 7.4 test
 
-Try to login but provide wrong password for five times.
-Try to login again, will get invalid ip error message.
+- Try to login but provide wrong password for five times.
+- Try to login again, will get invalid ip error message.
 
 ## 8. Acquire user's information
 
-### 8.1 pre setting
+### 8.1 Set up
 
 application.properties
 
@@ -898,7 +895,7 @@ public class UserInfoController {
 
 It logs with:
 
-```log
+```json
 c.m.springsecurity.UserInfoController    : name: user
 c.m.springsecurity.UserInfoController    : principle: user
 c.m.springsecurity.UserInfoController    : details: org.springframework.security.web.authentication.WebAuthenticationDetails@380f4: RemoteIpAddress: 0:0:0:0:0:0:0:1; SessionId: D4239E2FC21B82D9BADB6D5F25A29B79
@@ -913,7 +910,7 @@ details have info like:
 
 ### 8.3 keep credentials in the Authenticate object
 
-credentials will be removed by default. If you want the credential to be kept within the Authentication object, in `Securityconfig.java` update:
+Credentials will be removed by default. If you want the credential to be kept within the Authentication object, in `Securityconfig.java` update:
 
 SecurityConfig.java
 
@@ -927,7 +924,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.eraseCredentials(false);
         auth.authenticationProvider(customUsernamePasswordAuthenticationProvider);
     }
-
 }
 ```
 
@@ -959,9 +955,13 @@ public String userInfo3(Principal principal) {
 
 ## 9. httpBasic vs. loginform
 
-httpBasic: interface
-loginForm: web page
-you can use either of them, or both of them.
+Spring security can read username/password from `HttpServletRequest` with built in mechanisms like:
+
+- Form Login: through an html form
+- Basic Authentication: Basic HTTP Authentication
+- Digest Authentication: Dont use, it's unsecure
+
+You can use either of them, or both of them.
 
 ### 9.1 code
 
@@ -1007,18 +1007,19 @@ protected void configure(HttpSecurity http) throws Exception {
 
 ### 9.2 httpBasic
 
-- default behaviour
+- Enabled by default
 - A dialog form poped out, user needs to fill in username and password.
 
 ### 9.3 formlogin()
 
+- Enabled by default
 - default login page
 - default logout url
 
 ### 9.4 Cookie and Session in Spring Security
 
-- `formLogin` use `ifRequired` session policy
-- `httpBasic` use `STATELESS` session policy
+- `formLogin` should use `ifRequired` session policy
+- `httpBasic` should use `STATELESS` session policy
 
 ## 10. JWT Basic
 
@@ -1035,26 +1036,28 @@ JWT
 - Server side decode it with:
   - header: algorithm & token type
 
-        ```json
-        {
-          "alg":"HS256",
-          "typ": "JWT"
-        }
-        ```
+    ```json
+    {
+        "alg":"HS256",
+        "typ": "JWT"
+    }
+    ```
+
   - payload: data
 
-        ```json
-        {
-          "sub":"123456",
-          "name":"moss gu",
-          "iat":"15115115115100"
-        }
-        ```
+    ```json
+    {
+        "sub":"123456",
+        "name":"moss gu",
+        "iat":"15115115115100"
+    }
+    ```
+
   - veifigy signature
 
 ### 10.1 set up project
 
-- gradle dependency: `https://github.com/jwtk/jjwt#dependencies`
+- Find gradle dependency,see: `https://github.com/jwtk/jjwt#dependencies`
 
 build.gradle
 
@@ -1082,14 +1085,18 @@ public class HelloJwt {
 }
 ```
 
-```log
+```code
 13:49:06.951 [main] INFO com.mossj.springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.RyxtLrNNj6TgumuuBe12Z7eaJls-T9rsP5tjp9B8s5o
 ```
 
 You've got wrong dependencies if you get the following error message
 
 ```json
-Caused by: io.jsonwebtoken.lang.UnknownClassException: Unable to load class named [io.jsonwebtoken.impl.crypto.MacProvider] from the thread context, current, or system/application ClassLoaders.  All heuristics have been exhausted.  Class could not be found.  Have you remembered to include the jjwt-impl.jar in your runtime classpath?
+Caused by: io.jsonwebtoken.lang.UnknownClassException: 
+Unable to load class named [io.jsonwebtoken.impl.crypto.MacProvider] from the thread context, current, or system/application ClassLoaders.  
+All heuristics have been exhausted.  
+Class could not be found. 
+Have you remembered to include the jjwt-impl.jar in your runtime classpath?
 ```
 
 ### 10.2 verify token in jwt.io
@@ -1140,7 +1147,7 @@ public void generate() {
 
 Run it two times, see the log
 
-```log
+```code
 springsecurity.HelloJwt - encoded Key: pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=
 springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.xuBbV7r3wsaXVR9ePmFpmPFcVPaiiMjfDnzji1IuwvM
 springsecurity.HelloJwt - sub: moss
@@ -1341,13 +1348,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 1. try to visit GET `http://localhost:8080/api/admin` got 401 error
 2. POST visit `alhost:8080/api/token` with body `{"username":"username","password":"123456"}`,got 200 OK and returned JWT token header, see:
 
-    ```log
+    ```code
     Authorization →Bearer eyJUWVAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cubW9zcy5leGFtcGxlLmNvbSIsImF1ZCI6InlvdSIsImV4cCI6MTU5MTUwMDQ1OCwic3ViIjoidXNlcm5hbWUiLCJpYXQiOjE1OTE0OTk0NTh9.0eZRrDcU25ArCVFRdUu2FN2I8YJvAHwDtikqfoSewaY
     ```
 
 3. jwtIO verify payload
 
-    ```log
+    ```json
     {
       "iss": "www.moss.example.com",
       "aud": "you",
@@ -1360,3 +1367,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 4. try to visit GET `http://localhost:8080/api/admin` with Headers
     - KEY: `Authorization`
     - VALUE: `Bearer eyJUWVAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cubW9zcy5leGFtcGxlLmNvbSIsImF1ZCI6InlvdSIsImV4cCI6MTU5MTY5MTgyMCwic3ViIjoidXNlcm5hbWUiLCJpYXQiOjE1OTE2OTA4MjAsInJvbCI6WyJST0xFX0FETUlOIl19.64GdIatR22PbFk8ZVeXwO-WXDSa5FJeOb93dWy5afXI`
+
+## References
+
+- [Tutorial From Noodlespan: Spring Security5](https://docs.oracle.com/javase/6/docs/api/java/lang/Enum.html)
+- [Sring Security Reference](https://spring.io/projects/spring-security)
