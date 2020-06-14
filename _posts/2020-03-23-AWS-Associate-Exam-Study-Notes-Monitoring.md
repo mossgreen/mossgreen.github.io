@@ -1,5 +1,5 @@
 ---
-title: AWS Associate Exams Study Notes, Monitoring
+title: AWS Servcies Study Notes, Monitoring
 search: true
 tags:
   - AWS
@@ -9,9 +9,8 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-sss
 
-## Logging and Monitoring: CloudWatch, CloudTrail, VPC Flow Logs
+CloudWatch, cloutTrail, etc.
 
 ## AWS CloudWatch
 

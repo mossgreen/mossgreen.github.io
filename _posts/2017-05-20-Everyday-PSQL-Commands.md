@@ -19,6 +19,11 @@ PostgreSQL Cheat Sheet.
 - Query Postgres db version
 - Pg dump and restore
 
+## Why do you need schems
+
+- Schemas allow you to organize database objects e.g., tables into logical groups to make them more manageable.
+- Schemas enable multiple users to use one database without interfering with each other.
+
 ## PSQL Query Parameters
 
 - `-d`, `–dbname=DBNAME` database name
@@ -101,6 +106,14 @@ Switch to another db
 
     - `\ef myFuncName` It opens a vim to view **existing** function.
 13. Quit psql `\q`
+
+### Query current schmea, or search_path
+
+```sql
+SHOW search_path;
+
+SELECT current_schema();
+```
 
 ### Query current psql version
 
@@ -235,3 +248,4 @@ gunzip -c database_name.gz | psql -U postgres database_name
 2. [17 Practical psql Commands That You Don’t Want To Miss](http://www.postgresqltutorial.com/psql-commands/)
 3. [5 Tips to Backup and Restore Database in PostgreSQL](https://tecadmin.net/backup-and-restore-database-in-postgresql/)
 4. [postgresql-if-statement](https://stackoverflow.com/questions/11299037/postgresql-if-statement/)
+5. [PostgreSQL Schema](https://www.postgresqltutorial.com/postgresql-schema/)

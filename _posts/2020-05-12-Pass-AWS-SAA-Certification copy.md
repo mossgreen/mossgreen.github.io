@@ -14,22 +14,21 @@ AWS Certified Solutions Architect - Associate, SAA-C01
 
 ## Reason why I take the exam
 
-- we use lots of services on production
-- fast and stable
+- We use lots of AWS services on production
+- They're fast and stable
 - AWS vs. Azure
 
 ## Where to start
 
-- online labs
-- Linux academy
-- My lecturer
-- Only a subset of services.
+- AWS Official Online labs
+- Linux academy ★★
+- Only a subset of services are in the test
 
 ## Amazon Services in SAA
 
-`★★` appears in Exam, multiple questions
-`★` appears in Exam, few question
-`(no start)` Mentioned in Exam, but it's not an exam point
+- `★★` appears in SAA exam, multiple questions
+- `★` appears in SAA exam, few question
+- `(no start)` Mentioned in SAA exam, but it's not an exam point
 
 1. Analytics
     - Amazon Athena
@@ -95,9 +94,11 @@ AWS Certified Solutions Architect - Associate, SAA-C01
     - EFS ★
     - Storage Gateway
 
-## Next Step
+## Next Steps
 
-develper test
-serverless framework
-SNS*SQS
-SAP
+After this certification, my eyes are opened up. My plans:
+
+1. How to test AWS services locally? Current solution is to set up testing AWS resource. I know there are some frameworks can do this job. So I'll try them out.
+2. From MicroServices, to MicroServices Mesh. In fact, serverless is the true future. I want to try more Servicesless services.
+3. Dive into SNS*SQS, to see more posibilities.
+4. Pass the professional level certification when I'm ready.
