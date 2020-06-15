@@ -92,7 +92,7 @@ Switch to another db
 
 11. Edit command in your own editor `\e`. It will open vim.
 12. Create or View/Edit a function in the editor
-    - `\ef`It generates an editable function template.
+    - `\ef` It generates an editable function template.
 
         ```sql
         CREATE FUNCTION ( )
@@ -105,6 +105,14 @@ Switch to another db
         ```
 
     - `\ef myFuncName` It opens a vim to view **existing** function.
+    - After editing a function, you shall execute the updated function
+
+        ```sql
+        \ef function_name()
+            [edit function and save]
+        \g
+        ```
+
 13. Quit psql `\q`
 
 ### Query current schmea, or search_path
