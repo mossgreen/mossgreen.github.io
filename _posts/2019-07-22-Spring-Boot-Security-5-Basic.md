@@ -1147,7 +1147,7 @@ public void generate() {
 
 Run it two times, see the log
 
-```code
+```json
 springsecurity.HelloJwt - encoded Key: pRNsm7m8JoGl0q9uY8F/YquCcCA4rFPzjZqtMdzrqPk=
 springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.xuBbV7r3wsaXVR9ePmFpmPFcVPaiiMjfDnzji1IuwvM
 springsecurity.HelloJwt - sub: moss
@@ -1156,7 +1156,6 @@ springsecurity.HelloJwt - sub: moss
 springsecurity.HelloJwt - encoded Key: 0jjJrHnpDY0h6mLAsVkbgt2mgauaovjDTjgzd8ep+v0=
 springsecurity.HelloJwt - token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb3NzIn0.34t0B8XBCn53eAuchvvRI_pyaaHkTIDaaQH0eywfEWg
 springsecurity.HelloJwt - sub: moss
-
 ```
 
 the encoded keys are dynamic and random.
