@@ -21,6 +21,14 @@ Additional capabilities beyond core spring and JPA.
 - **Spring Data**: It's an umbrella project that simplifies Java persistence through a very lean and consistent API that works on top of JDBC, JPA, and other NoSQL product APIs.
 - **Spring Data JPA**: It's a subset of Spring Data and a very useful DSL (Domain Specific Language) based module that provides maximum reduction to boilerplate code for interacting with databases.
 
+### Hibernate vs. Spring Data JPA
+
+Hibernate is a JPA implementation, while Spring Data JPA is a JPA Data Access Abstraction. Spring Data offers a solution to GenericDao custom implementations. It can also generate JPA queries on your behalf through method name conventions.
+
+Spring Data JPA cannot work without a JPA provider. With Spring Data, you may use Hibernate, Eclipse Link, or any other JPA provider. A very interesting benefit is that you can control transaction boundaries declaratively using the @Transactional annotation.
+
+Spring Data JPA is not an implementation or JPA provider, it's just an abstraction used to significantly reduce the amount of boilerplate code required to implement data access layers for various persistence stores.
+
 ### The Layers of a Persistence Tier
 
 - The domain model
