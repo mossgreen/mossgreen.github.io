@@ -1394,4 +1394,3 @@ public interface UserRepository extends JpaRepository<User, Long> {
 5. [Beginning Spring](https://www.amazon.com/Beginning-Spring-Mert-Caliskan-ebook/dp/B00T1JV8TI)
 6. [Spring in Action, Fifth Edition](https://www.manning.com/books/spring-in-action-fifth-edition/)
 7. [Pro Spring 5: An In-Depth Guide to the Spring Framework and Its Tools](https://www.amazon.com/Pro-Spring-Depth-Guide-Framework/dp/1484228073/)
-8. [Core Spring 5 Certification in Detail by Ivan Krizsan](https://leanpub.com/corespring5certificationindetail/)
