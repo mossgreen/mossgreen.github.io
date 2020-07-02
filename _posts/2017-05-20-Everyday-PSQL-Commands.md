@@ -250,6 +250,23 @@ gunzip -c database_name.gz | psql -U postgres database_name
     - Need a `;` at the end of each statement, except for the final `END`
     - need `END IF;` at the end of the `IF` statement.
 
+## PSQL Logs
+
+```psql
+\$ cd /var/log/postgres/9.2
+\$ ls -alht
+
+-rw-------. 1 postgres postgres 2.4M Jul  3 08:36 postgresql-Thu.log
+-rw-------. 1 postgres postgres 7.7M Jul  2 09:59 postgresql-Wed.log
+-rw-------. 1 postgres postgres 2.5M Jul  1 09:59 postgresql-Tue.log
+-rw-------. 1 postgres postgres 4.9M Jun 30 09:59 postgresql-Mon.log
+-rw-------. 1 postgres postgres 1.3M Jun 29 09:59 postgresql-Sun.log
+-rw-------. 1 postgres postgres 968K Jun 28 09:59 postgresql-Sat.log
+-rw-------. 1 postgres postgres 2.5M Jun 27 09:59 postgresql-Fri.log
+
+$ sudo less postgresql-Sun.log | grep haha
+```
+
 ## Reference
 
 1. [PSQL 24.1. SQL Dump](https://www.postgresql.org/docs/9.1/backup-dump.html)
