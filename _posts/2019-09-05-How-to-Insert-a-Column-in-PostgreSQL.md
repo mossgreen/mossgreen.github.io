@@ -10,7 +10,7 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Insert (not add) a column in PostgreSQL is quit a mission.
+Insert (not add) a column in PostgreSQL is quite a mission.
 
 ## Add a column in a table
 
@@ -85,7 +85,7 @@ My processes:
 4. Copy data back from origin_customers. Give your new column a default value or leave null.
 5. Add constrains back to the customers table.
 6. Add constrains back to reference tables.
-7. Rebuild customers table sequence. Remember, sequence cannot be 0.  
+7. Rebuild customers table sequence. Remember, the sequence cannot be 0.  
 
     ```sql
     select setval('customers_customers_id_seq', (select max(customers_id) from customers where customers_id > 0), true);

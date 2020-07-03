@@ -21,7 +21,7 @@ Spring Security in Pivotal Spring Professional Certification (6%).
   - **web request level**
   - **method invocation level**
 
-Authentication is the first step of authorization so always comes first. 
+Authentication is the first step of authorization so always comes first.
 
 Spring Security supports authentications:
 
@@ -133,17 +133,17 @@ Spring Security Configuration
 
     ```java
     public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
-    
+
         @Override
         protected Class<?>[] getRootConfigClasses() {
             return new Class<?>[]{ DataServiceConfig.class, SecurityConfig.class};
         }
-    
+
         @Override
         protected Class<?>[] getServletConfigClasses() {
             return new Class<?>[]{ WebConfig.class};
         }
-    
+
         @Override
         protected String[] getServletMappings() {
             return new String[]{"/rest/**"};
@@ -201,7 +201,7 @@ This chain of filters has the following key responsibilities:
 - managing logout
 - maintaining SecurityContext in HttpSession
 
-**A simple security configuration**
+**A simple security configuration:**
 
 Any bean in the Spring application context that implements `WebSecurityConfigurer` can contribute to Spring Security configuration, but it’s often **most convenient** for the configuration class to extend `WebSecurityConfigurerAdapter`.
 
@@ -233,7 +233,7 @@ There are several ways to determine who the user is. These are a few of the most
 - Context is held in the `SecurityContextHolder`.
 - By default the `SecurityContextHolder` uses a ThreadLocal to store these details, which means that the security context is always available to methods in the same thread of execution, even if the security context is not explicitly passed around as an argument to those methods.
 
-**Obtaining information about the current user**
+**Obtaining information about the current user:**
 
 ```java
 Authentication authentication = SecurityContextHolder
@@ -475,7 +475,7 @@ Enable it:
     <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
     ```
 
-**Tags**
+**Tags:**
 
 1. Authorize Tag
 The authorize tag is used to determine whether the content written between the `<sec:authorize>` tags should be evaluated by the JSP. It can be used to display individual HTML elements—such as buttons—in the page, according to the granted authorities of the current user.

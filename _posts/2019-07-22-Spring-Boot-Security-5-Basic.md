@@ -1092,10 +1092,10 @@ public class HelloJwt {
 You've got wrong dependencies if you get the following error message
 
 ```json
-Caused by: io.jsonwebtoken.lang.UnknownClassException: 
+Caused by: io.jsonwebtoken.lang.UnknownClassException:
 Unable to load class named [io.jsonwebtoken.impl.crypto.MacProvider] from the thread context, current, or system/application ClassLoaders.  
 All heuristics have been exhausted.  
-Class could not be found. 
+Class could not be found.
 Have you remembered to include the jjwt-impl.jar in your runtime classpath?
 ```
 

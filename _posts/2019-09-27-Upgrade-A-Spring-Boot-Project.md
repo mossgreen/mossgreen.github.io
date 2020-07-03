@@ -31,7 +31,7 @@ Upgrade Java, Spring Boot, Gradle, Flyway, etc.
 
 ### Update Gradle wrapper from 4.7 to 5.6
 
-1. Update local Gradle to latest version (5.6)
+1. Update local Gradle to the latest version (5.6)
 
     ```bash
     sdk list gradle
