@@ -11,56 +11,55 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
-Spring Security, little effort, hunge confusion.
+Spring OAuth2 101
 
 ## @EnableOAuth2Sso annotation
+
 - **OAuth2 client** VS **Authentication**
 - `@EnableOAuth2Client` is lower level
-- The client is re-usable, talks to OAuth2 resources that Authorization Server provides 
+- The client is re-usable, talks to OAuth2 resources that Authorization Server provides
 
 ### WebSecurityConfigurerAdapter
-- `WebSecurityConfigurer` **+** `@EnableOAuth2Sso` class: configure the security filter chain that carries the OAuth2 authentication processor. 
+
+- `WebSecurityConfigurer` **+** `@EnableOAuth2Sso` class: configure the security filter chain that carries the OAuth2 authentication processor.
 - **Home page** and **login page** should be visible in `authorizeRequests()`.
 - Others require authentication, e.g., `/user`.
 - `/logout` requires POST. Protect user from Cross Site Request Forgery (**CSRF**).
 - Requires a token in the request to link to the current session.
 
 ### Principal
-**comming soon**
 
 ```java
 @SpringBootApplication
 @EnableOAuth2Sso
 @RestController
 public class SocialApplication extends WebSecurityConfigurerAdapter {
-	
-	@RequestMapping("/user")
-	public Principal user(Principal principal) {
-		return principal;
-	}
+    @RequestMapping("/user")
+    public Principal user(Principal principal) {
+        return principal;
+    }
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.antMatcher("/**")
-				.authorizeRequests()
-					.antMatchers("/", "/login**", "/webjars/**", "/error**")
-					.permitAll()
-				.anyRequest()
-					.authenticated()
-				.and()
-			  .logout()
-			    .logoutSuccessUrl("/")
-			    .permitAll()
-			  .and()
-			  .csrf()
-				  .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .antMatcher("/**")
+            .authorizeRequests()
+             .antMatchers("/", "/login**", "/webjars/**", "/error**")
+             .permitAll()
+            .anyRequest()
+             .authenticated()
+            .and()
+             .logout()
+             .logoutSuccessUrl("/")
+             .permitAll()
+             .and()
+             .csrf()
+             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(SocialApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(SocialApplication.class, args);
+    }
 }
 ```
 
@@ -69,8 +68,8 @@ public class SocialApplication extends WebSecurityConfigurerAdapter {
 3. All other endpoints require an authenticated user
 4. Unauthenticated users are re-directed to the home page
 
-
 ## OAuth2ClientContext
+
 Build an authentication filter that we add to our security configuration.
 
 1. @Autowired OAuth2ClientContext
@@ -78,7 +77,6 @@ Build an authentication filter that we add to our security configuration.
 3. Chain your filter in the **configure**
 4. Declar your **client registration**
 5. Reource endpoint
-
 
 ```java
 @Autowired
@@ -104,17 +102,18 @@ private Filter mySsoFilter() {
 @Bean
 @ConfigurationProperties("facebook.client")
 public AuthorizationCodeResourceDetails facebook() {
-	return new AuthorizationCodeResourceDetails();
+ return new AuthorizationCodeResourceDetails();
 }
 
 @Bean
 @ConfigurationProperties("facebook.resource")
 public ResourceServerProperties facebookResource() {
-	return new ResourceServerProperties();
+ return new ResourceServerProperties();
 }
 ```
 
 ### Add another authentication server, like Github
+
 - Use `CompositeFilter`
 - Add new beans
 
@@ -142,34 +141,35 @@ private Filter ssoFilter(ClientResources client, String path) {
 @Bean
 @ConfigurationProperties("github.client")
 public AuthorizationCodeResourceDetails github() {
-	return new AuthorizationCodeResourceDetails();
+ return new AuthorizationCodeResourceDetails();
 }
 
 @Bean
 @ConfigurationProperties("github.resource")
 public ResourceServerProperties githubResource() {
-	return new ResourceServerProperties();
+ return new ResourceServerProperties();
 }
 ```
 
 ### Handling Redirects
-- Register the existing register in a low order, makes sure it comes before the main Spring Security filter. 
+
+- Register the existing register in a low order, makes sure it comes before the main Spring Security filter.
 
 ```java
 @Bean
 public FilterRegistrationBean<OAuth2ClientContextFilter> oauth2ClientFilterRegistration(OAuth2ClientContextFilter filter) {
-	FilterRegistrationBean<OAuth2ClientContextFilter> registration = new FilterRegistrationBean<>();
-	registration.setFilter(filter);
-	registration.setOrder(-100);
-	return registration;
+ FilterRegistrationBean<OAuth2ClientContextFilter> registration = new FilterRegistrationBean<>();
+ registration.setFilter(filter);
+ registration.setOrder(-100);
+ return registration;
 }
 ```
 
 ## @EnableAuthorizationServer
+
 Authorization Server is a bunch of endpoints.
 comming soon...
 
 ## References
 
 1. [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2)
-

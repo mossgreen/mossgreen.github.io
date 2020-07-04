@@ -11,11 +11,11 @@ classes: wide
 ---
 Spring RestTemplate 101.
 
-## What is RestTemplate?
+## What is RestTemplate
 
 `RestTemplate` is a synchronous client to perform HTTP requests. It is the original Spring REST client and exposes a simple, template-method API over underlying HTTP client libraries.
 
-## Why do you need it?
+## Why do you need it
 
 - Provides a higher-level API to perform HTTP requests compared to traditional HTTP client libraries.
 - Supports URI templates
@@ -25,22 +25,23 @@ Spring RestTemplate 101.
 - Allows for easy customization of response errors. A custom ResponseErrorHandler can be registered on the RestTemplate.
 - Provides methods for conveniently sending common HTTP request types and also provides methods that allow for increased detail when sending requests. Examples of the former method type are: delete, getForObject, getForEntity, headForHeaders, postForObject and put.
 
+## How to declare it in your app
 
-## How to delare it in your app?
-
-2 ways of using resttemplate in your projects:
+2 ways of using `restTemplate` in your projects:
 
 1. create an instance at the point you need it
-    ```
+
+    ```java
     RestTemplate rest = new RestTemplate();
     ```
+
 2. you can declare it as a bean and inject it where you need it.
 
-
-## How to configure it?
+## How to configure it
 
 ### Reuse rest template bean
-One of the best ways to do this is to create a bean which would return a RestTemplate and then Autowire it in which ever class you need.
+
+One of the best ways to do this is to create a bean which would return a `RestTemplate` and then `Autowire` it in which ever class you need.
 
 ```java
 @Configuration
@@ -83,12 +84,10 @@ RestTemplate restTemplateForProductService;
 ### Configure Timeout
 
 We can configure RestTemplate to time out by simply using `ClientHttpRequestFactory`.
-// todo 
-
 
 ## Consuming REST endpoints with RestTemplate
 
-RestTemplate provides 41 methods for interacting with REST resources. Some are overloaded so that they can be summerized as 12 operations.
+`RestTemplate` provides 41 methods for interacting with REST resources. Some are overloaded so that they can be summerized as 12 operations.
 
 - `delete()`
 - `exchange()`
@@ -104,6 +103,7 @@ RestTemplate provides 41 methods for interacting with REST resources. Some are o
 - `put()`
 
 **NB.**
+
 1. the execute and exchange methods can be used for any type of REST calls as long as the HTTP method is given as a parameter for the methods.
 
     - The exchange method uses an HttpEntity object to encapsulate request headers and use it as a parameter. The method returns a ResponseEntity object containing the result of a REST request, and its body is automatically converted using the registered HttpMessageConverter implementation.
@@ -123,34 +123,37 @@ RestTemplate provides 41 methods for interacting with REST resources. Some are o
 
 - Can get plain JSON `restTemplate.getForEntity(fooResourceUrl + "/1", String.class);`
 
-**Retrieving POJO Instead of JSON **
+**Retrieving POJO Instead of JSON:**
 
 1. getForObject()
+
     ```java
-    public Ingredient getIngredientById(String ingredientId) { 
-      return rest.getForObject("http://localhost:8080/ingredients/{id}", Ingredient.class, ingredientId); 
+    public Ingredient getIngredientById(String ingredientId) {
+      return rest.getForObject("http://localhost:8080/ingredients/{id}", Ingredient.class, ingredientId);
     }
     ```
 
 2. use a Map to specify the URL variables
+
     ```java
-    public Ingredient getIngredientById(String ingredientId) { 
-      Map<String,String> urlVariables = new HashMap<>(); 
-      urlVariables.put("id", ingredientId); 
-      return rest.getForObject("http://localhost:8080/ingredients/{id}", Ingredient.class, urlVariables); 
+    public Ingredient getIngredientById(String ingredientId) {
+      Map<String,String> urlVariables = new HashMap<>();
+      urlVariables.put("id", ingredientId);
+      return rest.getForObject("http://localhost:8080/ingredients/{id}", Ingredient.class, urlVariables);
     }
     ```
 
 3. Using a URI parameter
+
     ```java
     public Ingredient getIngredientById(String ingredientId) {
-    
-      Map<String,String> urlVariables = new HashMap<>(); 
-      urlVariables.put("id", ingredientId); 
-      URI url = UriComponentsBuilder 
-        .fromHttpUrl("http://localhost:8080/ingredients/{id}") 
+
+      Map<String,String> urlVariables = new HashMap<>();
+      urlVariables.put("id", ingredientId);
+      URI url = UriComponentsBuilder
+        .fromHttpUrl("http://localhost:8080/ingredients/{id}")
         .build(urlVariables);
-    
+
       return rest.getForObject(url, Ingredient.class);
     }
     ```
@@ -158,44 +161,46 @@ RestTemplate provides 41 methods for interacting with REST resources. Some are o
 ### PUT: Update a Resource
 
 1. Simple PUT with exchange. Doesn't return anything.
-```java
-Foo updatedInstance = new Foo("newName");
-updatedInstance.setId(createResponse.getBody().getId());
-String resourceUrl =  fooResourceUrl + '/' + createResponse.getBody().getId();
-HttpEntity<Foo> requestUpdate = new HttpEntity<>(updatedInstance, headers);
 
-template.exchange(resourceUrl, HttpMethod.PUT, requestUpdate, Void.class);
-```
+    ```java
+    Foo updatedInstance = new Foo("newName");
+    updatedInstance.setId(createResponse.getBody().getId());
+    String resourceUrl =  fooResourceUrl + '/' + createResponse.getBody().getId();
+    HttpEntity<Foo> requestUpdate = new HttpEntity<>(updatedInstance, headers);
+
+    template.exchange(resourceUrl, HttpMethod.PUT, requestUpdate, Void.class);
+    ```
 
 2. PUT with `.exchange` and a Request Callback
 
-```java
-RequestCallback requestCallback(final Foo updatedInstance) {
-    return clientHttpRequest -> {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(clientHttpRequest.getBody(), updatedInstance);
-        clientHttpRequest.getHeaders().add(
-          HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        clientHttpRequest.getHeaders().add(
-          HttpHeaders.AUTHORIZATION, "Basic " + getBase64EncodedLogPass());
-    };
-}
-```
-```java
-ResponseEntity<Foo> response = restTemplate.exchange(fooResourceUrl, HttpMethod.POST, request, Foo.class);
-assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+    ```java
+    RequestCallback requestCallback(final Foo updatedInstance) {
+        return clientHttpRequest -> {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(clientHttpRequest.getBody(), updatedInstance);
+            clientHttpRequest.getHeaders().add(
+              HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            clientHttpRequest.getHeaders().add(
+              HttpHeaders.AUTHORIZATION, "Basic " + getBase64EncodedLogPass());
+        };
+    }
+    ```
 
-Foo updatedInstance = new Foo("newName");
-updatedInstance.setId(response.getBody().getId());
+    ```java
+    ResponseEntity<Foo> response = restTemplate.exchange(fooResourceUrl, HttpMethod.POST, request, Foo.class);
+    assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
 
-String resourceUrl =fooResourceUrl + '/' + response.getBody().getId();
+    Foo updatedInstance = new Foo("newName");
+    updatedInstance.setId(response.getBody().getId());
 
-restTemplate.execute(
-  resourceUrl, 
-  HttpMethod.PUT, 
-  requestCallback(updatedInstance), 
-  clientHttpResponse -> null);
-```
+    String resourceUrl =fooResourceUrl + '/' + response.getBody().getId();
+
+    restTemplate.execute(
+      resourceUrl,
+      HttpMethod.PUT,
+      requestCallback(updatedInstance),
+      clientHttpResponse -> null);
+    ```
 
 ### POST: Create a Resource
 
@@ -203,33 +208,41 @@ restTemplate.execute(
 
 - The postForLocation API
 
-- The exchange API 
+- The exchange API
+
     ```java
     ResponseEntity<Foo> response = restTemplate.exchange(fooResourceUrl, HttpMethod.POST, request, Foo.class);
     ```
 
 - Submit Form Data
     1. set the `Content-Type` header to `application/x-www-form-urlencoded`. This makes sure that a large query string can be sent to the server, containing name/value pairs separated by ‘&‘.
+
         ```java
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         ```
+
     2. wrap the form variables into a `LinkedMultiValueMap`:
+
         ```java
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
         map.add("id", "1");
         ```
-    3. we build the Request using an HttpEntity instance:
-    ```java
-    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-    ```
-    4. connect to the REST service by calling the Endpoint: `/foos/form`
-    ```java
-    ResponseEntity<String> response = restTemplate.postForEntity( fooResourceUrl+"/form", request , String.class);
 
-    assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-    ```
-    
+    3. we build the Request using an HttpEntity instance:
+
+        ```java
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        ```
+
+    4. connect to the REST service by calling the Endpoint: `/foos/form`
+
+        ```java
+        ResponseEntity<String> response = restTemplate.postForEntity( fooResourceUrl+"/form", request , String.class);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
+        ```
+
 ### DELETE: Remove a Resource
 
 ```java
@@ -251,11 +264,11 @@ HttpMethod[] supportedMethods = {HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT
 assertTrue(optionsForAllow.containsAll(Arrays.asList(supportedMethods)));
 ```
 
-
 ## Examples
 
 ### GET example with basic Auth
-```java 
+
+```java
 public void testTemplate(){
 
     RestTemplate restTemplate = new RestTemplate();
@@ -293,7 +306,6 @@ RestTemplate restTemplate = new RestTemplate(); MockRestServiceServer mockServer
 
 mockServer.verify();
 ```
-
 
 ## References
 

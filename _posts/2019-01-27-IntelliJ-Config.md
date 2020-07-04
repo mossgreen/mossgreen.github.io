@@ -20,7 +20,7 @@ IDEA IntelliJ Config for Java
 2. Use Gradle from
     - 'gradle-wrapper.properties' file:
         - this is a recommended default option that uses Gradle wrapper.
-        - The Gradle version is saved in the gradle-wrapper.properties file in the gradle directory of your project and helps you eliminate any Gradle version problems.
+        - The Gradle version is saved in the gradle-wrapper.properties file in the gradle directory of your project and help you eliminate any Gradle version problems.
     - 'wrapper' task in Gradle build script: It might be convenient if you prefer to control which Gradle version to use in the project.
 3. gradle.properties:
     - specify VM options for your Gradle project
@@ -78,9 +78,9 @@ Normally information like this will be found in one of the following places in O
 /Library/Application Support/AppName
 ```
 
-If the app adheres to the standard OS X conventions you weill find info in one or all of these places. If it doesnt store here you might check for a `/Users/username/.intellij` folder or something similar in your home directory
+If the app adheres to the standard OS X conventions you will find info in one or all of these places. If it doesn't store here you might check for a `/Users/username/.intellij` folder or something similar in your home directory
 
-## Errors
+## Got Errors
 
 ### 1. Could not target platform: 'Java SE 11' using tool chain: 'JDK 8
 

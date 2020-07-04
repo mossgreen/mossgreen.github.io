@@ -16,16 +16,16 @@ In Mockito Answer, we mock the process.
 
 ## Why Mockito
 
-Unit tests are to test behaviours with initialing the real objects or load the real dependencies.
-Mocks and stubs are fake Java classes that replace these external dependencies. Stubs have hard coded logic. Mockito is the most popular Mocking framework for unit tests written in Java.
+Unit tests are to test behaviours with initialling the real objects or load the real dependencies.
+Mocks and stubs are fake Java classes that replace these external dependencies. Stubs have hardcoded logic. Mockito is the most popular Mocking framework for unit tests written in Java.
 
 Common targets for mocking are:
 
 - Database connections,
 - Web services,
-- Classes that are slow ,
+- Slow classes,
 - Classes with side effects, and
-- Classes with non-deterministic behavior.
+- Classes with non-deterministic behaviour.
 
 ## How to mock a behaviour
 
@@ -79,10 +79,10 @@ class MockitoAnnotationTest {}
 ## Annotations
 
 - `@Mock` creates and injects mocked instances. It equals to `Mockito.mock`.
-- `@Spy` spy the behavious (in order to vefify them).
+- `@Spy` spy the behavious (in order to verify them).
 - `Captor` to create an ArgumentCaptor instance.
 - `@InjectMocks` to inject mock fields into the tested object automatically.
-- `@MockBean` uses in Srint Boot. We use it to add mock objects to the Spring application context. The mock will replace any existing bean of the same type in the application context. It's useful when you need to mock an external service.
+- `@MockBean` uses in Spring Boot. We use it to add mock objects to the Spring application context. The mock will replace any existing bean of the same type in the application context. It's useful when you need to mock an external service.
 
 ### 1. `@Mock`
 
