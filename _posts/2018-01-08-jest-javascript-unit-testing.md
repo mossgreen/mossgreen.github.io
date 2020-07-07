@@ -12,6 +12,7 @@ classes: single
 Unit Testing in JavaScript
 
 ## Overview
+
 > Use Jest for unit and integration tests and TestCafe for UI tests.
 
 - **[Jest](https://facebook.github.io/jest/)** is a testing framework by **Facebook**.
@@ -22,8 +23,7 @@ Unit Testing in JavaScript
 - Jest can be debugged just like any other Node.JS module
 - Jest is watching
 
-
-## Set up 
+## Set up
 
 - `npm init -y`
 
@@ -35,17 +35,20 @@ Unit Testing in JavaScript
 ## Write a simple unit test
 
 1. Add a file _function.js_ with following:  
+
     ```javascript
     const functions = {
       add: (num1, num2)=> num1+num2
-    };    
-    
+    };
+
     module.exports = functions;
     ```
+
 2. Add a test file: _functions.test.js_  
+
     ```javascript  
     const functions = require('./functions');
-    
+
     test('Adds 2 + 2 to equal 4', () => {
       expect(functions.add(2,3)).toBe(4); // will fail
     });
@@ -59,10 +62,11 @@ Unit Testing in JavaScript
 
 1. Declare it in test name
 2. use `not.toBe()`  
-_functions.test.js_    
+_functions.test.js_
+
     ```javascript
       const functions = require('./functions');
-      
+
       test('Adds 2 + 2 to NOT equal 5', () => {
         expect(functions.add(2,2)).not.toBe(5);
       });
@@ -74,10 +78,11 @@ _functions.test.js_
 const functions = {
   add: (num1, num2)=> num1+num2,
   isNull:()=> null
-};    
+};
 
 module.exports = functions;
 ```
+
 ```javascript
 const functions = require('./functions');
 
@@ -96,10 +101,11 @@ const functions = {
   add: (num1, num2)=> num1+num2,
   isNull:()=> null,
   checkValue:(x)=>x
-};    
+};
 
 module.exports = functions;
 ```
+
 ```javascript
 const functions = require('./functions');
 
@@ -135,7 +141,7 @@ const functions = {
     user['lastName'] = 'Gu';
     return user;
   }
-};    
+};
 
 module.exports = functions;
 ```
@@ -145,7 +151,7 @@ test('User should be Moss Gu object', () => {
 
   expect(functions.createUser(undefined))
     .toEqual({firstName:'Moss',lastname:'Gu'}); // will do
-    
+
   expect(functions.createUser(undefined))
     .toBe({firstName:'Moss',lastname:'Gu'}); // will pass
 });
@@ -173,7 +179,9 @@ test('Should be under 1600', ()=> {
 ```
 
 ### Regex
+
 - `toMatch()`
+
 ```javascript
 test('There is no I in team', ()=> {
   expect('team').not.toMatch(/I/); // will pass
@@ -181,8 +189,10 @@ test('There is no I in team', ()=> {
 ```
 
 ### Array
+
 - `toContain()`
 - `toMatch()`
+
 ```javascript
 test('Admin should be in username', ()=> {
   usernames = ['moss','feifei','haha'];
@@ -203,7 +213,7 @@ const functions = {
   fetchUser: () => axios.get('https://jsonplaceholder.typicode.com/users/1')
     .then(res => res.data)
     .catch(err => 'error)
-};    
+};
 
 module.exports = functions;
 ```
@@ -211,7 +221,7 @@ module.exports = functions;
 ```javascript
 test('User fetched name should be Leanne Graham', () => {
 
-  expect.assetions(1); 
+  expect.assetions(1);
   return functions.fetchUser()
     .then(data => {
       expect(data.name).toEqual('Leanne Graham);
@@ -224,7 +234,7 @@ test('User fetched name should be Leanne Graham', () => {
 ```javascript
 test('User fetched name should be Leanne Graham', () => {
 
-  expect.assetions(1); 
+  expect.assetions(1);
   const data =  functions.fetchUser();
   expect(data.name).toEqual('Leanne Graham);
 });
@@ -236,18 +246,20 @@ test('User fetched name should be Leanne Graham', () => {
 - `toEqual()`
 
 _reversestring.js_
+
 ```javascript
-const reverseString = str => 
+const reverseString = str =>
   str
     .toUpperCase()
     .split('')
     .reverse()
     .join('');
-    
+
 module.exports = reverseString;
 ```
 
 _reversestring.test.js_
+
 ```javascript
 const reverseString = require('/reversestring');
 
@@ -267,6 +279,7 @@ test('String reverse with UPPERCASE', () => {
 ### Chunks
 
 _chunk.js_
+
 ```javascript
 const chunkArray = (arr, len) => {
 
@@ -278,7 +291,7 @@ const chunkArray = (arr, len) => {
   
     //get last element
     const last = chunkedArr[chunkedArr.length - 1];
-    
+
     //check if last and if last length is equal to the chunk len
     if(!last || last.length === len){
       chunkArr.push([val]);
@@ -293,6 +306,7 @@ module.exports = chunkArray;
 ```
 
 _chunk.test.js_
+
 ```javascript
 const chunkArray = require('./chunk);
 
@@ -312,45 +326,50 @@ test('Chunk an array of 10 values with length of 2', () => {
 ## Lifecycle thingees
 
 1. run fucntions before and after each test  
+
     ```javascript
     const initDB = () => console.log('db initialized');
     const closeDB = () => console.log('db closed');
-    
+
     beforeEach(() => initDB());
     afterEach(() => close());
     ````
 
 2. run fucntions before all and after all tests  
+
     ```javascript
     const initDB = () => console.log('db initialized');
     const closeDB = () => console.log('db closed');
-    
+
     beforeAll(() => initDB());
     afterAll(() => close());
     ```
 
-3. Run beforeEach inside of a functon    
+3. Run beforeEach inside of a functon
+
     ```javascript
     const nameCheck = () => console.log('checking names...');
-    
+
     describ('Checking names', () => {
       beforeEach(() => nameCheck());
-      
+
       test('user is jeff', () => {
         const user = 'jeff';
         expect(user).toBe('Jeff');
       });
-      
+
       test('user is moss', () => {
         const user = 'moss';
         expect(user).toBe('moss');
       });
     });
     ```
-    
+
 ## Notes
+
 This blog is my note from: [Jest Crash Course - Unit Testing in JavaScript](https://www.youtube.com/watch?v=7r4xVDI2vho){:target="_blank"}.
 
 ## References
+
 - [An Overview of JavaScript Testing in 2018](https://medium.com/welldone-software/an-overview-of-javascript-testing-in-2018-f68950900bc3)
 - [Facebook Jest, the JS testing tool for people who hate writing tests](https://blog.cloudboost.io/first-run-facebook-jest-the-js-testing-tool-for-people-who-hate-writing-tests-30b5bc4b9dd2)

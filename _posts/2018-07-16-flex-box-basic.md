@@ -16,17 +16,15 @@ Get out of nightmare that positioning elements with CSS.
 
 // todo
 
-
 ## Terminology
 
 The box, we call it **flex container**. All children are **flex items**.
 
-X-axis of the container called **main axis**, Y-axis is named **cross axis**. 
+X-axis of the container called **main axis**, Y-axis is named **cross axis**.
 
 Start of main axis is **main start**, end of the main axis is **main end**.
 
-
-## Attributes for container:
+## Attributes for container
 
 - flex-direction
 - flex-wrap
@@ -47,7 +45,6 @@ Start of main axis is **main start**, end of the main axis is **main end**.
 5. `align-items` is for cross-axis alignment
 6. Similar to how `justify-content` aligns individual items within the main-axis, `align-content` aligns space in the cross-axis
 
-
 ## Attributes for items
 
 - order
@@ -64,14 +61,12 @@ Start of main axis is **main start**, end of the main axis is **main end**.
 5. `flex` is the shorthand for `flex-grow`, `flex-shrink` and `flex-basis` combined. Default is `0 1 auto`
 6. `align-self` allows the default alignment to be overridden for individual flex items
 
-
 ## Conclusion
 
 > Flexbox layout is most appropriate to the components of an application, and small-scale layouts, while the Grid layout is intended for larger scale layouts.
 
-As per 
-https://css-tricks.com/snippets/css/a-guide-to-flexbox/
-
+As per
+<https://css-tricks.com/snippets/css/a-guide-to-flexbox/>
 
 ## References
 

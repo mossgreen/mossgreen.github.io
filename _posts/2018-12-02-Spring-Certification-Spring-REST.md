@@ -13,25 +13,23 @@ classes: wide
 
 Spring REST in Pivotal Spring professional certification (6%).
 
-## What does REST stand for?
+## What does REST stand for
 
 REST stands for **RE**presentational **S**tate **T**ransfer.
 REST is an **architecture style** for designing networked (distributed) applications.
 RESTful applications use HTTP requests for all four CRUD (Create/Read/Update/Delete) operations.
 
 - Representational: XML, JSON, File, HTML, or say anything
-- State: 
+- State:
 - Transfer: REST involves transferring resource data, in some representational form, from one application to another
 
-
-## What is a resource?
+## What is a resource
 
 Information, like data, Json, xml, html, file, image, etc.
 
 Resource can be identified by a Uniform Resource Identifier (URI).
 
-
-## What does CRUD mean?
+## What does CRUD mean
 
 RESTful applications use HTTP requests to operate data in four CRUD (Create/Read/Update/Delete) operations.
 
@@ -42,60 +40,61 @@ RESTful applications use HTTP requests to operate data in four CRUD (Create/Read
 
 ![IMAGE](https://i.loli.net/2019/05/23/5ce653431c05e73185.jpg)
 
-
-## Is REST secure? What can you do to secure it?
+## Is REST secure? What can you do to secure it
 
 REST by default is not secure.
 
 To secure it, can use:  
+
 - HTTPS
 - Basic Authentication
 - JSON Web Tokens (JWT)
 - OAuth2
 
+## What are safe REST operations  
 
-## What are safe REST operations?  
+In all, there are 9 different HTTP request types:
 
-In all, there are 9 different HTTP request types: 
-- HEAD, 
-- GET, 
-- POST, 
-- PUT, 
-- DELETE, 
-- PATCH, 
-- TRACE, 
-- OPTIONS, and 
+- HEAD,
+- GET,
+- POST,
+- PUT,
+- DELETE,
+- PATCH,
+- TRACE,
+- OPTIONS, and
 - CONNECT
 
-**Safe methods** are HTTP methods that do not modify resources. 
+**Safe methods** are HTTP methods that do not modify resources.
 Spring Security implements CSRF protection with a synchronizer token. Statechanging requests(not safe methods) will be intercepted and checked for a CSRF token.
+
 - GET
 - HEAD
 - OPTIONS
 - TRACE
 
 **Not Safe**:
-- POST: 
+
+- POST:
     Two identical POST requests will result in two identical resources being created or errors at application level.
 - PUT: it modifies the state on the server
 - DELETE
 
-
-## What are idempotent operations? Why is idempotency important?
+## What are idempotent operations? Why is idempotency important
 
 **Idempotent** means you can **repeat** these operations over and over again, but the end result should be the **same**.
 
 Idempotency operations:
+
 - GET
 - PUT
 - DELETE
 
-
-## Is REST scalable and/or interoperable?
+## Is REST scalable and/or interoperable
 
 ### Scalability
 
-REST is scalable, because it is stateless, its Cacheability and layered system. 
+REST is scalable, because it is stateless, its Cacheability and layered system.
 
 1. **Statelessness** ensures that requests can be processed by any node in a cluster of services without having to consider server-side state
 
@@ -103,7 +102,7 @@ REST is scalable, because it is stateless, its Cacheability and layered system.
 
 3. A **layered system** allows for introducing intermediaries such as a load balancer without clients having to modify their behavior as far as sending requests to the service is concerned. The load balancer can then distribute the requests between multiple instances of the service in order to increase the request-processing capacity of the service.
 
-### Interoperability   
+### Interoperability
 
 The ability to exchange and make use of information.
 
@@ -111,8 +110,7 @@ The ability to exchange and make use of information.
 2. Resource can be identified by a Uniform Resource Identifier (URI). No special language needed
 3. CRUD standard operation
 
-
-## Which HTTP methods does REST use?
+## Which HTTP methods does REST use
 
 1. POST
 2. GET
@@ -120,116 +118,111 @@ The ability to exchange and make use of information.
 4. PATCH: Update/Modify
 5. DELETE
 
-
-## What is an HttpMessageConverter?
+## What is an HttpMessageConverter
 
 1. The resource representation can have different formats: XML, JSON, HTML, etc.
-2. The client must know the format to use, or request a resource with a representation it understands form the server. 
-3. Representations are converted to HTTP requests and from HTTP responses by implementations `HttpMessageConverter` interface. 
+2. The client must know the format to use, or request a resource with a representation it understands form the server.
+3. Representations are converted to HTTP requests and from HTTP responses by implementations `HttpMessageConverter` interface.
     - Convert a `HttpInputMessage` to an object of specified type.
     - Convert an object to a `HttpOutputMessage`.
 4. Message converters are automatically detected and used by Spring
 5. JSON format, so MappingJackson2HttpMessageConverter is used.
 6. the `consumes` and `produces` annotation attributes of the `@RequestMapping`
-    - The **consumes** attribute defines 
-        1. the consumable media types of the mapped request (defined on the **server**) 
-        
+    - The **consumes** attribute defines
+        1. the consumable media types of the mapped request (defined on the **server**)
+
         2. the value of the Content-Type header (defined on the **client** side) must match at least one of the values of this property in order for a method to handle a specific REST request.
-    
+
     - The **produces** attribute defines the producible media types of the mapped request, narrowing the primary mapping, and the value of the Accept header (on the client side) must match at least one of the values of this property in order for a method to handle a specific REST request.
 
 ```java
-@Configuration 
-@EnableWebMvc 
-@ComponentScan(basePackages = {"com.ps.web", "com.ps.exs"}) 
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = {"com.ps.web", "com.ps.exs"})
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-  @Override 
+  @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     super.configureMessageConverters(converters);
-    converters.add(mappingJackson2HttpMessageConverter()); 
+    converters.add(mappingJackson2HttpMessageConverter());
   }
   
   @Bean
   public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-    MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(); // when client is a browser JSON response is displayed indented 
-    mappingJackson2HttpMessageConverter.setPrettyPrint(true); //set encoding of the response 
-    mappingJackson2HttpMessageConverter.setDefaultCharset (StandardCharsets.UTF_8); 
-    mappingJackson2HttpMessageConverter.setObjectMapper(objectMapper()); 
+    MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(); // when client is a browser JSON response is displayed indented
+    mappingJackson2HttpMessageConverter.setPrettyPrint(true); //set encoding of the response
+    mappingJackson2HttpMessageConverter.setDefaultCharset (StandardCharsets.UTF_8);
+    mappingJackson2HttpMessageConverter.setObjectMapper(objectMapper());
     return mappingJackson2HttpMessageConverter;
   }
 }
 ```
 
+## Is REST normally stateless
 
-## Is REST normally stateless?
-
-Yes, it is stateless. 
+Yes, it is stateless.
 
 Each request is independent, which improves scalability.
 
-
-## What does @RequestMapping do?
+## What does @RequestMapping do
 
 1. Annotate both for **class** and **handler methods**.
 
 2. `@RequestMapping` mehtods are **handler method**, it provides information regarding when method should be called.
 
 3. Has various attributes to match by:
-    - URL, 
-    - HTTP method, 
-    - request parameters, 
-    - headers, 
+    - URL,
+    - HTTP method,
+    - request parameters,
+    - headers,
     - produces: media types,
     - consumes: media type
 
-
-## Is @Controller a stereotype? Is @RestController a stereotype?   
+## Is @Controller a stereotype? Is @RestController a stereotype?
 
 What is a stereotype annotation? What does that mean?
 
 Stereotype annotations are annotations that are applied to classes that fulfills a certain, distinct, role.
+
 - The main stereotype annotation is `@Component`.
 - Both `@Controller` and `@RestController` are stereotypes
--  `@Controller` + `@ResponseBody` = `@RestController`
+- `@Controller` + `@ResponseBody` = `@RestController`
 
-
-## What is the difference between @Controller and @RestController?
+## What is the difference between @Controller and @RestController
 
 `@RestController`:
+
 1. It's stereotype
 2. All handler methods in the rest controller should have their return value written directly to the body of the response, rather than being carried in the model to a view for rendering.
 
-
-## When do you need @ResponseBody?
+## When do you need @ResponseBody
 
 With Spring 4.0, the `@ResponseBody` annotation has been moved to the type level, so it can be added to interfaces, classes, or other annotations.
 
 1. on class: the controller becomes restcontroller.
 
-2. on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view. 
+2. on method: return serialized data througth **HttpMessageConverter** to response body, rather than passing the model and view.
+
     ```java
-    @RequestMapping(value="/test", 
-      produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
-    public @ResponseBody List<Journal> getJournal(){ 
-      return repo.findAll(); 
+    @RequestMapping(value="/test",
+      produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public @ResponseBody List<Journal> getJournal(){
+      return repo.findAll();
     }
-    
-    @ResponseStatus(HttpStatus.OK) 
-    @RequestMapping(value = "/listdata", method = RequestMethod.GET) 
-    @ResponseBody 
-    public Singers listData() { 
-      return new Singers(singerService.findAll()); 
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/listdata", method = RequestMethod.GET)
+    @ResponseBody
+    public Singers listData() {
+      return new Singers(singerService.findAll());
     }
     ```
 
-
-## What does @PathVariable do?
+## What does @PathVariable do
 
 `@PathVariable` maps a part of the URL, an URI template variable, to a handler method argument
 
-
-## What are the HTTP status return codes for a successful GET, POST, PUT or DELETE operation?
+## What are the HTTP status return codes for a successful GET, POST, PUT or DELETE operation
 
 ### HTTP response codes
 
@@ -246,109 +239,106 @@ With Spring 4.0, the `@ResponseBody` annotation has been moved to the type level
 3. PUT: 200 OK, 201 Created, 204 No Content
 4. DELETE: 204 No Content, 202 Accepted, 205 Reset Content (not performed)
 
+## When do you need @ResponseStatus
 
-## When do you need @ResponseStatus?
-
-It’s always a good idea to use` @ResponseStatus` where appropriate to communicate the most **descriptive and accurate HTTP status code** to the client.
+It’s always a good idea to use`@ResponseStatus` where appropriate to communicate the most **descriptive and accurate HTTP status code** to the client.
 
 1. Annotate **exception classes** in order to specify the HTTP response status and reason.
+
     ```java
-    @ResponseStatus(HttpStatus.NOT_FOUND) 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public class ResourceNotFoundException extends RuntimeException {
-      public ResourceNotFoundException() { 
-        this("Resource not found!"); 
+      public ResourceNotFoundException() {
+        this("Resource not found!");
     }
     ```
 
-2. On controller **handler methods** 
+2. On controller **handler methods**
     - will stop the DispatcherServlet from trying to find a view to render.
     - will override the original response status.
     - void method will just return a response with an empty body, E.g., DELETE method
+
     ```java
-    @ResponseStatus(HttpStatus.CREATED) 
-    @PostMapping("/") 
-    public Post createPost(@RequestBody Post post) { 
-      return postRepository.save(post); 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/")
+    public Post createPost(@RequestBody Post post) {
+      return postRepository.save(post);
     }
     ```
 
-
-## Where do you need @ResponseBody? What about @RequestBody? Try not to get these muddled up!
+## Where do you need @ResponseBody? What about @RequestBody? Try not to get these muddled up
 
 ### `@RequestBody`
 
 1. `@RequestBody` to have the web request body read and deserialized into an Object through an `HttpMessageConverter` to method parameter.
-2. `@RequestBody` can be combined with `@Validated`. 
+2. `@RequestBody` can be combined with `@Validated`.
 
 ### `@ResponseBody`
+
 1. To have the return serialized to the response body through an `HttpMessageConverter`.
 2. `@ResponseStatus` can be combined to specify response status.
-
 
 ## If you saw example Controller code, would you understand what it is doing? Could you tell if it was
 
 An example
 
 ```java
-@RestController 
-@RequestMapping(value = "/singer") 
-public class SingerController { 
+@RestController
+@RequestMapping(value = "/singer")
+public class SingerController {
 
   final Logger logger = LoggerFactory.getLogger(SingerController.class);
   
-  @Autowired 
+  @Autowired
   private SingerService singerService;
 
-  @ResponseStatus(HttpStatus.OK) 
-  @GetMapping(value = "/listdata") 
-  public List<Singer> listData() { 
-    return singerService.findAll(); 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/listdata")
+  public List<Singer> listData() {
+    return singerService.findAll();
   }
   
-  @ResponseStatus(HttpStatus.OK) 
-  @GetMapping(value = "/{id}") 
-  public Singer findSingerById(@PathVariable Long id) { 
-    return singerService.findById(id); 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{id}")
+  public Singer findSingerById(@PathVariable Long id) {
+    return singerService.findById(id);
   }
   
-  @ResponseStatus(HttpStatus.CREATED) 
-  @PostMapping(value="/") 
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping(value="/")
   public Singer create(@RequestBody Singer singer) {
   
     logger.info("Creating singer: " + singer);
     singerService.save(singer);
     logger.info("Singer created successfully with info: " + singer);
-    return singer; 
+    return singer;
   }
   
-  @PostMapping 
+  @PostMapping
   public Book create(@RequestBody Book book, UriComponentsBuilder uriBuilder) {
   
     Book created = bookService.create(book);
     URI newBookUri = uriBuilder
       .path("/books/{isbn}")
       .build(created.getIsbn());
-    
+
     return ResponseEntity
       .created(newBookUri)
-      .body(created); 
+      .body(created);
   }
 }
 ```
 
-
-## Do you need Spring MVC in your classpath?
+## Do you need Spring MVC in your classpath
 
 - The `spring-mvc.jar` **is not part of** `spring-core`.
 - `spring-web` module **must** be present on the classpath.
 
-
-## What Spring Boot starter would you use for a Spring REST application?
+## What Spring Boot starter would you use for a Spring REST application
 
 **spring-boot-starter-web**: “Starter for building web, including RESTful, applications using Spring MVC.”
 
-
-## What are the advantages of the RestTemplate?
+## What are the advantages of the RestTemplate
 
 `RestTemplate` implements a synchronous HTTP client that simplifies sending requests and also enforces RESTful principles.
 
@@ -360,8 +350,7 @@ public class SingerController {
 - Allows for easy customization of response errors. A custom ResponseErrorHandler can be registered on the RestTemplate.
 - Provides methods for conveniently sending common HTTP request types and also provides methods that allow for increased detail when sending requests. Examples of the former method type are: delete, getForObject, getForEntity, headForHeaders, postForObject and put.
 
-
-## If you saw an example using RestTemplate would you understand what it is doing?
+## If you saw an example using RestTemplate would you understand what it is doing
 
 ```java
 String uriTemplate = "http://example.com/hotels/{hotel}";

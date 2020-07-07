@@ -14,13 +14,14 @@ Handle and view a 360 photo.
 
 We'are building a web page to show 360 photos that user uploads. In this project, I'm using PHP as the backend, using **three.js** in the front end.
 
-## How do you know it's a 360 photo?
+## How do you know it's a 360 photo
 
 There is not a standard rule to identify a 360 photo yet so several things we could check, like
-- the make of camera, 
-- photo XMP (Extensible Metadata Platform) info, 
-- Exif (Exchangeable image file format) info, 
-- etc.. 
+
+- the make of camera,
+- photo XMP (Extensible Metadata Platform) info,
+- Exif (Exchangeable image file format) info,
+- etc..
 
 In my project, the provided examples have full XMP info, and don't have much info in Exif.  After discussion, we decided to check 2 aspects.
 
@@ -28,9 +29,9 @@ In my project, the provided examples have full XMP info, and don't have much inf
 2. landscape aspect ratio is **2:1**
 
 NB, if possible, I think we should also add a list of camera Make and Model. For example some popular ones. We can read this info via exif.
+
 - RICOH - RICOH THETA S
 - LG 360 CAM
-
 
 ## Equirectangular projection
 
@@ -252,7 +253,6 @@ include_once 'hints.inc.php';
 </body>
 <?php include_once 'footer.inc.php';?>
 ```
-
 
 ## References
 

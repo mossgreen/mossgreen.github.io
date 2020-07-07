@@ -11,7 +11,8 @@ classes: single
 ---
 > The most conservative file naming conventions provide the most cross-platform compatibility.
 
-## TL;DR. 
+## TL;DR
+
 - To compatible with old system shall follow **8.3 rule**
 - Otherwise, limit filenames to the characters A-Z, a-z, 0-9, underscore ( _ ), period ( . ), and hyphen ( - ).
 
@@ -36,14 +37,14 @@ Simple as? Nah! I need to answer the following questions
 
 - Filename length is limited to 255 characters
 - **MAX_PATH** is defined as 260 characters  
-- **Reserved Characters**: 
-  - `< (less than)`, 
-  - `> (greater than)`, 
-  - `: (colon)`, 
-  - `" (double quote)`, 
-  - `/ (forward slash)`, 
-  - `\ (backslash)`, 
-  - `| (vertical bar or pipe)`, 
+- **Reserved Characters**:
+  - `< (less than)`,
+  - `> (greater than)`,
+  - `: (colon)`,
+  - `" (double quote)`,
+  - `/ (forward slash)`,
+  - `\ (backslash)`,
+  - `| (vertical bar or pipe)`,
   - `? (question mark)`,
   - `* (asterisk)`
 
@@ -55,11 +56,11 @@ Conclusions:
 
 - Filename allows everything, except: `/`  
 - Need to escape some special characters, like `\?`, `\*`. Otherwise, it behaves weirdly
-- Mac max directory name length: 255 
+- Mac max directory name length: 255
 - Mac max file name length: 255
 
-
 **Not Allowed:** `/`
+
   ```bash
   moss$ mkdir "/"
   mkdir: /: Is a directory
@@ -77,29 +78,31 @@ Conclusions:
 **Weird parts**
 
 If a file named **?** exists, you cannot do `mkdir *`, which will return `mkdir: ?: File exists`
+
   ```bash
   moss$ ls -a
-  .	..
+  . ..
   moss$ mkdir ?
   moss$ ls -a
-  .	..	?
+  . .. ?
   moss$ mkdir *
   mkdir: ?: File exists
   moss$ ls -a
-  .	..	?
+  . .. ?
   moss$ rm -rf ?
   moss$ mkdir *
   moss$ ls -a
-  *	.	..
+  * . ..
   ```
   
-**Mac max file name length: 255**
+**Mac max file name length: 255.**
+
 ```bash
 touch [256_charactors_here] //File name too long
 touch [255_charactors_here_including_extension] //File created
 ```
 
-## Research result:
+## Research result
 
 1. Most restrict rule is known as **8.3**, which shall always work on any platform.
 2. Avoid using "special" non-alphanumeric characters, they may be reserved for special purposes depending on the OS.
@@ -111,13 +114,11 @@ touch [255_charactors_here_including_extension] //File created
 
 ## Java implementation
 
-### Replace replace everything but [a-zA-Z0-9.-] 
+### Replace replace everything but [a-zA-Z0-9.-]
 
 ```java
 myString = myString.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 ```
-
-
 
 ## References
 

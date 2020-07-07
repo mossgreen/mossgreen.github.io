@@ -8,11 +8,13 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: single
 ---
-I use final whenever it is appropriate. 
+I use final whenever it is appropriate.
 
 ## Static final variables has two chances to initialize  
+
 1. On declaration
 2. In static initializer block
+
     ```java
     static final Long MY_ID = 111L;
     static final Long YOUR_ID;
@@ -22,21 +24,23 @@ I use final whenever it is appropriate.
     ```
 
 ## Non-static final variables has three chagnes to initialize
+
 1. On declaration
 2. In initializer block
 3. In the constructor
 
     **Note**: any final field must be initialized before the constructor completes.
+
     ```java
     final Long MY_ID = 111L;
     final Long YOUR_ID;
     final Long ANOTHER_ID;
-    
+
     {
         // this block has to be upper than constructor
-        ANOTHER_ID = 333L; 
+        ANOTHER_ID = 333L;
     }
-    
+
     MyClass() {
         YOUR_ID = 222L;
     }
@@ -75,13 +79,12 @@ Should use final based on clear design and readability.
 You have to mark something final so you can access it from within an anonymous inner class.
 
 4. Benefits
+
 > At first, it kind of looks awkward to see a lot of final keywords in your code, but pretty soon you'll stop noticing the word itself and will simply think, that-thing-will-never-change-from-this-point-on.
-
-
 
 ## References
 
 1. [Why would one mark local variables and method parameters as “final” in Java?](https://stackoverflow.com/questions/316352/why-would-one-mark-local-variables-and-method-parameters-as-final-in-java)
 2. [The “final” Keyword in Java](https://www.baeldung.com/java-final)
 3. [Using the “final” modifier whenever applicable in Java](https://stackoverflow.com/questions/137868/using-the-final-modifier-whenever-applicable-in-java)
-3. [When should one use final for method parameters and local variables](https://stackoverflow.com/questions/154314/when-should-one-use-final-for-method-parameters-and-local-variables)
+4. [When should one use final for method parameters and local variables](https://stackoverflow.com/questions/154314/when-should-one-use-final-for-method-parameters-and-local-variables)

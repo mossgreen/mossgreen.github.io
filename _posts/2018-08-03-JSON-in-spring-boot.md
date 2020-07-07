@@ -16,7 +16,7 @@ Converting Json in Spring projects.
 
 ## Returning JSON in Spring Boot
 
-In Sprint Boot, REST controller returns JSON obect in the response body. Reason is that Spring implicitely uses message converter `MappingJackson2HttpMessageConverter`, which handles the conversion of Object to JSON format if the request's `Accept` header specifies JSON should be returned. 
+In Sprint Boot, REST controller returns JSON obect in the response body. Reason is that Spring implicitely uses message converter `MappingJackson2HttpMessageConverter`, which handles the conversion of Object to JSON format if the request's `Accept` header specifies JSON should be returned.
 
 This converter is from `spring-boot-starter-json` package, which nested in`spring-boot-starter-web` package. Rather to use `@ResponseBody` annotation in each REST method, `@RestController` would do the same work.
 
@@ -29,14 +29,16 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     public class Attribute {
     public String name;
     private Map <String, String> properties;
-    
+
     @JsonAnyGetter
     public Map<String, String> getProperties() {
         return properties;
     }
     }
     ```
+
     returns
+
     ```json
     {
     "name":"Attribute Name Example",
@@ -52,7 +54,7 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     public class Attribute {
     public int id;
     private String name;
-    
+
     @JsonGetter("name")
     public String getTheName() {
         return this.name;
@@ -71,7 +73,9 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     public String type;
     }
     ```
+
     returns
+
     ```json
     {
         "type":"You guess",
@@ -80,7 +84,7 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     }
     ```
 
-4. @JsonRootName    
+4. @JsonRootName
 `@JsonRootName` is used if wrapping is needed. It's mapped as the root name of current object.
 
     ```json
@@ -89,7 +93,9 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
         "name": "Moss"
     }
     ```
-    Maps to 
+
+    Maps to
+
     ```json
     {
         "User": {
@@ -100,6 +106,7 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     ```
 
     See example:
+
     ```java
     @JsonRootName(value = "user")
     public class User {
@@ -118,7 +125,7 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
     public class Attribute {
     public int id;
     private String name;
-    
+
     @JsonSetter("name")
     public String setTheName(String name) {
         this.name = name;
@@ -157,12 +164,12 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
 
     public int id;
     private String name;
-    
+
     @JsonProperty("name")
     public void setTheName(String name) {
         this.name = name;
     }
-    
+
     @JsonProperty("name")
     public String getTheName() {
         return name;
@@ -175,7 +182,7 @@ This converter is from `spring-boot-starter-json` package, which nested in`sprin
 Given two classes
 
 ```java
-public class Attribute { 
+public class Attribute {
     private Long id;
     private String name;
 
@@ -207,6 +214,7 @@ export class AttributeOption {
 ```
 
 REST Servcie
+
 ```javascript
 export class AttributeService {
 
