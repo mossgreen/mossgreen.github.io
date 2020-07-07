@@ -17,24 +17,24 @@ Servlet Container vs. Spring Containers (not finished yet)
 - Web Server:
   - It supports HTTP protocol.
   - `// todo, it uses a map to do redirection`
-  - It only supports static resource, like image and html files. E.g., if you request an image, it gives you the image. However, it cannot handle dynamic containers.
-  - **Apache Web Server** is the most populat web server, followed by MS's IIS, Ngix is also a good one
+  - It only supports static resource, like image and HTML files. E.g., if you request an image, it gives you the image. However, it cannot handle dynamic containers.
+  - **Apache Web Server** is the most popular web server, followed by MS's IIS, Nginx is also a good one
     ![image](https://user-images.githubusercontent.com/8748075/86555858-be36e880-bfa5-11ea-8b46-558c16346a87.png)
 
 - Web Container
   - Web Container = Servlet container, supports JSP/Servlet API
-  - A web container is responsible for managing the lifecycle of servlets, mapping a URL to a particular servlet and ensuring that the URL requester has the correct access-rights.
+  - A web container is responsible for managing the lifecycle of servlets, mapping a URL to a particular servlet and ensuring that the URL requester has the correct access rights.
   - The Web container creates servlet instances, loads and unloads servlets, creates and manages request and response objects, and performs other servlet-management tasks.
   - E.g., Apache Tomcat, Jetty, WildFly
   - It works in Web Server, e.g., Tomcat lives in Apache
-  - It generates some static content and returns response
+  - It generates some static content and returns a response
     ![image](https://user-images.githubusercontent.com/8748075/86556084-6187fd80-bfa6-11ea-8e7b-34a6eb1b9b65.png)
 
 - Servlet Container
   - Web Container = Servlet container
 
 - Tomcat
-  - Tomcat is both a web server and a web container, but it's not really meant to function as a high performance web server, nor does it include some features typical of a web server.
+  - Tomcat is both a web server and a web container, but it's not really meant to function as a high-performance web server, nor does it include some features typical of a web server.
   - Tomcat is the Servlet runtime environment, that is, a Servlet container.
     ![image](https://user-images.githubusercontent.com/8748075/86556084-6187fd80-bfa6-11ea-8e7b-34a6eb1b9b65.png)
 
@@ -45,7 +45,7 @@ Servlet Container vs. Spring Containers (not finished yet)
     ![image](https://user-images.githubusercontent.com/8748075/86555900-d9095d00-bfa5-11ea-87f9-fac27fc6de3f.png)
 
 - Spring Security filters, DelegatingFilterProxy, security filter chain
-- Spring MVC dispacherServlet
+- Spring MVC DispacherServlet
 - Interceptor
 - AOP
 
@@ -69,7 +69,7 @@ Apache is a car that can load static objects (HTML static web pages, etc.); but 
 - Tomcat serves dynamic content.
 - When a request comes in the Tomcat, which is the Servlet Container, Servlet filter is the first stop.
 - Servlet handles the request and generates the response.
-- Spring Containers includes, IOC container and MVC Container
+- Spring Containers includes IOC container and MVC Container
 - DispatcherServlets handles all requests and dispatches them to the appropriate channels.
 - Servlet Listeners listen to the ServletContext ? // todo confirm
 
@@ -169,9 +169,9 @@ public interface Servlet {
 
 ![image](https://user-images.githubusercontent.com/8748075/86558342-33f28280-bfad-11ea-9e51-ed34c0743d47.png)
 
-`HttpServlet` is an abstract class, a sub class of `GenericServlet`.
+`HttpServlet` is an abstract class, a subclass of `GenericServlet`.
 
-It overwirtes the `Service()` and added its own `Service()` method.
+It overwrites the `Service()` and added its own `Service()` method.
 
 ```java
 @Override
@@ -329,7 +329,7 @@ public interface FilterChain {
 
 A URL pattern may contain a subset of US-ASCII characters. Other values must be escaped.
 
-Filter only cares about the url, doesn't care about the existence of resource.
+Filter only cares about the URL, doesn't care about the existence of the resource.
 
 web.xml
 
@@ -357,7 +357,7 @@ The ability to perform an action within a servlet when a servlet attribute is ad
 Listeners are generally used in cases where you want to
 
 1. execute some actions or load some data/configuration on application startup,
-2. or to open and close database connections on occurrence of an event
+2. or to open and close database connections on the occurrence of an event
 3. and to perform any actions on the application being shut down.
 
 When you add a listener to your application, you need to
