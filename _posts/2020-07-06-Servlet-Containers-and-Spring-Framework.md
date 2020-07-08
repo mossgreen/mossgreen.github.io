@@ -16,8 +16,7 @@ Servlet Container vs. Spring Containers (not finished yet)
 
 - Web Server:
   - It supports HTTP protocol.
-  - `// todo, it uses a map to do redirection`
-  - It only supports static resource, like image and HTML files. E.g., if you request an image, it gives you the image. However, it cannot handle dynamic containers.
+  - It only supports static resource, like image and HTML files. However, it cannot handle dynamic containers.
   - **Apache Web Server** is the most popular web server, followed by MS's IIS, Nginx is also a good one
     ![image](https://user-images.githubusercontent.com/8748075/86555858-be36e880-bfa5-11ea-8b46-558c16346a87.png)
 
@@ -27,8 +26,8 @@ Servlet Container vs. Spring Containers (not finished yet)
   - The Web container creates servlet instances, loads and unloads servlets, creates and manages request and response objects, and performs other servlet-management tasks.
   - E.g., Apache Tomcat, Jetty, WildFly
   - It works in Web Server, e.g., Tomcat lives in Apache
-  - It generates some static content and returns a response
-    ![image](https://user-images.githubusercontent.com/8748075/86556084-6187fd80-bfa6-11ea-8e7b-34a6eb1b9b65.png)
+  - It generates some static content and returns responses
+    ![image](https://user-images.githubusercontent.com/8748075/86555875-c7c05080-bfa5-11ea-9d81-dd570de4fe76.png)
 
 - Servlet Container
   - Web Container = Servlet container
@@ -46,6 +45,7 @@ Servlet Container vs. Spring Containers (not finished yet)
 
 - Spring Security filters, DelegatingFilterProxy, security filter chain
 - Spring MVC DispacherServlet
+  - The DispatcherServlet is an actual Servlet (it inherits from the HttpServlet base class)
 - Interceptor
 - AOP
 
@@ -61,25 +61,60 @@ Apache is a car that can load static objects (HTML static web pages, etc.); but 
 
 ### ServletContext vs. ApplicationContext
 
-<https://stackoverflow.com/questions/3106452/how-do-servlets-work-instantiation-sessions-shared-variables-and-multithreadi?rq=1>
+**ServletContext:**
+
+When the servlet container (like Apache Tomcat) starts up, it will deploy and load all its web applications.
+
+When a web application is loaded, the servlet container creates the ServletContext once and keeps it in the server's memory.
+
+Then, the cotnianer initializes and loads all filters, servlets and listeners by calling their `init()` method.
+
+When the servlet container is finished with all of the above described initialization steps, then the `ServletContextListener#contextInitialized()` will be invoked.
+
+**ApplicationContext:**
+
+`ApplicationContext` represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the aforementioned beans.
+
+Spring Boot follows a different initialization sequence. Rather than hooking into the lifecycle of the Servlet container, Spring Boot uses Spring configuration to bootstrap itself and the embedded Servlet container. Filter and Servlet declarations are detected in Spring configuration and registered with the Servlet container. For more details, see the Spring Boot documentation.
+
+`public abstract class SpringBootServletInitializer implements WebApplicationInitializer`
+
+```java
+@Override
+public void onStartup(ServletContext servletContext) throws ServletException {
+ // Logger initialization is deferred in case an ordered
+ // LogServletContextInitializer is being used
+ this.logger = LogFactory.getLog(getClass());
+ WebApplicationContext rootApplicationContext = createRootApplicationContext(servletContext);
+ if (rootApplicationContext != null) {
+  servletContext.addListener(new SpringBootContextLoaderListener(rootApplicationContext, servletContext));
+ }
+ else {
+  this.logger.debug("No ContextLoaderListener registered, as createRootApplicationContext() did not "
+    + "return an application context");
+ }
+}
+```
 
 ## Java Web and Spring overview
 
-- Apache Web Server serves static content.
-- Tomcat serves dynamic content.
-- When a request comes in the Tomcat, which is the Servlet Container, Servlet filter is the first stop.
-- Servlet handles the request and generates the response.
-- Spring Containers includes IOC container and MVC Container
+- Apache Web Server serves static content efficiently.
+- Tomcat serves dynamic content, it also can handle static content, but less efficient.
+- Three components of a Servlet Container: Filter, Servlet and Listener.
+  - When a request comes in the Tomcat, which is the Servlet Container, Servlet Filter is the first stop.
+  - Servlet handles the request and generates the response.
+- In Spring Web Applications, there are two types of container, each of which is configured and initialized differently: IOC container and MVC Container
+- IOC container: responsible for instantiating, configuring, and assembling the aforementioned beans. There will be one `ApplicationContext` per application
+- MVC Container: each `DispatcherServlet` has its own `WebApplicationContext`, which inherits all the beans already defined in the root WebApplicationContext. These inherited beans can be overridden in the servlet-specific scope, and you can define new scope-specific beans local to a given Servlet instance.
 - DispatcherServlets handles all requests and dispatches them to the appropriate channels.
-- Servlet Listeners listen to the ServletContext ? // todo confirm
 
-## Servlet Container
+## Servlet Container, Tomcat
 
-Create a servlet context event listener to alert when the application has started up or when it has been shut down.
+### Servlet Container Life Cycle
 
 A servlet listener can be registered with an application to indicate when it has been started up or shut down. Therefore, by listening for such events, the servlet has the opportunity to perform some actions when they occur.
 
-To create a listener that performs actions based on a container event, you must develop a class that implements the ServletContextListener interface. The methods that need to be implemented are contextInitialized and contextDestroyed. Both of the methods accept a ServletContextEvent as an argument, and they are automatically called each time the servlet container is initialized or shut down, respectively. To register the listener with the container, you can use one of the following techniques:
+To create a listener that performs actions based on a container event, you must develop a class that implements the ServletContextListener interface. The methods that need to be implemented are `contextInitialized` and `contextDestroyed`. Both of the methods accept a ServletContextEvent as an argument, and they are automatically called each time the servlet container is initialized or shut down, respectively. To register the listener with the container, you can use one of the following techniques:
 
 - Utilize the `@WebListener` annotation, as demonstrated by the solution to this recipe.
 - Register the listener within the `web.xml` application deployment descriptor.
@@ -108,6 +143,14 @@ private void sendEmail() { }
 ```
 
 ### ServletContext
+
+Defines a set of methods that a servlet uses to communicate with its servlet container, for example, to get the MIME type of a file, dispatch requests, or write to a log file.
+
+There is one context per "web application" per Java Virtual Machine. A "web application" is a collection of servlets and content installed under a specific subset of the server's URL namespace.
+
+### How Tomcat hanldes requests
+
+7 Servlets in Tomcat // todo
 
 ## Servlets
 
@@ -428,6 +471,60 @@ public void contextInitialized(ServletContextEvent event) {
 
 @Override public void contextDestroyed(ServletContextEvent event) { /*Do something*/ } }
 ```
+
+## Spring MVC
+
+Spring MVC is the most popular Java web framework based on the Model-View-Controller (MVC) design pattern.
+
+Spring Boot supports Tomcat, Jetty, and Undertow servlet containers out-of-the-box and provides customization hooks to implement all server level customizations.
+
+We can say that the core element of Spring MVC is the Dispatcher Servlet, which is the main servlet that handles all requests and dispatches them to the appropriate channels. With the Dispatcher Servlet, Spring MVC follows the Front Controller pattern that provides an entry point for handling all requests of web applications.
+
+A standard servlet listener is used to bootstrap and shutdown the Spring application context. The application context is created and injected into the DispatcherServlet before any request is made, and when the application is stopped, the Spring context is closed gracefully.
+
+### Spring MVC Interceptor
+
+A HandlerInterceptor gets called before the appropriate HandlerAdapter triggers the execution of the handler itself. This mechanism can be used for a large field of preprocessing aspects, e.g. for authorization checks, or common handler behavior like locale or theme changes. Its main purpose is to allow for factoring out repetitive handler code.
+
+```java
+public interface HandlerInterceptor {
+    default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    r   eturn true;
+    }
+
+    default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) throws Exception { }
+
+    default void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception { }
+}
+```
+
+In Java configuration, you can register interceptors to apply to incoming requests.
+
+```java
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LocaleChangeInterceptor());
+        registry.addInterceptor(new ThemeChangeInterceptor()).addPathPatterns("/**").excludePathPatterns("/admin/**");
+        registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/secure/*");
+    }
+}
+```
+
+## Spring Security Filters
+
+## Spring AOP Interceptor
+
+the method executing order:
+
+1. Servlet filter (out side of Spring)
+2. MVC interceptor (spring components)
+3. AOP interceptor (Component methods)
+
+## Spring boot embedded tomcat
 
 ## References
 
