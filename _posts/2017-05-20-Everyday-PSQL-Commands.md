@@ -165,6 +165,20 @@ FROM table
 WHERE (length(hey_field) - length(replace(hey_field, 'needle_field', '')) = occurrence);
 ```
 
+## PostgreSQL REINDEX
+
+```sql
+REINDEX [ ( VERBOSE ) ] { INDEX | TABLE | SCHEMA | DATABASE | SYSTEM } name;
+
+REINDEX INDEX index_name;
+REINDEX TABLE table_name;
+REINDEX SCHEMA schema_name;
+REINDEX DATABASE database_name;
+REINDEX SYSTEM database_name;
+```
+
+the 'VERBOSE' keyword is optional. When included, the statement displays a progress report when each index is reindexed.
+
 ## Backup and Restore
 
 ```sql
