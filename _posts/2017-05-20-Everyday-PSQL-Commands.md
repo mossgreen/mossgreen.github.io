@@ -63,18 +63,26 @@ Switch to another db
 
 3. Describe a table `\d table_name`
 4. List available schema `\dn`
-5. List available functions `\df`. Use `\df+` to view a founction.
+5. List available functions `\df`. Use `\df+` or `\ef` to view or edit a founction.
 6. List available views `\dv`
 7. List users and their roles `\du`
-8. List Command history `\s`
+8. List sequences in current schema: `\ds`, or
+
+    ```sql
+    SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';
+
+    select sequence_schema, sequence_name from information_schema.sequences;
+    ```
+
+9. List Command history `\s`
     save commandline history to a file named history.txt
 
     ```sql
     \s moss.cmd.txt
     ```
 
-9. Execute psql commands from a file `\i`
-10. Turn on and off query execution time `\timing`
+10. Execute psql commands from a file `\i`
+11. Turn on and off query execution time `\timing`
 
     ```sql
     template1=> \timing
@@ -90,8 +98,8 @@ Switch to another db
     Timing is off.
     ```
 
-11. Edit command in your own editor `\e`. It will open vim.
-12. Create or View/Edit a function in the editor
+12. Edit command in your own editor `\e`. It will open vim.
+13. Create or View/Edit a function in the editor
     - `\ef` It generates an editable function template.
 
         ```sql
@@ -113,7 +121,7 @@ Switch to another db
         \g
         ```
 
-13. Quit psql `\q`
+14. Quit psql `\q`
 
 ### Query current schmea, or search_path
 
@@ -165,7 +173,7 @@ FROM table
 WHERE (length(hey_field) - length(replace(hey_field, 'needle_field', '')) = occurrence);
 ```
 
-## PostgreSQL REINDEX
+## PostgreSQL REINDEX (since 9.3)
 
 ```sql
 REINDEX [ ( VERBOSE ) ] { INDEX | TABLE | SCHEMA | DATABASE | SYSTEM } name;
@@ -177,7 +185,7 @@ REINDEX DATABASE database_name;
 REINDEX SYSTEM database_name;
 ```
 
-the 'VERBOSE' keyword is optional. When included, the statement displays a progress report when each index is reindexed.
+The 'VERBOSE' keyword is optional. When included, the statement displays a progress report when each index is reindexed.
 
 ## Backup and Restore
 
