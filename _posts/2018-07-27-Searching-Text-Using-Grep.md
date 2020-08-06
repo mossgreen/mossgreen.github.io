@@ -12,27 +12,29 @@ classes: wide
 
 How to search text in your files in Linux?
 
-## Why I want to use Linux grep
+## Terminology
 
-1. I want to search a text in file.
-2. I want to know the files that contains a key word.
-3. I want to know the key works in the files.
+1. Linux standard input
+
+    Standard input, often abbreviated `stdin`, is the source of input data for command line programs (i.e., all-text mode programs) on Linux.
+
+## What can I do with Linux grep
+
+1. Search a text in file and list the lines
+2. List the files that contains a key word
 
 ## About grep
 
-`grep` is a powerful file pattern searcher in Linux.
-
-`grep` stands for "global regular expression print". It processes text line by line and prints any lines which match a specified pattern.
-
-It can accept standard input as a parameter.
+- `grep` is a powerful file pattern searcher in Linux
+- `grep` stands for "global regular expression print"
+- It processes text line by line and prints any lines which match a specified pattern
+- It can accept standard input as a parameter
 
 ### Install grep
 
 ```bash
 \$ sudo apt-get install grep         # Debian/Ubuntu
-
 \$ sudo yum install grep             # RHEL/CentOS/Fedora
-
 \$ whereis grep                      #/usr/bin/grep
 ```
 
@@ -40,7 +42,12 @@ It can accept standard input as a parameter.
 
 1. case insensitive `-i`
 
-2. pass in regex `–e`
+2. pass in regex `–e` or `-E`
+
+    ```bash
+    grep -E 'pattern1|pattern2' fileName
+    grep -e pattern1 -e pattern2 fileName
+    ```
 
 3. only show counts `-c`
 
@@ -62,7 +69,7 @@ It can accept standard input as a parameter.
 
 12. disply matched patter in colours `--color`
 
-## Search in one file
+## Searching in one file
 
 1. Search a string in a file
 
@@ -72,7 +79,7 @@ It can accept standard input as a parameter.
 
     ![IMAGE](https://i.loli.net/2019/10/16/uNFgyp8TnxBUrDo.jpg)
 
-    It returns all the lines that contain given string.
+    It returns all the lines that contain the given string.
 
 2. Search a string in a file case insensitive `-i`
 
@@ -103,15 +110,15 @@ It can accept standard input as a parameter.
 
     grep is a line-based search utility. The `-c` option will output the count of matched lines instead of the count of pattern occurrences.
 
-5. Grep in `ls`
+## Search in Directories
+
+1. Grep in `ls`
 
     ```bash
     \$ ls -lt | grep 'Feb 28 2046'
     ```
 
-## Search in Directories
-
-1. in current directory, find all `.md` files that contains 'text' and print out the line
+2. in current directory, find all `.md` files that contains 'text' and print out the line
 
     ```bash
     \$ grep test *md
@@ -119,7 +126,7 @@ It can accept standard input as a parameter.
     CHANGELOG.md:* Test strict Front Matter in `/test` site. [#1236](https://github.com/mmistakes/minimal-mistakes/pull/1236)
     ```
 
-2. find all files that contain some pattern.
+3. find all files that contain some pattern.
 
     ```bash
     \$ grep -Rl 'mossgu'  ./
@@ -127,13 +134,13 @@ It can accept standard input as a parameter.
 
     Use the `-l` option to skip the matching information and let grep print only the file names of matched files.
 
-3. list how many times a string shows in each file
+4. list how many times a string shows in each file
 
     ```bash
     \$ grep -RlFc 'mossgu'  ./
     ```
 
-4. find all lines that **don't** have the given pattern
+5. find all lines that **don't** have the given pattern
 
     ```bash
     \$ grep -v test *md*
@@ -179,6 +186,7 @@ Because `docker logs` doesn't send output to standard output. piping works only 
 ### 1. I have a very big log file and try to find the line that in a certain time
 
 ```bash
+# -n show line number
 \$ grep -n '2019-10-24 00:01:11' *.log
 ```
 
@@ -197,9 +205,9 @@ Because `docker logs` doesn't send output to standard output. piping works only 
 ### 4. match part or whole world
 
 ```bash
-\$ grep man *  #match batman, manic, man
-\$ grep '\<man' * #match manic, man, not batman
-\$ grep '\<man\>' * #match man, not batman manic
+\$ grep man *  # match batman, manic, man
+\$ grep '\<man' * # match manic, man, not batman
+\$ grep '\<man\>' * # match man, not batman manic
 
 ```
 
@@ -213,6 +221,12 @@ Because `docker logs` doesn't send output to standard output. piping works only 
 
 ```bash
 \$ grep -e 'hi' -e 'moss' ./ # match either of them
+\$ grep -E 'hi|moss' ./ # match either of them
+
+# match all
+\$ grep  '*hi*moss*' file_path
+\$ grep  '*moss*hi*' file_path
+\$ grep 'hi\|moss\|hello' file_path
 ```
 
 ### 7. show the matching line and the following 100 lines
@@ -259,5 +273,6 @@ map auto_home    0Bi    0Bi    0Bi   100%       0                   0  100%   /h
 
 - [Common Linux Text Search](https://www.baeldung.com/linux/common-text-search)
 - [GNU Grep 3.3](https://www.gnu.org/software/grep/manual/html_node/index.html)
+- [grep multiple strings](https://phoenixnap.com/kb/grep-multiple-strings)
 
-last update: Nov 2019
+last update: Aug 2020
