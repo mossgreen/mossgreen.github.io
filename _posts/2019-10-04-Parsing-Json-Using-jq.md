@@ -147,9 +147,45 @@ $ resulttext | jq -r '.["image"]["full_size"]["data"]'
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAEUlEQVR42mNk+M+AARiHsiAAcCIKAYwFoQ8AAAAASUVORK5CYII=
 ```
 
+## Convert JSON to CSV with jq
+
+```json
+// file.json
+[
+  {
+    "type": "Event1",
+    "time": 20
+  },
+  {
+    "type": "Event2",
+    "distance": 100
+  }
+]
+```
+
+```bash
+cat file.json | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv' > file.csv
+```
+
+output
+
+```csv
+"distance","time","type"
+,20,"Event1"
+100,,"Event2"
+```
+
+|distance|time|type|
+|-|-|-|
+||20|Event1|
+|100||Event2|
+
 ## References
 
 - [jq Manual GitHub Page](https://stedolan.github.io/jq/manual/)
 - [Parsing JSON with jq](http://www.compciv.org/recipes/cli/jq-for-parsing-json//)
 - [Working with JSON in bash using jq](https://cameronnokes.com/blog/working-with-json-in-bash-using-jq/)
 - [HTTP to HTTP with bash, curl and jq](https://oncletom.io/2016/pipelining-http/)
+- [How to convert JSON to CSV with jq](https://til.hashrocket.com/posts/fn98hbc5re-how-to-convert-json-to-csv-with-jq)
+
+Last update: Aug 2020
