@@ -21,11 +21,11 @@ Handling Date Time in Java.
 ## Terminology
 
 UTC: coordinated universal time
-Unix epoch time:  1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
+Unix epoch time: 1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
 
 ## Archeology
 
-### Java Date from 1.0
+### Java Date since Java 1.0
 
 - `java.util.Date` in Java 1.0
 - It has no concept of time zone
@@ -35,7 +35,14 @@ Unix epoch time:  1970-01-01T00:00:00Z (midnight at the start of January 1, 1970
 - Years start from 1900
 - months are zero-index based
 
-### Calendar from 1.1
+### java.sql.Date since Java 1.1
+
+```java
+package java.sql;
+public class Date extends java.util.Date {/**/}
+```
+
+### Calendar sicne 1.1
 
 - `java.util.Calendar`
 - `java.text.DateFormat` were introduced to parse the string dates but it's not thread-safe
@@ -44,7 +51,7 @@ Unix epoch time:  1970-01-01T00:00:00Z (midnight at the start of January 1, 1970
 - it is still problematic to do some calculations as intervals or differences between dates in a simple manner
 - managing zoned dates still gives developers many headaches
 
-### Date Time API
+### Date Time API since Java 1.8
 
 - `java.time`
 - all immutable and thread-safe
@@ -54,7 +61,17 @@ Unix epoch time:  1970-01-01T00:00:00Z (midnight at the start of January 1, 1970
 - TemporalAmount: Duration, Period
 - Time Zones: ZoneID, ZoneOffset, OffsetDateTime, OffsetTime
 
-### Java 8 Date Time API Details
+## Java 8 Date Time API Details
+
+### Java 8 Date Time is thread safe
+
+### LocalDate, LocalTime, LocalDateTime
+
+### Instant
+
+### Java 8 with  Time Zones
+
+`Instant` is the simplest, simply representing the instant. `OffsetDateTime` adds to the instant the offset from UTC/Greenwich, which allows the local date-time to be obtained. `ZonedDateTime` adds full time-zone rules.
 
 - LocalDate : its instance is an immutable object representing a plain date without time of the day and store the date in the YYYY-MM-DD format. An instance of this class can be created in many ways.
 - LocalTime : it is similar to LocalDate, but it represents only the time of the day without time zone details and stores the time in the HH:mm:ss.nanos format. An instance of this class can be created as follows:
@@ -81,34 +98,62 @@ Instant : it is a specific point in the continuous timeline. It represents the s
 
 ## Converting Date and Date Times
 
-### Convert Date to LocalDate
+### Convert between Date and Java 8 Date Time
 
-convert `java.util.Date` to `java.time.LocalDate`
+1. convert `java.util.Date` to `java.time.LocalDate`
 
-```java
-Date date = new Date();
-LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-ZonedDateTime zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
-```
+    ```java
+    Date date = new Date();
+    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    ZonedDateTime zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
+    ```
 
-### Convert LocalDate to Date
+2. convert `java.time.LocalDate` to `java.util.Date`
 
-```java
-ZoneId defaultZoneId = ZoneId.systemDefault();
+    ```java
+    ZoneId defaultZoneId = ZoneId.systemDefault();
 
-LocalDate localDate = LocalDate.of(2046, 8, 19);
-Date date = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+    LocalDate localDate = LocalDate.of(2046, 8, 19);
+    Date date = java.util.Date.from(
+        localDate // `LocalDate` class represents a date-only, without time-of-day and without time zone nor offset-from-UTC.
+        .atStartOfDay( // Let java.time determine the first moment of the day on that date in that zone. Never assume the day starts at 00:00:00.
+            defaultZoneId // Specify time zone using proper name in `continent/region` format, never 3-4 letter pseudo-zones such as “PST”, “CST”, “IST”.
+            ) // Produce a `ZonedDateTime` object.
+            .toInstant()); // Extract an `Instant` object, a moment always in UTC.
 
-LocalDateTime localDateTime = LocalDateTime.of(2046,8,19,21,46,31);
-Date date2 = Date.from(localDateTime.atZone(defaultZoneId).toInstant());
+    LocalDateTime localDateTime = LocalDateTime.of(2046,8,19,21,46,31);
+    Date date2 = Date.from(localDateTime.atZone(defaultZoneId).toInstant());
 
-        ZonedDateTime zonedDateTime = localDateTime.atZone(defaultZoneId);
-Date date3 = Date.from(zonedDateTime.toInstant());
-```
+            ZonedDateTime zonedDateTime = localDateTime.atZone(defaultZoneId);
+    Date date3 = Date.from(zonedDateTime.toInstant());
+    ```
 
+3. DateUtiles class
 
-### To Long value from anything
+    ```java
+    public class DateUtils {
+
+        public static Date asDate(LocalDate localDate) {
+            return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        }
+
+        public static Date asDate(LocalDateTime localDateTime) {
+            return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        }
+
+        public static LocalDate asLocalDate(Date date) {
+            return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+        }
+
+        public static LocalDateTime asLocalDateTime(Date date) {
+            return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+    }
+
+    ```
+
+### Convert to Long value from anything
 
 1. Easiest way
 
@@ -163,7 +208,7 @@ Date date3 = Date.from(zonedDateTime.toInstant());
 
 //todo
 
-## Long value to Date Time
+### Convert from Long value to others
 
 1. To java.util.date  
 
@@ -205,27 +250,42 @@ Date date3 = Date.from(zonedDateTime.toInstant());
         .ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());
     ```
 
-### Date time to String
+### Conver between formatted String and Date Time
+
+Two main ways:
+
+`java.text.SimpleDateFormat` is since Java 1.1
+`java.time.format.DateTimeFormatter` is since Java 1.8
 
 1. Old way, use SimpleDateFormat
 
     ```java
     SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm:ss");
+
+    // String to Date
+    String dateString = "2019-05-23 00:00:00.0";
+    Date date = sdf.parse(dateString);
+
+    // Date to String
     Date today = new Date();
     String date = sdf.format(today);
-    System.out.println(date); //02 Feb 2046 08:42:21
     ```
 
 2. Java 8, DateTimeFormatter
 
     ```java
-    LocalDateTime localDateTime = LocalDateTime.now();
-    String format = localDateTime
-          .format(DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm:ss"));
-    System.out.println(format);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm:ss");
+
+    // String to Date
+    String dateString = "2046-03-21 00:00:00.0";
+    LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+
+    // Date to String
+    LocalDateTime localDateTimeNow = LocalDateTime.now();
+    String dateTimeNow = formatter.format(localDateTimeNow);
     ```
 
-### Get date time parts
+### Get date time fields value
 
 1. The WRONG way
 
@@ -269,20 +329,24 @@ Date date3 = Date.from(zonedDateTime.toInstant());
 ### (to be continued...)
 
 - java.sql.Timestamp
-- String to Date Time
-- java.util.Date to java8 DateTime
-- java8 DateTime to java.util.Date
-- Date VS DateTime
 
-## How to persist time
+## How to persist Date Time
 
 > Instead of saving the time in UTC along with the time zone, developers can save what the user expects us to save: the wall time. Ie. what the clock on the wall will say. In the example that would be 10:00. And we also save the timezone (Santiago/Chile). This way we can convert back to UTC or any other timezone.
 
-see https://stackoverflow.com/questions/2532729/daylight-saving-time-and-time-zone-best-practices
+see <https://stackoverflow.com/questions/2532729/daylight-saving-time-and-time-zone-best-practices>
+
+### Persist Java 8 Date Time in Postgres
+
+The PostgreSQL™ JDBC driver implements native support for the Java 8 Date and Time API (JSR-310) using JDBC 4.2.
+ZonedDateTime, Instant and OffsetTime / TIME [ WITHOUT TIMEZONE ] are not supported.
+Also note that all OffsetDateTime will instances will have be in UTC (have offset 0). This is because the backend stores them as UTC.
 
 ## References
 
-https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html
+<https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html>
+
 - [Introduction to the Java 8 Date/Time API](https://www.baeldung.com/java-8-date-time-intro)
-https://medium.com/javarevisited/the-evolution-of-the-java-date-time-api-bfdc61375ddb
-http://www.creativedeletion.com/2015/03/19/persisting_future_datetimes.html
+<https://medium.com/javarevisited/the-evolution-of-the-java-date-time-api-bfdc61375ddb>
+<http://www.creativedeletion.com/2015/03/19/persisting_future_datetimes.html>
+<https://howtodoinjava.com/java/date-time/localdate-to-date/>
