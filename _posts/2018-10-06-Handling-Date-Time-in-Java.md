@@ -22,18 +22,23 @@ Handling Date Time in Java.
 
 UTC: coordinated universal time
 Unix epoch time: 1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
+DST: Daylight Saving Time
 
 ## Archeology
+
+Why use a class to represent dates rather than a built-in type?
 
 ### Java Date since Java 1.0
 
 - `java.util.Date` in Java 1.0
 - It has no concept of time zone
-- It's intended to reflect UTC, it may not do so exactly, depending on the host environment of the Java Virtual Machine.
+- It doesn’t represent a date, but a point in time with millisecond precision
+- It's intended to reflect UTC, it may not do so exactly, depending on the host environment of the Java Virtual Machine
 - The class Date represents a specific instant in time, with millisecond precision. So, The new Java 8 `java.time.Instant` is the equivalent class to the classic `java.util.Date`.
 - It represents the number of seconds passed since the Unix epoch time
 - Years start from 1900
 - months are zero-index based
+- the `toString()` method is quite misleading because it includes the JVM’s default time zone
 
 ### java.sql.Date since Java 1.1
 
@@ -45,37 +50,35 @@ public class Date extends java.util.Date {/**/}
 ### Calendar sicne 1.1
 
 - `java.util.Calendar`
-- `java.text.DateFormat` were introduced to parse the string dates but it's not thread-safe
+- `java.text.DateFormat` were introduced to parse the string dates but it's not thread-safe. If two threads try to parse a date by using the same formatter at the same time, you may receive unpredictable results.
 - months are still zero-index based
 - Calendar class is mutable then there is a thread-safety problem
+- It got rid of the 1900 offset for the year
+- Months also start at index 0
 - it is still problematic to do some calculations as intervals or differences between dates in a simple manner
 - managing zoned dates still gives developers many headaches
 
+### Joda-Time
+
+- A third-party date and time library
+- Java 8 integrates many of the Joda-Time features in the `java.time` package
+
 ### Date Time API since Java 1.8
 
-- `java.time`
+- `java.time` package
 - all immutable and thread-safe
 - LocalDate, LocalTime, LocalDateTime
 - Instant
-- DateTimeFormatter, DateTimeFormatterBuilder
 - TemporalAmount: Duration, Period
+- DateTimeFormatter, DateTimeFormatterBuilder
 - Time Zones: ZoneID, ZoneOffset, OffsetDateTime, OffsetTime
 
 ## Java 8 Date Time API Details
 
-### Java 8 Date Time is thread safe
-
 ### LocalDate, LocalTime, LocalDateTime
 
-### Instant
-
-### Java 8 with  Time Zones
-
-`Instant` is the simplest, simply representing the instant. `OffsetDateTime` adds to the instant the offset from UTC/Greenwich, which allows the local date-time to be obtained. `ZonedDateTime` adds full time-zone rules.
-
-- LocalDate : its instance is an immutable object representing a plain date without time of the day and store the date in the YYYY-MM-DD format. An instance of this class can be created in many ways.
-- LocalTime : it is similar to LocalDate, but it represents only the time of the day without time zone details and stores the time in the HH:mm:ss.nanos format. An instance of this class can be created as follows:
-- LocalDateTime : this is the combination of the previous two, holding both date and time parts without timezone details. The datetime is stored in the YYYY-MM-DDThh:mm:ss and can be created as follows:
+- Don't have time zone info
+- Human readable
 
 ```java
 LocalDate.now(); //get the current date
@@ -92,11 +95,122 @@ LocalDateTime.now();//get the current datetime
 LocalDateTime.parse("2020-06-10T08:15:30");//get a datetime parsing the string
 ```
 
-Instant : it is a specific point in the continuous timeline. It represents the seconds passed since the Epoch time 1970–01–01T00:00:00Z and internally stores two values :
-    a long value representing seconds from the Epoch time
-    an int value representing the nanoseconds of seconds
+### Instant
 
-## Converting Date and Date Times
+- Comparing to above classes, `Instant` is more like a concept for machine
+- From a machine point of view, the most natural format to model time is a single large number representing a point on a continuous timeline
+- This approach is used by the new `java.time.Instant` class, which represents the number of seconds passed since the Unix epoch time, set by convention to midnight of January 1, 1970 UTC
+- the Instant class supports **nanosecond** precision
+- It supposed not to be with human readable classes
+- However, it works with `Duration` and `Period` classes
+
+### Duration, Period
+
+- All the classes above implement the `Temporal` interface, which defines how to read and manipulate the values of an object modeling a generic point in time
+- `Duration` is the time tween two temporal objects
+- It makes sense to human-readble time classes (LocalTime, LocalDateTime) as well as machine-sense classes (Instant). So there is a duration between each catetory of them.
+- However, you cannot either use `LocalDate`, because it doesn't represents time, nor mix of them. `DateTimeException` is what you'll get.
+- For the time represents an amount of time in terms of years, months, and days, you can use the `Period` class
+
+```java
+// between method,
+Duration d1 = Duration.between(time1, time2);
+Duration d1 = Duration.between(dateTime1, dateTime2);
+Duration d2 = Duration.between(instant1, instant2);
+Period tenDays = Period.between(LocalDate.of(2001, 9, 11), LocalDate.of(2046, 9, 21));
+
+// create instances
+Duration threeMinutes = Duration.ofMinutes(3);
+Period tenDays = Period.ofDays(10);
+```
+
+### TemporalAdjusters
+
+TemporalAdjusters allow you to manipulate a date in a more complex way than changing one of its values, and you can define and use your own custom date transformations.
+
+```java
+// implement your own TemporalAdjusters
+```
+
+### Printing and parsing date-time objects
+
+In comparison with the old `java.util.DateFormat` class, all the `DateTimeFormatter` instances are thread-safe. Therefore, you can create singleton formatters like the ones defined by the `DateTimeFormatter` constants and share them among multiple threads.
+
+```java
+LocalDate date = LocalDate.of(2046, 3, 18);
+String s1 = date.format(DateTimeFormatter.BASIC_ISO_DATE); // 20460318
+String s2 = date.format(DateTimeFormatter.ISO_LOCAL_DATE); // 2046-03-18
+
+LocalDate date1 = LocalDate.parse("20140318", DateTimeFormatter.BASIC_ISO_DATE);
+LocalDate date2 = LocalDate.parse("2014-03-18", DateTimeFormatter.ISO_LOCAL_DATE);
+
+// creating a DateTimeFormatter from a pattern
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+LocalDate date1 = LocalDate.of(2014, 3, 18);
+String formattedDate = date1.format(formatter);
+LocalDate date2 = LocalDate.parse(formattedDate, formatter);
+```
+
+```java
+// todo DateTimeFormatterBuilder
+```
+
+### Java 8 with Time Zones using ZoneId
+
+- A specific ZoneId is identified by a region ID, as in this example:
+
+    ```java
+    ZoneId romeZone = ZoneId.of("Europe/Rome");
+    ```
+
+- All the region IDs are in the format "`{area}/{city}`", and the set of available locations is the one supplied by the [Internet Assigned Numbers Authority (IANA) Time Zone Database](https://www.iana.org/time-zones).
+
+- You can also convert an old TimeZone object to a ZoneId by using the new method toZoneId:
+
+    ```java
+    ZoneId zoneId = TimeZone.getDefault().toZoneId();
+    ```
+
+- When you have a ZoneId object, you can combine it with a `LocalDate`, a `LocalDateTime`, or an `Instant` to transform it into `ZonedDateTime` instances, which represent points in time relative to the specified time zone. `LocalDate + LocalTime + ZoneId = ZonedDateTime`
+
+    ```java
+    LocalDate date = LocalDate.of(2014, Month.MARCH, 18);
+    ZonedDateTime zdt1 = date.atStartOfDay(romeZone); // LocalDate + LocalTime (atStartOfDay) + ZoneId
+
+    LocalDateTime dateTime = LocalDateTime.of(2014, Month.MARCH, 18, 13, 45);
+    ZonedDateTime zdt2 = dateTime.atZone(romeZone); // LocalDateTime + ZoneId
+
+    Instant instant = Instant.now();
+    ZonedDateTime zdt3 = instant.atZone(romeZone);
+    ```
+
+### Java 8 with Time Zones using Offset from UTC
+
+- Another common way to express a time zone is to use a fixed offset from UTC/Greenwich.
+- `ZoneOffset` is a subclass of `ZoneId`, so it should be able to replace `ZoneId`
+- `ZoneOffset` represents the difference between a time and the zero meridian of Greenwich, London, as follows:
+
+    ```java
+    ZoneOffset newYorkOffset = ZoneOffset.of("-05:00"); // New York is five hours behind London
+    ```
+
+- A `ZoneOffset` defined this way doesn’t have any Daylight Saving Time management, and for this reason, it isn’t suggested in the majority of cases
+
+## Converting Date and Java 8 DateTimes
+
+- Sometimes, you have to work with legacy code and deal with `Date` class.
+- `Instant` is kinda the middle layer between the old and the new, because it has similar meaning as the old Date.
+- You can also convert a LocalDateTime to an Instant by using a ZoneId and other around
+
+    ```java
+    // localDateTime to instant
+    LocalDateTime dateTime = LocalDateTime.of(2014, Month.MARCH, 18, 13, 45);
+    Instant instantFromDateTime = dateTime.toInstant(romeZone);
+
+    // instant to localDateTime
+    Instant instant = Instant.now();
+    LocalDateTime timeFromInstant = LocalDateTime.ofInstant(instant, romeZone);
+    ```
 
 ### Convert between Date and Java 8 Date Time
 
@@ -129,7 +243,7 @@ Instant : it is a specific point in the continuous timeline. It represents the s
     Date date3 = Date.from(zonedDateTime.toInstant());
     ```
 
-3. DateUtiles class
+3. Implement your DateUtiles.class
 
     ```java
     public class DateUtils {
@@ -153,7 +267,9 @@ Instant : it is a specific point in the continuous timeline. It represents the s
 
     ```
 
-### Convert to Long value from anything
+### Convert between Long value
+
+In some systems, Date are saved as long value.
 
 1. Easiest way
 
@@ -161,30 +277,26 @@ Instant : it is a specific point in the continuous timeline. It represents the s
     System.currentTimeMillis();
     ```  
 
-    Returns the current time in milliseconds, since January 1, 1970 UTC.
-
 2. Old way, since Java 1.0
 
     ```java
-    new Date().getTime();
+    Long longValue = new Date().getTime(); // it calls System.currentTimeMillis() inside
+    Date date = new Date(longValue);
     ```
-
-    `new Date()`calls `System.currentTimeMillis()` inside.
 
 3. Calendar to Long  
 
     ```java
     Calendar c = Calendar.getInstance();
-    long timestamp = c.getTimeInMillis();
+    long timestamp = c.getTimeInMillis(); // get
+    c.setTimeInMillis(longValue); // set
     ```
 
 4. Instant to Long
 
-    - Since Java 8.
-    - Returns the number of milliseconds since the epoch of 1970-01-01T00:00:00Z.
-
     ```java
     Instant.now().toEpochMilli();
+    Instant instant = Instant.ofEpochSecond(longValue);
     ```
 
 5. Java 8 LocalDate
@@ -194,6 +306,10 @@ Instant : it is a specific point in the continuous timeline. It represents the s
       .atStartOfDay(ZoneId.systemDefault())
       .toInstant()
       .toEpochMilli();
+
+    LocalDate date = Instant.ofEpochMilli(longValue)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
     ```
 
 6. Java 8 LocalDateTime
@@ -202,50 +318,7 @@ Instant : it is a specific point in the continuous timeline. It represents the s
     LocalDateTime.now()
       .toInstant(ZoneOffset.ofTotalSeconds(0))
       .toEpochMilli();
-    ```
 
-7. Sql timestamp to Long
-
-//todo
-
-### Convert from Long value to others
-
-1. To java.util.date  
-
-    ```java
-    Date date = new Date(longValue);
-    ```
-
-2. To Calendar
-
-    ```java
-    Calendar c = Calendar.getInstance();
-    c.setTimeInMillis(longValue);
-    ```
-
-3. To Instant  
-
-    ```java
-    Instant instant = Instant.ofEpochSecond(longValue);
-    ```
-
-4. To java.sql.Timestamp  
-
-    ```java
-    Timestamp timestamp = new Timestamp(longValue) ;
-    ```
-
-5. To java 8 LocalDate  
-
-      ```java
-      LocalDate date = Instant.ofEpochMilli(longValue)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate();
-      ```
-
-6. To java 8 LocalDateTime  
-
-    ```java
     LocalDateTime date = LocalDateTime
         .ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());
     ```
@@ -256,6 +329,7 @@ Two main ways:
 
 `java.text.SimpleDateFormat` is since Java 1.1
 `java.time.format.DateTimeFormatter` is since Java 1.8
+Both of them throw `DateTimeParseException`, which extends `RuntimeException`
 
 1. Old way, use SimpleDateFormat
 
@@ -326,10 +400,6 @@ Two main ways:
     int dayOfMonth = LocalDate.now().getDayOfMonth();
     ```
 
-### (to be continued...)
-
-- java.sql.Timestamp
-
 ## How to persist Date Time
 
 > Instead of saving the time in UTC along with the time zone, developers can save what the user expects us to save: the wall time. Ie. what the clock on the wall will say. In the example that would be 10:00. And we also save the timezone (Santiago/Chile). This way we can convert back to UTC or any other timezone.
@@ -344,9 +414,6 @@ Also note that all OffsetDateTime will instances will have be in UTC (have offse
 
 ## References
 
-<https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html>
-
+- [Modern Java in Action](https://www.manning.com/books/modern-java-in-action)
 - [Introduction to the Java 8 Date/Time API](https://www.baeldung.com/java-8-date-time-intro)
-<https://medium.com/javarevisited/the-evolution-of-the-java-date-time-api-bfdc61375ddb>
-<http://www.creativedeletion.com/2015/03/19/persisting_future_datetimes.html>
-<https://howtodoinjava.com/java/date-time/localdate-to-date/>
+- [the-evolution-of-the-java-date-time-api](https://medium.com/javarevisited/the-evolution-of-the-java-date-time-api-bfdc61375ddb)
