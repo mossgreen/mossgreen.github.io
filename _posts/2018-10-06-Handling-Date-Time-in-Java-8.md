@@ -14,17 +14,18 @@ classes: wide
 
 Handling Date Time in Java 8
 
-Being as a Java developer, handling Date and time used to be a pain because the Date and Calendar classes designed by Java team is trouble-some.
+Being as a Java developer, handling Date and time used to be a pain because the Date and Calendar classes desinged by Java team is trouble-some.
 Java 8 is awesome because it introduces lots of good features including the new Date and Time APIs. Now a new challenge follows. How to work with the old classes together with the new ones?
 
 ## Terminology
 
-- UTC: coordinated universal time
-- Unix epoch time: 1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
-- DST: Daylight Saving Time
-- ISO 8601: It applies to representations and formats of dates in the Gregorian (and potentially proleptic Gregorian) calendar, of times based on the 24-hour timekeeping system (with optional UTC offset), of time intervals, and combinations thereof
+UTC: coordinated universal time
+Unix epoch time: 1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
+DST: Daylight Saving Time
 
 ## Archeology
+
+Why use a class to represent dates rather than a built-in type?
 
 ### Java Date since Java 1.0
 
@@ -40,30 +41,15 @@ Java 8 is awesome because it introduces lots of good features including the new 
 
 ### java.sql.Date since Java 1.1
 
-- It extends the Date class
-
-    ```java
-    package java.sql;
-    public class Date extends java.util.Date {/**/}
-    ```
-
-- A thin wrapper around `java.util.Date` that allows the JDBC API to identify this as an SQL TIMESTAMP value
-- It is a composite of a `java.util.Date` and a separate nanoseconds value
-- Use java.sql only for drivers before JDBC 4.2
-
 ```java
-
-Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
-Timestamp timestamp2 = new Timestamp(new Date().getTime());
-
-java.sql.Date sqlDate1 = new java.sql.Date(System.currentTimeMillis());  
-java.sql.Date sqlDate2 = java.sql.Date.valueOf( "2010-01-31" );
+package java.sql;
+public class Date extends java.util.Date {/**/}
 ```
 
 ### Calendar sicne 1.1
 
 - `java.util.Calendar`
-- `java.text.DateFormat` was introduced to parse the string dates but it's not thread-safe. If two threads try to parse a date by using the same formatter at the same time, you may receive unpredictable results.
+- `java.text.DateFormat` were introduced to parse the string dates but it's not thread-safe. If two threads try to parse a date by using the same formatter at the same time, you may receive unpredictable results.
 - months are still zero-index based
 - Calendar class is mutable then there is a thread-safety problem
 - It got rid of the 1900 offset for the year
@@ -110,19 +96,19 @@ LocalDateTime.parse("2020-06-10T08:15:30");//get a datetime parsing the string
 
 ### Instant
 
-- Comparing to the above classes, `Instant` is more like a concept for machine
-- From a machine's point of view, the most natural format to model time is a single large number representing a point on a continuous timeline
-- This approach is used by the new `java.time.Instant` class, which represents the number of seconds passed since the Unix epoch time, set by convention to midnight of January 1, 1970 UTC, yes, always UTC
+- Comparing to above classes, `Instant` is more like a concept for machine
+- From a machine point of view, the most natural format to model time is a single large number representing a point on a continuous timeline
+- This approach is used by the new `java.time.Instant` class, which represents the number of seconds passed since the Unix epoch time, set by convention to midnight of January 1, 1970 UTC
 - the Instant class supports **nanosecond** precision
-- It supposed not to be with human-readable classes
+- It supposed not to be with human readable classes
 - However, it works with `Duration` and `Period` classes
 
 ### Duration, Period
 
-- All the classes above implement the `Temporal` interface, which defines how to read and manipulate the values of an object modelling a generic point in time
+- All the classes above implement the `Temporal` interface, which defines how to read and manipulate the values of an object modeling a generic point in time
 - `Duration` is the time tween two temporal objects
-- It makes sense to human-readable time classes (LocalTime, LocalDateTime) as well as machine-sense classes (Instant). So there is a duration between each category of them.
-- However, you cannot either use `LocalDate`, because it doesn't represent time, nor mix of them. `DateTimeException` is what you'll get.
+- It makes sense to human-readble time classes (LocalTime, LocalDateTime) as well as machine-sense classes (Instant). So there is a duration between each catetory of them.
+- However, you cannot either use `LocalDate`, because it doesn't represents time, nor mix of them. `DateTimeException` is what you'll get.
 - For the time represents an amount of time in terms of years, months, and days, you can use the `Period` class
 
 ```java
@@ -139,15 +125,14 @@ Period tenDays = Period.ofDays(10);
 
 ```java
 var start = Instant.now();
-Thread.sleep(2048);
+Thread.sleep(2048); 
 var duration = Duration.between(start,Instant.now());
 System.out.printf("%d seconds and %d ms",duration.toSeconds(),duration.toMillisPart());
 ```
 
-### The Temporal Package
+### TemporalAdjusters
 
-- It's for date and time calculations in low level
-- TemporalAdjusters allow you to manipulate a date in a more complex way than changing one of its values, and you can define and use your own custom date transformations.
+TemporalAdjusters allow you to manipulate a date in a more complex way than changing one of its values, and you can define and use your own custom date transformations.
 
 ```java
 // implement your own TemporalAdjusters
@@ -217,10 +202,10 @@ LocalDate date2 = LocalDate.parse(formattedDate, formatter);
 
 - A `ZoneOffset` defined this way doesn’t have any Daylight Saving Time management, and for this reason, it isn’t suggested in the majority of cases
 
-## Converting Date and Java 8 Date Times
+## Converting Date and Java 8 DateTimes
 
-- Sometimes, you have to work with legacy code and deal with `Date` class
-- `Instant` is kinda the middle layer between the old and the new, because it has a similar meaning as the old Date
+- Sometimes, you have to work with legacy code and deal with `Date` class.
+- `Instant` is kinda the middle layer between the old and the new, because it has similar meaning as the old Date.
 - You can also convert a LocalDateTime to an Instant by using a ZoneId and other around
 
     ```java
@@ -233,33 +218,15 @@ LocalDate date2 = LocalDate.parse(formattedDate, formatter);
     LocalDateTime timeFromInstant = LocalDateTime.ofInstant(instant, romeZone);
     ```
 
-Here is a look up table might help you to understand how they can convert to and from each other, I borrow this idea from [YAWK](https://yawk.at/java.time/)
-
-// not finish yet, quite boring
-
-|  |Long Value|java.util.Date|java.sql.Date|Instant|LocalTime|LocalDate|LocalDateTime|ZonedDateTime|OffsetDateTime|
-|-|-|-|-|-|-|-|-|-|-|
-|Initiate|long millis = System.currentTimeMillis();|Date date = new Date();|Date sqlDate1 = new java.sql.Date(new Date().getTime());  |Instant instant = Instant.now();|LocalTime.parse("08:30:15.12345")|LocalDate localDate = LocalDate.of(2020, 06, 10);|LocalDateTime localDateTime = LocalDateTime.now();|ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());|OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.UTC);|
-|Long Value|-|date.getTime();|date.getTime();|instant.toEpochMilli();|n/a|localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()|localDateTime.toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();|zonedDateTime.toEpochSecond();|offsetDateTime.toEpochSecond();|
-|java.util.Date|new java.util.Date(millis);|-|new java.sql.Date(millis);|Date.from(instant);|n/a|Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())|Date.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant());|Date.from(zonedDateTime.toInstant());|Date.from(offsetDateTime.toInstant());|
-|java.sql.Date|new java.sql.Date(millis);|new java.sql.Date(new Date().getTime());|-|  |  |  |  |  | |
-|Instant|Instant.ofEpochMilli(millis);|date.toInstant();|sqlDate.toInstant();|  |  |  |  |  | |
-|LocalTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalTime();|n/a|  |  |  |  |  |  | |
-|LocalDate|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();|sqlDate.toLocalDate();|  |  |java.sql.Date.valueOf(localDate);|  |  | |
-|LocalDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDateTime();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();|  |  |  |  |  |  | |
-|ZonedDateTime|Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault());|date.toInstant().atZone(ZoneId.systemDefault());|  |  |  |  |  |  | |
-|OffsetDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC)|  |  |  |  |  |  |  | |
-
 ### Convert between Date and Java 8 Date Time
 
 1. convert `java.util.Date` to `java.time.LocalDate`
 
     ```java
-    Date date = new Date(); // instant is the key
+    Date date = new Date();
     LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     ZonedDateTime zonedDateTime = date.toInstant().atZone(ZoneId.systemDefault());
-    OffsetDateTime offsetDateTime = date.toInstant().atOffset(ZoneOffset.UTC);
     ```
 
 2. convert `java.time.LocalDate` to `java.util.Date`
@@ -278,17 +245,11 @@ Here is a look up table might help you to understand how they can convert to and
     LocalDateTime localDateTime = LocalDateTime.of(2046,8,19,21,46,31);
     Date date2 = Date.from(localDateTime.atZone(defaultZoneId).toInstant());
 
-    ZonedDateTime zonedDateTime = localDateTime.atZone(defaultZoneId);
+            ZonedDateTime zonedDateTime = localDateTime.atZone(defaultZoneId);
     Date date3 = Date.from(zonedDateTime.toInstant());
     ```
 
-3. Convert ZonedDateTime to sql.Timestamp
-
-    ```java
-    java.sql.Timestamp ts = java.sql.Timestamp.from(zdt.toInstant());
-    ```
-
-4. Implement your DateUtiles.class
+3. Implement your DateUtiles.class
 
     ```java
     public class DateUtils {
@@ -310,6 +271,62 @@ Here is a look up table might help you to understand how they can convert to and
         }
     }
 
+    ```
+
+### Convert between Long value
+
+In some systems, Date are saved as long value.
+
+1. Easiest way
+
+    ```java
+    System.currentTimeMillis();
+    ```  
+
+2. Old way, since Java 1.0
+
+    ```java
+    Long longValue = new Date().getTime(); // it calls System.currentTimeMillis() inside
+    Date date = new Date(longValue);
+    ```
+
+3. Calendar to Long  
+
+    ```java
+    Calendar c = Calendar.getInstance();
+    long timestamp = c.getTimeInMillis(); // get
+    c.setTimeInMillis(longValue); // set
+    ```
+
+4. Instant to Long
+
+    ```java
+    Instant.now().toEpochMilli();
+    Instant instant = Instant.ofEpochSecond(longValue);
+    ```
+
+5. Java 8 LocalDate
+
+    ```java
+    LocalDate.now()
+      .atStartOfDay(ZoneId.systemDefault())
+      .toInstant()
+      .toEpochMilli();
+
+    LocalDate date = Instant.ofEpochMilli(longValue)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
+    ```
+
+6. Java 8 LocalDateTime
+
+    ```java
+    LocalDateTime.now()
+      .toInstant(ZoneOffset.ofTotalSeconds(0))
+      .toEpochMilli();
+
+    LocalDateTime date = LocalDateTime
+        .ofInstant(Instant.ofEpochMilli(longValue), ZoneId.systemDefault());
     ```
 
 ### Conver between formatted String and Date Time
@@ -389,10 +406,6 @@ Both of them throw `DateTimeParseException`, which extends `RuntimeException`
     int dayOfMonth = LocalDate.now().getDayOfMonth();
     ```
 
-## Converting table
-
-Based an idea from [yawk](https://yawk.at/java.time/), here is a converting that easy to look up:
-
 ## How to persist Date Time
 
 > Instead of saving the time in UTC along with the time zone, developers can save what the user expects us to save: the wall time. Ie. what the clock on the wall will say. In the example that would be 10:00. And we also save the timezone (Santiago/Chile). This way we can convert back to UTC or any other timezone.
@@ -403,11 +416,10 @@ see <https://stackoverflow.com/questions/2532729/daylight-saving-time-and-time-z
 
 The PostgreSQL™ JDBC driver implements native support for the Java 8 Date and Time API (JSR-310) using JDBC 4.2.
 ZonedDateTime, Instant and OffsetTime / TIME [ WITHOUT TIMEZONE ] are not supported.
-Also, note that all OffsetDateTime instance will have to be in UTC (have offset 0). This is because the backend stores them as UTC.
+Also note that all OffsetDateTime will instances will have be in UTC (have offset 0). This is because the backend stores them as UTC.
 
 ## References
 
 - [Modern Java in Action](https://www.manning.com/books/modern-java-in-action)
-- [Oracle Date Time Tutorial](https://docs.oracle.com/javase/tutorial/datetime/TOC.html)
 - [Introduction to the Java 8 Date/Time API](https://www.baeldung.com/java-8-date-time-intro)
 - [the-evolution-of-the-java-date-time-api](https://medium.com/javarevisited/the-evolution-of-the-java-date-time-api-bfdc61375ddb)
