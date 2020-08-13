@@ -223,6 +223,8 @@ LocalDate date2 = LocalDate.parse(formattedDate, formatter);
 - `Instant` is kinda the middle layer between the old and the new, because it has a similar meaning as the old Date
 - You can also convert a LocalDateTime to an Instant by using a ZoneId and other around
 
+//todo timestamp?
+
     ```java
     // localDateTime to instant
     LocalDateTime dateTime = LocalDateTime.of(2014, Month.MARCH, 18, 13, 45);
@@ -235,20 +237,18 @@ LocalDate date2 = LocalDate.parse(formattedDate, formatter);
 
 Here is a look up table might help you to understand how they can convert to and from each other, I borrow this idea from [YAWK](https://yawk.at/java.time/)
 
-// not finish yet, quite boring
-
-|  |Long Value|java.util.Date|java.sql.Date|Instant|LocalTime|LocalDate|LocalDateTime|ZonedDateTime|OffsetDateTime|
+|Convert to|Millis|java.util.Date|java.sql.Date|Instant|LocalTime|LocalDate|LocalDateTime|ZonedDateTime|OffsetDateTime|
 |-|-|-|-|-|-|-|-|-|-|
-|Initiate|long millis = System.currentTimeMillis();|Date date = new Date();|Date sqlDate1 = new java.sql.Date(new Date().getTime());  |Instant instant = Instant.now();|LocalTime.parse("08:30:15.12345")|LocalDate localDate = LocalDate.of(2020, 06, 10);|LocalDateTime localDateTime = LocalDateTime.now();|ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());|OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.UTC);|
-|Long Value|-|date.getTime();|date.getTime();|instant.toEpochMilli();|n/a|localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()|localDateTime.toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();|zonedDateTime.toEpochSecond();|offsetDateTime.toEpochSecond();|
-|java.util.Date|new java.util.Date(millis);|-|new java.sql.Date(millis);|Date.from(instant);|n/a|Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())|Date.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant());|Date.from(zonedDateTime.toInstant());|Date.from(offsetDateTime.toInstant());|
-|java.sql.Date|new java.sql.Date(millis);|new java.sql.Date(new Date().getTime());|-|  |  |  |  |  | |
-|Instant|Instant.ofEpochMilli(millis);|date.toInstant();|sqlDate.toInstant();|  |  |  |  |  | |
-|LocalTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalTime();|n/a|  |  |  |  |  |  | |
-|LocalDate|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();|sqlDate.toLocalDate();|  |  |java.sql.Date.valueOf(localDate);|  |  | |
-|LocalDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDateTime();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();|  |  |  |  |  |  | |
-|ZonedDateTime|Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault());|date.toInstant().atZone(ZoneId.systemDefault());|  |  |  |  |  |  | |
-|OffsetDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC)|  |  |  |  |  |  |  | |
+|Initiate|long millis = System.currentTimeMillis();|Date date = new Date();|java.sql.Date sqlDate = new java.sql.Date(new java.util.Date().getTime());|Instant instant = Instant.now();|LocalTime localTime = LocalTime.parse("08:30:15.12345");|LocalDate localDate = LocalDate.of(2020, 06, 10);|LocalDateTime localDateTime = LocalDateTime.now();|ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());|OffsetDateTime offsetDateTime = instant.atOffset(ZoneOffset.UTC);|
+|Millis|-|date.getTime();|sqlDate.getTime();|instant.toEpochMilli();|n/a|localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()|localDateTime.toInstant(ZoneOffset.ofTotalSeconds(0)).toEpochMilli();|zonedDateTime.toEpochSecond();|offsetDateTime.toEpochSecond();|
+|java.util.Date|new java.util.Date(millis);|-|java.util.Date date = sqlDate;|Date.from(instant);|n/a|Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())|Date.from(localDateTime.atOffset(ZoneOffset.UTC).toInstant());|Date.from(zonedDateTime.toInstant());|Date.from(offsetDateTime.toInstant());|
+|java.sql.Date|new java.sql.Date(millis);|new java.sql.Date(new Date().getTime());|-|java.sql.Date.from(instant);|n/a|java.sql.Date.valueOf(localDate);|java.sql.Date.valueOf(localDateTime.toLocalDate());|java.sql.Date.valueOf(zonedDateTime.toLocalDate());|java.sql.Date.valueOf(offsetDateTime.toLocalDate());|
+|Instant|Instant.ofEpochMilli(millis);|date.toInstant();|sqlDate.toInstant();|-|n/a|localDate.atStartOfDay(ZoneId.systemDefault()).toLocalDate();|localDateTime.atOffset(ZoneOffset.UTC).toInstant();|zonedDateTime.toInstant();|offsetDateTime.toInstant();|
+|LocalTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalTime();|n/a|n/a|n/a|-|n/a|localDateTime.toLocalTime();|zonedDateTime.toLocalTime();|offsetDateTime.toLocalTime();|
+|LocalDate|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();|sqlDate.toLocalDate();|instant.atZone(ZoneId.systemDefault()).toLocalDate();|n/a|-|localDateTime.toLocalDate();|zonedDateTime.toLocalDate();|offsetDateTime.toLocalDate();|
+|LocalDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDateTime();|date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();|sqlDate.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();|instant.atZone(ZoneId.systemDefault()).toLocalDateTime();|n/a|localDate.atStartOfDay().toLocalTime();|-|zonedDateTime.toLocalDateTime();|offsetDateTime.toLocalDateTime()|
+|ZonedDateTime|Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault());|date.toInstant().atZone(ZoneId.systemDefault());|sqlDate.toInstant().atZone(ZoneId.systemDefault());|instant.atZone(ZoneId.of("Europe/Rome"));|n/a|localDate.atStartOfDay(ZoneId.systemDefault())|localDateTime.atZone(ZoneId.of("Europe/Rome"));|-|offsetDateTime.atZoneSameInstant(ZoneId.of("Europe/Rome"));|
+|OffsetDateTime|Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC)|date.toInstant().atOffset(ZoneOffset.UTC);|sqlDate.toInstant().atOffset(ZoneOffset.UTC);|instant.atOffset(ZoneOffset.UTC);|n/a|localDate.atTime(OffsetTime.now(ZoneId.systemDefault()));|localDateTime.atOffset(ZoneOffset.UTC);|zonedDateTime.toOffsetDateTime();|-|
 
 ### Convert between Date and Java 8 Date Time
 
