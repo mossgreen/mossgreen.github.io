@@ -39,16 +39,16 @@ PostgreSQL Cheat Sheet.
 ### Connect to PostgreSQL database
 
 ```bash
-psql -U moss template1;
+psql -U user_name template1;
 
-psql -h localhost -p 5432 -U spm template1;
+psql -h localhost -p 5432 -U user_name template1;
 ```
 
 Switch to another db
 
 ```sql
 \c template0  -- without username
-\c template0 moss  -- with username
+\c template0 user_name  -- with username
 ```
 
 ### List and descriptions
@@ -57,8 +57,8 @@ Switch to another db
 2. List available tables `\dt`
 
     ```sql
-    -- find that table name contains 'moss', case insensitive
-    template1=> \dt *moss*
+    -- find that table name contains 'table_nam', case insensitive
+    template1=> \dt *table_nam*
     ```
 
 3. Describe a table `\d table_name`
@@ -173,6 +173,23 @@ FROM table
 WHERE (length(hey_field) - length(replace(hey_field, 'needle_field', '')) = occurrence);
 ```
 
+### How to rename a database
+
+Before renaming a database, you have to make sure there is no active connections to the database.
+If there are active connections and you need to rename it ASAP, you need to talk to the connection owners.
+You also need to modify the connection string related to the old database and change it to the new one.
+
+```psql
+-- query
+SELECT  * FROM pg_stat_activity WHERE datname = 'db_name';
+
+-- terminate pid
+SELECT pg_terminate_backend (pid) FROM pg_stat_activity WHERE datname = 'db_name';
+
+-- name
+ALTER DATABASE db RENAME TO new_db_name;
+```
+
 ## PostgreSQL REINDEX (since 9.3)
 
 ```sql
@@ -202,21 +219,21 @@ The dump and restore processes should be in one transaction. This mode can be sp
 ### For one table
 
 ```bash
-root@postgresql-local:/$ pg_dump -U moss -d template -n public -t users > template_public_users.psql
+root@postgresql-local:/$ pg_dump -U user_name -d template -n public -t users > template_public_users.psql
 
-root@postgresql-local:/$ psql -U spm -d org < org_public_users.psql -- restore
+root@postgresql-local:/$ psql -U user_name -d org < org_public_users.psql -- restore
 ```
 
 ### For one Schema
 
 ```bash
-pg_dump -U moss -d template1 -n schema_name > schema_name.dmp
+pg_dump -U user_name -d template1 -n schema_name > schema_name.dmp
 ```
 
 ### For one Database
 
 ```bash
-pg_dump -U moss dbname > dbname.dmp
+pg_dump -U user_name dbname > dbname.dmp
 ```
 
 Since a database is too big, you may want to compress a large db
@@ -242,7 +259,9 @@ gunzip -c database_name.gz | psql -U postgres database_name
     pg_dump -U postgres -s -d myDatabase -n my_schema -t my_schema.customers > customers_dump.txt
     ```
 
-## DO $$ Block
+## PSQL Stored Procedures
+
+### DO $$ Block
 
 1. Excute sql
 
@@ -274,7 +293,7 @@ gunzip -c database_name.gz | psql -U postgres database_name
 
 ## PSQL Logs
 
-```psql
+```bash
 \$ cd /var/log/postgres/9.2
 \$ ls -alht
 
@@ -286,7 +305,7 @@ gunzip -c database_name.gz | psql -U postgres database_name
 -rw-------. 1 postgres postgres 968K Jun 28 09:59 postgresql-Sat.log
 -rw-------. 1 postgres postgres 2.5M Jun 27 09:59 postgresql-Fri.log
 
-$ sudo less postgresql-Sun.log | grep haha
+\$ sudo less postgresql-Sun.log | grep haha
 ```
 
 ## Reference
