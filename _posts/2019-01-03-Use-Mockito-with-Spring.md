@@ -271,6 +271,8 @@ Mockito.when(mockRepository.saveAll(any(ArrayList.class)))
 
 ## Handle expected exception
 
+### In jUnit 4
+
 ```java
 when(myMock.doSomething()).thenThrow(new MyException());
 @Test(expected=MyException.class)
@@ -286,6 +288,19 @@ public void testExceptionMessage() throws Exception {
     expectedException.expectMessage("The expected message");
 
     given(foo.bar()).willThrow(new AnyException("The expected message"));
+}
+```
+
+### In jUnit 5
+
+```java
+@Test
+void offeringPricesIsNull() {
+    Exception theException = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        CalculatorUtils.calculateMonthlyBill(null, 1d);
+    });
+
+    String actualMessage = exception.getMessage();
 }
 ```
 
