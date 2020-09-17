@@ -50,15 +50,17 @@ public class ToDoDto implements Serializable {
 
 ## 01. Validations in Java world
 
-### What is validation and Why do we need validation
-
 Validating data is a common task that occurs throughout an application, from the presentation layer to the persistence layer. Often the same validation logic is implemented in each layer, proving to be time consuming and error-prone.
+
+JSR (Java Specification Requests) has developped an JavaBean validation specification. Javax and Hibernate has implements the specification.
+
+Spring supports Javax and Hibernate-validaton and also adds more helper class to allow better validation.
 
 ### Bean Validation API
 
 Bean validation annotation constraints can be applied on types, fields, methods, constructors, parameters, container elements, and other container annotations. Validation is applied not only to the object level, but it can also be inherited from super classes. Entire object graphs can be validated, meaning that if a class declares a field that has the type of a separate class containing validation, cascading validation can occur.
 
-JSR (Java Specification Requests) has developped an JavaBean validation specification. It is specifically not tied to either the web tier or the persistence tier, and is available for both server-side application programming. It evolves as to 3 versions now:
+It is specifically not tied to either the web tier or the persistence tier, and is available for both server-side application programming. It evolves as to 3 versions now:
 
 1. [JSR-303 : Bean Validation](https://beanvalidation.org/1.0/spec/)
     - `Hibernate Validator 4.3.1.Final`
@@ -66,15 +68,6 @@ JSR (Java Specification Requests) has developped an JavaBean validation specific
     - `Hibernate Validator 5.1.1.Final`
 3. [JSR 380 : Bean Validation 2.0 (Jakarta Bean Validation)](https://beanvalidation.org/2.0/)
     - `Hibernate Validator 6.0.17.Final`
-
-The spring-boot-starter-validation is used for Java bean validation with a Hibernate validator.
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
-```
 
 #### Official package
 
@@ -152,6 +145,13 @@ Spring also provides a handy utility class, ValidationUtils, which provides conv
 
 LocalValidatorFactoryBean is a Spring-managed bean since Spring 3.0.
 
+#### How to import validation package
+
+1. If your spring-boot version is less than 2.3.x，`spring-boot-starter-web` has included `hibernate-validator` so you don't need to import other packages.
+2. otherwise, you need to manually import either of the following packages:
+        1. `hibernate-validator`
+        2. `spring-boot-starter-validation`
+
 ### Where should the validation happen
 
 Generally speaking, there are three layers we would like to implement validation:
@@ -162,12 +162,13 @@ Generally speaking, there are three layers we would like to implement validation
 
 ## 02. DTO Bean Validation in Spring, using @Valid
 
-Firstly, we would like to introduct JavaBean validation.
-Then, we introduce the parameter validation in Spring. Parameters are not javaBeans, so you cannot use bean validation here.
+For now, we would like to know how JavaBean validation works in Spring.
 
-Since there are at lease above two validations, when violation happens, there will be different kinds of exceptions, so how to handle them is also an issue.
+Later, in next chapter, we'll introduce the parameter validation in Spring. Parameters are not javaBeans, so you cannot use bean validation here.
 
-Note that Spring MVC validates View Models and put results to BindResult, I don't have a plan to metion it in the following parts.
+The above two validations would throw different kinds of exceptions, we'll cover it in next next chapter.
+
+Note that Spring MVC validates ViewModels (VM is not DTO) and put results to BindResult, I don't have a plan to metion it in the following parts.
 
 -- fail fast vs validate all
 
@@ -289,7 +290,83 @@ void createToDoWithValidEmail() throws Exception {
 }
 ```
 
-### The reason why you can use both @Valid and @Validated for Request Body validation
+## 03. Spring Parameter validation, introducing @Validated
+
+Parameters are not JavaBeans, so Bean Validation doesn't help.
+Spring implements parameter validation by itself.
+
+The keys are:
+
+1. add `@Validated` to the class you want to validate parameters. Without it, parameter validation is not enalbed
+2. you don't need to add `@Valid` to the parameter
+3. it throws `ConstraintViolationException` if the parameter is invalid
+4. it works for both `RequestParam` and `PathVariable`
+5. you cannot use Errors Binding here, otherwise you'll get an `IllegalStateException`
+
+    ```java
+    java.lang.IllegalStateException: An Errors/BindingResult argument is expected to be declared immediately after the model attribute, the @RequestBody or the @RequestPart arguments to which they apply: org.springframework.http.ResponseEntity com.mg.todo.ToDoController.fetchByEmail(java.lang.String,org.springframework.validation.Errors)
+    ```
+
+### Example and test case
+
+```java
+import org.springframework.validation.annotation.Validated;
+
+@Validated
+@RestController
+public class ToDoController {
+
+    private final ToDoService toDoService;
+
+    public ToDoController(ToDoService toDoService) {
+        this.toDoService = toDoService;
+    }
+
+    @GetMapping
+    ResponseEntity<List<ToDoDto>> fetchByEmail(@RequestParam("email") @Email(message = "should be a valid email") String email) {
+        return ResponseEntity.ok(new ArrayList<ToDoDto>());
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity handleConstrainViolationException() {
+        HttpHeaders headers = new HttpHeaders();
+        String ResponseBody = "should be a valid email";
+        return new ResponseEntity(ResponseBody,headers, HttpStatus.BAD_REQUEST );
+    }
+}
+```
+
+```java
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = ToDoController.class)
+class ToDoControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    ToDoService toDoService;
+
+    @Test
+    void fetchByValidEmail() throws Exception {
+        mockMvc.perform(get("/")
+            .param("email","valid@example.com")
+            .contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void fetchByInvalidEmail() throws Exception {
+        mockMvc.perform(get("/")
+            .param("email","invalid@@")
+            .contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("should be a valid email"));
+    }
+}
+```
+
+### You can also use @Validated for Request Body DTO validation
 
 In the backgroud, Spring wraps `Hibernate-Validator` and does the validation work.
 Note that `resolveArgument()` method calls `validateIfApplicable(binder, parameter);` and this is the key.
@@ -364,83 +441,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 }
 ```
 
-## 03. Spring Parameter validation, introducing @Validated
-
-Parameters are not JavaBeans, so Bean Validation doesn't help.
-Spring implements parameter validation by itself.
-
-The keys are:
-
-1. add `@Validated` to the class you want to validate parameters. Without it, parameter validation is not enalbed
-2. you don't need to add `@Valid` to the parameter
-3. it throws `ConstraintViolationException` if the parameter is invalid
-4. it works for both `RequestParam` and `PathVariable`
-5. you cannot use Errors Binding here, otherwise you'll get an `IllegalStateException`
-
-    ```java
-    java.lang.IllegalStateException: An Errors/BindingResult argument is expected to be declared immediately after the model attribute, the @RequestBody or the @RequestPart arguments to which they apply: org.springframework.http.ResponseEntity com.mg.todo.ToDoController.fetchByEmail(java.lang.String,org.springframework.validation.Errors)
-    ```
-
-#### Example and test case
-
-```java
-import org.springframework.validation.annotation.Validated;
-
-@Validated
-@RestController
-public class ToDoController {
-
-    private final ToDoService toDoService;
-
-    public ToDoController(ToDoService toDoService) {
-        this.toDoService = toDoService;
-    }
-
-    @GetMapping
-    ResponseEntity<List<ToDoDto>> fetchByEmail(@RequestParam("email") @Email(message = "should be a valid email") String email) {
-        return ResponseEntity.ok(new ArrayList<ToDoDto>());
-    }
-
-    @ExceptionHandler({ConstraintViolationException.class})
-    public ResponseEntity handleConstrainViolationException() {
-        HttpHeaders headers = new HttpHeaders();
-        String ResponseBody = "should be a valid email";
-        return new ResponseEntity(ResponseBody,headers, HttpStatus.BAD_REQUEST );
-    }
-}
-```
-
-```java
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ToDoController.class)
-class ToDoControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    ToDoService toDoService;
-
-    @Test
-    void fetchByValidEmail() throws Exception {
-        mockMvc.perform(get("/")
-            .param("email","valid@example.com")
-            .contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(status().isOk());
-    }
-
-    @Test
-    void fetchByInvalidEmail() throws Exception {
-        mockMvc.perform(get("/")
-            .param("email","invalid@@")
-            .contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("should be a valid email"));
-    }
-}
-```
-
-### Handle Validation Errors
+## 04. Handle Validation Errors
 
 In above examples, we would know:
 
@@ -457,7 +458,7 @@ A new issue comes out. How can we format/unify our error response body, so that 
 1. We should always return a unified Response entity for exceptions. Use `ResponseStatusException`
 2. We could make use of `@RestControllerAdvice` to hanlde exception globally
 
-#### Returns Unified error response
+### Returns Unified error response
 
 this content is from [All You Need To Know About Bean Validation With Spring Boot](https://reflectoring.io/bean-validation-with-spring-boot/)
 
@@ -531,21 +532,20 @@ void createToDoWithInvalidEmail() throws Exception {
 }
 ```
 
-## 04. @Valid vs @Validated, Collection validation using @Valid
-
 ## 05. @Valid vs @Validated, validation groups using @Validated
 
-Oftentimes, you need to validate a filed differently based on the scenario. A common case, we don't have an Id for an object, however, we do need a valid id while updating. The javax.validation @Valid doens't support Groups. Spring @Validated does.
+Oftentimes, you need to validate a filed differently based on the scenario. A common case, we don't have an Id for an object on creating, however, we do need a valid id while updating. The javax.validation @Valid doens't support Groups. Spring @Validated does.
 
 Steps:
 
-1. add groups to our demo project
+1. Add groups to the Model
 2. Use @Validated and Groups in Controller
 3. MockMVC testing
 
-### Using Validation Groups
+### Use Validation Groups
 
-```@Data
+```java
+@Data
 public class ToDoDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -553,34 +553,32 @@ public class ToDoDto implements Serializable {
     @NotNull(message = "Id should not be null on updating", groups = Update.class)
     private UUID uuid;
 
-    @Email(message = "Please provide a valid Email", groups = {Save.class, Update.class})
+    @Email(message = "Please provide a valid Email", groups = {Create.class, Update.class})
     private String email;
 
-    @Range(min = 13, max = 13, message = "Please provide a valid phone number. E.g., 0064-01-234-5678", groups = {Save.class, Update.class})
+    @Range(min = 13, max = 13, message = "Please provide a valid phone number. E.g., 0064-01-234-5678", groups = {Create.class, Update.class})
     private Integer phoneNumber;
 
-    @Digits(integer = 4, fraction = 0, message = "Please provide a valid post code", groups = {Save.class, Update.class})
+    @Digits(integer = 4, fraction = 0, message = "Please provide a valid post code", groups = {Create.class, Update.class})
     private String postCode;
 
-    @NotBlank(message = "Content cannot be empty", groups = {Save.class, Update.class})
+    @NotBlank(message = "Content cannot be empty", groups = {Create.class, Update.class})
     private String content;
 
-    @Future(groups = {Save.class, Update.class})
+    @Future(groups = {Create.class, Update.class})
     private LocalDateTime due;
 
-    //on saving
-    interface Save {
-    }
+    //on creating
+    public interface Create { }
 
     // on updating
-    interface Update {
-    }
+    public interface Update { }
 }
 ```
 
 ```java
 @PostMapping
-ResponseEntity<ToDoDto> createTodo(@Validated(ToDoDto.Save.class) @RequestBody ToDoDto toDoDto) {
+ResponseEntity<ToDoDto> createTodo(@Validated(ToDoDto.Create.class) @RequestBody ToDoDto toDoDto) {
     return ResponseEntity.ok(toDoDto);
 }
 ```
@@ -620,13 +618,172 @@ void updateToDoWithoutUUID() throws Exception {
         .andReturn();
 
     Assert.hasText(mvcResult.getResponse().getContentAsString(), "violations");
-    Assert.hasText(mvcResult.getResponse().getContentAsString(), "Id should not be null on updating");
+    Assert.hasText(mvcResult.getResponse().getContentAsString(), "Id should not be null on creating");
 }
 ```
 
-## 06. Customized annotation validation
+## 06. @Valid vs @Validated, Collection validation using @Valid
 
-## 03. Validating Service layer
+In the Demo, all fields we validate are Java proviced types, e.g., String, Long or LocalDateTime. However, it's not always the case.
+
+1. we may need to validate another object nested in your DTO
+2. We may need to validate a list of your DTOs
+
+### Validate Nested object
+
+```java
+@Data
+public class ToDoDto implements Serializable {
+
+    // .... other fields
+
+    @NotNull(groups = {Create.class, Update.class})
+    @Valid
+    private MetaData metaData;
+
+    @Data
+    public static class MetaData {
+
+        @Min(value = 1, groups = Update.class)
+        private Long Id;
+
+        @NotNull(groups = {Create.class, Update.class})
+        @Length(min = 2, max = 10, groups = {Create.class, Update.class})
+        private String Name;
+
+        @NotNull(groups = {Create.class, Update.class})
+        @Length(min = 2, max = 10, groups = {Create.class, Update.class})
+        private String position;
+    }
+
+    public interface Create { }
+    public interface Update { }
+```
+
+In our case, if you have an empty Meta data object, you'll get the following error mesasge:
+
+```json
+{"violations":[
+    {"fieldName":"metaData.Name","message":"must not be null"},
+    {"fieldName":"metaData.position","message":"must not be null"}
+    ]}
+```
+
+### Validate a list of DTOs
+
+1. In `java.util.Collection`, `List` and `Set` don't work for validation
+2. We need to implemetn our own collection, e.g., `myValidationList` to accept the data and do validation
+
+#### Bean Validaton doesn't work in List of DTOs
+
+```java
+@PostMapping(value = "/todos")
+ResponseEntity<List<ToDoDto>> createTodos(@Validated(ToDoDto.Create.class) @RequestBody List<ToDoDto> toDoDtos) {
+    return ResponseEntity.ok(toDoDtos);
+}
+```
+
+```java
+@Test
+void createToDosWithInvalidEmailShouldBe400ButIs200() throws Exception {
+    ToDoDto dto = new ToDoDto();
+    dto.setEmail("example@@");
+    dto.setPostCode("0060");
+
+    ToDoDto dto2 = new ToDoDto();
+    dto2.setEmail("example@@");
+    dto2.setPostCode("0060");
+
+    String body = objectMapper.writeValueAsString(List.of(dto, dto2));
+
+    mockMvc.perform(post("/todos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body))
+        .andExpect(status().isOk());
+}
+```
+
+#### Implement MyValidationList for List of DTOs
+
+It throws `org.springframework.beans.NotReadablePropertyException` if there is any violation
+
+```java
+public class MyValidationList<E> implements List<E> {
+    @Delegate // lombok annotation
+    @Valid
+    public List<E> list = new ArrayList<>();
+}
+```
+
+```java
+@PostMapping(value = "/todos2")
+ResponseEntity<List<ToDoDto>> createTodos2(@Validated(ToDoDto.Create.class) @RequestBody MyValidationList<ToDoDto> toDoDtos) {
+    return ResponseEntity.ok(toDoDtos);
+}
+
+@ExceptionHandler({NotReadablePropertyException.class})
+public ResponseEntity handleMethodArgumentNotValidException(NotReadablePropertyException e) {
+
+    HttpHeaders headers = new HttpHeaders();
+    String ResponseBody = e.getMessage();
+    return new ResponseEntity(ResponseBody, headers, HttpStatus.BAD_REQUEST);
+}
+```
+
+```java
+@Test
+void createToDosWithMyValidationListOfDtosWithInvalidEmail() throws Exception {
+    ToDoDto dto = new ToDoDto();
+    dto.setEmail("example@@");
+    dto.setPostCode("0060");
+
+    ToDoDto dto2 = new ToDoDto();
+    dto2.setEmail("example@@");
+    dto2.setPostCode("0060");
+
+    String body = objectMapper.writeValueAsString(List.of(dto, dto2));
+
+    mockMvc.perform(post("/todos2")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body))
+        .andExpect(status().isBadRequest());
+}
+
+@Test
+void createToDosWithMyValidationListOfDtos() throws Exception {
+
+    ToDoDto dto = new ToDoDto();
+    dto.setEmail("example@example.com");
+    dto.setPostCode("0060");
+    dto.setContent("example");
+    dto.setUuid(UUID.randomUUID());
+    final ToDoDto.MetaData metaData = new ToDoDto.MetaData();
+    metaData.setName("name");
+    metaData.setPosition("position");
+    dto.setMetaData(metaData);
+
+    ToDoDto dto2 = new ToDoDto();
+    dto2.setEmail("example@example.com");
+    dto2.setPostCode("0060");
+    dto2.setContent("example");
+    dto2.setUuid(UUID.randomUUID());
+    final ToDoDto.MetaData metaData2 = new ToDoDto.MetaData();
+    metaData2.setName("name");
+    metaData2.setPosition("position");
+    dto2.setMetaData(metaData2);
+
+    String body = objectMapper.writeValueAsString(List.of(dto));
+
+    mockMvc.perform(post("/todos2")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body))
+        .andExpect(status().isOk());
+}
+```
+
+## 07. Customized annotation validation
+
+## 08. Validating Service layer
 
 1. Bean Validation still works in Service layer, we can just use `@Valid`.
 2. Spring parameter validation doesn't work in Service level
