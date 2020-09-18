@@ -371,6 +371,11 @@ class ToDoControllerTest {
 In the backgroud, Spring wraps `Hibernate-Validator` and does the validation work.
 Note that `resolveArgument()` method calls `validateIfApplicable(binder, parameter);` and this is the key.
 
+It picks up `@Validate` parameters first and it triggers validation.
+If it's absent, it looks for any parameters' annoation that start from `Valid`.
+
+That's why @Validated works for both DTO and parameters and DTO.
+
 ```java
 package org.springframework.web.servlet.mvc.method.annotation;
 
@@ -527,8 +532,9 @@ void createToDoWithInvalidEmail() throws Exception {
 
     final String content = mvcResult.getResponse().getContentAsString();
 
-    Assert.hasText(content, "\"fieldName\":\"content\",\"message\":\"Content cannot be empty\"");
-    Assert.hasText(content, "\"fieldName\":\"email\",\"message\":\"Please provide a valid Email\"");
+    Assertions.assertNotNull(content);
+    Assertions.assertTrue(content.contains("\"fieldName\":\"content\",\"message\":\"Content cannot be empty\""),"should contain this text");
+    Assertions.assertTrue(content.contains("\"fieldName\":\"email\",\"message\":\"Please provide a valid Email\""),"should contain this text");
 }
 ```
 
@@ -617,8 +623,10 @@ void updateToDoWithoutUUID() throws Exception {
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andReturn();
 
-    Assert.hasText(mvcResult.getResponse().getContentAsString(), "violations");
-    Assert.hasText(mvcResult.getResponse().getContentAsString(), "Id should not be null on creating");
+    String content = mvcResult.getResponse().getContentAsString();
+
+    Assertions.assertTrue(content.contains( "violations"));
+    Assertions.assertTrue(content.contains("Id should not be null on updating"));
 }
 ```
 
@@ -781,20 +789,233 @@ void createToDosWithMyValidationListOfDtos() throws Exception {
 }
 ```
 
-## 07. Customized annotation validation
+## 07. Declarative customized annotation validation
 
-## 08. Validating Service layer
+Again, in real scenario, we may need more complicated logic than what Spring provides us.
 
-1. Bean Validation still works in Service layer, we can just use `@Valid`.
-2. Spring parameter validation doesn't work in Service level
+Steps:
 
-    ```java
-    public List<ToDoDto> fetchByEmail(@Valid @Email(message = "Please give the service a valid email") String email) {
-        return new ArrayList<ToDoDto>();
+1. Add the new annotation interface
+2. Add a customized validator and implement `ConstraintValidator`
+3. Add this new annotation to the DTO
+4. No need to do anything to the Controller or Service layer
+
+```java
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
+@Retention(RUNTIME)
+@Documented
+@Constraint(validatedBy = {EncryptIdValidator.class})
+public @interface NotGmail {
+
+    String message() default "We don't support Gmail";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+```java
+public class NotGmailValidator implements ConstraintValidator<NotGmail, String> {
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value != null) {
+            return !value.toLowerCase().contains("@gmail");
+        }
+        return true;
     }
-    ```
+}
+```
 
-3. Spring Boot provides us with a pre-configured Validator instance.
+```java
+@Data
+public class ToDoDto implements Serializable {
+    @Email(message = "Please provide a valid Email", groups = {Create.class, Update.class})
+    @com.mg.todo.dto.NotGmail(message = "Sorry, no Google", groups = {Create.class, Update.class})
+    private String email;
+}
+```
+
+```java
+@Test
+void createToDoWithGoogleEmailShouldBeInvalid() throws Exception {
+    ToDoDto dto = new ToDoDto();
+    dto.setEmail("xiguadawang@gmail.com");
+    dto.setPostCode("0060");
+    dto.setContent("example");
+    final ToDoDto.MetaData metaData = new ToDoDto.MetaData();
+    metaData.setName("name");
+    metaData.setPosition("position");
+    dto.setMetaData(metaData);
+    String body = objectMapper.writeValueAsString(dto);
+
+    final MvcResult mvcResult = mockMvc.perform(post("/")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    final String content = mvcResult.getResponse().getContentAsString();
+
+    Assertions.assertTrue(content.contains("{\"violations\":[{\"fieldName\":\"email\",\"message\":\"Sorry, no Google\"}]}"),"should contain this text");
+}
+```
+
+## 08. Programmatic validator validation
+
+Spring Boot provides us with a pre-configured Validator instance, and you can always explicitly reference the `javax.validation.Validator`.
+
+It doesn't need the `@Validated` key world on the class name.
+
+A scenario like when a new user registers. When all fields are good, we still need to validat the username is occupied of not.
+We use declarative validation for the correctness of email and we need to issue a database call to check the username which should be a programmatic validation.
+
+### Spring Validator and Javax Validator works the same way
+
+```java
+@RestController
+public class ToDoController {
+
+    @Qualifier("defaultValidator")
+    @Autowired
+    private org.springframework.validation.Validator springValidator;
+
+    @Autowired
+    private javax.validation.Validator globalValidator;
+
+    @PostMapping(value = "/javaxValidator")
+    ResponseEntity<ToDoDto> createTodos3(@RequestBody ToDoDto toDoDto) {
+        Set<ConstraintViolation<ToDoDto>> violations = globalValidator.validate(toDoDto, ToDoDto.Create.class);
+        if (violations.isEmpty()) {
+            // passed the validation, free to go
+        } else {
+            for (ConstraintViolation<ToDoDto> userDTOConstraintViolation : violations) {
+                // Failed the validation, do your business here. E.g., send the error to a Queue
+            }
+        }
+        return new ResponseEntity("Failed for javaxValidator", new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping(value = "/springValidator")
+    ResponseEntity<ToDoDto> createTodos4(@RequestBody ToDoDto toDoDto) {
+        Set<ConstraintViolation<ToDoDto>> violations = globalValidator.validate(toDoDto, ToDoDto.Create.class);
+        if (violations.isEmpty()) {
+            // passed the validation, free to go
+        } else {
+            for (ConstraintViolation<ToDoDto> userDTOConstraintViolation : violations) {
+                // Failed the validation, do your business here. E.g., send the error to a Queue
+            }
+        }
+        return new ResponseEntity("Failed for spring Validator", new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+}
+```
+
+```java
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = ToDoController.class)
+class ToDoControllerTest {
+
+    @Autowired
+    private javax.validation.Validator globalValidator;
+
+    @Qualifier("defaultValidator")
+    @Autowired
+    private org.springframework.validation.Validator springValidator;
+
+    @Test
+    void createToDosWithJavaxValidatorAndGoogleEmailShouldReturnBadRequest() throws Exception {
+
+        ToDoDto dto = new ToDoDto();
+        dto.setEmail("xiguadawang@gmail.com");
+        dto.setPostCode("0060");
+        dto.setContent("example");
+        dto.setUuid(UUID.randomUUID());
+        final ToDoDto.MetaData metaData = new ToDoDto.MetaData();
+        metaData.setName("name");
+        metaData.setPosition("position");
+        dto.setMetaData(metaData);
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        final MvcResult mvcResult = mockMvc.perform(post("/javaxValidator")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+
+        final String content = mvcResult.getResponse().getContentAsString();
+        Assertions.assertEquals("Failed for javaxValidator", content);
+    }
+
+    @Test
+    void createToDosWithSpringValidatorGmailShouldReturnBadRequest() throws Exception {
+
+        ToDoDto dto = new ToDoDto();
+        dto.setEmail("xiguadawang@gmail.com");
+        dto.setPostCode("0060");
+        dto.setContent("example");
+        dto.setUuid(UUID.randomUUID());
+        final ToDoDto.MetaData metaData = new ToDoDto.MetaData();
+        metaData.setName("name");
+        metaData.setPosition("position");
+        dto.setMetaData(metaData);
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        final MvcResult mvcResult = mockMvc.perform(post("/springValidator")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body))
+            .andExpect(status().isBadRequest())
+            .andReturn();
+
+        final String content = mvcResult.getResponse().getContentAsString();
+        Assertions.assertEquals("Failed for spring Validator", content);
+    }
+}
+```
+
+### Configure Validator Bean in Spring
+
+You can configure a Validator bean by yourself. By default, it uses `HibernateValidator.class`, there are other options like `ApacheValidationProvider.class`.
+
+A benefit of configuring it is to make it fail fast.
+
+In failFast mode, it throws exception on the first violation.
+
+```java
+@Bean
+public Validator validator() {
+    ValidatorFactory validatorFactory = Validation.byProvider( HibernateValidator.class)
+        .configure()
+        .failFast(true)
+        .buildValidatorFactory();
+    return validatorFactory.getValidator();
+}
+```
+
+```java
+ValidatorFactory validatorFactory = Validation.byProvider( HibernateValidator.class )
+        .configure()
+        .addProperty( "hibernate.validator.fail_fast", "true" )
+        .buildValidatorFactory();
+    return validatorFactory.getValidator();
+```
+
+## 09. Service layer validation needs both @Validate and @Valid
+
+```java
+@Service
+@Validated
+class ValidatingService{
+
+    void validateInput(@Valid Input input){
+      // do something
+    }
+}
+```
 
 ## References
 
