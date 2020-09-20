@@ -146,16 +146,16 @@ LocalValidatorFactoryBean is a Spring-managed bean since Spring 3.0.
 
 1. If your spring-boot version is less than 2.3.x，`spring-boot-starter-web` has included `hibernate-validator` so you don't need to import other packages.
 2. otherwise, you need to manually import either of the following packages:
-        1. `hibernate-validator`
-        2. `spring-boot-starter-validation`
+    1. `hibernate-validator`
+    2. `spring-boot-starter-validation`
 
 ### Where should the validation happen
 
 Generally speaking, there are three layers we would like to implement validation:
 
 - presentation layer, we must validate the DTO
-- Service layer, somethings we need to do validation
-- persistence layer
+- Service layer, something we need to do validation
+- persistence layer, defitely you don't want to save some bad data
 
 ## 02. DTO Bean Validation in Spring, using @Valid
 
@@ -299,7 +299,12 @@ The keys are:
 5. you cannot use Errors Binding here, otherwise, you'll get an `IllegalStateException`
 
     ```java
-    java.lang.IllegalStateException: An Errors/BindingResult argument is expected to be declared immediately after the model attribute, the @RequestBody or the @RequestPart arguments to which they apply: org.springframework.http.ResponseEntity com.mg.todo.ToDoController.fetchByEmail(java.lang.String,org.springframework.validation.Errors)
+    java.lang.IllegalStateException:
+        An Errors/BindingResult argument is expected to be declared immediately after the model attribute,
+        the @RequestBody or the @RequestPart arguments to which they apply:
+            org.springframework.http.ResponseEntity
+            com.mg.todo.ToDoController.fetchByEmail(
+                    java.lang.String,org.springframework.validation.Errors)
     ```
 
 ### Example and test case
@@ -369,7 +374,7 @@ Note that `resolveArgument()` method calls `validateIfApplicable(binder, paramet
 It picks up `@Validate` parameters first and it triggers validation.
 If it's absent, it looks for any parameters' annotation that start from `Valid`.
 
-That's why @Validated works for both DTO and parameters and DTO.
+That's why `@Validated` works for both DTO and parameters and DTO here.
 
 ```java
 package org.springframework.web.servlet.mvc.method.annotation;
@@ -446,11 +451,11 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 In the above examples, we would know:
 
 1. Bean validation throws `MethodArgumentNotValidException`
-        1. If we use parameter Error Binding, we can make use of the `errors` object.
-        2. You can get each error by `ex.getBindingResult().getFieldErrors()`
+    1. If we use parameter Error Binding, we can make use of the `errors` object.
+    2. You can get each error by `ex.getBindingResult().getFieldErrors()`
 2. Spring parameter validation throws `ConstraintViolationException`,
-        1. it cannot use parameter Error Binding.
-        2. You can get each error by `e.getConstraintViolations()`
+    1. it cannot use parameter Error Binding.
+    2. You can get each error by `e.getConstraintViolations()`
 3. There actually is another exception `org.springframework.validation.BindException`, thrown in MVC form submit `Content-Type: multipart/form-data`, we didn't mention this but you should know it exists.
 
 A new issue comes out. How can we format/unify our error response body, so that the API caller would have a meaningful error message.
@@ -540,7 +545,7 @@ Oftentimes, you need to validate a filed differently based on the scenario. A co
 Steps:
 
 1. Add groups to the Model
-2. Use @Validated and Groups in Controller
+2. Use `@Validated` and Groups in Controller
 3. MockMVC testing
 
 ### Use Validation Groups
@@ -1012,7 +1017,7 @@ class ValidatingService{
 }
 ```
 
-## 10. ersistence layer validation
+## 10. Persistence layer validation
 
 1. By default, Spring uses Hibernate-Validator by default so that it supports Bean Validation out of the box
 2. The validation happends on the repository save or update method
