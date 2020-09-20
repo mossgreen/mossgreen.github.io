@@ -10,16 +10,17 @@ toc_icon: 'cog'
 classes: wide
 ---
 
+Spring integrates Bean Validation and gives you more
 
-## 00. Background project introduction
+## 01. Validations in Java world
 
-There is Todo Project, you note down the content and choose a way how do you wnat to be notified. You can choose from:
+Validating data is a common task that occurs throughout an application, from the presentation layer to the persistence layer. Often the same validation logic is implemented in each layer, proving to be time-consuming and error-prone.
 
-- send an email
-- get a phone call
-- get a letter posed to you mail box
+JSR (Java Specification Requests) has developed a Java Bean validation specification. Javax and Hibernate have implemented the specification.
 
-Here is the DTO (Data Transfer Bbject)
+Spring supports Bean validation and integrates Javax and Hibernate-validation and also adds more helper class to allow better validation.
+
+I'll use the following DTO as an example:
 
 ```java
 @Data
@@ -47,14 +48,6 @@ public class ToDoDto implements Serializable {
     private LocalDateTime due;
 }
 ```
-
-## 01. Validations in Java world
-
-Validating data is a common task that occurs throughout an application, from the presentation layer to the persistence layer. Often the same validation logic is implemented in each layer, proving to be time consuming and error-prone.
-
-JSR (Java Specification Requests) has developped an JavaBean validation specification. Javax and Hibernate has implements the specification.
-
-Spring supports Javax and Hibernate-validaton and also adds more helper class to allow better validation.
 
 ### Bean Validation API
 
@@ -101,8 +94,12 @@ import javax.validation.constraints.NotEmpty;
 
 #### Hibernate-Validator Unit tests
 
+You can get a validator by a `ValidatorFactory` and you can also just get it by `@Autowire` because Spring already provides a default validator.
+
 ```java
 class ToDoDtoValidationTest {
+
+    //@Autowired Validator validate
 
     private Validator validator;
 
@@ -162,15 +159,13 @@ Generally speaking, there are three layers we would like to implement validation
 
 ## 02. DTO Bean Validation in Spring, using @Valid
 
-For now, we would like to know how JavaBean validation works in Spring.
+For now, we would like to know how Java Bean validation works in Spring.
 
-Later, in next chapter, we'll introduce the parameter validation in Spring. Parameters are not javaBeans, so you cannot use bean validation here.
+Later, in the next chapter, we'll introduce the parameter validation in Spring. Parameters are not java beans, so you cannot use bean validation against them.
 
-The above two validations would throw different kinds of exceptions, we'll cover it in next next chapter.
+The above two validations would throw different kinds of exceptions, we'll cover it in a separate chapter.
 
-Note that Spring MVC validates ViewModels (VM is not DTO) and put results to BindResult, I don't have a plan to metion it in the following parts.
-
--- fail fast vs validate all
+Note that Spring MVC validates ViewModels (VM is not DTO) and put results to a BindResult, I don't have a plan to mention it in the following parts.
 
 ### Request body Validation with Bean Validation and Spring Validation
 
@@ -194,7 +189,7 @@ Note that Spring MVC validates ViewModels (VM is not DTO) and put results to Bin
 2. use Spring Validation to validate Request Body
 
     1. class level `@Validated` doesn't help with Request Body validation
-    2. Add `@Valdaited` in front of `@RequestBody` works
+    2. Add `@Valdaited` in front of `@RequestBody` works, we'll explain why both of them work
     3. Without Spring data-binding and validation errors, it throws `MethodArgumentNotValidException` and goes to 400 error
 
     ```java
@@ -212,7 +207,7 @@ Note that Spring MVC validates ViewModels (VM is not DTO) and put results to Bin
     }
     ```
 
-3. use Spring validation error binding and validation errors. You can take advantage of the errors object, it cotnains the filed and error message, so that you can return use error message to the api caller. It works for both Bean validation and Spring validation.  it's from package  `org.springframework.validation`
+3. Use Spring validation error binding and validation errors. You can take advantage of the errors object, it cotnains the filed and error message, so that you can return the error message to the API caller. It works for both Bean validation and Spring validation. It's from package  `org.springframework.validation`
 
 ```java
 @PostMapping
@@ -240,7 +235,7 @@ ResponseEntity<ToDoDto> createTodo(@Validated @RequestBody ToDoDto toDoDto, Erro
 
 ### Testing with DTO Bean Validation
 
-Note that you should custome the error message. We will do this in another chapter.
+Note that you should customize the error message. We will do this in another chapter.
 
 ```java
 @PostMapping
@@ -297,11 +292,11 @@ Spring implements parameter validation by itself.
 
 The keys are:
 
-1. add `@Validated` to the class you want to validate parameters. Without it, parameter validation is not enalbed
+1. add `@Validated` to the class you want to validate parameters. Without it, parameter validation is not enabled
 2. you don't need to add `@Valid` to the parameter
 3. it throws `ConstraintViolationException` if the parameter is invalid
 4. it works for both `RequestParam` and `PathVariable`
-5. you cannot use Errors Binding here, otherwise you'll get an `IllegalStateException`
+5. you cannot use Errors Binding here, otherwise, you'll get an `IllegalStateException`
 
     ```java
     java.lang.IllegalStateException: An Errors/BindingResult argument is expected to be declared immediately after the model attribute, the @RequestBody or the @RequestPart arguments to which they apply: org.springframework.http.ResponseEntity com.mg.todo.ToDoController.fetchByEmail(java.lang.String,org.springframework.validation.Errors)
@@ -368,11 +363,11 @@ class ToDoControllerTest {
 
 ### You can also use @Validated for Request Body DTO validation
 
-In the backgroud, Spring wraps `Hibernate-Validator` and does the validation work.
+In the background, Spring wraps `Hibernate-Validator` and does the validation work.
 Note that `resolveArgument()` method calls `validateIfApplicable(binder, parameter);` and this is the key.
 
 It picks up `@Validate` parameters first and it triggers validation.
-If it's absent, it looks for any parameters' annoation that start from `Valid`.
+If it's absent, it looks for any parameters' annotation that start from `Valid`.
 
 That's why @Validated works for both DTO and parameters and DTO.
 
@@ -448,20 +443,20 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 ## 04. Handle Validation Errors
 
-In above examples, we would know:
+In the above examples, we would know:
 
 1. Bean validation throws `MethodArgumentNotValidException`
-        1. If we use parameter Error Binding, we can make use the errors object.
+        1. If we use parameter Error Binding, we can make use of the `errors` object.
         2. You can get each error by `ex.getBindingResult().getFieldErrors()`
 2. Spring parameter validation throws `ConstraintViolationException`,
         1. it cannot use parameter Error Binding.
         2. You can get each error by `e.getConstraintViolations()`
 3. There actually is another exception `org.springframework.validation.BindException`, thrown in MVC form submit `Content-Type: multipart/form-data`, we didn't mention this but you should know it exists.
 
-A new issue comes out. How can we format/unify our error response body, so that the api caller would have a meaningful error message.
+A new issue comes out. How can we format/unify our error response body, so that the API caller would have a meaningful error message.
 
 1. We should always return a unified Response entity for exceptions. Use `ResponseStatusException`
-2. We could make use of `@RestControllerAdvice` to hanlde exception globally
+2. We could make use of `@RestControllerAdvice` to handle exception globally
 
 ### Returns Unified error response
 
@@ -540,7 +535,7 @@ void createToDoWithInvalidEmail() throws Exception {
 
 ## 05. @Valid vs @Validated, validation groups using @Validated
 
-Oftentimes, you need to validate a filed differently based on the scenario. A common case, we don't have an Id for an object on creating, however, we do need a valid id while updating. The javax.validation @Valid doens't support Groups. Spring @Validated does.
+Oftentimes, you need to validate a filed differently based on the scenario. A common case, we don't have an Id for an object on creating, however, we do need a valid id while updating. The `javax.validation` `@Valid` doesn't support Groups. The Spring `@Validated` does.
 
 Steps:
 
@@ -632,7 +627,7 @@ void updateToDoWithoutUUID() throws Exception {
 
 ## 06. @Valid vs @Validated, Collection validation using @Valid
 
-In the Demo, all fields we validate are Java proviced types, e.g., String, Long or LocalDateTime. However, it's not always the case.
+In the Demo, all fields we validate are Java provided types, e.g., String, Long or LocalDateTime. However, it's not always the case.
 
 1. we may need to validate another object nested in your DTO
 2. We may need to validate a list of your DTOs
@@ -680,9 +675,9 @@ In our case, if you have an empty Meta data object, you'll get the following err
 ### Validate a list of DTOs
 
 1. In `java.util.Collection`, `List` and `Set` don't work for validation
-2. We need to implemetn our own collection, e.g., `myValidationList` to accept the data and do validation
+2. We need to implement our own collection, e.g., `myValidationList` to accept the data and do validation
 
-#### Bean Validaton doesn't work in List of DTOs
+#### Bean Validation doesn't work in List of DTOs
 
 ```java
 @PostMapping(value = "/todos")
@@ -791,7 +786,7 @@ void createToDosWithMyValidationListOfDtos() throws Exception {
 
 ## 07. Declarative customized annotation validation
 
-Again, in real scenario, we may need more complicated logic than what Spring provides us.
+Again, in a real scenario, we may need more complicated logic than what Spring provides us.
 
 Steps:
 
@@ -869,8 +864,8 @@ Spring Boot provides us with a pre-configured Validator instance, and you can al
 
 It doesn't need the `@Validated` key world on the class name.
 
-A scenario like when a new user registers. When all fields are good, we still need to validat the username is occupied of not.
-We use declarative validation for the correctness of email and we need to issue a database call to check the username which should be a programmatic validation.
+A scenario like when a new user registers. When all fields are good, we still need to validate the username is occupied or not.
+We use declarative validation for the correctness of the email and we need to issue a database call to check the username which should be a programmatic validation.
 
 ### Spring Validator and Javax Validator works the same way
 
@@ -983,7 +978,7 @@ You can configure a Validator bean by yourself. By default, it uses `HibernateVa
 
 A benefit of configuring it is to make it fail fast.
 
-In failFast mode, it throws exception on the first violation.
+In failFast mode, it throws an exception on the first violation.
 
 ```java
 @Bean
@@ -1011,13 +1006,21 @@ ValidatorFactory validatorFactory = Validation.byProvider( HibernateValidator.cl
 @Validated
 class ValidatingService{
 
-    void validateInput(@Valid Input input){
+    void validateInput(@Valid DTO dto){
       // do something
     }
 }
 ```
 
+## 10. ersistence layer validation
+
+1. By default, Spring uses Hibernate-Validator by default so that it supports Bean Validation out of the box
+2. The validation happends on the repository save or update method
+3. No need to add any annotation to the Repository
+4. It throws `ConstraintViolationException` on violations
+
 ## References
 
-- [Methods annotated with @Scheduled stops working in Open Source Spring](https://community.pivotal.io/s/article/methods-annotated-with-scheduled-stops-working?language=en_US)
-- [A Guide to the Spring Task Scheduler](https://www.baeldung.com/spring-task-scheduler)
+- [Spring Validation最佳实践及其实现原理](https://blog.csdn.net/j3T9Z7H/article/details/108288896)
+- [Complete Guide to Validation With Spring Boot](https://reflectoring.io/bean-validation-with-spring-boot/)
+- [Jakarta Bean Validation - Constrain once, validate everywhere](https://beanvalidation.org/)
