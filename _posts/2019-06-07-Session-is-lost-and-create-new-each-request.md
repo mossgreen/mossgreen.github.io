@@ -19,7 +19,6 @@ The answer is, finally he figured out himself, `localhost` is not a valid domain
 
 If we test on localhost, we whould give it a name like 'localhost.com' it would just work well.
 
-
-
 ### References
+
 1. [Session is lost and created as new in every servlet request](https://stackoverflow.com/questions/2138245/session-is-lost-and-created-as-new-in-every-servlet-request)

@@ -17,7 +17,7 @@ Spring test in Pivotal Spring professional certification (4%).
 
 - The testable POJOs should be instantiated without any container.
 - We don't necessarily need Spring in a unit test.
-- However Spring IOC makes both unit and integration testing easier.
+- However, Spring IOC makes both unit and integration testing easier.
 
 Spring framework has great support for testing.
 

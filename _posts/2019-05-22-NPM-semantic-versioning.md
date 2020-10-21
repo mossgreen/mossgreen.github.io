@@ -14,7 +14,7 @@ We should tag projects like NPM does.
 
 ## TODOS
 
-1. `npm version patch` https://docs.npmjs.com/cli/version
+1. `npm version patch` <https://docs.npmjs.com/cli/version>
 
 ## NPM Semantic Versioning Rules
 
@@ -40,7 +40,7 @@ We should tag projects like NPM does.
 - Minor releases: `1` or `1.x` or `^1.0.4`
 - Major releases: `*` or `x`
 
-## Most comman used
+## Most common used
 
 - `^4.17.3` install latest minor version
 - `~4.17.3` install latest patch version

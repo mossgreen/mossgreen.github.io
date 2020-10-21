@@ -25,7 +25,7 @@ An enum type (or enumerated type) is a type whose fields consist of a fixed set 
 2. Enum can also implement interfaces.
 3. When anything else other than constants is there, comma-separated constants should be terminated with a semicolon. Otherwise, the semicolon is optional.
 4. We can use `==` to compare enum constants effectively because constants are final and we cannot call an enum’s constructors to create more constants.
-5. Enums supports switch statement.
+5. Enums supports the `switch` statement.
 
 ```java
 public enum Season {

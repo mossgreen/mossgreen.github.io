@@ -13,18 +13,18 @@ toc_icon: "cog"
 classes: wide
 ---
 
-Still haven't find a decent answer in StackOverFlow.
+Still haven't found a decent answer in StackOverFlow.
 
-Scenario: I have an **Attribute** entity, which has multipul children **Options**. Option has its unique keys, say, label.
+Scenario: I have an **Attribute** entity, which has multiple children **Options**. The option has its unique keys, say, label.
 When I delete an Option with label "AAA", with Id 1, then add a new Option without Id, but the same label. Then, hit save.
 
-What I've tried, however doesn't work:
+What I've tried, however, doesn't work:
 
 1. A normal implementation, what I expect is that JPA handles this, deletes the old record in Database and inserts a new record.
 
 2. Run a delete method before inserting.
 
-3. Annotate the deleting mehtod with `@Transactional`, then implement the insert.
+3. Annotate the deleting method with `@Transactional`, then implement the insert.
 
 4. After deleting, run `repository.flush()`.
 
@@ -37,7 +37,7 @@ ALTER TABLE options
 
 Explain:
 
-JPA preference is to instert before deleting so when we have parent child contraints it will not work, so we added the deferred constraint so it will delete and insert then apply the contraint rules. This will only work for prostgress and Oracle future dbs be aware.
+JPA preference is to insert before deleting so when we have parent-child constraints it will not work, so we added the deferred constraint so it will delete and insert then apply the constraint rules. This will only work for Postgres and Oracle future dbs be aware.
 
 ## References
 

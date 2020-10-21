@@ -14,13 +14,13 @@ A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
 
 ## POJO
 
-POJO is an acronym for **Plain Old Java Object**. The term was coined by Martin Fowler et. al., as a ‘fancy’ way to describe ordinary Java Objects that do not require a framework to use, nor need to be run in a application server environment. It is often used to distinguish simpler, lightweight Java objects from ‘heavyweight’ code like EJBs. The use of these kind of lightweight objects in programming is described in books such as “POJOs in Action” and advocated by frameworks like Spring.
+POJO is an acronym for **Plain Old Java Object**. The term was coined by Martin Fowler et. al., as a ‘fancy’ way to describe ordinary Java Objects that do not require a framework to use, nor need to be run in an application server environment. It is often used to distinguish simpler, lightweight Java objects from ‘heavyweight’ code like EJBs. The use of these kinds of lightweight objects in programming is described in books such as “POJOs in Action” and advocated by frameworks like Spring.
 
 ## Java Bean
 
 The concept of **JavaBeans** was originally devised for Swing to facilitate the development of standalone GUI components, but the pattern has been repurposed for the land of Spring beans and back-end persistence with Hibernate.
 
-**JavaBeans** are classes that encapsulate many objectss into a single object (the bean). The name "Bean" was given to encompass the following standards, which aims to create reusable software components for Java.
+**JavaBeans** are classes that encapsulate many objects into a single object (the bean). The name "Bean" was given to encompass the following standards, which aims to create reusable software components for Java.
 
 1. Must implement Serializable.
 2. It should have a public no-arg constructor.
@@ -30,7 +30,7 @@ The concept of **JavaBeans** was originally devised for Swing to facilitate the 
 
 1. The class should be serializable.
 2. Have a public default constructor.
-3. class properties are private, accessed by getter and seter.
+3. class properties are private, accessed by getter and setter.
 
 ### Advantages
 
@@ -40,7 +40,7 @@ The concept of **JavaBeans** was originally devised for Swing to facilitate the 
 
 ### Disadvantages
 
-1. public no-arg constructor cannot guatantee a proper initialization
+1. public no-arg constructor cannot guarantee a proper initialization
 2. Java Beans are mutable in nature.
 3. Boilerplate code, like getter and setter.
 
@@ -55,7 +55,7 @@ Spring beans are just object instances that are managed by the Spring IOC contai
 ### Bean Definition
 
 `BeanDefinition` describe the properties of a bean.
-It contains the following meta data:
+It contains the following metadata:
 
 1. A package-qualified class name
 2. Bean behavioral configuration: scope, lifecycle callbacks, and so forth
@@ -83,7 +83,7 @@ It contains the following meta data:
 ## Java Bean VS Spring Bean
 
 1. Spring bean is managed by Spring IOC, Java Bean is not.
-2. Java Bean is always serializeable, Spring Bean doesn't need to.
+2. Java Bean is always serializable, Spring Bean doesn't need to.
 3. Java Bean must have a default no-arg constructor, Spring Bean doesn't need to.
 4. A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
 

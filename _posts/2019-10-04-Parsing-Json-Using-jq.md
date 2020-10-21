@@ -47,24 +47,24 @@ curl -H "Authorization: Basic myCredentialis" https://togetmyjsonurl.com/getjson
 In the above example, we got the Json from curl, then we parse it using `jq`, dive 3 levels deep into the Json and arrives at the front door of what we seek.
 
 ```bash
-$ brew update
-$ brew install jq
-$ which jq
-$ man jq
+brew update
+brew install jq
+which jq
+man jq
 ```
 
 ### curl - transfer a URL
 
 ```bash
-$ which curl
-$ man curl
+which curl
+man curl
 ```
 
 ### base64 -- Encode and decode using Base64 representation
 
 ```bash
-$ which base64
-$ man base64
+which base64
+man base64
 ```
 
 ## jq Details
@@ -98,7 +98,7 @@ $ resulttext | jq '.[]''
 }
 ```
 
-### 4.  get one from key:
+### 4.  get one from key
 
 ```bash
 $ resulttext | jq '.image''
