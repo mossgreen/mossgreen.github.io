@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Security
+title: AWS Servcies - Security
 search: true
 tags:
   - AWS

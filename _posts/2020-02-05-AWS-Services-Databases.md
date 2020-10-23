@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Databases
+title: AWS Servcies - Databases
 search: true
 tags:
   - AWS

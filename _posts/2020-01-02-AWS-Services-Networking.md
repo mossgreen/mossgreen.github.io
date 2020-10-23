@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Networking &CDN
+title: AWS Servcies - Networking &CDN
 search: true
 tags:
   - AWS
@@ -123,11 +123,16 @@ Waht data a firewall can read and act on depends on the OSI Layer the firewall o
   It's the networking layer for Amazon EC2, and it allows you to build your own virtual network within AWS.
 - A private network within AWS. It's your private data center inside the AWS platform.
 - Can be configured to be public/private or a mixture
-- Regional (Cannot span regions), highly available, and can be connected to your data center and corporate networks
+- Regional (**Cannot span regions**), highly available (span all AZs), and can be connected to your data center and corporate networks
 - Isolated from other VPCs by default
-- VPC and subnet: max/16 (65,536 IPs) and minimum /28 (16 Ips)
-- VPC subnets cannot span AZs (1:1 mapping)
+- VPC and subnet: max `/16` (65,536 IPs) and minimum `/28` (16 Ips) (**Recommanded: `/24`**)
+- VPC subnets **cannot span AZs**, in order to archive high availablility, we need to deploy app to multi AZs
 - Certain IPs are reserved in subnets
+- Region vs AZs vs Subnets
+  ![image](https://user-images.githubusercontent.com/8748075/96802785-11567d80-1467-11eb-8b76-b745c00e78f4.png)
+
+- Some Services are not in VPCs, e.g., DynamoDB, S3
+  ![image](https://user-images.githubusercontent.com/8748075/96802496-72ca1c80-1466-11eb-9bee-a5ca046745e9.png)
 
 Region default VPC:
 
@@ -167,7 +172,23 @@ Routes:
 - A subnet is a public subnet if it's
 - configured to allocate public IPs
 - if the VPC has an associated internet gateway
-- if that subnet has a default route to that internet gateway.
+- if that subnet has a default route to that internet gateway. Config SG.
+
+### Amazon VPC design best practice
+
+![image](https://user-images.githubusercontent.com/8748075/96804890-c3dd0f00-146c-11eb-95ac-b3fb2580c480.png)
+
+1. Create an EIP
+2. Create public and private subnets, in AZ 01
+3. Create public and private subnets, in AZ 02
+4. Create an EC2 isntance in AZ01, private subnet.
+    You won't be able to ping this instance in your local machine, even if it has got a public IP.
+5. Create an EC2 isntance in AZ02, public subnet. Auto-assign public IP.
+    You're able to ping this instance because it's in a public subnet.
+
+![image](https://user-images.githubusercontent.com/8748075/96804414-6c8a6f00-146b-11eb-9b98-bb6673ec63ba.png)
+
+![image](https://user-images.githubusercontent.com/8748075/96807896-2d145080-1474-11eb-9075-a4e24065323e.png)
 
 ### Amazon VPC components
 
@@ -179,12 +200,7 @@ Routes:
 - **VPC Endpoints**: Enables private connectivity to services hosted in AWS, from within your CPC without using an Internet Gateway, VPN, NAT devices, or firewall proxies.
 - **Egress-only Internet Gateway**: A stateful gatewy to provide egress only access for IPv6 traffic from the VPC to the internet.
 
-### VPC examples
-
-1. VPC with a single public subnet only
-2. VPC with public and private subnets
-3. VPC with public and private subnets and AWS Site-to-Site VPN access
-4. VPC with a private subnet only and AWS Site-to-Site VPN access
+![image](https://user-images.githubusercontent.com/8748075/96803081-c852f900-1467-11eb-89e2-d46984418d75.png)
 
 ### Bastion Hosts, or Jumpboxes
 
@@ -195,9 +211,13 @@ Routes:
 - Bastion hosts must be kept updated, and security hardened and audited regularly
 - Multifactor authentication, ID federation, and/or IP blocks.
 
+![image](https://user-images.githubusercontent.com/8748075/96804708-431e1300-146c-11eb-989e-1bf4d1560917.png)
+
 ### Network address translation, NAT
 
 You can use a NAT device to enable instances in a private subnet to connect to the internet (for example, for software updates) or other AWS services, but prevent the internet from initiating connections with the instances.
+
+![image](https://user-images.githubusercontent.com/8748075/96803708-84f98a00-1469-11eb-929f-c226c2589f6d.png)
 
 Redirect process:
 
@@ -225,10 +245,11 @@ Best practice when sending traffic to Amazon S3 or DynamoDB in the same Region
 - To avoid data processing charges for NAT gateways when accessing Amazon S3 and DynamoDB that are in the same Region, set up a gateway endpoint and route the traffic through the gateway endpoint instead of the NAT gateway.
 - There are no charges for using a gateway endpoint.
 
-### Security Group
+### Security Group, SG
 
-It's a virtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances.
+It's a virtual stateful firewall that controls inbound and outbound traffic to Amazon EC2 instances (**EC2 level**).
 You can specify allow rules, but not deny rules. This is an important difference between security groups and ACLs.
+You need to config it for: EC2, ECS, ELB, RDS, etc..
 
 Default security group:
 
@@ -239,7 +260,7 @@ Default security group:
 
 ### Network Access Control List, NACLs
 
-It's another layer of security that acts as a stateless firewall on a subnet level.
+It's another layer of security that acts as a stateless firewall on a **subnet level** (higer than instance level).
 
 - NACLs operate at layer 4 of the OSI model (TCP/UDP and below).
 - A subnet has to be associated with a NACL - either the VPC default or a custom NACL
@@ -294,11 +315,12 @@ NB: If the website owner or administrator wants to access other websites from th
 It's a segment of an Amazon VPC's IP address range where you can place groups of isolated resources.
 Subnets are defined by CIDR blocks, are cotnained within an Availability zone.
 The smallest subnet that you can create is a /28 (16 IP addresses).
+All subnets are inside of AZs. To achive high available, you need to deploy your app into at lease 2 AZs.
 
 Can be public, private or VPN-only.
 
-1. public: the associated route table directs the subnet's traffic to the amazon VPC's IGW.
-2. private: the associated route table doesn't direct the subnet's traffic to the Amazon VPC's IGW
+1. public subnets: the associated route table directs the subnet's traffic to the amazon VPC's **IGW**. (goes to the public)
+2. private subnets: the associated route table **doesn't** direct the subnet's traffic to the Amazon VPC's IGW
 3. VPN-only: the associated route table directs the subnet's traffic to the Amazon VPC's VPG and doesn't have a route to the IGW.
 
 ### Rotue table
@@ -309,11 +331,11 @@ Can be public, private or VPN-only.
 
 ### IGW, Internet Gateways
 
-It's horizontally scaled, redundant and highly available Amazon vPC component that allows communication between instances in your Amazon VPC and the Inernet.
+It's horizontally scaled, redundant and highly available Amazon VPC component that allows communication between instances in your Amazon VPC and the Internet.
 
-An IGW provides a target in your Amazon VPC route tables for Internet-routeable traffic, and it performs network address translation for instances that have been assigned public IP address.
+An IGW provides a target in your Amazon VPC route tables for Internet-routeable traffic, and **it performs network address translation** for instances that have been assigned public IP address.
 
-You may only have one IGW for each Amazon VPC.
+You may only have **one IGW for each Amazon VPC**.
 
 To create a public subnet with Internet access:
 
@@ -338,29 +360,11 @@ A DHCP **option set** allows customers to
 
 ### EIP, Elastic IP Addresses
 
-A static, public IP address in the pool for the region that you can allocate to your account and release.
+The private IPs of an EC2 instances cannot be modified after creation.
+The public IPs of an EC2 instances get lost after restarting.
+EIP is a static, public IP address in the pool for the region that you can allocate to your account and release.
 
 It allows you to maintain a set of IP addresses that remain fixed while the underlying infrastructure may change over time.
-
-### VPC peering
-
-VPC peering is a feature that allows isolated VPCs to be connected at layer 3. VPC peering uses a peering connection, which is a gateway object linking two VPCs.
-
-- Allows direct communication between VPCs.
-- Services can communicate using private IPs from VPC to VPC.
-- VPC peers can span AWS accounts and even regions (with limitations)
-- Dat is encrypted and transits via the AWS global backbone.
-- VPC peers are used to link two VPCs at layer3: company mergers, shared servcies, companyand vendor, auditing
-
-Important Limits and considerations
-
-- VPC CIDR blocks cannot overlap
-- VPC peers connect two VPCs - routing is not ransitive
-- Routes are required at both sides (remote CIDR -> peer connection)
-- NACLs and SGs can be used to control access
-- SGs can be referenced but not cross-region
-- IPv6 support is not available cross-region.
-- DNS resolution to private IPs can be enabled, but it's a setting needed at both sides.
 
 ### VPC Endpoints
 
@@ -384,6 +388,8 @@ When to use a VPC Endpoint:
 - If a specific instance has no public IP/NATGW and needs to access public services
 - To access resources restricted to specific VPCs or endpoints (private S3 bucket)
 
+![image](https://user-images.githubusercontent.com/8748075/96805596-7d88af80-146e-11eb-819b-8c0ce234b78d.png)
+
 Limitations and Considerations
 
 - Gateway endpoints are used via route table entries - they're gateway devices. Prefix lists for a service are used in the destination field with the gateway as the target.
@@ -393,6 +399,28 @@ Limitations and Considerations
 - Interface endpoitns are controlled via SGs on that interface. NACLs also impact traffic.
 - Interface endpoints and replace the DNS for the service - no route table updates are requried.
 - Code chagnes to use the endpoint DNS, or enable private DNS to override the default service DNS.
+
+### VPC peering
+
+VPC peering is a feature that allows isolated VPCs to be connected at layer 3. VPC peering uses a peering connection, which is a gateway object linking two VPCs.
+
+- Allows direct communication between VPCs.
+- Services can communicate using private IPs from VPC to VPC.
+- VPC peers can **span AWS accounts** and **even regions** (with limitations)
+- Dat is encrypted and transits via the AWS global backbone.
+- VPC peers are used to link two VPCs at layer3: company mergers, shared servcies, companyand vendor, auditing
+
+![image](https://user-images.githubusercontent.com/8748075/96805836-04d62300-146f-11eb-92a1-5fcead9ebcda.png)
+
+Important Limits and considerations
+
+- VPC CIDR blocks cannot overlap
+- VPC peers connect two VPCs - routing is not ransitive
+- Routes are required at both sides (remote CIDR -> peer connection)
+- NACLs and SGs can be used to control access
+- SGs can be referenced but not cross-region
+- IPv6 support is not available cross-region.
+- DNS resolution to private IPs can be enabled, but it's a setting needed at both sides.
 
 ### VPG & CGW
 
@@ -438,9 +466,10 @@ Architecturally, they're otherwise the same as an IGW.
 VPC Flow Logs allows you to capture metadata about the traffic flowing in and out of networking interfaces within a VPC. Flow logs can be placed on a specific network interface, a subnet, or an entire VPC and will capture metadata fro mthe capture poit and anything within it. Flow logs aren't real-time and don't capture the actual traffic - only metadata on the traffic.
 
 Flow logs capture: account-id, interface-id, srcaddr, dstaddr, srcport, dstport, protocol, packets, tytes, start, end, ation, and log-status.
+  ![image](https://user-images.githubusercontent.com/8748075/96804802-89737200-146c-11eb-9a3d-7616df3bc840.png)
 
 Flow logs don't capture some traffic, including Amazon DNS server, windowns license activation, DHCP traffic ,and VPC router
-It can be enabled on a VPC, subnet, or ENI level and monitor traffic metadata for any included interfaces. Flow logs monitor:
+It can be enabled on a VPC, subnet, or ENI level and monitor traffic metadata for any included interfaces.
 
 ### VPN connection, VPNs
 
@@ -891,4 +920,4 @@ Default Termination Policy
 
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
 - [AWS Certified SAA 2018 - Exam Feedback](https://acloud.guru/forums/aws-certified-solutions-architect-associate/discussion/-KSDNs4nfg5ikp6yBN9l/exam_feedback_-_20_specific_po)
-- [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
+- [AWS Net working best practices](http://aws.amazon.bokecc.com/news/show-2441.html)

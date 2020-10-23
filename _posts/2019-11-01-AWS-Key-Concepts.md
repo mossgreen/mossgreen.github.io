@@ -1,5 +1,5 @@
 ---
-title: AWS SAA Certification Key Concepts
+title: AWS Key Concepts
 search: true
 tags:
   - AWS

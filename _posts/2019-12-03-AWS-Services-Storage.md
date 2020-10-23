@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Storages
+title: AWS Servcies - Storage
 search: true
 tags:
   - AWS

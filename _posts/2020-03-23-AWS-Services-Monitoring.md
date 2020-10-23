@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Monitoring
+title: AWS Servcies - Monitoring
 search: true
 tags:
   - AWS

@@ -1,5 +1,5 @@
 ---
-title: AWS Servcies Study Notes, Computes
+title: AWS Servcies - Compute
 search: true
 tags:
   - AWS
@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-EC2, Auto Scaling, EB, Serverless, ECS, CloutFormation, etc.
+EC2, Auto Scaling, ELB, Serverless, ECS, CloutFormation, etc.
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 
@@ -17,6 +17,8 @@ EC2, Auto Scaling, EB, Serverless, ECS, CloutFormation, etc.
 - EC2 is a core AWS product that provides virtual machines known as instances.
 - Amazon EC2 provides resizable compute capacity in cloud.
 - Compute refers to the amount of computational power required to fullfill your workload.
+
+![image](https://user-images.githubusercontent.com/8748075/96806593-0274c880-1471-11eb-86da-680e254daadb.png)
 
 EC2 is ideal for:
 
@@ -251,6 +253,8 @@ AWS Auto Scaling is useful for applications that experience daily or weekly vari
 - On and off workload patterns, such as batch processing, testing, or periodic analysis
 - Variable traffic patterns, such as marketing campaigns with periods of spiky growth
 
+![image](https://user-images.githubusercontent.com/8748075/96807384-dfe3af00-1472-11eb-8c9a-e8e5ed081595.png)
+
 dynamic scaling and predictive scaling
 
 1. Dynamic scaling
@@ -375,10 +379,14 @@ Step Functions "replaces" SWF with a serverless version.
 - A populat contianer enginer is Docker and is the basis for ECS.
 Amazon ECS is a fully managed container orchestration service.
 
+![image](https://user-images.githubusercontent.com/8748075/96807149-59c76880-1472-11eb-88d8-993c81a4b5e4.png)
+
 Elastic Container Service (ECS) is a managed container solution. It can operate in either EC2 mode or Fargate mode.
 
 1. in which EC2 instances running as Docker hosts are visible in your account,
 2. in Fargate mode, in which AWS manages the container hosts.
+
+![image](https://user-images.githubusercontent.com/8748075/96807185-75cb0a00-1472-11eb-81ad-27189dee3301.png)
 
 Details:
 
