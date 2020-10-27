@@ -4,16 +4,22 @@ tags:
   - jQuery
   - Web Development
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
-classes: single
+toc_label: 'My Table of Contents'
+toc_icon: 'cog'
+classes: wide
 ---
 
 jQuery, live long and prosper!
 
+## 0. JQuery basic
+
+Elements are DOM elements, basically HTML tags such as div, p, a etc. div is division element, p denotes paragraph element, a denotes anchor element.
+
+A selector or jQuery selector selects or finds DOM elements in HTML document. Selectors are used to find elements based on id, class, name, types, attributes, etc. The function returns either an element or a list of elements.
+
 ## 1. How to select DOM elements
 
-the basic design concept of JQ is that it selects an element from DOM and manipulate it directly.
+the basic design concept of JQuery is that it selects an element from DOM and manipulate it directly.
 
 the select expression can be CSS selectors
 
@@ -143,3 +149,9 @@ $('p').after($('div'));
 ## 8. Event //todo
 
 ## 9. Special effect //todo
+
+
+http://www.ruanyifeng.com/blog/2011/07/jquery_fundamentals.html
+http://www.ruanyifeng.com/blog/2011/08/jquery_best_practices.html
+
+A guide to the basics of jQuery: 
