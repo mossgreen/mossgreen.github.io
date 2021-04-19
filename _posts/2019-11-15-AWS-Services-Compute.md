@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-EC2, Auto Scaling, ELB, Serverless, ECS, CloutFormation, etc.
+EC2, Auto Scaling, ELB, Serverless, EB, ECS, CloutFormation, etc.
 
 ## Amazon Elastic Compute Cloud, Amazon EC2
 
@@ -295,9 +295,14 @@ Key words:
 
 EB is a Platform as a Service product. It allows you to deploy code and with very little effort or modifications, the service will provision the infrastructure on your behalf.
 
+Elastic Beanstalk provides platforms:
+  -  for programming languages (Go, Java, Node. js, PHP, Python, Ruby), 
+  - application servers (Tomcat, Passenger, Puma), 
+  - and Docker containers.
+
 EB handles provisoning, monitoring, Auto Scaling, load balancing, and software updating for you - you just worry about the cost.
 
-DB supports a number of languages and platforms: Java, .net, Node.js, PHP, Python ...
+EB orchestrates a number of AWS services, such as EC2 instances, S3 buckets and objects, CloudWatch, SNS, ELB, and autoscaling. **Exclude: Route 53, Elastic Load Balancers, Elastic IP addresses, SQS**
 
 Patterns and Anti-patterns for EB:
 
@@ -308,10 +313,30 @@ Patterns and Anti-patterns for EB:
 
 Deployment Options:
 
+![image](https://user-images.githubusercontent.com/8748075/115202997-157c0300-a14b-11eb-9498-8146c3491f6f.png)
+
 - All at once: an updated applciation version is deployed to all instances. Quick and simple but not recommended for production deployments
-- Rolling: Splits instances into batches and deploys one batch at a time.
-- Rolling with additional Batch: as above, but provisons a new batch, deploying and testing before removing the old batch (immutable)
+- Rolling: Splits instances into batches and deploys one batch at a time. No downtime, but with reduced capacity.
+- Rolling with additional Batch: as above, but provisons a new batch, deploying and testing before removing the old batch. Full capacity, takes longer then immutable but the benefit is a cost saving
+- Immutable environment: createsa new temporary autoscaling group behind a load balancer, then transfers all instances to the original autoscalling group.
 - Blue/Green: Maintain two environments, deploy, and swap CNAME.
+
+### configuration files .ebextensions
+
+Configuration files are YAML- or JSON-formatted documents with a `.config` file extension that you place in a folder named `.ebextensions` and deploy in your application source bundle. E.g.: `.ebextensions/network-load-balancer.config`
+
+Requirements
+- Place **all** of your configuration files in a **single folder**, named `.ebextensions`, in the **root** of your source bundle
+- Configuration files must have the .config file extension.
+
+### Create an application source bundle
+
+- Consist of a single ZIP file or WAR file (you can include multiple WAR files inside your ZIP file)
+
+- Not exceed 512 MB
+
+- Not include a parent folder or top-level directory (subdirectories are fine)
+
 
 ### EB Auto Scaling triggers
 
@@ -337,13 +362,32 @@ Serverless architecture consists of two main principles, including Baas and Faas
 
 ### Amazon API Gateway
 
+Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
+
 - It's a managed service.
 - It allows the creation, management, and optimization of highly scalable API endpoints.
 - API Gateway is a key component of serverless architectures in AWS.
+- API Gateway can use other AWS services for compute (Faas/Iaas) as well as to store and recall data.
+- Support for tracking the cost of calls made to your APIs
+- Controlling access and authorization
 
-API Gateway can use other AWS services for compute (Faas/Iaas) as well as to store and recall data.
+![image](https://user-images.githubusercontent.com/8748075/110195827-eebc8280-7ea4-11eb-88bd-9188edd08410.png)
 
-Amazon API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traﬃc management, authorization and access control, monitoring, and API version management.
+### API Gateway Endpoint Types
+
+1. Edge-optimized Endpoint: Designed to help you reduce client latency from anywhere on the internet
+  - API Gateway will automatically configure a CloudFront distribution that’s fully managed to provide lower latency access to your API.
+  - This setup reduces your first hit latency.
+  - The other benefit of using a managed CloudFront distribution is that you don’t have to pay for or manage it separately from API Gateway.
+
+2. Regional Endoint: Designed to reduce latency when calls are made fro mthe same region as the API
+  - traffic destined for your API will be directed straight at the API endpoint in the region where you’ve deployed it. (NO CloudFront distribution)
+  - lower latency for applications that are invoking your API from within the same AWS Region
+  - For example, an API that is going to be accessed from EC2 instances within the same region.
+
+3. Private Endpoint: Designed to expose APIs only inside your VPC
+  - This is designed for applications that have very secure workloads, like healthcare or financial data that cannot be exposed publicly on the internet.
+  - no data transfer-out charges for private APIs. However, AWS PrivateLink charges apply when using private APIs in API Gateway.
 
 ### API Gateway control access
 
