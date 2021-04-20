@@ -222,9 +222,14 @@ Aurora Serverless is also able to scale down to zero, where the only cost is sto
 
 DynamoDB is a NoSQL database servcie. It's a global service, partitioned regionally and allows the creation of tables.
 
+DynamoDB is best suited to big data, advertisement technologies, gaming, mobile applications, time-series data, logs, IoT, and other applications where **heavy write** performance, **reduced latency**, and a **dynamic schema** are required.
+
 - A **Table** is a collection of items that share the same partition key (PK) or partition key and sort key (SK) together with other configuration and performance settings.
 - An **Item** is a colelction of attributes (up to 400KB is size) inside a table that shares the same key structure as every other item in the table.
 - An **Attribute** is a key and value - an attribute name and value.
+- A **primary key** is a mechanism to uniquely identify each item in a table. Two types of primary key:
+  - Partition key = hash key
+  - Partition key and sort key= composite primary key
 
 E.g.,
 
@@ -235,7 +240,7 @@ E.g.,
 
 Sort key structure doesn't influence performance — it just allows range selection or ordering.
 
-### Read Consistency
+### Read Consistency Modal
 
 - Eventually Consistent Reads: The response might include some stale data
 - Strongly Consistent Reads:
@@ -243,6 +248,12 @@ Sort key structure doesn't influence performance — it just allows range select
   - may have higher latency
   - not supported on global secondary indexes
   - use more throughput capacity than eventually consistent reads
+
+By default, DynamoDB uses eventually consistent reads. 
+
+To use strongly consistent reads, you need to specify this while creating the table. Read operations, such as `GetItem`, `Query`, and `Scan` provide a `ConsistentRead` parameter.
+
+By default, Scan reads the entire table with all items and consumes more throughput. Use Query instead of Scan, as it is more economical.
 
 ### Cross-Region Replication
 
@@ -260,15 +271,42 @@ DynamoDB has two read/write capacity modes: provisioned throughput (default) and
 2. provisioned throughput mode, each table is configured with read capacity units (RCU) and write capacity unites (WCU). Every operatin on ITEMS consumes at least 1 RCU or WCU - partial RCU/WCU cannot be consumed.
 
 - **Read Capacity Units (RCU)**
-  - One RCU is 4 KB of data read from a table per second in a strongly consistent way.
-  - Reading 2KB of data consumes 1 RCU, reading 4.5 KB of data takes 2 RCU, reading 10\*400 bytes takes 10 RCU.
-  - If eventaully consistent reads are okay, 1 RCU can allow for 2\*4KB of data reads per second.
+  - One read capacity unit = one strongly consistent read.
+  - One read capacity unit = two eventual consistent reads.
+  - One read operation can process an item of up to 4 KB in size.
+  - If an item is more than 4 KB in size, it requires additional read operations. 
+  - If an item is less than 4 KB in size, it still requires one read capacity unit.
   - Atomic transactions require 2X the RCU.
 - **Write Capacity Units (WCU)**
-  - One WCU is 1 KB of data or less written to a table.
-  - An operation that writes 200 bytes consumes 1 WCU, an operation writes 2 KB consumes 2 WCU.
-  - Five operations of 200 bytes consumes 5 WCU.
+  - One write capacity unit = one write operation of up to 1 KB in size.
+  - If an item is greater than 1 KB, it requires additional write capacity units. 
+  - If an item is less than 1 KB in size, it still requires one write capacity unit.
   - Atomic transactions require 2X the WCU to complete.
+
+If we exceed our RCU or WCU, we get
+`ProvisionedThroughputExceededExceptions`, possible causes: 
+- Hot keys: one partition key is being read too many times (popular item for example)
+- Hot partitions:
+- Very large items: remember RCU and WCU depends on size of items
+
+Solutions:
+- Exponential back-off when exception is encountered (already in SDK)
+- Distribute partition keys as much as possible
+- If RCU issue, we can use DynamoDB Accelerator (DAX)
+
+#### Calculating table throughput
+
+1. You have an application that requires reading 15 items per second. Each item is 3 KB in size. If the application requires strongly consistent reads, what read capacity is required to address this need?
+
+15 items * 1 RCU (3K = 4K, strong consistent) = 15 RCU
+
+2. You have an application that requires reading 80 items per second. Each item is 5 KB in size. If the application requires using strongly consistent reads, what read capacity is required to address this need?
+
+80 items * 2(5k > 4k = 8K/4k) * 1 (strong consistent) = 160 RCU
+
+3. You have an application that requires reading 60 items per second. Each item is 3 KB in size and the application requires using eventual consistent reads. What read capacity is required to address this need?
+
+60 items * 1(3<4 = 4/4) / 2 (eventual consistent) = 30 RCU
 
 ### DynamoDB Streams
 
@@ -303,6 +341,15 @@ Indexes come in two forms: local secondary indexes (LSI) and global secondary in
 
 - **Local secondary indexes** must be created at the same time as creating a table. They use the same partition key but an alternative sort key. They share the RCU and WCU values for the main table.
 - **Global secondary indexes** can be created at any point after the table is created. They can use differenct partition and sort keys. They have their own RCU and WCU values. GSIs can be used to support alternative data access patterns, allowing efficient use of query operations.
+
+### DynamoDB table query
+
+- Reading: `GetItem` with table name and primary key
+- Writing:
+  - creating: `PutItem`
+  - updating: `UpdateItem`
+  - deleting: `DeleteItem`
+- Conditional writes succeed only where they meet an expected condition; otherwise, they return an error. Conditional writes can be used in multiple scenarios. Conditional writes can be handy in situations where multiple users try to update the same item.
 
 ### DynamoDB Accelerator (DAX)
 
