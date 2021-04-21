@@ -2,8 +2,8 @@
 title: AWS Servcies - Security
 search: true
 tags:
-  - AWS
-  - SAA Certificatin
+ - AWS
+ - SAA Certificatin
 toc: true
 toc_label: 'My Table of Contents'
 toc_icon: 'cog'
@@ -13,25 +13,25 @@ IAM, KMS, IDF, etc.
 
 ## AWS Identity and Access Management, IAM
 
-IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users traditional identity concepts such as users, groups, and accesscontrol policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
+IAM enables you to control how people and programs are allowed to manipulate your AWS infrastructure. IAM users' traditional identity concepts such as users, groups, and access control policies to control who can use your AWS account, what services and resources they can use, and how they can use them.
 
 What IAM is **NOT**"
 
-- IAM is not an identity store/authorization system for your applications. The permissions that you assign are permissions to manipulate AWS infrastructure, not permissions within your application. If you works with a mobile app, cosnider _Amazon Connito_ for identity management for mobile apps.
+- IAM is not an identity store/authorization system for your applications. The permissions that you assign are permissions to manipulate AWS infrastructure, not permissions within your application. If you work with a mobile app, consider _Amazon Connito_ for identity management for mobile apps.
 - IAM is not operating system identity management.
 
 ### Principals
 
-A principal is an IAM entity that allowed to interact with AWS recources.
-A principal can be permanent or temporary, and can represent a human or an app.
+A principal is an IAM entity that is allowed to interact with AWS resources.
+A principal can be permanent or temporary and can represent a human or an app.
 There are **three types of principals**: root users, IAM users, and roles/temporary security tokens.
 
 1. Root user: It's associated with the actual AWS account and cannot be restricted in any way so it has full privileges to do anything, including closing the account.
-2. IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI or SDKs.
-3. Roles/Temporary Security Tokens: roles and temporary security tokens enbable a number of use cases:
-   - Amazon EC2 roles: Granting permissions to applications runnign on an Amazon EC2 instance.
-   - Crosss-Acount Access: Granting permissions to users from other AWS accounts, whether you control those accounts or not
-   - Federation: Granting permissiongs to users authenticatedby a trusted external system.
+2. IAM users: It represents individual people or apps. It can be created by principals with IAM administrative privileges at any time through the AWS Console, CLI, or SDKs.
+3. Roles/Temporary Security Tokens: roles and temporary security tokens enable a number of use cases:
+ - Amazon EC2 roles: Granting permissions to applications running on an Amazon EC2 instance.
+ - Cross-Account Access: Granting permissions to users from other AWS accounts, whether you control those accounts or not
+ - Federation: Granting permissions to users authenticated by a trusted external system.
 
 ### Web Identity Federation
 
@@ -49,9 +49,9 @@ Web identity federation supports the following identity providers:
 
 three ways that IAM authenticates a principal:
 
-1. User Name/Password. E.g., you login in AWS Management Console as an IAM user or root user.
-2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters). E.g., a proram that access the API with an IAM user or root user uses a two-part acess key.
-3. Access key/ session token. E.g., a temporary security token authenticates with an access key plus and additional session token unique to that temporary security token.
+1. User Name/Password. E.g., you login into AWS Management Console as an IAM user or root user.
+2. Access Key. combination of an access key ID(20 characters) and an access secret key (40 characters). E.g., a program that accesses the API with an IAM user or root user uses a two-part access key.
+3. Access key/ session token. E.g., a temporary security token authenticates with an access key plus an additional session token unique to that temporary security token.
 
 ### IAM database authentication
 
@@ -63,15 +63,15 @@ After you have a signed IAM authentication token, you can connect to an Aurora D
 
 ### Authorization
 
-After IAM has authenticated a principal, the process of specifiying exactly what actions a principal can and cannot perform is called Authorization.
+After IAM has authenticated a principal, the process of specifying exactly what actions a principal can and cannot perform is called Authorization.
 
 ### Policies
 
-A _policy_ is a JSOn document that fully defines a set of permissions to access and manipulate AWS resources.
+A _policy_ is a JSON document that fully defines a set of permissions to access and manipulate AWS resources.
 
-Each permission includes that effect, servcie, action and resource. It may include one or more conditions.
+Each permission includes that effect, service, action, and resource. It may include one or more conditions.
 
-- Effect: a signle word: Allow or Deny
+- Effect: a single word: Allow or Deny
 - Service: for what service does this permission apply.
 - Resource: the resource value specifies that specific AWS infrastructure for which this permission applies. This is specified as an Amazon Resource Name (ARN).
 
@@ -90,8 +90,8 @@ Associating Policies with Principals
 
 A policy can be associated directly with an IAM user in one of two ways:
 
-- User Policy: these policies exist only in the context of the user to which they're attached. In the console, a user policy is entered intot the user interface on the IAM user page.
-- Manged Policies: createdi nthe Policies tab on the IAM page and exist independently of any individual user.
+- User Policy: these policies exist only in the context of the user to which they're attached. In the console, a user policy is entered into the user interface on the IAM user page.
+- Managed Policies: click the Policies tab on the IAM page and exist independently of any individual user.
 
 Policy Evaluation Logic
 
@@ -100,26 +100,26 @@ When a principal tries to use the AWS Management Console, the AWS API, or the AW
 1. Authentication – AWS first authenticates the principal that makes the request, if necessary. This step is not necessary for a few services, such as Amazon S3, that allow some requests from anonymous users.
 
 2. Processing the Request Context – AWS processes the information gathered in the request to determine which policies apply to the request.
-   - Actions (or operations) – The actions or operations that the principal wants to perform.
-   - Resources – The AWS resource object upon which the actions or operations are performed.
-   - Principal – The user, role, federated user, or application that sent the request. Information about the principal includes the policies that are associated with that principal.
-   - Environment data – Information about the IP address, user agent, SSL enabled status, or the time of day.
-   - Resource data – Data related to the resource that is being requested. This can include information such as a DynamoDB table name or a tag on an Amazon EC2 instance.
+ - Actions (or operations) – The actions or operations that the principal wants to perform.
+ - Resources – The AWS resource object upon which the actions or operations are performed.
+ - Principal – The user, role, federated user, or application that sent the request. Information about the principal includes the policies that are associated with that principal.
+ - Environment data – Information about the IP address, user agent, SSL enabled status or the time of day.
+ - Resource data – Data related to the resource that is being requested. This can include information such as a DynamoDB table name or a tag on an Amazon EC2 instance.
 3. Evaluating Policies Within a Single Account – AWS evaluates all of the policy types, which affect the order in which the policies are evaluated.
 
 4. Determining Whether a Request Is Allowed or Denied Within an Account – AWS then processes the policies against the request context to determine whether the request is allowed or denied.
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:*",
-      "Principal": { "AWS": "arn:aws:iam::111122223333:user/carlossalazar" },
-      "Resource": "*"
-    }
-  ]
+ "Version": "2012-10-17",
+ "Statement": [
+ {
+ "Effect": "Allow",
+ "Action": "s3:*",
+ "Principal": { "AWS": "arn:aws:iam::111122223333:user/carlossalazar" },
+ "Resource": "*"
+ }
+ ]
 }
 ```
 
@@ -127,16 +127,16 @@ This policy specifies that only the carlossalazar user can access the carlossala
 
 Exam Tips: IAM Policies
 
-- If a request isn't explicitly allowed, it's implicity (default) denied
-- If a request is explicity denied, it **overrides everyint else**
+- If a request isn't explicitly allowed, it's implicitly (default) denied
+- If a request is explicitly denied, it **overrides everything else**
 - If a request is explicitly allowed, it's allowed unless denied by an explicit deny.
 - Only attached policies have any impact.
-- When evaluating policies, all applicable policies are merged: All identity (user,group, role) and any resoure policies
+- When evaluating policies, all applicable policies are merged: All identity (user, group, role) and any resource policies
 - Merged policies allow the same policy to impact many identities.
 - Inline policies allow exceptions to be applied to identities.
 - AWS-managed policies are low overhead but lack flexibility.
 - Customer-manged policies are flexible but require administration
-- inline and manged policies can apply to users, groups and roles
+- inline and managed policies can apply to users, groups, and roles
 
 ### Multi-Factor Authentication (MFA)
 
@@ -151,7 +151,7 @@ Exam Tips: IAM users
 - Hard limit of 5,000 IAM users per account - this is important, as it can impact architecture
 - 10 group memberships per IAM user
 - Default maximum of 10 managed policies per user
-- No inline limit, but you cannot exceed 2048 characters for all inline policies on a IAM user
+- No inline limit, but you cannot exceed 2048 characters for all inline policies on an IAM user
 - 2 access keys per user
 
 ### IAM Groups
@@ -177,7 +177,7 @@ Exam Tips: IAM groups:
 
 IAM roles are assumed by another identity allowed in the trust policy - IAM user, ASW service, another AWS account, web identity, or even an anonymous identity.
 
-When a role is assumed, the Security Token Service (STS) generates a **time-limited** set of access keys (temporary security credentials). These access keys have the permissins defined in the permissions policy.
+When a role is assumed, the Security Token Service (STS) generates a **time-limited** set of access keys (temporary security credentials). These access keys have the permissions defined in the permissions policy.
 
 IAM roles have no long-term credentials (access keys or username and password).
 
@@ -185,18 +185,18 @@ Exam tips:
 
 - IAM roles have no long-term credentials
 - They're `sts:AssumeRole` by another identity:
-  - IAM users
-  - AWS services
-  - External accounts
-  - Web identities
+ - IAM users
+ - AWS services
+ - External accounts
+ - Web identities
 - Temporary security credentials are generated by STS
 - Trust policy controls which identities can assume the role.
 - **Permissions** policy defines the permissions provided.
 - Temporary credentials expire.
 - Example scenarios:
-  - company merge
-  - AWS service acess
-  - "Break-glass" style extra access
+ - company merge
+ - AWS service access
+ - "Break-glass" style extra access
 
 ## AWS Organizations
 
@@ -222,22 +222,22 @@ You still need to attach identity-based or resource-based policies to principals
 
 ## Amazon Key Management Service, KMS
 
-key words:
+keywords:
 
 - In EBS, encrypted at rest
-- In EBS, use KMS to generate encryption keys which can be used to encrypt the volume.
+- In EBS, use KMS to generate encryption keys that can be used to encrypt the volume.
 
 KMS provides regional, secure key management and encryption and decryption services. KMS is FIPS 140-2 level 2 validated, and certain aspects support level 3 (exam hint). Everything is KMS is regional. KMS can use CloudHSM via Custom key Stores (FIPS 140-2 Level 3)
 
-KMS Manages customer master keys (CMK), which are created in region ans never leave the region or KMS. They can encrypt or decrypt data up to 4KB. CMKs have key policies and can be used to create other keys.
+KMS Manages customer master keys (CMK), which are created in the region and never leave the region or KMS. They can encrypt or decrypt data up to 4KB. CMKs have key policies and can be used to create other keys.
 
 - KMS can **encrypt** data up to 4KB with a CMK - you can supply the data and specify the specify the key to use
 - It can **decrypt** up to 4KB - you provide the ciphertext, and it returns the plaintext.
-- You can **also re-encrypt** up to 4KB - you supply the ciphertext, the new key to use ,and you are returned new cipher text (at no point do you see the plaintext)
+- You can **also re-encrypt** up to 4KB - you supply the ciphertext, the new key to use , and you are returned new ciphertext (at no point do you see the plaintext)
 
-KMS can generate a data encyption key (DEK) using a CMK. YOu or a service can use a DEK to encrypt or decrypt data of any size. KMS supplies a plaintext version and an ecrypted version.
+KMS can generate a data encryption key (DEK) using a CMK. You or a service can use a DEK to encrypt or decrypt data of any size. KMS supplies a plaintext version and an encrypted version.
 
-The encrypted DEK and encrypted data can be stored together. KMS is used to decrypt the DEK, which can the decrypte the data.
+The encrypted DEK and encrypted data can be stored together. KMS is used to decrypt the DEK, which can decrypt the data.
 
 ### Envelope encyption
 
@@ -245,7 +245,7 @@ When you encrypt your data, your data is protected, but you have to protect your
 
 **Envelope encryption** is the practice of encrypting plaintext data with a data key, and then encrypting the data key under another key.
 
-Eventually, one key must remain in plaintext so you can decrypt the keys and your data. This top-level plaintext key encryption key is known as the **master key**.
+Eventually, one key must remain in plaintext so you can decrypt the keys and your data. This top-level plaintext key-encryption key is known as the **master key**.
 
 AWS KMS helps you to protect your master keys by storing and managing them securely.
 
@@ -255,22 +255,56 @@ AWS KMS helps you to protect your master keys by storing and managing them secur
 2. AWS managed CMK
 3. AWS owned CMK
 
+## Cognito
+
+User management is a critical task in app developing. Cognito is a highly scalable authentication, authorization, and user management service for web and mobile apps. It primarily has two components: User pool, and Identity pool.
+
+Both the Amazon Cognito user pool and the Amazon Cognito identity pool can be used separately or together.
+
+- the Amazon Cognito **user pool** manages user directories and provides sign-up and sign-in for mobile and web applications
+- Amazon Cognito **identity pool** provides AWS credentials in exchange for a valid token to access other AWS services.
+
+### Cognito user pool
+
+- It makes it easier for sign-up and sign into mobile and web applications. 
+- It does authentication, authorization, resource access, and control.
+  - Provides sign-in using any Security Assertion Markup Language (SAML) and OpenID Connect (OIDC) Identity Providers (IdP) such as Amazon, Google, and Facebook.
+- It creates and maintains a user directory. 
+  - A user directory can be imagined as a database of users.
+  - Whether the user signs in directly or through a third-party, all members of the user pool have a directory profile.
+- Multi-Factor Authentication (MFA) and phone and email verification
+- **On providing a valid credential, users receive a JSON token**
+
+### Cognito Identity pool
+
+- Once a user has obtained a valid token from an Amazon Cognito user pool, it can be exchanged with Amazon Cognito identity pools to **obtain temporary AWS credentials** to access AWS services
+- The Amazon Cognito identity pool also allows guest users.
+
+### Amazon Cognito Sync
+
+Amazon Cognito Sync is an AWS web service and client library that makes it possible for an application-related data to **cross-device syncing**.
+
 ## Amazon Identity federation, IDF and SSO
 
 - **Identity federation (IDF)** is an architecture where identities of an external identity provider (IDP) are recognized.
 - **Single sign-on (SSO)** is where the credentials of an external identity are used to allow access to a local system (e.g., AWS).
+- Supported users can get authenticated from the following:
+  - Amazon Cognito user pool 
+  - OIDC 
+  - SAML identity providers 
+  - Developer authenticated identities
 
 Types of IDF:
 
-- **Crosee-acount roles**: a remote account (IDP) is allowed to assume a role and access your accout's resource.
+- **Crosse-account roles**: a remote account (IDP) is allowed to assume a role and access your account's resource.
 - **SAML 2.0 IDF**: an on-premises or AWS-hosted directory service instance is configured to allow Active Directory users to log in to the AWS console.
-- **Web Identity Federation**: IDPs sunch as Google, Amazon, and Facebook are allowed to assume roels and access resources in your account.
+- **Web Identity Federation**: IDPs such as Google, Amazon, and Facebook are allowed to assume roles and access resources in your account.
 
-**Congnito** and the **Secure Token Service (STS)** are used for IDF. A federated identity is verified using an external IDP and by proving the identity (using a token or assertion of some kind) is allowed to swap that ID for temporary AWS credentials by assuming a role.
+**Cognito** and the **Secure Token Service (STS)** are used for IDF. A federated identity is verified using an external IDP and by proving the identity (using a token or assertion of some kind) is allowed to swap that ID for temporary AWS credentials by assuming a role.
 
-IDF is the process of allowing external identities to be used to indirectly access AWS services. This lesson covers the architecture of IDF using SAML 2.0 and web identities, and concludes with a brief demo using the Web Identity Federation Playground.
+IDF is the process of allowing external identities to be used to indirectly access AWS services. This lesson covers the architecture of IDF using SAML 2.0 and web identities and concludes with a brief demo using the Web Identity Federation Playground.
 
-### When and hwo to use IDF
+### When and how to use IDF
 
 ### Enterprise Access to AWS Resources
 
@@ -282,7 +316,7 @@ IDF is the process of allowing external identities to be used to indirectly acce
 
 ### Mobile and Web Application
 
-- Mobile or web application requries access to AWS resources
+- Mobile or web application requires access to AWS resources
 - you need a certain level of guest access - and extra once logged in
 - customers have other identities - Google, Twitter, Facebook, etc - and need to use those
 - you don't want credentials stored within the application
@@ -292,14 +326,14 @@ IDF is the process of allowing external identities to be used to indirectly acce
 ### Centralized identity Management (AWS Accounts)
 
 - tens or hundreds of AWS accounts in an organization
-- need central store of IDs - either IAM or an external provider
-- roels switching used fro man ID account into memeber accounts
+- need a central store of IDs - either IAM or an external provider
+- roles switching used fro man ID account into member accounts
 
-### Congito vs. others
+### Cognito vs. others
 
 Amazon Cognito lets you add user sign-up, sign-in, and access control to your web and mobile apps quickly and easily. Amazon Cognito scales to millions of users and supports sign-in with social identity providers, such as Facebook, Google, and Amazon, and enterprise identity providers via SAML 2.0.
 
-Congito user pool provides sign up and sign in funcitonality along with identity pool which provides temp credentials for using aws services.
+Cognito user pool provides sign up and sign-in functionality along with an identity pool that provides temp credentials for using AWS services.
 
 - KMS is for encryption, not for IAM
 - Directory Service is for connecting on Prep AD.
@@ -310,3 +344,4 @@ Congito user pool provides sign up and sign in funcitonality along with identity
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
 - [AWS Certified SAA 2018 - Exam Feedback](https://acloud.guru/forums/aws-certified-solutions-architect-associate/discussion/-KSDNs4nfg5ikp6yBN9l/exam_feedback_-_20_specific_po)
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
+
