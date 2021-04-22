@@ -9,7 +9,7 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
-IAM, KMS, IDF, etc.
+Cognito, IAM, KMS, IDF, etc.
 
 ## AWS Identity and Access Management, IAM
 
