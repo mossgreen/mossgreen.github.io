@@ -1,9 +1,9 @@
 ---
-title: AWS Servcies Study Notes, Integration
+title: AWS Services Study Notes, Integration
 search: true
 tags:
-  - AWS
-  - SAA Certificatin
+ - AWS
+ - SAA Certification
 toc: true
 toc_label: 'My Table of Contents'
 toc_icon: 'cog'
@@ -14,9 +14,10 @@ SNS, SQS, etc.
 ## Amazon Simple Notification Services, SNS
 
 - Simple Notification Service (SNS) is a key part of AWS application integration products.
+- AWS SNS works based on push technology
 - It provides a pub/sub-based notification system, which supports a wide range of subscriber endpoint types.
 - SNS coordinates and manages the sending and delivery of messages. Messages sent to a topic are delivered to subscribers.
-- SNS is intergrated with many AWS servcies and can be used for certain event notifications, e.g., CloudFormation stack creation
+- SNS is integrated with many AWS services and can be used for certain event notifications, e.g., CloudFormation stack creation
 - using SNS, CloudWatch can notify admins of important alerts
 - SNS can be used for mobile push notifications
 
@@ -25,26 +26,30 @@ SNS, SQS, etc.
 - Topic: An isolated configuration for SNS, including permissions.
   - messages (<= 256KB) are sent to a topic
   - subscribers to that topic receive messages
-- Subscriber: endpoints  that receive messsages for a top
+- Subscriber protocols: endpoints that receive messages for a topic
   - HTTP(S)
   - Email and Email-JSON
-  - SQS 9message can be added to one or more queues)
+  - SQS (message can be added to one or more queues)
   - Mobile push notifications (ios, android, Amazon, MS)
-  - lambda fucntions (function invoked)
+  - lambda functions (function invoked)
   - SMS (cellular message)
-- Publisher: an entity that publishes/sends messages to queue
+- Publisher: an entity that publishes/sends messages to a queue
   - Application
-  - AWS servcies, including S3 (S3 events), CloudWatch, CloudFormation, etc
+  - AWS services, including S3 (S3 events), CloudWatch, CloudFormation, etc
 
 ### Common Amazon SNS scenarios
 
 1. Fanout
-    - SNS message is sent to a topic and then replicated and pushed to multiple Amazon SQS queues, HTTP endpoints, or email addresses.
-    - This allows for parallel asynchronous processing
+   - SNS message is sent to a topic and then replicated and pushed to multiple Amazon SQS queues, HTTP endpoints, or email addresses.
+   - This allows for parallel asynchronous processing
 2. Application and system alerts
 3. Push email and text messaging
 4. Mobile push notifications
 5. Message durability
+
+### SNS + lambda
+
+When a publisher publishes a message to an SNS topic and a Lambda function is subscribed to the same SNS topic, that Lambda function is invoked with the payload of a published message.
 
 ## Amazon Simple Queue Service, SQS
 
@@ -52,40 +57,46 @@ SNS, SQS, etc.
 - SQS is used mainly to create decoupled architectures.
 - Messages are added to a queue and retrieved via polling
 
-Polling Types:
+### Polling Types
 
-- Short polling: Available messages are returned ASAP - a short poll might return 0 messages. Causes increated number of API calls
-- Long polling: Waits for messages for a given `WaitTimeSeconds`, it's more Efficient: less empty api calls/responses
+- Short polling: Available messages are returned ASAP - a short poll might return 0 messages. Causes increased number of API calls
+- Long polling: Waits for messages for a given `WaitTimeSeconds`, it's more efficient: less empty API calls/responses
 
-there are two types of queues
+### two types of queues
 
 1. standard queues
-  Standard queues are distributed and scalable to nearly unlimited message volume. the order is not guaranteed, best-effort only, and messages are guaranteed to be delivered at lease once but sometimes more than once.
+ Standard queues are distributed and scalable to nearly unlimited message volume. the order is not guaranteed, best-effort only, and messages are guaranteed to be delivered at least once but sometimes more than once.
 2. FIFO queues
-  first-in, first-out. Messages are delivered once only - duplicates do not occur. The throughput is limited to ~3,000 messages per second with batching or ~300 without by default.
+ first-in, first-out. Messages are delivered once only - duplicates do not occur. The throughput is limited to ~3,000 messages per second with batching or ~300 without by default.
 
 Each SQS message can contain up to 256KB of data but can link data stored in S3 for any larger payloads.
 
 When a message is polled, it's hidden in the queue. It can be deleted when processing is completed - otherwise, after a `VisibilityTimeOut` period, it will return to the queue.
 
-Queues can be configured with a `maxReveiveCount`, allowing message that are failing to be moved to a dead-letter queue.
+Queues can be configured with a `maxReveiveCount`, allowing messages that are failing to be moved to a dead-letter queue.
 
-Lambda fucntions can be invoked based on messages on a queue offering better scaling and faster response than Auto Scaling groups for any messages that can be processed quickly.
+Lambda functions can be invoked based on messages on a queue offering better scaling and faster response than Auto Scaling groups for any messages that can be processed quickly.
+
+### Dead Letter Queue (DLQ)
+
+Dead Letter Queue (DLQ) is used by other queues for storing failed messages that are not successfully consumed by consumer processes.
 
 ### SNS + SQS fanout architecture
+
+A publisher sends a message to an SNS topic and it distributes this topic to many SQS queues in parallel.
 
 - SNS pushes them to everywhere they need to go
 - SQS queues the messages
 
 ## AWS Elastic Transcoder
 
-Elastic Transcoder is an AWS service that allows you to convert media fiels from an input format to one or more output formats. it's delivered as a servcie, and you're billed a per-minute charge while using the service.
+Elastic Transcoder is an AWS service that allows you to convert media files from an input format to one or more output formats. it's delivered as a service, and you're billed a per-minute charge while using the service.
 
-A pip line is a queue for jobs. It stores source and destination settings, notification, security, and other high settings. Jobs are processed in the ordr they are added as resources allow.
+A pip line is a queue for jobs. It stores source and destination settings, notification, security, and other high settings. Jobs are processed in the order they are added as resources allow.
 
-A job defiens the input object and up to 30 output objects/formats. Jobs are added to a pipeline in the same region and use the buckets defined in the pipeline for input/output.
+A job defines the input object and up to 30 output objects/formats. Jobs are added to a pipeline in the same region and use the buckets defined in the pipeline for input/output.
 
-**Presets** contain transcoding settings and can be applied to jobs to ensure output compatible with various devices, such as iPhones, tablets, or other form factors.
+**Presets** contains transcoding settings and can be applied to jobs to ensure output compatible with various devices, such as iPhones, tablets, or other form factors.
 
 ## References
 
