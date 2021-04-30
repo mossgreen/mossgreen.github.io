@@ -1,5 +1,5 @@
 ---
-title: Use Mockito with Spring
+title: Mockito Basic
 search: true
 tags:
   - Mockito
@@ -12,22 +12,24 @@ toc_icon: "cog"
 classes: wide
 ---
 
-In Mockito Answer, we mock the process.
+“Once,” said the Mock Turtle at last, with a deep sigh, “I was a real Turtle.” —Alice In Wonderland, Lewis Carroll
 
-## Why Mockito
+## Mockito Basic
 
-Unit tests are to test behaviours with initialling the real objects or load the real dependencies.
-Mocks and stubs are fake Java classes that replace these external dependencies. Stubs have hardcoded logic. Mockito is the most popular Mocking framework for unit tests written in Java.
+Knowing the SUT(system under test) is important. In order to test a SUT (the class to be tested), a developer must make sure that the class’s dependencies won’t interfere with its tests.
 
-Common targets for mocking are:
+- You can use either mocks and stubs for the dependency.
+- A stub is a fake class that comes with preprogrammed return values. It’s injected into the class under test to give you absolute control over what’s being tested as input. A typical stub is a database connection that allows you to mimic any scenario without having a real database.
+- A mock is a fake class that can be examined after the test is finished for its interactions with the class under test. For example, you can ask it whether a method was called or how many times it was called. Typical mocks are classes with side effects that need to be examined, e.g. a class that sends emails or sends data to another external service.
+- You can use Mockito in either Integration Test or Unit tests
+- Common targets for mocking are:
+  - Database connections,
+  - Web services,
+  - Slow classes,
+  - Classes with side effects, and
+  - Classes with non-deterministic behaviour.
 
-- Database connections,
-- Web services,
-- Slow classes,
-- Classes with side effects, and
-- Classes with non-deterministic behaviour.
-
-## How to mock a behaviour
+### How to mock a behaviour
 
 1. Before method run, you tell Mockito what to do when methods got called
 2. While method run, mock instance run without dependencies
@@ -38,12 +40,9 @@ Mockito offers two ways of stubbing.
 1. when this method is called, then do something
 2. Do something when this mock’s method is called with the given arguments
 
-The first way is considered preferred because
+The first way is considered preferred because: it is **typesafe** and **readable**
 
-- it is typesafe and
-- readable.
-
-However, you’re forced to use the second way, such as when stubbing a real method of a spy because calling it may have unwanted side effects.
+However, sometimes you’re forced to use the second way, such as when stubbing a real method of a spy because calling it may have unwanted side effects.
 
 ## Enable Mockito annotations
 
@@ -76,7 +75,7 @@ Two ways
 class MockitoAnnotationTest {}
 ```
 
-## Annotations
+## Common Annotations
 
 - `@Mock` creates and injects mocked instances. It equals to `Mockito.mock`.
 - `@Spy` spy the behavious (in order to verify them).
@@ -109,48 +108,31 @@ class MockitoAnnotationTest {}
 
 ### 2. `@Spy`
 
-- Without `@Spy`
+It's partial mocking the object.
 
-  ```java
-  @Test
-  public void testWithoutSpyAnnotation() {
-      List<String> spyList = Mockito.spy(new ArrayList<String>());
+- You can mock its behaviour
+- Othewise it uses `real` method
 
-      spyList.add("one");
-      Mockito.verify(spyList).add("one");
-  }
-  ```
+```java
+@Spy
+List<String> spiedList = new ArrayList<String>();
 
-- With `@Spy`
+@Test
+public void whenUseSpyAnnotation_thenSpyIsInjectedCorrectly() {
+    spiedList.add("one");
+    spiedList.add("two");
 
-  ```java
-  @Spy List<String> spiedList = new ArrayList<String>();
+    Mockito.verify(spiedList).add("one");
+    Mockito.verify(spiedList).add("two");
 
-  @Test
-  public void testWithSpyAnnotation() {
-      spiedList.add("one");
-      Mockito.verify(spiedList).add("one");
-  }
-  ```
+    assertEquals(2, spiedList.size());
+
+    Mockito.doReturn(100).when(spiedList).size();
+    assertEquals(100, spiedList.size());
+}
+```
 
 ### 3. `@Captor`
-
-- Without `@Captor`
-
-  ```java
-  @Test
-  public void testWithoutCaptorAnnotation() {
-      List mockList = Mockito.mock(List.class);
-      ArgumentCaptor<String> arg = ArgumentCaptor.forClass(String.class);
-
-      mockList.add("one");
-      Mockito.verify(mockList).add(arg.capture());
-
-      assertEquals("one", arg.getValue());
-  }
-  ```
-
-- With `@Captor`
 
   ```java
   @Mock List mockedList;
@@ -167,15 +149,40 @@ class MockitoAnnotationTest {}
 
 ### 4. `@InjectMocks`
 
-It's used to instantiate the @InjectMock annotated field and inject all the @Mock or @Spy annotated fields into it (if applicable).
+It's used to instantiate the `@InjectMock` annotated field and inject all the `@Mock` or `@Spy` annotated fields into it (if applicable).
 
-All test class fields are scanned for annotations and proper test doubles are initialized and injected into the @InjectMocks annotated object (either by a constructor, property setter, or field injection, in that precise order).
+All test class fields are scanned for annotations and proper test doubles are initialized and injected into the `@InjectMocks` annotated object (either by a constructor, property setter, or field injection, in that precise order).
 
-If Mockito is not able to inject test doubles into the @InjectMocks annotated fields through either of the strategies, it won't report failure—the test will continue as if nothing happened (and most likely, you will get NullPointerException).
+If Mockito is not able to inject test doubles into the `@InjectMocks` annotated fields through either of the strategies, it won't report failure—the test will continue as if nothing happened (and most likely, you will get NullPointerException).
+
+```java
+
+public class Box { 
+    Shoes shoes;
+}
+
+@Mock Shoes mockShoes;
+@InjectMocks Box box; // mockShoes will be initialised and inject into box
+
+@Test
+public blah(){}
+```
 
 ### 5. `@MockBean`
 
-The `@MockBean` will also be injected into the field.
+Mockito in Spring Boot
+
+`@MockBean`
+
+- It is a Spring Boot annotation,
+- It allows to add Mockito mocks in a Spring ApplicationContext.
+- If a bean, compatible with the declared class exists in the context, it replaces it by the mock.
+- If it is not the case, it adds the mock in the context as a bean.
+- used to define a new Mockito mock bean or replace a Spring bean with a mock bean and inject that into their dependent beans.
+- The annotation can be used directly on test classes, on fields within your test, or on `@Configuration` classes and fields.
+- When used on a field, the instance of the created mock is also injected
+- Mock beans will be automatically reset after each test method.
+- If your test uses one of Spring Boot’s test annotations (such as`@SpringBootTest`), this feature is automatically enabled.
 
 ```java
 @RunWith(SpringRunner.class)
@@ -192,7 +199,9 @@ public class MockBeanAnnotationIntegrationTest {
 }
 ```
 
-## RETURNING CUSTOM RESPONSES
+## Argument Matchers
+
+## Returing Custom Response
 
 1. When... Then
 
@@ -224,8 +233,6 @@ public class MockBeanAnnotationIntegrationTest {
    doThrow(IllegalArgumentException.class).when(passwordEncoder).encode("1");
 
    ```
-
-## Argument Matchers
 
 - `eq()`
   //todo
@@ -303,10 +310,6 @@ void offeringPricesIsNull() {
     String actualMessage = exception.getMessage();
 }
 ```
-
-## Spy
-
-//todo
 
 ## What Mockito cannot do
 
@@ -420,5 +423,6 @@ NB. `@TestPropertySource` can accept a properties argument to overwrite some pro
 - [A Unit Testing Practitioner's Guide to Everyday Mockito](https://www.toptal.com/java/a-guide-to-everyday-mockito)
 - [Stubbing and Mocking with Mockito 2 and JUnit](https://semaphoreci.com/community/tutorials/stubbing-and-mocking-with-mockito-2-and-junit)
 - [Getting Started with Mockito Annotations](https://www.baeldung.com/mockito-annotations)
+- [Mock objects for testing java systems](https://link.springer.com/article/10.1007/s10664-018-9663-0)
 
 Last update: Dec 2019

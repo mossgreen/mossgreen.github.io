@@ -999,18 +999,17 @@ public class TodoControllerTests {
 
 You have annotated the test with `@WebMvcTest(controllers = TodoController.class)` by explicitly specifying which controller you are testing. As `@WebMvcTest` doesn’t load other regular Spring beans and TodoController depends on TodoRepository, **you provided a mock bean using the `@MockBean` annotation**. The `@WebMvcTest` autoconfigures MockMvc, which can be used to test controllers without starting an actual servlet container.
 
-
 ## What are the differences between @MockBean and @Mock?
 
 **`@Mock`**
 `@Mock` = `Mockito.mock()`. It's a from Mockito library.
 
 **`@MockBean`**
+
 - This is indeed a Spring Boot class.
 - It allows to add Mockito mocks in a Spring ApplicationContext.
 - If a bean, compatible with the declared class exists in the context, it replaces it by the mock.
 - If it is not the case, it adds the mock in the context as a bean.
-
 
 ## When do you want @DataJpaTest for? What does it auto-configure?
 
