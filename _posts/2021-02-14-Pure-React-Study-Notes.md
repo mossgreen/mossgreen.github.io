@@ -272,7 +272,7 @@ Two ways of setState here: `setState` accepts an object, and `setState` accepts 
 
 3. Prefer functinal setState
 
-    - it’s guaranteed to work correctly (in correct order) //todo moss setState is Aync
+    - it’s guaranteed to work correctly (in correct order)
     - functional `setState` are “pure” functions – that is, they only operate on their arguments, they don’t modify the arguments, and they return a new value.
 
 ### 2. Class Component lifecycle
@@ -359,7 +359,7 @@ Rule of hooks
 
 4. Try to keep the state in a parent component. Having fewer components containing state means fewer places to look when a bug appears.
 
-### 5. setState Is Asynchronous // todo moss + context API
+### 5. setState Is Asynchronous
 
 If you call setState and immediately console.log(this.state) right afterwards, it will very likely print the old state instead of the one you just set.
 each call to setState “queues” an update in the order they’re called, and when they’re executed, they receive the latest state as an argument instead of using a potentially-stale this.state.
@@ -391,11 +391,11 @@ It's quite intuitive to pass pros down and send events up. However, some “even
 
 1. Expanding/Collapsing an Accordion control
    - Old way: Clicking a toggle button opens or closes the accordion by calling its toggle function. The Accordion knows whether it is open or closed.
-   - **The declarative way**: let the Accordion parent store the value in component’s state (not inside the Accordion) and decice whether open or close it. We tell the Accordion which way to render by passing `isOpen` as a prop. When `isOpen` is true, it renders as open. When `isOpen` is false, it renders as closed. 
+   - **The declarative way**: let the Accordion parent store the value in component’s state (not inside the Accordion) and decice whether open or close it. We tell the Accordion which way to render by passing `isOpen` as a prop. When `isOpen` is true, it renders as open. When `isOpen` is false, it renders as closed.
 
-    ```js
-    <Accordion isOpen={true}/>
-    ```
+        ```js
+        <Accordion isOpen={true}/>
+        ```
 
    - The biggest difference is that instead of the Accordion instinctively (and internally) knowing whether it is open or closed, it is told to be open or closed by whichever component renders the Accordion.
 
@@ -451,7 +451,150 @@ Presentational components can contain Container components, and Containers can c
 
 // todo moss
 
+## 4. The useEffect hook
+
+With the useEffect hook, you can respond to lifecycle events directly inside function components. Within one function, you can do things with:
+
+1. `componentDidMount`,
+2. `componentDidUpdate`,
+3. `componentWillUnmount`
+
+### 1. useEffect dependencies
+
+```js
+useEffect(() => { 
+    fetch(`/posts/${blogPostId}`)
+        .then(content => setContent(content) ) 
+}, [blogPostId])
+```
+
+- It **always** runs after the initial render, and there’s no way to turn that off. (this is similar to `componentDidMount`)
+- By default, with no array, your effects will execute on every render.
+- An empty array means this effect depends on nothing, it only run once.
+- The second argument of useEffect is a list of dependencies. This array should contain all the values that, if they change, should cause the effect to be recomputed.
+
+### 2. Unmount and cleanup
+
+Sometimes you need an effect cleanup:
+
+- Effects that start a timer or interval, or
+- start a request that needs to be cancelled, or
+- add an event listener that needs to be removed
+
+Cleanup always happens when the component is unmounted,
+
+```js
+useEffect(() => {
+    return () => unsubscribeFromComments(blogPostId); 
+}, [blogPostId])
+```
+
+### 3. Something useEffect doesn't work well
+
+On making DOM changes that are visible to the user, an effect function will only fire after the browser is done with layout and paint – too late.
+
+`useLayoutEffect` runs the same time as `componentDidMount`, and runs **synchronously** between when browser has updated the DOM and before those changes are painted to the screen.
+
+## 5. The context API
+
+The `Context` is to cure the "prop drilling", when one compnent needs to send data to a great-great-great-great... grandchild.
+
+Prop drilling is a valid pattern and core to the way React works.
+Prop drilling is annoying. Especially you need to pass more than one prop.
+Prop drilling creates coupling between components, which makes components hard to reuse.
+
+3 important pieces to the Context API:
+
+- The `React.createContext` function creates the context
+- The `Provider` (returned by createContext) establishes the “electrical bus” running through a component subtree
+  - The Provider accepts a value prop which can be whatever you want
+- The `Consumer` (also returned by createContext) taps into the “electrical bus” to extract the data
+
+```js
+import React from "react"; 
+import ReactDOM from "react-dom";
+
+const UserContext = React.createContext();
+
+const UserAvatar = ({ size }) => (
+    <UserContext.Consumer>  
+        {user => (<img  src={user.avatar} />)} 
+    </UserContext.Consumer> 
+);
+
+const Nav = () => (
+    <div className="nav">
+        <UserAvatar size="small" />
+    </div> 
+);
+
+// Inside App, we make the context available using the Provider
+class App extends React.Component {
+
+    state = {user: { avatar:"https://www.gravatar.com/avatar/5c3dd2d257ff0e14dbd2583485dbd44b"}};
+
+    render() { 
+        return (
+            <UserContext.Provider value={this.state.user}>
+                <Nav /> 
+                <Body /> 
+            </UserContext.Provider> 
+            );
+    }
+}
+```
+
+## 4. React form
+
+### 1. Controlled input component
+
+In controlled component, **you** are responsible for controlling their state. You need to pass in a value, and keep that value updated as the user types.
+
+```js
+import React, { useState } from 'react';
+
+const InputExample = () => {
+    const [text, setText] = useState('');
+    const handleChange = event => { 
+        setText(event.target.value); 
+    };
+
+    return (<input type="text" value={text} onChange={handleChange} />);
+}
+```
+
+### 2. Uncontrolled input component
+
+When an input is uncontrolled, it manages its own internal state.
+
+```js
+const EasyInput = () => ( <input type="text" /> );
+```
+
+When you want to get a value out of it, you have two options.
+
+1. you can pass an `onChange` prop and respond to the events. The downside with this is that you can’t easily extract a value at will. You need to listen to the changes, and keep track of the “most recent value” somewhere, probably in state. So it doesn’t save much code over using a controlled input.
+
+2. Alternatively, you can use a ref. A ref gives you access to the input’s underlying DOM node, so you can pull out its value directly.
+    - Note that `refs` can only be used to refer to regular elements (div, input, etc) and stateful (class) components.
+    - Function components don’t have a backing instance so there’s no way to refer to them.
+
+    ```js
+    import React, { useRef } from 'react';
+
+    const RefInput = () => { const input = useRef();
+
+    const showValue = () => { alert(`Input contains: ${input.current.value}`); };
+
+    return ( <div>
+                <input type="text" ref={input} />
+                <button onClick={showValue}>
+                    Alert the Value!
+                </button>
+            </div> ); };
+    ```
+
 ## References
 
-- [How Java Servlet Works](https://examples.javacodegeeks.com/how-java-servlet-works/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+JavaCodeGeeks+%28Java+Code+Geeks%29)
-- [Java Servlet Technology](https://javaee.github.io/tutorial/servlets.html#BNAFD)
+- [Dave Ceddia blog](https://daveceddia.com/archives)
+- [Dave Ceddia book - Pure React](https://www.purereact.com)
