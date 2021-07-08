@@ -12,7 +12,8 @@ toc_icon: "cog"
 classes: wide
 ---
 
-“Once,” said the Mock Turtle at last, with a deep sigh, “I was a real Turtle.” —Alice In Wonderland, Lewis Carroll
+“Once,” said the Mock Turtle at last, with a deep sigh, “I was a real Turtle.”
+—Alice In Wonderland, Lewis Carroll
 
 ## Mockito Basic
 
