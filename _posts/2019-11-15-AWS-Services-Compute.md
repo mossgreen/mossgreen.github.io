@@ -422,7 +422,7 @@ Step Functions "replaces" SWF with a serverless version.
 Elastic Container Service (ECS) is a managed container solution. It can operate in either EC2 mode or Fargate mode.
 
 1. in which EC2 instances running as Docker hosts are visible in your account,
-2. in Fargate mode, in which AWS manages the container hosts. The Fargate Launch Type is a serverless infrastructure managed by AWS.
+2. in Fargate mode, in which AWS manages the container hosts (without EC2 instance). The Fargate Launch Type is a serverless infrastructure managed by AWS.
 
 ![image](https://user-images.githubusercontent.com/8748075/96807185-75cb0a00-1472-11eb-81ad-27189dee3301.png)
 
