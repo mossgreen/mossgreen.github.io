@@ -14,6 +14,21 @@ Identify performance bottlenecks
 
 ## Jargons
 
+## Set up, add environmental var
+
+update `.zshrc`
+
+```bash
+# cd ~
+# vim .zshrc
+export AWS_XRAY_CONTEXT_MISSING="LOG_ERROR"
+```
+
+```bash
+$ echo $AWS_XRAY_CONTEXT_MISSING
+LOG_ERROR
+```
+
 ## Configuration
 
 ### 1. Maven
