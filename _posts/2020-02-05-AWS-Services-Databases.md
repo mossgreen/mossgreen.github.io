@@ -516,19 +516,46 @@ keywords:
 - collect and analyze streams
 - real-time
 
-Kinesis and Kinesis Data Firehose are two essential pieces of any high-performance streaming architecture.
-
 **Kinesis** is a scalable and resilient streaming service from AWS. it's designed to ingest large amounts of data from hundreds, thousands, or even millions of products. Consumers can access a rolling window of that data, or it can be stored in persistent storage of database products.
 
-- **Kinesis Stream** is where your data put into. It can be used to collect, process, and analyze a large amount of incoming data. A stream is a public service accessible from inside VPCs or from the public internet by an unlimited number of producers. Kinesis streams include storage for all incoming data with a 24-hour default window, which can be increased to seven days for an additional charge. Data records are added by producers and read by consumers.
-- **Kinesis Shard** provides the capacity of the stream. Kinesis shards are added to streams to allow them to scale. A stream starts with at least one shard, which allows 1 MB of ingestion and 2 MB of consumption. Shards can be removed from streams.
-- **Kinesis Data Record** the basic entity written to and read from Kinesis streams, a data record can be up to 1MB in size.
+Amazon Kinesis has four capabilities:
 
-| |SQS|Kinesis|
-|---|---|---|
-|Strict Ordering| FIFO mode (300 messages/snd)| no striction |
+- Kinesis Video Streams (KVS): Capture, process, and store video streams for analytics and machine learning.
+- Kinesis Data Streams (KDS): Build custom applications that analyze data streams using popular stream-processing frameworks.
+- Kinesis Data Firehose (KDF): Load data streams into AWS data stores
+- Kinesis Data Analytics (KDA): Process and analyze streaming data using SQL or Java
+
+Kinesis Data Streams and Kinesis Data Firehose are two essential pieces of any high-performance streaming architecture.
+
+- **Kinesis Data Stream** is where your data put into. It can be used to collect, process, and analyze a large amount of incoming data.
+  - A stream is a public service accessible from inside VPCs or from the public internet by an unlimited number of producers.
+  - Kinesis data streams include storage for all incoming data with a 24-hour default window, which can be increased to seven days for an additional charge.
+  - Data records are added by producers and read by consumers.
+  - A Kinesis data stream is a set of shards.
+  - Each shard has a sequence of data records.
+  - Each data record has a sequence number that is assigned by Kinesis Data Streams.
+
+- **Kinesis Shard** provides the capacity of the stream. Kinesis shards are added to streams to allow them to scale. A stream starts with at least one shard, which allows 1 MB of ingestion and 2 MB of consumption. Shards can be removed from streams.
+
+- **Kinesis Data Record** the basic entity written to and read from Kinesis streams, a data record can be up to 1MB in size. Data records are composed of a sequence number, a partition key, and a data blob, which is an immutable sequence of bytes.
+
+- **Retention Period** is the length of time that data records are accessible after they are added to the stream. 
+  - Minimum: 24 hours (using the DecreaseStreamRetentionPeriod operation.)
+  - Maximum: 8760 hours (365 days) (using the IncreaseStreamRetentionPeriod operation)
+
+|product|SQS|Kinesis|
+|Essential|Messaging service|Streaming service|
+|Use cases|Application integration, Decouple microservices, Scale jobs to multiple workers|Log and event data Collection, Real-time analytics, Mobile app event data feed, IoT data feed|
+|Scaling|AWS fully-managed|Manually increase/decrease shards|
+|Durability|Deleted by consumer, or up to reach max retention period|Deleted on expiry, or up to reach max retention period|
+|Default Retention Period|4 days|24 hours|
+|Min Retention Period|60 seconds|24 hours|
+|Max Retention Period|14 days|365 days|
+|Message Order|Standard - Best effort, FIFO(300 messages/snd)|Ordered within the shard|
 |No Duplicates| no garantee| yes|
 |Number of consumers|1|unlimited|
+|Message replay | No | Yes |
+|Message Consume | One message ca nbe consumed by only one consumer at a time | Consumers can read the same data records | 
 |Capacity management and limits|No capacity management|Needs shard monitoring|
 |Cost for 1Kb x 500 messages / day|$34.56|$0.96|
 |Underlying data structure|multiple queues|like a durable linked list|
@@ -550,16 +577,21 @@ SQS:
 
 ### Amazon Kinesis Data Streams use case
 
-- Accelerate log and data feed intake
+Two types:
+
+1. Shared fan-out consumers
+2. Enhanced fan-out consumers
+
+- Accelerate log and data feed intake and proessing
 - Real-time metrics and reporting
 - Real-time data analytics
-- Complex stream processing
+- Complex stream processing (using Directed Acyclic Graphs (DAGs))
 
 ### Amazon Kinesis Data Streams vs. Firehose
 
-Kinesis Streams
+Kinesis Data Streams
 
-- Kinesis Streams is capable of capturing large amounts of data (terabytes per hour) from data producers and streaming it into custom applications for data processing and analysis.
+- Kinesis Data Streams is capable of capturing large amounts of data (terabytes per hour) from data producers and streaming it into custom applications for data processing and analysis.
 - Streaming data is replicated by Kinesis across three separate availability zones within AWS to ensure the reliability and availability of your data.
 - It is possible to load data into Streams using a number of methods, including HTTPS, the Kinesis Producer Library, the Kinesis Client Library, and the Kinesis Agent.
 - Monitoring is available through Amazon Cloudwatch.
@@ -568,11 +600,13 @@ Kinesis Firehose
 
 - Kinesis Firehose is Amazon’s data-ingestion product offering for Kinesis. It is used to capture and load streaming data into other Amazon services such as S3 and Redshift.
 - From there, you can load the streams into data processing and analysis tools like Elastic Map Reduce, and Amazon Elasticsearch Service. It is also possible to load the same data into S3 and Redshift at the same time using Firehose.
-- As with Kinesis Streams, it is possible to load data into Firehose using a number of methods, including HTTPS, the Kinesis Producer Library, the Kinesis Client Library, and the Kinesis Agent. Currently, it is only possible to stream data via Firehose to S3 and Redshift, but once stored in one of these services, the data can be copied to other services for further processing and analysis.
+- As with Kinesis Data Streams, it is possible to load data into Firehose using a number of methods, including HTTPS, the Kinesis Producer Library, the Kinesis Client Library, and the Kinesis Agent. Currently, it is only possible to stream data via Firehose to S3 and Redshift, but once stored in one of these services, the data can be copied to other services for further processing and analysis.
 - Monitoring is available through Amazon Cloudwatch.
+- You use Kinesis Data Firehose by creating a Kinesis Data Firehose delivery stream and then sending data to it.
 
 ## References
 
 - [Linux Academy: AWS Certified Solutions Architect - Associate Level](https://linuxacademy.com/course/aws-certified-solutions-architect-2019-associate-level)
 - [AWS Certified SAA 2018 - Exam Feedback](https://acloud.guru/forums/aws-certified-solutions-architect-associate/discussion/-KSDNs4nfg5ikp6yBN9l/exam_feedback_-_20_specific_po)
 - [AWS Certified Solutions Architect Official Study Guide: Associate Exam](https://www.amazon.com/Certified-Solutions-Architect-Official-Study/dp/1119138558) (out-of-date)
+- [Study Notes on Amazon Kinesis by Ernest Chiang](https://www.ernestchiang.com/en/notes/aws/kinesis/)
