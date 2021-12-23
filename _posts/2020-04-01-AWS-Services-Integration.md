@@ -83,6 +83,10 @@ Dead Letter Queue (DLQ) is used by other queues for storing failed messages that
 
 ### SNS + SQS fanout architecture
 
+- SNS allows applications to send time-critical messages to multiple subscribers through a “push” mechanism, eliminating the need to periodically check or “poll” for updates
+- SQS is used by distributed applications to exchange messages through a polling model, and can be used to decouple sending and receiving components—without requiring each component to be concurrently available
+- Using Amazon SNS and Amazon SQS together, messages can be delivered to applications that require immediate notification of an event, and also persisted in an Amazon SQS queue for other applications to process at a later time.
+
 A publisher sends a message to an SNS topic and it distributes this topic to many SQS queues in parallel.
 
 - SNS pushes them to everywhere they need to go

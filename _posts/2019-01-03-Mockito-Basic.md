@@ -148,6 +148,39 @@ public void whenUseSpyAnnotation_thenSpyIsInjectedCorrectly() {
   }
   ```
 
+  ```java
+    public class AppleService {
+    @Inject
+    SQSService sqsService;
+
+        public void updateApple(){
+            var event = new UpdatedAppleEvent();
+            sqsService.queueEventWorker(event);
+        }
+    }
+
+    public class AppleServiceTest {
+
+        @Inject
+        AppleService appleService;
+
+        @InjectMock
+        SQSService sqsService;
+
+        @Captor
+        ArgumentCaptor<UpdatedAppleEvent> eventCaptor =  ArgumentCaptor.forClass(UpdatedAppleEvent.class);
+
+        @Test
+        void testSendsEventToQueue() {
+            appleService.updateMeasurements();
+
+            Mockito.verify(sqsService).queueEventWorker(eventCaptor.capture());
+            ScoutingMeasurementEvent event = eventCaptor.getValue();
+            assertThat(event).isNotNull();
+        }
+    }
+  ```
+
 ### 4. `@InjectMocks`
 
 It's used to instantiate the `@InjectMock` annotated field and inject all the `@Mock` or `@Spy` annotated fields into it (if applicable).
@@ -426,4 +459,4 @@ NB. `@TestPropertySource` can accept a properties argument to overwrite some pro
 - [Getting Started with Mockito Annotations](https://www.baeldung.com/mockito-annotations)
 - [Mock objects for testing java systems](https://link.springer.com/article/10.1007/s10664-018-9663-0)
 
-Last update: Dec 2019
+Last update: 12 2021 on Captor

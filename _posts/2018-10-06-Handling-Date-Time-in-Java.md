@@ -1,28 +1,40 @@
 ---
-title: Handling Date Time in Java 8
+title: Converting Date Time in Java
 search: true
 tags: 
-  - Java 8
   - Date
   - Time
   - Date Time
+  - Time Zone
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: wide
 ---
 
-Handling Date Time in Java 8
+Converting Date Time in Java
 
-Being as a Java developer, handling Date and time used to be a pain because the Date and Calendar classes designed by Java team is trouble-some.
 Java 8 is awesome because it introduces lots of good features including the new Date and Time APIs. Now a new challenge follows. How to work with the old classes together with the new ones?
 
 ## Terminology
 
+- Date Time vs Timestamp
+  - Date Time doesn't have time zone info
+  - Timestamp has time zone info
+
 - UTC: coordinated universal time
-- Unix epoch time: 1970-01-01T00:00:00Z (midnight at the start of January 1, 1970 GMT/UTC)
+
+- Unix epoch time:
+  - the number of **seconds** that have elapsed since January 1, 1970 at midnight UTC time minus the leap seconds
+  - at midnight of January 1, 1970, Unix time was 0
+  - The Unix epoch is also called **Unix time**, **POSIX time**, or **Unix timestamp**
+  - **Year 2038 problem**:
+    - On system that Unix time is as a signed `32-bit` number, the representation will end at `3:14:08 on 19 January 2038 UTC`
+    - In some newer operating systems, it's been widened to `64-bit`, which you don't need to worry about the ending.
+
 - DST: Daylight Saving Time
-- ISO 8601: It applies to representations and formats of dates in the Gregorian (and potentially proleptic Gregorian) calendar, of times based on the 24-hour timekeeping system (with optional UTC offset), of time intervals, and combinations thereof
+
+- ISO 8601: It applies to representations and formats of dates in the Gregorian (and potentially proleptic Gregorian) calendar, of times based on the 24-hour timekeeping system (with optional UTC offset), of time intervals, and combinations thereof. In my opinion, ISO 8601 is clearly superior to other date formats when it comes to international communication.
 
 ## Archeology
 
@@ -395,14 +407,29 @@ Based an idea from [yawk](https://yawk.at/java.time/), here is a converting that
 
 ## How to persist Date Time
 
-> Instead of saving the time in UTC along with the time zone, developers can save what the user expects us to save: the wall time. Ie. what the clock on the wall will say. In the example that would be 10:00. And we also save the timezone (Santiago/Chile). This way we can convert back to UTC or any other timezone.
+### 0. What do you want to persist?
+
+1. Date-only data, e.g., birth day, should not have time and time zone
+2. scheduling future events, e.g., flight ticket
+
+### 1. Save UTC time without time zone in DB
+
+### 2. Save the wall time with time zone
+
+> Instead of saving the time in UTC along with the time zone, developers can save what the user expects us to save: the wall time. Ie. what the clock on the wall will say. We also save the timezone (Santiago/Chile). This way we can convert back to UTC or any other timezone.
 
 see <https://stackoverflow.com/questions/2532729/daylight-saving-time-and-time-zone-best-practices>
 
-### Persist Java 8 Date Time in Postgres
+### 3. Save a numeric value, using Unix time
+
+- If you require higher precision, use milliseconds instead
+- This value should always be based on UTC, without any time zone adjustment
+- Not easy to read
+
+## Persist Date Time/Timestamp in Postgres
 
 The PostgreSQL™ JDBC driver implements native support for the Java 8 Date and Time API (JSR-310) using JDBC 4.2.
-ZonedDateTime, Instant and OffsetTime / TIME [ WITHOUT TIMEZONE ] are not supported.
+ZonedDateTime, Instant and `OffsetTime / TIME [ WITHOUT TIMEZONE ]` are not supported.
 Also, note that all OffsetDateTime instance will have to be in UTC (have offset 0). This is because the backend stores them as UTC.
 
 ## References
