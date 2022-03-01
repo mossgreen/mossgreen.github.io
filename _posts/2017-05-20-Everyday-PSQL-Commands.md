@@ -190,19 +190,40 @@ SELECT pg_terminate_backend (pid) FROM pg_stat_activity WHERE datname = 'db_name
 ALTER DATABASE db RENAME TO new_db_name;
 ```
 
-## PostgreSQL REINDEX (since 9.3)
+## PostgreSQL INDEX
 
 ```sql
-REINDEX [ ( VERBOSE ) ] { INDEX | TABLE | SCHEMA | DATABASE | SYSTEM } name;
-
-REINDEX INDEX index_name;
-REINDEX TABLE table_name;
-REINDEX SCHEMA schema_name;
-REINDEX DATABASE database_name;
-REINDEX SYSTEM database_name;
+SELECT
+   relname  as table_name,
+   pg_size_pretty(pg_total_relation_size(relid)) As "Total Size",
+   pg_size_pretty(pg_indexes_size(relid)) as "Index Size",
+   pg_size_pretty(pg_relation_size(relid)) as "Actual Size"
+FROM pg_catalog.pg_statio_user_tables
+ORDER BY pg_total_relation_size(relid) DESC limit 2;
+      table_name      | Total Size | Index Size | Actual Size
+----------------------+------------+------------+-------------
+ very_big_table       | 74 GB      | 53 GB      | 21 GB
+ smaller_table        | 90 MB      | 38 MB      | 52 MB
+(2 rows)
 ```
 
-The 'VERBOSE' keyword is optional. When included, the statement displays a progress report when each index is reindexed.
+```sql
+\d pg_indexes
+            View "pg_catalog.pg_indexes"
+   Column   | Type | Collation | Nullable | Default
+------------+------+-----------+----------+---------
+ schemaname | name |           |          |
+ tablename  | name |           |          |
+ indexname  | name |           |          |
+ tablespace | name |           |          |
+ indexdef   | text |           |          |
+
+
+
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'my_table-name' order by indexname desc;
+```
 
 ## Backup and Restore
 
