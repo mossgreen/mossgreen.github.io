@@ -1,11 +1,28 @@
 ---
-title: Two Ways of Creating a Github Repository
+title: Git Commands
 search: true
 categories: 
   - Git
 ---
 
-Creating Github repo from either remote or locally.
+Git Commands
+
+## Configure global git ignore
+
+1. try to get the current config
+
+    ```bash
+    \$ git config --get core.excludesfile
+    ```
+
+2. if it doesn't exist, you can create a file
+
+    ```bash
+    \$ git config --global core.excludesFile '~/.gitignore'
+
+    \$ git config --get core.excludesfile                  
+    \$ ~/.gitignore
+    ```
 
 ## Two ways of creating a GitHub repository
 

@@ -329,6 +329,50 @@ gunzip -c database_name.gz | psql -U postgres database_name
 \$ sudo less postgresql-Sun.log | grep haha
 ```
 
+## Some handy queries
+
+### Top 10 WRITE Tables
+
+```sql
+select schemaname as "Schema Name", relname as "Table Name", n_tup_ins+n_tup_upd+n_tup_del as "no.of writes" from pg_stat_all_tables where schemaname not in ('snapshots',' pg_catalog') order by n_tup_ins+n_tup_upd+n_tup_del desc limit 10;
+```
+
+### Top 10 READ Tables
+
+```sql
+SELECT schemaname as "Schema Name", relname as "Table Name",seq_tup_read+idx_tup_fetch as "no. of reads" FROM pg_stat_all_tables WHERE (seq_tup_read + idx_tup_fetch) > 0 and schemaname NOT IN ('snapshots','pg_catalog') ORDER BY seq_tup_read+idx_tup_fetch desc limit 10;
+```
+
+### Largest Tables in DB
+
+```sql
+SELECT QUOTE_IDENT(TABLE_SCHEMA)||'.'||QUOTE_IDENT(table_name) as table_name,pg_relation_size(QUOTE_IDENT(TABLE_SCHEMA)|| '.'||QUOTE_IDENT(table_name)) as size, pg_total_relation_size(QUOTE_IDENT(TABLE_SCHEMA)||'.'|| QUOTE_IDENT(table_name)) as total_size, pg_size_pretty(pg_relation_size(QUOTE_IDENT(TABLE_SCHEMA)|| '.'||QUOTE_IDENT(table_name))) as pretty_relation_size, pg_size_pretty(pg_total_relation_size(QUOTE_IDENT(TABLE_ SCHEMA)||'.'||QUOTE_IDENT(table_name))) as pretty_total_ relation_size FROM information_schema.tables WHERE QUOTE_ IDENT(TABLE_SCHEMA) NOT IN ('snapshots') ORDER BY size DESC LIMIT 10;
+```
+
+### Table Size
+
+```sql
+SELECT schemaname, relname, pg_total_relation_size(schemaname || '.' || relname ) , pg_size_pretty(pg_total_relation_size(schemaname || '.' || relname )) FROM pg_stat_user_tables ORDER BY 3 DESC;
+```
+
+### Index Size
+
+```sql
+SELECT schemaname, relname, indexrelname, pg_total_relation_size(schemaname || '.' || indexrelname ) , pg_size_pretty(pg_total_relation_size(schemaname || '.' || indexrelname )) FROM pg_stat_user_indexes ORDER BY 1,2,3,4 DESC;
+```
+
+### Index Utilization
+
+```sql
+SELECT schemaname, relname, indexrelname, idx_scan, idx_tup_fetch, idx_tup_read FROM pg_stat_user_indexes ORDER BY 4 DESC,1,2,3;
+```
+
+### Slow Running Queries on DB from Last 5 Min
+
+```sql
+select now()-query_start as Running_Since,pid, datname, usename, application_name, client_addr, left(query,60) from pg_stat_activity where state in ('active','idle in transaction') and (now() - pg_stat_activity.query_start) > interval '2 minutes';
+```
+
 ## Reference
 
 1. [PSQL 24.1. SQL Dump](https://www.postgresql.org/docs/9.1/backup-dump.html)
@@ -336,3 +380,4 @@ gunzip -c database_name.gz | psql -U postgres database_name
 3. [5 Tips to Backup and Restore Database in PostgreSQL](https://tecadmin.net/backup-and-restore-database-in-postgresql/)
 4. [postgresql-if-statement](https://stackoverflow.com/questions/11299037/postgresql-if-statement/)
 5. [PostgreSQL Schema](https://www.postgresqltutorial.com/postgresql-schema/)
+6. [PostgreSQL Configuration: Best Practices for Performance and Security](https://www.oreilly.com/library/view/postgresql-configuration-best/9781484256633/)
