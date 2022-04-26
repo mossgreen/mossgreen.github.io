@@ -20,9 +20,12 @@ Better monitoring your app.
 
 ### we want to alarm Errors on Lambda, yes we do
 
-- 4xx response is not an error, it’s a response that indicates the client made a mistake
-- 5xx response is not an error, it’s a response that indicates the code process had an issue
-- an error would be something, the Lambda fails to respond, e.g., times out
+Function errors include
+
+- exceptions that your code throws, e.g., 4xx  and 5xx exception
+- exceptions that the Lambda runtime throws.
+
+lambda itself doesn’t have 4xx and 5xx metrics.
 
 ### we want to alarm 4XX and 5XX errors on the API Gateway
 
