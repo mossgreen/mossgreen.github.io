@@ -44,6 +44,7 @@ When you create an alarm, you specify three settings:
 - `Period` is the length of time to evaluate the metric, in seconds.
 - `Evaluation Periods` is the number of the most recent periods.
 - `Datapoints` to Alarm is the number of data points within the Evaluation Periods that must be breaching to cause the alarm to go to the ALARM state.
+- `Statistic` should use `Sum` in the following cases. `Minium` won't work because it always equals to `0`.
 
 ## With SAM
 
@@ -60,7 +61,7 @@ MyFunctionErrorsAlarm:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Statistic: Minimum
+      Statistic: Sum
       Period: 60
       Threshold: 1
       TreatMissingData: notBreaching
@@ -79,7 +80,7 @@ MyApiGateway5XXErrorAlarm:
       EvaluationPeriods: 1
       MetricName: 5XXError
       Namespace: AWS/ApiGateway
-      Statistic: Minimum
+      Statistic: Sum
       Period: 60
       Threshold: 1
       TreatMissingData: notBreaching
