@@ -1,9 +1,7 @@
 ---
 title: Use multi git accounts on mac
 tags:
-  - CloudWatch
-  - Lambda
-  - Alarm
+  - git
 toc: true
 toc_label: 'My Table of Contents'
 toc_icon: 'cog'
