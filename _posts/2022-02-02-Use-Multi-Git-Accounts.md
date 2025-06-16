@@ -24,6 +24,13 @@ ssh-keygen -t rsa -C "your_personal_email@example.com" -f ~/.ssh/id_rsa_personal
 ssh-keygen -t rsa -C "your_company_email@example.com" -f ~/.ssh/id_rsa_company
 ```
 
+### add to ssh key agent
+
+```bash
+ssh-add -K ~/.ssh/id_rsa_personal
+ssh-add -K ~/.ssh/id_rsa_company
+```
+
 ### Add Each Public Key to the Corresponding GitHub Account
 
 Go to GitHub > Settings > SSH and GPG keys, and add the correct public key for each account.
@@ -53,9 +60,12 @@ IdentitiesOnly yes
 
 ## How to use
 
-1. for existing git, do things normally, e.g., `git pull` under your project
-2. for new project, under github project/code/ssh, you have sth like `git@github.com:yourUserName/yourProjectName.git`
-
+1. git config for current project 
+2. git add remote origin `git remote add origin git@github.com-projectName.git`
+```bash
+git config user.email "yourUserEmail"
+git config user.name "yourUserName"
+```
 
 ## References
 
