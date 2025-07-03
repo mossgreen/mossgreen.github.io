@@ -10,7 +10,6 @@ toc_icon: 'cog'
 classes: wide
 ---
 
-Starts with a little effort.
 
 ## The short answer
 To get noticeably better responses from any large-language model you can pull three main levers:
