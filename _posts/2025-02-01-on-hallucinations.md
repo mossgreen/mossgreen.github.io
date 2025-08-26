@@ -4,10 +4,11 @@ tags:
   - LLM
   - AI
   - Hallucination
+search: true
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
-classes: wide
+toc_label: "My Table of Contents"
+toc_icon: "cog"
+classes: single
 ---
 Think of AI as a brilliant storyteller — amazing at creating stories, but not always a reliable historian.
 
