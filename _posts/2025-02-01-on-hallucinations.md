@@ -3,7 +3,7 @@ title: What Causes AI Hallucinations? How to Detect and Mitigate Them
 tags:
   - LLM
   - AI
-  - Hallucination
+  - Prompt Engineering
 search: true
 toc: true
 toc_label: "My Table of Contents"
@@ -51,6 +51,12 @@ This is related to the language modeling objective—maximizing likelihood of ne
 
 AI is designed to provide answers rather than say “I don’t know,” which can lead to **fabricated responses**.
 
+### Self-Delusion (Differentiating Generated vs. Given Data)
+- One hypothesis suggests that LLMs hallucinate because they cannot differentiate between the data they are given (input) and the data they generate (output)
+- If a model generates an initial incorrect statement, it may "snowball" by continuing to hallucinate to justify that initial wrong assumption
+- This means a model can expand upon slightly out-of-the-ordinary sequences to produce outrageously wrong facts
+
+
 ## How to Spot Hallucinations
 
 ### Fact-Checking Methods
@@ -73,10 +79,26 @@ AI is designed to provide answers rather than say “I don’t know,” which ca
 - Too-convenient examples.
 - Example: "Einstein once said in a private letter to his friend..." with no way to check if this letter exists
 
+### AI as a Judge
+- Use AI models to evaluate other AI models' outputs. 
+- GPT-3.5 and GPT-4 have demonstrated effectiveness in measuring factual consistency, with tools like GPT-judge achieving high accuracy in predicting truthfulness
+
+### Self-Verification (SelfCheckGPT)
+-  Generate multiple responses to a query; if these responses significantly disagree, the original output is likely a hallucination. 
+- This method can be expensive due to the number of AI queries required.
+
 ## How to Prevent and Fix Hallucinations
 
-### Technical Solutions
+### Prompt Engineering Techniques
+- Provide sufficient and relevant context
+- Write clear and explicit instructions: adopting personas, using delimiters, specifying steps, providing examples, and controlling output length
+- Ask models for concise responses (less token, lessly wrong)
+- Utilise chain-of-thought (CoT), "think step by step"
+
+### Data and Model Improvements
 - Retrieval-Augmented Generation (RAG): Connect AI to verified external knowledge sources so it can pull facts instead of guessing.
+- Fine-tune models with domain-specific, high-quality data
+- Use web browsing or search APIs to allow agents to reference up-to-date information, reducing reliance on potentially outdated internal knowledge
 - Structured databases: Use APIs or verified data to ground responses.
 - Confidence signals: Let AI indicate uncertainty.
 - Multiple AI models: Cross-check outputs for higher reliability.
@@ -100,12 +122,12 @@ AI is designed to provide answers rather than say “I don’t know,” which ca
 - Learning from mistakes: Build systems that learn from found errors and fix them
 - Example: News companies requiring human fact-checkers to verify all AI-written articles before publishing
 
-### Key Takeaways
+## Key Takeaways
 AI excels at storytelling, pattern recognition, and generating human-like text—but it’s not inherently truthful. Combining technical safeguards, human oversight, and clear processes can minimize hallucinations while keeping AI helpful.
 
 > Remember: The goal isn't to make AI perfect overnight, but to build systems and habits that reduce wrong information while keeping the helpful things AI can do.
 
-### todos
+## todos
 - theory about hallucinations
 - designing metrics to measure hallucinations,
 
