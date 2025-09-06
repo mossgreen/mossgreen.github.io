@@ -7,7 +7,8 @@ search: true
 toc: true
 toc_label: "My Table of Contents"
 toc_icon: "cog"
-classes: single
+classes: wide
+
 ---
 
 Without rigorous evaluation, the risks associated with AI might outweigh its benefits, leading to product failures, reputational damage, and financial loss.
@@ -73,9 +74,9 @@ A robust evaluation pipeline uses a blend of different metrics:
     - Factual Consistency / Groundedness: Measures whether the output is factually supported by a given context, a key metric for RAG systems.
     - Semantic Similarity: Uses embeddings and metrics like cosine similarity to measure how close the meaning of the generated response is to a reference answer.
     - The Product Metric Blend: A holistic framework that groups metrics into three buckets:
-        ▪ Product Health: User-facing metrics like engagement, user satisfaction, retention, and adoption.
-        ▪ System Health: Technical reliability metrics like uptime, error rate, and latency (including Time to First Token (TTFT) and Time per Output Token (TPOT)).
-        ▪ AI Proxy Metrics: Model-level performance measures like accuracy, precision, and recall.
+        - Product Health: User-facing metrics like engagement, user satisfaction, retention, and adoption.
+        - System Health: Technical reliability metrics like uptime, error rate, and latency (including Time to First Token (TTFT) and Time per Output Token (TPOT)).
+        - AI Proxy Metrics: Model-level performance measures like accuracy, precision, and recall.
 
 ### Best Practices
 
