@@ -1,5 +1,5 @@
 ---
-title: Prompt Engineering Demystified
+title: Prompt Engineering 101
 tags:
   - LLM
   - AI
