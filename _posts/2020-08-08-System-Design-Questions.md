@@ -13,7 +13,34 @@ Some common system design questions
 
 ## Delivery Framework
 
-## Common System Design Questions
+1. Requirements
+  - functional reuqirements
+  - unfunctional requirements, the quality of service
+    - May start from CAP 
+2. Core entities, the entities db will persist or api to exchange. 
+    Or, I can call it a concept. e.g., a user, an event, a ticket, etc.
+3. API or Interface design, no more than 5 mins
+4. Data Flow
+5. High-level Design, to meet the functional requirements
+6. Deep Dives, to fullfill the non-functional requirements, e.g., strongly consistent
+
+### How are system design interviews evaluated?
+
+1. problem solving: identify & prioritize the core challenges
+2. solution design: create scalable architectures with balanced trade-offs
+3. technical excellence: demonstrate deep knowledge and expertise
+4. communication: clearly explain complex concepts to stakeholders
+
+
+### Why do we need capacity estimation
+1. determine number of servers and databases
+2. cost management
+3. decide the type and specifications of all hardware(server, db, etc.)
+4. help us determine if the system is read heavy or write heavy, from read/write throughput analyse.
+  - read heavy, choose postgres with indexing
+  - write heavy, choose casandra or couchdb?
+
+## Common System Design Concepts
 
 ### Network and Infrastructure Constraints
 
@@ -28,7 +55,7 @@ Some common system design questions
 - Hot shards or sticky sessions cause one node to hit 90% CPU while siblings idle. Use consistent hashing or randomised load-balancing to level traffic.
 
 ### CAP Theorem Trade-Offs
-We can’t have strong consistency, full availability, and partition tolerance simultaneously:
+We can’t have strong consistency, full availability, and partition tolerance simultaneously.
 
 ### Database-Related Bottlenecks
 
@@ -56,8 +83,52 @@ We can’t have strong consistency, full availability, and partition tolerance s
 4. Cache Layering: Tier 1 (in-app LRU) → Tier 2 (Redis) → Tier 3 (DB/Backup).
 
 
+## Case study: design a youtube
 
+### Requirements
 
+1. Functional Requirements
+- users shoud be able to upload videos
+- users should be able to watch/stream videos
+
+the scale
+1m uplods/day
+1000M DAU
+Max video size of a video is 256GB
+
+2. non-functional requirements
+- availablity >> consistency for video upload
+- support uploading and streaming for large videos (256GB)
+- streaming low latency < 500 ms
+- scalability to scale to 1 M uploads/day and 100M views
+
+### Core entities
+- video
+- video metadata
+- user
+
+### API design
+// upload a video
+POST /api/v1/videos
+{
+  videoStoreId,
+  videoMetadata
+}
+
+// watch a video
+GET /api/v1/vides{videoId} -> video & videoMetadata
+
+### HLD
+// upload a video
+client -> S3 to get videoStoreId
+client -> api gateway -> video services -> videoMetadataDB (status: pending)
+          S3 notification, update videoMetadata status -> uploaded
+
+// to stream a video
+client -> api gateway -> video services -> videoMetadataDB: fetch by video id, find s3Url -> S3
+
+### Deep dive
+ 
 
 ## References
 
