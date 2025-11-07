@@ -1,5 +1,5 @@
 ---
-title: Prototype ai products using gradio
+title: Prototype AI Products with Gradio
 tags:
   - AI
   - gradio
@@ -8,6 +8,8 @@ toc_label: 'My Table of Contents'
 toc_icon: 'cog'
 classes: wide
 ---
+
+Build AI interfaces fast. Gradio turns Python functions into shareable web apps.
 
 ## First Demo
 

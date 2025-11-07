@@ -11,6 +11,8 @@ classes: wide
 
 ---
 
+Move complexity from prompts to code. Weaker models excel when you simplify their job.
+
 When working with LLMs, we often prototype with powerful models like GPT-4 or Claude Sonnet. But production reality hits: cost, latency, or infrastructure constraints force us to use weaker models. The challenge? Your carefully crafted prompt that worked beautifully with a frontier model now produces inconsistent or incorrect results.
 
 The solution isn't always to throw more examples at it or make the prompt longer. Sometimes, the answer is to use engineering principles to reduce complexity and make the task easier for the model to handle.

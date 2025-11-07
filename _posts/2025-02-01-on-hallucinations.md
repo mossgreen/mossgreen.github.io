@@ -10,7 +10,7 @@ toc_label: "My Table of Contents"
 toc_icon: "cog"
 classes: single
 ---
-Think of AI as a brilliant storyteller — amazing at creating stories, but not always a reliable historian.
+AI creates compelling stories but fabricates facts. Learn to spot and stop hallucinations.
 
 AI hallucinations happen when AI systems make up false information and present it as fact. This is one of the biggest problems with AI today. Learning how to spot and prevent these made-up facts is crucial for anyone using AI.
 

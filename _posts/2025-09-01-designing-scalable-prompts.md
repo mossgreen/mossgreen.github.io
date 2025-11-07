@@ -10,6 +10,7 @@ toc_icon: "cog"
 classes: wide
 
 ---
+Separate stable concepts from changing details. Your prompts become maintainable, not messy.
 
 Like a lot of developers, when I first started working with LLMs I wrote prompts in a very ad-hoc way. They worked… until they didn’t. Every new requirement meant I had to re-write or patch together instructions. It quickly turned into prompt soup — hard to maintain, inconsistent, and fragile.
 

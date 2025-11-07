@@ -11,6 +11,8 @@ classes: wide
 
 ---
 
+LLMs aren't compilers. Writing prompts like code makes them work harder, not smarter.
+
 When writing prompts, you face a choice: should you write instructions like code (programmatic) or like concepts (conceptual)?
 
 Here's what I mean:

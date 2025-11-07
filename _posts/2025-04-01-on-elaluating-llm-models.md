@@ -11,7 +11,7 @@ classes: wide
 
 ---
 
-Without rigorous evaluation, the risks associated with AI might outweigh its benefits, leading to product failures, reputational damage, and financial loss.
+Skip evaluation, risk failure. AI without testing is hope, not strategy.
 
 ## 1. What is Evaluating LLMs?
 

@@ -1,5 +1,5 @@
 ---
-title: AI Augmented Workflow vs AI Agent
+title: Workflows vs AI Agents
 tags:
   - Workflow
   - AI Agent

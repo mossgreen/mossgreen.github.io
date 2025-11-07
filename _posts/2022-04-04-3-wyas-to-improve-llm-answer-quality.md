@@ -1,5 +1,5 @@
 ---
-title: 3 Ways to Improve LLM Answer Quality
+title: Improve LLM Answer Quality
 tags:
   - LLM
   - Prompt engineering
@@ -10,6 +10,7 @@ toc_icon: 'cog'
 classes: wide
 ---
 
+Better prompts, better context, or better training. Three levers for quality answers.
 
 ## The short answer
 To get noticeably better responses from any large-language model you can pull three main levers:
