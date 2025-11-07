@@ -1,5 +1,5 @@
 ---
-title: Use Composite to Solve Recursive Issues
+title: Composite Pattern for Recursion
 tags:
   - java
   - spring

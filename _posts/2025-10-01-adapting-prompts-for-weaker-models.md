@@ -1,5 +1,5 @@
 ---
-title: Adapting Prompts for Weaker Models - Using Engineering to Reduce Complexity
+title: Prompts for Weaker LLM Models
 tags:
   - LLM
   - Prompt engineering

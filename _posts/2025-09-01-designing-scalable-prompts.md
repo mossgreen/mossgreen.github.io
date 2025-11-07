@@ -1,5 +1,5 @@
 ---
-title: Designing Scalable Prompts - Separating Concepts from Implementation
+title: Scalable Prompt Design
 tags:
   - LLM
   - Prompt engineering

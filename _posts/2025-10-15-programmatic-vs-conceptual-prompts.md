@@ -1,5 +1,5 @@
 ---
-title: Programmatic vs Conceptual Expression in Prompts - Which Should You Use?
+title: Programmatic vs Conceptual Prompts
 tags:
   - LLM
   - Prompt engineering

@@ -1,5 +1,5 @@
 ---
-title: Prototype AI Products with Gradio
+title: Prototyping AI with Gradio
 tags:
   - AI
   - gradio

@@ -1,5 +1,5 @@
 ---
-title: What Causes AI Hallucinations? How to Detect and Mitigate Them
+title: AI Hallucinations Explained
 tags:
   - LLM
   - AI
