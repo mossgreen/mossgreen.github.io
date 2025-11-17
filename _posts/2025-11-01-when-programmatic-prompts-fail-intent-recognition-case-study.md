@@ -30,21 +30,17 @@ My requirements were strict: **near-perfect accuracy** on edge cases, especially
 Coming from a software engineering background, I wrote the prompt like an algorithm:
 
 ```text
-First, compare user_input against the field names of current_intent.
-If user_input provides information matching any field in current_intent,
-treat it as supplemental data and retain current_intent.
+First, compare A against B.
+If A provides information matching any field in B, then do C.
 
-Otherwise, if user_input contains explicit signal of intent switching,
-match to intent_options based on semantic alignment of the complete
+Otherwise, if A contains signal of intent switching,
+match to D based on semantic alignment of the complete
 intent — not partial keyword overlap.
 
-If neither condition applies, extracted_intent remains current_intent.
+If neither condition applies, result remains A.
 
-Think carefully to review and correct the extracted_intent and
-extractedValues before proceeding further.
+Think carefully to review and correct the result before proceeding further.
 ```
-
-*Note: This is a simplified excerpt. The full prompt included intent schemas, field definitions, and output format specifications—not shown here for brevity.*
 
 This looked reasonable. Clear conditional logic, explicit branching, step-by-step instructions. The kind of prompt that should work according to conventional wisdom about "being explicit."
 
@@ -91,14 +87,11 @@ The programmatic approach had too many decision branches:
 I stripped away all the algorithmic complexity and wrote it as a goal:
 
 ```text
-The fields of an intent can be found in the intent_fields.
+The options can be from X.
 
-extracted_intent is one of the matching intent_options.
-If there are no matching value, extracted_intent is the value
-of current_intent.
+result is one of the matching options.
+If there are no matching value, result is the value of blah.
 ```
-
-*Note: This excerpt shows the core intent-mapping logic. Variables like `intent_fields`, `intent_options`, and `current_intent` were defined earlier in the prompt with the intent schemas and field definitions.*
 
 That's it. Two sentences instead of a multi-branch algorithm.
 
@@ -186,8 +179,8 @@ Natural language conditionals are inherently ambiguous compared to programming l
 
 The conceptual prompt had one clear goal:
 ```
-"extracted_intent is one of the matching intent_options.
-If no matching value, extracted_intent is current_intent."
+"result is one of the matching options.
+If no matching value, result is A."
 ```
 
 One decision: Does input match an intent option? Yes → return it. No → return current.
@@ -200,8 +193,8 @@ To ensure reliability, I tested at scale:
 ```java
 @RepeatedTest(10000)
 void shouldNotSwitchIntentWithIrrelevantIntent() {
-    RecognisedIntent result = system.process("what's the weather like today?");
-    assertThat(result.getExtractedIntent()).isEqualTo("product purchase");
+    Result result = system.process("what's the weather like today?");
+    assertThat(result.result()).isEqualTo("product purchase");
 }
 ```
 
