@@ -1,0 +1,725 @@
+---
+title: "Build A Booking System in Six Ways: A Deep Dive into AI Orchestration"
+tags:
+  - LLM
+  - OpenAI SDK
+  - Bedrock
+  - AI Agent
+search: true
+toc: true
+toc_label: "My Table of Contents"
+toc_icon: "cog"
+classes: wide
+
+---
+
+Explores six architectural patterns, from "AI as a service" to "multi-agent hierarchies." 
+## The Use Case
+
+A tennis court booking system with two functions:
+
+1. **check_availability** — Given date/time, return open slots
+2. **book** — Reserve the selected slot, return confirmation
+
+All 6 patterns implement these same 2 functions. The difference: **who decides which function to call and when**.
+
+---
+
+## Pattern A: Lambda → Bedrock (AI as Service)
+
+**Style:** None — AI just generates/responds
+
+### Architecture
+
+```
+User → API Gateway → Lambda → Bedrock → Lambda → DB → User
+```
+
+You control everything. Bedrock is just a text utility—no decision-making. It performs **discriminative tasks only**: parsing, classifying, extracting. The reasoning happens in your code.
+
+### Pseudo Code
+
+```python
+# Lambda handler - YOU control all logic
+# Two functions: check_availability, book
+
+def check_availability(date, time):
+    return db.query_available_slots(date, time)
+
+def book(slot_id, user_id):
+    return db.reserve_slot(slot_id, user_id)
+
+
+def handler(event):
+    user_input = event["body"]
+    session = get_session(event)  # your state store
+    
+    # Use Bedrock to parse natural language
+    prompt = f"Extract intent and params from: {user_input}"
+    parsed = bedrock.invoke_model(prompt)
+    # e.g., {intent: "check", date: "2025-12-04", time: "15:00"}
+    
+    # YOU decide which function to call
+    if parsed["intent"] == "check":
+        slots = check_availability(parsed["date"], parsed["time"])
+        session["available_slots"] = slots
+        return f"Available slots: {slots}"
+    
+    elif parsed["intent"] == "book":
+        result = book(parsed["slot_id"], session["user_id"])
+        return f"Booked! Confirmation: {result}"
+    
+    else:
+        return "Please tell me if you want to check availability or book."
+```
+
+**Key point:** Bedrock parses text. **Your code** decides which function to call.
+
+### Handling Multi-Turn Conversations
+
+What if booking requires multiple inputs: date, time, slot?
+
+**You manage the state:**
+
+```
+User: "Book a court for tomorrow"
+                ↓
+             Lambda
+                ├──→ Bedrock parse → {date: "2025-12-04", time: ?, slot: ?}
+                ├──→ Check: missing time, slot
+                ↓
+System: "What time would you like?"
+
+User: "3pm"
+                ↓
+             Lambda
+                ├──→ Bedrock parse → {time: "15:00"}
+                ├──→ Merge state → {date: "2025-12-04", time: "15:00", slot: ?}
+                ├──→ DB: get available slots
+                ↓
+System: "Slot A and B are available. Which one?"
+
+User: "Slot A"
+                ↓
+             Lambda
+                ├──→ Merge state → {date: "2025-12-04", time: "15:00", slot: "A"}
+                ├──→ All fields complete → DB book
+                ↓
+System: "Booked! Court A, Dec 4 at 3pm"
+```
+
+**You need to:**
+1. Store conversation state (DynamoDB, session, etc.)
+2. Check what's missing after each parse
+3. Prompt user for missing fields
+4. Merge new input into existing state
+
+**This is where Pattern A gets painful** — you're coding a state machine manually.
+
+Pattern B/C/D handle this naturally. Agents track context and ask follow-ups automatically.
+
+### Pros
+- Full control
+- Predictable behavior
+- Easy to debug
+
+### Cons
+- Rigid — every flow must be coded
+- No reasoning capability
+- **Multi-turn conversations require manual state management**
+
+### When to Use
+- Fixed, predictable workflows
+- AI only needed for text generation/formatting
+- You want full control over logic
+- **Single-turn or simple interactions**
+
+---
+
+## Pattern B: Bedrock Agent → Lambda (Agent Style)
+
+**Style:** Agent — autonomous reasoning + action loop
+
+### Architecture
+
+```
+User → Bedrock Agent → [Decides] → Lambda (Action Group) → DB
+                     ↑___________ observes result ___________|
+```
+
+Bedrock Agent reasons about what to do, picks actions, executes, and loops until done.
+
+### Pseudo Code
+
+```python
+# Agent definition (configured in Bedrock console/API)
+
+agent_config = {
+    "instruction": "You help users book tennis courts.",
+    "action_groups": [
+        {
+            "name": "BookingActions",
+            "lambda_arn": "arn:aws:lambda:...:booking-handler",
+            "actions": [
+                {
+                    "name": "check_availability",
+                    "description": "Check available tennis court slots",
+                    "parameters": {
+                        "date": "string"
+                    }
+                },
+                {
+                    "name": "book_slot",
+                    "description": "Book a specific slot",
+                    "parameters": {
+                        "slot_id": "string",
+                        "user_id": "string"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+# Lambda handles the actual DB work
+def booking_handler(event):
+    action = event["actionGroup"]
+    params = event["parameters"]
+    
+    if action == "check_availability":
+        return db.query_slots(params["date"])
+    elif action == "book_slot":
+        return db.book(params["slot_id"], params["user_id"])
+
+
+# Invocation - agent handles the rest
+response = bedrock_agent.invoke(
+    agent_id="xxx",
+    session_id="user-session",
+    input_text="Book me a court for tomorrow at 3pm"
+)
+# Agent autonomously: checks availability → picks slot → books → confirms
+```
+
+### Pros
+- Handles ambiguity ("tomorrow at 3pm" → agent figures it out)
+- Multi-step reasoning built-in
+- Less code for complex flows
+
+### Cons
+- Less predictable
+- Debugging is harder
+- Vendor lock-in (AWS)
+
+### When to Use
+- Multi-step tasks with user intent interpretation
+- You want AWS-native solution
+- Acceptable latency for agent reasoning
+
+---
+
+## Pattern C: OpenAI Function Call → Lambda (Function Call Style)
+
+**Style:** Function Call — AI suggests, YOU execute and control loop
+
+### Architecture
+
+```
+User → Your Code → OpenAI API → [suggests function] → Your Code → Lambda → DB
+            ↑______________________ you decide next step __________________|
+```
+
+OpenAI suggests which function to call. You execute it and decide what happens next.
+
+### How the Loop Works
+
+```
+User: "Book a court for tomorrow at 3pm"
+
+Loop 1:
+┌─────────────────────────────────────────────────────────────┐
+│ messages = [{role: "user", content: "Book a court..."}]     │
+│                          ↓                                  │
+│ OpenAI API (with tools defined)                             │
+│                          ↓                                  │
+│ Response: tool_calls = [{name: "check_availability",        │
+│                          args: {date: "2025-12-04"}}]       │
+│                          ↓                                  │
+│ Has tool_calls? YES → YOU execute invoke_lambda()           │
+│                          ↓                                  │
+│ Append to messages:                                         │
+│   - assistant msg (with tool_call)                          │
+│   - tool result: [{slot_id: "A", time: "3pm"}, ...]        │
+│                          ↓                                  │
+│ Continue loop                                               │
+└─────────────────────────────────────────────────────────────┘
+
+Loop 2:
+┌─────────────────────────────────────────────────────────────┐
+│ messages = [user msg, assistant tool_call, tool result]     │
+│                          ↓                                  │
+│ OpenAI API (sees availability result)                       │
+│                          ↓                                  │
+│ Response: tool_calls = [{name: "book_slot",                 │
+│                          args: {slot_id: "A"}}]             │
+│                          ↓                                  │
+│ Has tool_calls? YES → YOU execute invoke_lambda()           │
+│                          ↓                                  │
+│ Append to messages:                                         │
+│   - assistant msg (with tool_call)                          │
+│   - tool result: {confirmation: "Booked!"}                  │
+│                          ↓                                  │
+│ Continue loop                                               │
+└─────────────────────────────────────────────────────────────┘
+
+Loop 3:
+┌─────────────────────────────────────────────────────────────┐
+│ messages = [user, tool_call, result, tool_call, result]     │
+│                          ↓                                  │
+│ OpenAI API (sees booking confirmed)                         │
+│                          ↓                                  │
+│ Response: tool_calls = None                                 │
+│           content = "Your court is booked for..."           │
+│                          ↓                                  │
+│ Has tool_calls? NO → return content → EXIT LOOP             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Who controls what:**
+
+| What | Who |
+|------|-----|
+| Which function to call | AI suggests |
+| Actually calling the function | **You** |
+| Continue or stop loop | **You** |
+| What to do with result | **You** |
+
+### Pseudo Code
+
+```python
+# YOU control the loop
+
+def handle_booking_request(user_input):
+    messages = [{"role": "user", "content": user_input}]
+    
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "check_availability",
+                "description": "Check available slots",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "date": {"type": "string"}
+                    }
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "book_slot",
+                "description": "Book a slot",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "slot_id": {"type": "string"}
+                    }
+                }
+            }
+        }
+    ]
+    
+    # Loop controlled by YOU
+    while True:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            tools=tools
+        )
+        
+        msg = response.choices[0].message
+        
+        # No function call? Done.
+        if not msg.tool_calls:
+            return msg.content
+        
+        # YOU execute the function
+        for tool_call in msg.tool_calls:
+            fn_name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            
+            # YOU call Lambda and decide what to do with result
+            result = invoke_lambda(fn_name, args)
+            
+            messages.append(msg)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(result)
+            })
+        
+        # YOU decide: continue loop or break?
+```
+
+### Pros
+- Fine-grained control over execution
+- Can add validation/logging between steps
+- Portable — not locked to one vendor
+
+### Cons
+- More code to write
+- You manage the loop logic
+
+### When to Use
+- Need control between AI decisions
+- Want to add custom validation/logic per step
+- Building portable, vendor-agnostic solution
+
+---
+
+## Pattern D: OpenAI Agent → Lambda (Agent Style)
+
+**Style:** Agent — SDK handles reasoning + execution autonomously
+
+### Architecture
+
+```
+User → OpenAI Agent SDK → [Reasons + Acts autonomously] → Lambda → DB
+```
+
+The SDK manages the loop. You define tools; it handles execution.
+
+### Pseudo Code
+
+```python
+from openai import OpenAI
+from openai.agents import Agent, Tool
+
+client = OpenAI()
+
+# Define tools
+def check_availability(date: str) -> dict:
+    """Check available tennis court slots"""
+    return invoke_lambda("check_availability", {"date": date})
+
+def book_slot(slot_id: str, user_id: str) -> dict:
+    """Book a specific slot"""
+    return invoke_lambda("book_slot", {"slot_id": slot_id, "user_id": user_id})
+
+# Create agent with tools
+agent = Agent(
+    name="BookingAgent",
+    instructions="You help users book tennis courts. Check availability first, then book.",
+    tools=[check_availability, book_slot]
+)
+
+# Run - SDK handles the loop autonomously
+result = agent.run("Book me a court for tomorrow at 3pm")
+print(result.final_output)
+# Agent autonomously reasons, calls tools, loops until done
+```
+
+### Pros
+- Clean, minimal code
+- SDK handles complexity
+- Good balance of power and simplicity
+
+### Cons
+- Less control than function call pattern
+- Depends on SDK behavior
+
+### When to Use
+- Want agent capabilities without managing loops
+- Trust SDK to handle execution
+- Rapid prototyping
+
+---
+
+## Pattern E: OpenAI Manager → Bedrock Sub-Agents (Multi-Agent)
+
+**Style:** Multi-Agent — hierarchical delegation
+
+### Architecture
+
+```
+User → Manager Agent (OpenAI) → [Decides which specialist]
+                                      ↓
+                    ┌─────────────────┼─────────────────┐
+                    ↓                 ↓                 ↓
+            Booking Agent      Payment Agent     Support Agent
+            (Bedrock)          (Bedrock)         (Bedrock)
+                 ↓                 ↓                 ↓
+              Lambda            Lambda            Lambda
+```
+
+Manager routes to specialists. Each specialist handles its domain.
+
+### Pseudo Code
+
+```python
+from openai.agents import Agent
+
+# Sub-agents (Bedrock-based specialists)
+def invoke_booking_agent(task: str) -> str:
+    """Delegate to booking specialist"""
+    response = bedrock_agent.invoke(
+        agent_id="booking-agent-id",
+        input_text=task
+    )
+    return response["output"]
+
+def invoke_payment_agent(task: str) -> str:
+    """Delegate to payment specialist"""
+    response = bedrock_agent.invoke(
+        agent_id="payment-agent-id",
+        input_text=task
+    )
+    return response["output"]
+
+def invoke_support_agent(task: str) -> str:
+    """Delegate to support specialist"""
+    response = bedrock_agent.invoke(
+        agent_id="support-agent-id",
+        input_text=task
+    )
+    return response["output"]
+
+# Manager agent
+manager = Agent(
+    name="ManagerAgent",
+    instructions="""
+    You route user requests to the right specialist:
+    - Booking questions → booking agent
+    - Payment issues → payment agent  
+    - General help → support agent
+    Synthesize responses before returning to user.
+    """,
+    tools=[invoke_booking_agent, invoke_payment_agent, invoke_support_agent]
+)
+
+# Run
+result = manager.run("I want to book a court and pay with my saved card")
+# Manager delegates to booking agent, then payment agent, synthesizes result
+```
+
+### Pros
+- Separation of concerns
+- Each agent can be optimized for its domain
+- Scales to complex systems
+
+### Cons
+- Highest complexity
+- Multiple points of failure
+- Cost (multiple agent invocations)
+
+### When to Use
+- Multiple distinct domains
+- Need specialized agents per domain
+- Building complex, enterprise-scale systems
+
+---
+
+## Pattern F: OpenAI Manager → Lambda-Wrapped Agents (Multi-Agent + Isolation)
+
+**Style:** Multi-Agent — hierarchical delegation with agent isolation
+
+### Architecture
+
+```
+User → OpenAI Manager → [Routes]
+                            ↓
+            ┌───────────────┼───────────────┐
+            ↓               ↓               ↓
+       Lambda A         Lambda B        Lambda C
+    (Booking Agent)  (Payment Agent)  (Support Agent)
+            ↓               ↓               ↓
+       Agent logic      Agent logic     Agent logic
+       (Bedrock)        (Claude)        (OpenAI)
+            ↓               ↓               ↓
+           DB            Stripe         Zendesk
+```
+
+Manager routes to Lambdas. Each Lambda wraps its own agent.
+
+### Difference from Pattern E
+
+| Aspect | E: Direct | F: Lambda-Wrapped |
+|--------|-----------|-------------------|
+| Manager calls | Bedrock Agent directly | Lambda |
+| Agent runs in | Bedrock (managed) | Lambda (your infra) |
+| Vendor mix | Same vendor per agent | Mix vendors freely |
+| Custom logic | Before/after agent call | Full control per Lambda |
+
+### Pseudo Code
+
+```python
+from openai.agents import Agent
+
+# Lambda A: Booking Agent (uses Bedrock)
+# deployed as separate Lambda function
+def booking_lambda_handler(event):
+    task = event["task"]
+    
+    # Pre-processing (custom logic)
+    task = sanitize_input(task)
+    
+    # Agent logic (Bedrock)
+    response = bedrock_agent.invoke(
+        agent_id="booking-agent-id",
+        input_text=task
+    )
+    
+    # Post-processing (custom logic)
+    return format_booking_response(response["output"])
+
+
+# Lambda B: Payment Agent (uses Claude)
+def payment_lambda_handler(event):
+    task = event["task"]
+    
+    # Agent logic (Claude)
+    response = claude.messages.create(
+        model="claude-sonnet-4-20250514",
+        messages=[{"role": "user", "content": task}],
+        tools=[process_payment, refund_payment]
+    )
+    return response
+
+
+# Lambda C: Support Agent (uses OpenAI)
+def support_lambda_handler(event):
+    task = event["task"]
+    
+    # Agent logic (OpenAI)
+    response = openai.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": task}]
+    )
+    return response.choices[0].message.content
+
+
+# Manager agent — calls Lambdas, not agents directly
+def invoke_booking_lambda(task: str) -> str:
+    """Delegate to booking Lambda"""
+    return lambda_client.invoke("booking-lambda", {"task": task})
+
+def invoke_payment_lambda(task: str) -> str:
+    """Delegate to payment Lambda"""
+    return lambda_client.invoke("payment-lambda", {"task": task})
+
+def invoke_support_lambda(task: str) -> str:
+    """Delegate to support Lambda"""
+    return lambda_client.invoke("support-lambda", {"task": task})
+
+
+manager = Agent(
+    name="ManagerAgent",
+    instructions="""
+    Route user requests to the right specialist Lambda.
+    Synthesize responses before returning to user.
+    """,
+    tools=[invoke_booking_lambda, invoke_payment_lambda, invoke_support_lambda]
+)
+
+# Run
+result = manager.run("I want to book a court and pay with my saved card")
+```
+
+### Pros
+- Mix agent vendors (Bedrock, Claude, OpenAI per Lambda)
+- Full control over each agent's environment
+- Add custom pre/post processing per agent
+- Better isolation and independent scaling
+
+### Cons
+- Most complex to set up
+- More infrastructure to manage
+- Higher latency (Lambda cold starts + agent calls)
+
+### When to Use
+- Need to mix AI vendors per domain
+- Require custom logic before/after each agent
+- Want independent scaling/deployment per agent
+- Enterprise systems with strict isolation requirements
+
+---
+
+## Side-by-Side Comparison
+
+| Pattern | Style | Control | Complexity | Flexibility | Cost |
+|---------|-------|---------|------------|-------------|------|
+| A: Lambda → Bedrock | None | Full | Low | Low | Low |
+| B: Bedrock Agent | Agent | Low | Medium | High | Medium |
+| C: OpenAI Function Call | Function Call | High | Medium | Medium | Medium |
+| D: OpenAI Agent | Agent | Medium | Low | High | Medium |
+| E: Multi-Agent | Multi-Agent | Low | High | Highest | High |
+| F: Lambda-Wrapped Agents | Multi-Agent | Medium | Highest | Highest | High |
+
+---
+
+## Decision Guide
+
+**Choose Pattern A if:**
+- Your workflow is fixed and predictable
+- You only need AI for text generation
+- You want maximum control and debuggability
+
+**Choose Pattern B if:**
+- You're AWS-native
+- Need multi-step reasoning
+- Want managed agent infrastructure
+
+**Choose Pattern C if:**
+- You need control between AI decisions
+- Want to add custom validation per step
+- Building vendor-agnostic solution
+
+**Choose Pattern D if:**
+- Want agent power with minimal code
+- Trust SDK to manage execution
+- Rapid development is priority
+
+**Choose Pattern E if:**
+- Multiple domains require specialists
+- Building enterprise-scale system
+- Can handle the complexity
+
+**Choose Pattern F if:**
+- Need to mix AI vendors (Bedrock + Claude + OpenAI)
+- Require custom logic before/after each agent
+- Want independent scaling per agent
+- Strict isolation requirements
+
+---
+
+## Conclusion
+
+There's no silver bullet. The right pattern depends on:
+
+- **How much control do you need?**
+- **How complex is your workflow?**
+- **What's your tolerance for unpredictability?**
+
+### Deeper Insight: How AI's Role Evolves
+
+Notice how AI's job changes across patterns:
+
+| Pattern | AI Task |
+|---------|---------|
+| **A** | Discriminative only — parse, classify, extract |
+| **B–F** | Discriminative + Generative — reason, plan, respond |
+
+In Pattern A, you could *theoretically* replace the LLM with a simpler NLU tool (though multilingual inputs make LLM worthwhile). The AI just converts messy input to structured data.
+
+In Patterns B–F, the AI must **think**:
+- "What's missing? I should ask."
+- "Two slots available. I should present options."
+- "Booking failed. I should explain and suggest alternatives."
+
+This shift from **parsing** to **reasoning** is why agent patterns feel more powerful — but also less predictable.
+
+---
+
+Start simple (Pattern A or C), add agent capabilities when needed (B or D), and scale to multi-agent (E or F) only when complexity demands it.
