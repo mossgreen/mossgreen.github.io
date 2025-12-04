@@ -1,5 +1,5 @@
 ---
-title: "Build A Booking System in Six Ways: A Deep Dive into AI Orchestration"
+title: "AI Orchestration Deep Dive: From No-Agent to Multi-Agent and Beyond"
 tags:
   - LLM
   - OpenAI SDK
@@ -13,7 +13,8 @@ classes: wide
 
 ---
 
-Explores six architectural patterns, from "AI as a service" to "multi-agent hierarchies." 
+Explores six architectural patterns, from AI as a service (no agent) to multi-agents, and more.
+
 ## The Use Case
 
 A tennis court booking system with two functions:
@@ -25,7 +26,7 @@ All 6 patterns implement these same 2 functions. The difference: **who decides w
 
 ---
 
-## Pattern A: Lambda → Bedrock (AI as Service)
+## Pattern A: Lambda → Bedrock (AI as Service, no agent)
 
 **Style:** None — AI just generates/responds
 
@@ -445,16 +446,20 @@ print(result.final_output)
 
 ```
 User → Manager Agent (OpenAI) → [Decides which specialist]
-                                      ↓
-                    ┌─────────────────┼─────────────────┐
-                    ↓                 ↓                 ↓
-            Booking Agent      Payment Agent     Support Agent
-            (Bedrock)          (Bedrock)         (Bedrock)
-                 ↓                 ↓                 ↓
-              Lambda            Lambda            Lambda
+                    ↓
+        ┌──────────┴──────────┐
+        ↓                     ↓
+  Availability Agent     Booking Agent
+     (Bedrock)             (Bedrock)
+        ↓                     ↓
+     Lambda                Lambda
+        ↓                     ↓
+       DB                    DB
 ```
 
-Manager routes to specialists. Each specialist handles its domain.
+Manager routes to specialists. Each specialist handles its domain:
+- **Availability Agent** — handles `check_availability`
+- **Booking Agent** — handles `book_slot`
 
 ### Pseudo Code
 
@@ -462,26 +467,18 @@ Manager routes to specialists. Each specialist handles its domain.
 from openai.agents import Agent
 
 # Sub-agents (Bedrock-based specialists)
+def invoke_availability_agent(task: str) -> str:
+    """Delegate to availability specialist - checks open slots"""
+    response = bedrock_agent.invoke(
+        agent_id="availability-agent-id",
+        input_text=task
+    )
+    return response["output"]
+
 def invoke_booking_agent(task: str) -> str:
-    """Delegate to booking specialist"""
+    """Delegate to booking specialist - reserves slots"""
     response = bedrock_agent.invoke(
         agent_id="booking-agent-id",
-        input_text=task
-    )
-    return response["output"]
-
-def invoke_payment_agent(task: str) -> str:
-    """Delegate to payment specialist"""
-    response = bedrock_agent.invoke(
-        agent_id="payment-agent-id",
-        input_text=task
-    )
-    return response["output"]
-
-def invoke_support_agent(task: str) -> str:
-    """Delegate to support specialist"""
-    response = bedrock_agent.invoke(
-        agent_id="support-agent-id",
         input_text=task
     )
     return response["output"]
@@ -491,17 +488,67 @@ manager = Agent(
     name="ManagerAgent",
     instructions="""
     You route user requests to the right specialist:
-    - Booking questions → booking agent
-    - Payment issues → payment agent  
-    - General help → support agent
+    - Checking availability → availability agent
+    - Making a reservation → booking agent
+
+    For a complete booking flow:
+    1. First route to availability agent to get open slots
+    2. Then route to booking agent to reserve the chosen slot
+
     Synthesize responses before returning to user.
     """,
-    tools=[invoke_booking_agent, invoke_payment_agent, invoke_support_agent]
+    tools=[invoke_availability_agent, invoke_booking_agent]
 )
 
 # Run
-result = manager.run("I want to book a court and pay with my saved card")
-# Manager delegates to booking agent, then payment agent, synthesizes result
+result = manager.run("Book me a court for tomorrow at 3pm")
+# Manager: calls availability agent → gets slots → calls booking agent → confirms
+```
+
+### Bedrock Sub-Agent Configurations
+
+```python
+# Availability Agent (Bedrock)
+availability_agent_config = {
+    "instruction": "You check tennis court availability. Return available slots.",
+    "action_groups": [
+        {
+            "name": "AvailabilityActions",
+            "lambda_arn": "arn:aws:lambda:...:availability-handler",
+            "actions": [
+                {
+                    "name": "check_availability",
+                    "description": "Check available slots for date/time",
+                    "parameters": {
+                        "date": "string",
+                        "time": "string"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+# Booking Agent (Bedrock)
+booking_agent_config = {
+    "instruction": "You book tennis court slots. Confirm reservations.",
+    "action_groups": [
+        {
+            "name": "BookingActions",
+            "lambda_arn": "arn:aws:lambda:...:booking-handler",
+            "actions": [
+                {
+                    "name": "book_slot",
+                    "description": "Reserve a specific slot",
+                    "parameters": {
+                        "slot_id": "string",
+                        "user_id": "string"
+                    }
+                }
+            ]
+        }
+    ]
+}
 ```
 
 ### Pros
@@ -510,7 +557,7 @@ result = manager.run("I want to book a court and pay with my saved card")
 - Scales to complex systems
 
 ### Cons
-- Highest complexity
+- Higher complexity
 - Multiple points of failure
 - Cost (multiple agent invocations)
 
@@ -529,106 +576,113 @@ result = manager.run("I want to book a court and pay with my saved card")
 
 ```
 User → OpenAI Manager → [Routes]
-                            ↓
-            ┌───────────────┼───────────────┐
-            ↓               ↓               ↓
-       Lambda A         Lambda B        Lambda C
-    (Booking Agent)  (Payment Agent)  (Support Agent)
-            ↓               ↓               ↓
-       Agent logic      Agent logic     Agent logic
-       (Bedrock)        (Claude)        (OpenAI)
-            ↓               ↓               ↓
-           DB            Stripe         Zendesk
+                ↓
+    ┌───────────┴───────────┐
+    ↓                       ↓
+Lambda A                Lambda B
+(Availability Agent)    (Booking Agent)
+    ↓                       ↓
+Agent logic             Agent logic
+(Bedrock)               (Claude)
+    ↓                       ↓
+   DB                      DB
 ```
 
 Manager routes to Lambdas. Each Lambda wraps its own agent.
 
 ### Difference from Pattern E
 
-| Aspect | E: Direct | F: Lambda-Wrapped |
-|--------|-----------|-------------------|
-| Manager calls | Bedrock Agent directly | Lambda |
-| Agent runs in | Bedrock (managed) | Lambda (your infra) |
-| Vendor mix | Same vendor per agent | Mix vendors freely |
-| Custom logic | Before/after agent call | Full control per Lambda |
+| Aspect           | E: Direct              | F: Lambda-Wrapped        |
+|------------------|------------------------|--------------------------|
+| Manager calls    | Bedrock Agent directly | Lambda                   |
+| Agent runs in    | Bedrock (managed)      | Lambda (your infra)      |
+| Vendor mix       | Same vendor per agent  | Mix vendors freely       |
+| Custom logic     | Before/after agent call| Full control per Lambda  |
 
 ### Pseudo Code
 
 ```python
 from openai.agents import Agent
 
-# Lambda A: Booking Agent (uses Bedrock)
+# Lambda A: Availability Agent (uses Bedrock)
 # deployed as separate Lambda function
-def booking_lambda_handler(event):
+def availability_lambda_handler(event):
     task = event["task"]
-    
+
     # Pre-processing (custom logic)
     task = sanitize_input(task)
-    
+
     # Agent logic (Bedrock)
     response = bedrock_agent.invoke(
-        agent_id="booking-agent-id",
+        agent_id="availability-agent-id",
         input_text=task
     )
-    
+
     # Post-processing (custom logic)
-    return format_booking_response(response["output"])
+    return format_availability_response(response["output"])
 
-
-# Lambda B: Payment Agent (uses Claude)
-def payment_lambda_handler(event):
+# Lambda B: Booking Agent (uses Claude)
+def booking_lambda_handler(event):
     task = event["task"]
-    
+
     # Agent logic (Claude)
     response = claude.messages.create(
         model="claude-sonnet-4-20250514",
         messages=[{"role": "user", "content": task}],
-        tools=[process_payment, refund_payment]
+        tools=[{
+            "name": "book_slot",
+            "description": "Reserve a tennis court slot",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "slot_id": {"type": "string"},
+                    "user_id": {"type": "string"}
+                }
+            }
+        }]
     )
-    return response
 
+    # Execute tool if called
+    if response.stop_reason == "tool_use":
+        tool_result = db.book(
+            response.content[1].input["slot_id"],
+            response.content[1].input["user_id"]
+        )
+        return {"confirmation": tool_result}
 
-# Lambda C: Support Agent (uses OpenAI)
-def support_lambda_handler(event):
-    task = event["task"]
-    
-    # Agent logic (OpenAI)
-    response = openai.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": task}]
-    )
-    return response.choices[0].message.content
-
+    return response.content[0].text
 
 # Manager agent — calls Lambdas, not agents directly
+def invoke_availability_lambda(task: str) -> str:
+    """Delegate to availability Lambda"""
+    return lambda_client.invoke("availability-lambda", {"task": task})
+
 def invoke_booking_lambda(task: str) -> str:
     """Delegate to booking Lambda"""
     return lambda_client.invoke("booking-lambda", {"task": task})
 
-def invoke_payment_lambda(task: str) -> str:
-    """Delegate to payment Lambda"""
-    return lambda_client.invoke("payment-lambda", {"task": task})
-
-def invoke_support_lambda(task: str) -> str:
-    """Delegate to support Lambda"""
-    return lambda_client.invoke("support-lambda", {"task": task})
-
-
 manager = Agent(
     name="ManagerAgent",
     instructions="""
-    Route user requests to the right specialist Lambda.
+    Route user requests to the right specialist Lambda:
+    - Checking availability → availability Lambda
+    - Making a reservation → booking Lambda
+
+    For a complete booking:
+    1. First call availability Lambda to get open slots
+    2. Then call booking Lambda to reserve the chosen slot
+
     Synthesize responses before returning to user.
     """,
-    tools=[invoke_booking_lambda, invoke_payment_lambda, invoke_support_lambda]
+    tools=[invoke_availability_lambda, invoke_booking_lambda]
 )
 
 # Run
-result = manager.run("I want to book a court and pay with my saved card")
+result = manager.run("Book me a court for tomorrow at 3pm")
 ```
 
 ### Pros
-- Mix agent vendors (Bedrock, Claude, OpenAI per Lambda)
+- Mix agent vendors (Bedrock for availability, Claude for booking)
 - Full control over each agent's environment
 - Add custom pre/post processing per agent
 - Better isolation and independent scaling
