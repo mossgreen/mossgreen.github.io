@@ -13,7 +13,7 @@ classes: wide
 
 ---
 
-Explores six architectural patterns, from AI as a service (no agent) to multi-agents, and more.
+Explores seven architectural patterns, from AI as a service (no agent) to multi-agents, and more.
 
 ## The Use Case
 
@@ -22,7 +22,7 @@ A tennis court booking system with two functions:
 1. **check_availability** — Given date/time, return open slots
 2. **book** — Reserve the selected slot, return confirmation
 
-All 6 patterns implement these same 2 functions. The difference: **who decides which function to call and when**.
+All 7 patterns implement these same 2 functions. The difference: **who decides which function to call and when**.
 
 ---
 
@@ -438,7 +438,84 @@ print(result.final_output)
 
 ---
 
-## Pattern E: OpenAI Manager → Bedrock Sub-Agents (Multi-Agent)
+## Pattern E: OpenAI Workflow → Lambda (Workflow Style)
+
+**Style:** Workflow — deterministic steps with AI reasoning within each step
+
+### Architecture
+```
+User → OpenAI Workflow → [Step 1] → Lambda → [Step 2] → Lambda → Result
+                            ↓           ↓
+                        AI reasoning   AI reasoning
+                        (constrained)  (constrained)
+```
+
+You define the sequence explicitly. AI handles reasoning **within** each step, but cannot change the step order. 
+
+Note: Lambda is used as the execution example throughout. You can substitute with inline functions, HTTP services, or any callable.
+
+
+### How It Differs from Agents
+
+| Aspect | Agent (Pattern D) | Workflow (Pattern E) |
+|--------|-------------------|----------------------|
+| Step order | AI decides | **You define** |
+| Can skip steps | Yes | No |
+| Can reorder | Yes | No |
+| AI role | Full autonomy | **Constrained per step** |
+
+### Pseudo Code
+```python
+from agents import Agent
+
+availability_agent = Agent(
+    name="AvailabilityChecker",
+    instructions="Extract date/time and check availability.",
+    tools=[check_availability_lambda]
+)
+
+booking_agent = Agent(
+    name="BookingAgent", 
+    instructions="Book the selected slot.",
+    tools=[book_slot_lambda]
+)
+
+@workflow
+def booking_workflow(user_input: str):
+    # Step 1: Always check availability first (deterministic)
+    availability_result = availability_agent.run(user_input)
+    
+    # Custom logic between steps
+    if not availability_result.slots:
+        return "No slots available."
+    
+    # Step 2: Then book (deterministic order)
+    confirmation = booking_agent.run(
+        f"Book from: {availability_result.slots}"
+    )
+    return confirmation
+```
+
+### Pros
+- **Predictable sequence** — you define step order explicitly
+- **AI flexibility within steps** — handles ambiguity per step
+- **Easier debugging** — know exactly which step failed
+- **Custom logic between steps** — validation, logging, branching
+
+### Cons
+- Less flexible than full agents (can't dynamically reorder)
+- Requires upfront workflow design
+- May be overkill for simple cases
+
+### When to Use
+- Known step sequence, but need AI reasoning within each
+- Want predictability of workflows + flexibility of agents
+- Compliance or audit requirements need deterministic flow
+- Need to add business logic between AI steps
+
+---
+
+## Pattern F: OpenAI Manager → Bedrock Sub-Agents (Multi-Agent)
 
 **Style:** Multi-Agent — hierarchical delegation
 
@@ -568,7 +645,7 @@ booking_agent_config = {
 
 ---
 
-## Pattern F: OpenAI Manager → Lambda-Wrapped Agents (Multi-Agent + Isolation)
+## Pattern G: OpenAI Manager → Lambda-Wrapped Agents (Multi-Agent + Isolation)
 
 **Style:** Multi-Agent — hierarchical delegation with agent isolation
 
@@ -702,18 +779,31 @@ result = manager.run("Book me a court for tomorrow at 3pm")
 
 ## Side-by-Side Comparison
 
-| Pattern | Style | Control | Complexity | Flexibility | Cost |
-|---------|-------|---------|------------|-------------|------|
-| A: Lambda → Bedrock | None | Full | Low | Low | Low |
-| B: Bedrock Agent | Agent | Low | Medium | High | Medium |
-| C: OpenAI Function Call | Function Call | High | Medium | Medium | Medium |
-| D: OpenAI Agent | Agent | Medium | Low | High | Medium |
-| E: Multi-Agent | Multi-Agent | Low | High | Highest | High |
-| F: Lambda-Wrapped Agents | Multi-Agent | Medium | Highest | Highest | High |
+| Pattern | Style | Control | Complexity | Predictability | Cost |
+| --- | --- | --- | --- | --- | --- |
+| A | AI as Service(no agent) | Full | Low | High | Low |
+| B | Agent | Low | Medium | Low | Medium |
+| C | Function Call | High | Medium | Medium | Medium |
+| D | Agent | Medium | Low | Low | Medium |
+| E | Workflow | High | Medium | High | Medium |
+| F | Multi-Agent | Low | High | Low | High |
+| G | Multi-Agent | Medium | Highest | Low | High |
+
 
 ---
-
 ## Decision Guide
+
+### The Spectrum
+```
+Control ←————————————————————————→ Autonomy
+
+    A       C       E       D       B       F/G
+    |       |       |       |       |        |
+  Manual  Loop   Workflow  Agent  Managed  Multi-
+  Code   Control  Steps    SDK    Agent    Agent
+```
+
+### When to Use What
 
 **Choose Pattern A if:**
 - Your workflow is fixed and predictable
@@ -736,11 +826,17 @@ result = manager.run("Book me a court for tomorrow at 3pm")
 - Rapid development is priority
 
 **Choose Pattern E if:**
+- You have a known step sequence but need AI within each step
+- Want predictability of workflows + flexibility of agents
+- Need to add business logic between AI steps
+- Compliance or audit requirements need deterministic flow
+
+**Choose Pattern F if:**
 - Multiple domains require specialists
 - Building enterprise-scale system
 - Can handle the complexity
 
-**Choose Pattern F if:**
+**Choose Pattern G if:**
 - Need to mix AI vendors (Bedrock + Claude + OpenAI)
 - Require custom logic before/after each agent
 - Want independent scaling per agent
@@ -748,32 +844,35 @@ result = manager.run("Book me a court for tomorrow at 3pm")
 
 ---
 
-## Conclusion
+## Deeper Insight
 
-There's no silver bullet. The right pattern depends on:
-
-- **How much control do you need?**
-- **How complex is your workflow?**
-- **What's your tolerance for unpredictability?**
-
-### Deeper Insight: How AI's Role Evolves
-
-Notice how AI's job changes across patterns:
+### How AI's Role Evolves
 
 | Pattern | AI Task |
 |---------|---------|
 | **A** | Discriminative only — parse, classify, extract |
-| **B–F** | Discriminative + Generative — reason, plan, respond |
+| **B–G** | Discriminative + Generative — reason, plan, respond |
 
-In Pattern A, you could *theoretically* replace the LLM with a simpler NLU tool (though multilingual inputs make LLM worthwhile). The AI just converts messy input to structured data.
+In Pattern A, AI just converts messy input to structured data. You could *theoretically* replace the LLM with a simpler NLU tool.
 
-In Patterns B–F, the AI must **think**:
+In Patterns B–G, the AI must **think**:
 - "What's missing? I should ask."
 - "Two slots available. I should present options."
 - "Booking failed. I should explain and suggest alternatives."
 
 This shift from **parsing** to **reasoning** is why agent patterns feel more powerful — but also less predictable.
 
+### The Workflow Sweet Spot
+
+Pattern E occupies a unique middle ground. It gives you:
+- **Deterministic step order** (like A/C)
+- **AI reasoning per step** (like D/B)
+- **Custom logic between steps** (unique advantage)
+
+When you need predictable sequences but still want AI flexibility within each step, Pattern E is your answer.
+
 ---
 
-Start simple (Pattern A or C), add agent capabilities when needed (B or D), and scale to multi-agent (E or F) only when complexity demands it.
+## Conclusion
+
+There's no silver bullet. Start simple (A or C), add workflow structure when you need predictable sequences with AI flexibility (E), graduate to agents for full autonomy (B or D), and scale to multi-agent (F or G) only when complexity demands it.
