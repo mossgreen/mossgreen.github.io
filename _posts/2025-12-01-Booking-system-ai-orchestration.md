@@ -1,5 +1,6 @@
 ---
 title: "AI Orchestration Deep Dive: From No-Agent to Multi-Agent and Beyond"
+image: /assets/images/ai-orchestration-cover.png
 tags:
   - LLM
   - OpenAI SDK
@@ -12,6 +13,8 @@ toc_icon: "cog"
 classes: wide
 
 ---
+
+Explores eight architectural patterns, from AI as a service to workflows, and multi-agents and isolated agents.
 
 ## The Use Case
 
