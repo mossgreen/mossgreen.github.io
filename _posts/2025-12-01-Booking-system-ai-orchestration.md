@@ -1,6 +1,6 @@
 ---
 title: "AI Orchestration Deep Dive: From No-Agent to Multi-Agent and Beyond"
-image: /assets/images/ai-orchestration-cover.png
+og_image: /assets/images/ai-orchestration-cover.png
 tags:
   - LLM
   - OpenAI SDK
