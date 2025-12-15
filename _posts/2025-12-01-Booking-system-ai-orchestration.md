@@ -174,6 +174,28 @@ User → Step 1 → Step 2 → Step 3 → Response
 
 Steps execute in a **predefined order**. No dynamic routing — the sequence is fixed. Each step can use any LLM vendor for its specific task.
 
+### What Can a Step Be?
+
+A "step" isn't just an LLM call. Steps can be anything:
+
+| Type | What It Does | Example |
+|------|--------------|---------|
+| LLM call | Reasoning, parsing, generation | Parse intent, summarize, classify |
+| API call | External service | Payment gateway, weather API |
+| Database op | Read/write data | Check availability, save booking |
+| Validation | Check rules | Is date in future? Is slot valid? |
+| Transformation | Convert format | JSON → XML, normalize data |
+| Notification | Alert someone | Send email, SMS, Slack |
+| Human-in-the-loop | Wait for approval | Manager approval for large bookings |
+
+**A more complex booking workflow might look like:**
+
+```
+Parse (LLM) → Validate (code) → Check (DB) → Select (LLM) → Book (DB) → Notify (API)
+```
+
+Not every step needs AI. Many are pure code, database queries, or API calls. The power of workflows is **mixing AI and traditional code** in a predictable sequence. For this demo, we keep it simple with 3 steps.
+
 ### Difference from AI as Service (Pattern A)
 
 | Pattern A (AI as Service) | Pattern B (Workflow) |
