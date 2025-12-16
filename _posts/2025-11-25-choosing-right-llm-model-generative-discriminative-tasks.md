@@ -65,7 +65,7 @@ Discriminative tasks produce constrained output. The model selects from a define
 
 ## 3. Why: Why This Distinction Matters
 
-### 3.1 Why Two Scenarios Exist
+### 3.1 Why User Expectations Differ
 
 User expectations differ fundamentally between these task types.
 
@@ -132,10 +132,8 @@ Weak generative reasoning produces different failures: shallow plans, missing ed
 - Optimize for latency
 
 **Model options:**
-- Fine-tuned BERT/RoBERTa variants
 - Small instruction-tuned models (Phi, Gemma, small Llama)
-- Distilled task-specific models
-- Claude Haiku or GPT-4o-mini for simple classification (if fine-tuning isn't viable)
+- Claude Haiku or GPT-4o-mini for simple classification
 
 **Agent applications:**
 - Intent detection at conversation start
@@ -225,7 +223,7 @@ Use this quick reference when designing your system:
 
 | Task Characteristic | Recommended Model Type | Example Models |
 |--------------------|----------------------|----------------|
-| Fixed output categories | Small discriminative | Fine-tuned BERT, Haiku |
+| Fixed output categories | Small discriminative | Haiku, GPT-4o-mini |
 | High volume, low complexity | Small discriminative | Distilled classifiers |
 | Requires explanation | Large generative | Sonnet, GPT-4o |
 | Multi-step reasoning | Large generative | Opus, GPT-4 |
