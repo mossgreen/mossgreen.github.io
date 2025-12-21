@@ -158,6 +158,8 @@ Patterns B–G handle this more naturally.
 
 ## Pattern B: Workflow (Shared Runtime)
 
+Pattern B introduces a workflow engine that explicitly controls step sequencing and state transitions. The application predefines the steps, while the workflow engine manages how they execute within a shared runtime.
+
 **Style:** Workflow — Predefined sequence of steps
 
 **Runtime:** Shared — all steps run in one process
