@@ -935,20 +935,20 @@ print(result.final_output)
 ### Architecture
 
 ```
-User → Manager Agent → [Routes dynamically]
-                ↓
-    ┌───────────┴───────────┐
-    ↓                       ↓
-Service A               Service B
+User → Service C (Manager Agent) → [Routes dynamically]
+                    ↓
+        ┌───────────┴───────────┐
+        ↓                       ↓
+    Service A               Service B
 (Availability Agent)    (Booking Agent)
-    ↓                       ↓
-Agent logic             Agent logic
-(any vendor)            (any vendor)
-    ↓                       ↓
-   DB                      DB
+        ↓                       ↓
+   Agent logic             Agent logic
+  (any vendor)            (any vendor)
+        ↓                       ↓
+       DB                      DB
 ```
 
-Manager routes to separate services. Each service wraps its own agent with full isolation.
+Three independent services: Manager receives user requests and routes to specialists. Each service wraps its own agent with full isolation.
 
 ### Difference from Pattern F
 
@@ -1025,39 +1025,47 @@ def booking_service_handler(event):
     return {"message": response.content[0].text}
 
 
-# --- Manager Agent (calls services) ---
+# --- Service C: Manager Agent (Entry Point) ---
+# Deployed as Lambda - receives user requests and routes to specialists
+def manager_service_handler(event):
+    user_input = event["input"]
+    user_id = event["user_id"]
 
-@function_tool
-def invoke_availability_agent(task: str) -> str:
-    """Delegate to availability service for checking slots."""
-    response = invoke_service("availability-service", {"task": task})
-    return response
+    @function_tool
+    def invoke_availability_agent(task: str) -> str:
+        """Delegate to availability service for checking slots."""
+        response = invoke_service("availability-service", {"task": task})
+        return response
 
-@function_tool  
-def invoke_booking_agent(task: str, user_id: str) -> str:
-    """Delegate to booking service for reserving a slot."""
-    response = invoke_service("booking-service", {"task": task, "user_id": user_id})
-    return response
+    @function_tool
+    def invoke_booking_agent(task: str) -> str:
+        """Delegate to booking service for reserving a slot."""
+        # user_id captured from handler scope
+        response = invoke_service("booking-service", {"task": task, "user_id": user_id})
+        return response
 
-manager = Agent(
-    name="ManagerAgent",
-    instructions="""
-    Route user requests to specialist services:
-    - Checking availability → invoke_availability_agent
-    - Making a reservation → invoke_booking_agent
-    
-    For a complete booking:
-    1. First call availability agent
-    2. Then call booking agent with the chosen slot
-    
-    Synthesize responses before returning to user.
-    """,
-    tools=[invoke_availability_agent, invoke_booking_agent]
-)
+    manager = Agent(
+        name="ManagerAgent",
+        instructions="""
+        Route user requests to specialist services:
+        - Checking availability → invoke_availability_agent
+        - Making a reservation → invoke_booking_agent
 
-# Run
-result = Runner.run(manager, "Book me a court for tomorrow at 3pm")
-print(result.final_output)
+        For a complete booking:
+        1. First call availability agent
+        2. Then call booking agent with the chosen slot
+
+        Synthesize responses before returning to user.
+        """,
+        tools=[invoke_availability_agent, invoke_booking_agent]
+    )
+
+    result = Runner.run(manager, user_input)
+    return {"response": result.final_output}
+
+
+# Invocation: API Gateway → Manager Lambda → Specialist Lambdas
+# invoke_service("manager-service", {"input": "Book me a court for tomorrow", "user_id": "user-123"})
 ```
 
 ### Pros
