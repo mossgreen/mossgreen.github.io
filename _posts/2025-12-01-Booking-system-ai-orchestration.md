@@ -1,8 +1,7 @@
 ---
-title: "AI Orchestration Deep Dive: From No-Agent to Multi-Agent and Beyond"
+title: "The Control Spectrum: 8 AI Orchestration Patterns from Full Control to Full Autonomy"
 header:
-  image: /assets/images/ai-orchestration-cover.png
-  overlay_image: /assets/images/ai-orchestration-cover.png
+
   og_image: /assets/images/ai-orchestration-cover.png
 tags:
   - LLM
