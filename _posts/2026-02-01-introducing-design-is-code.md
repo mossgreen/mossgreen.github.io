@@ -207,7 +207,8 @@ Some things to know upfront:
 - **If an edge case isn't in your diagram, it won't be tested.** Design completeness is your responsibility.
 - **Algorithmic code** — ML pipelines, trading algorithms, game engines — falls outside the methodology entirely.
 - **Currently Java + Spring only.** The methodology works with any language that supports mocking, but the tooling is Java-first with UML sequence diagrams in PlantUML format.
-- **Best for new features and greenfield code.** Modifying existing code is a different problem.
+- **DisC is best for additive work** — new features, new methods, new branches — whether the
+  codebase is greenfield or mature. It does not handle mutations to existing behavior (refactoring, bug fixes, reordering, removal). 
 
 ---
 
