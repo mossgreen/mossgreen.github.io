@@ -58,20 +58,19 @@ You and your team sketch how components interact. This is where engineering judg
 
 ```
 @startuml
-participant OrderService
-participant OrderMapper
-participant OrderRepository
-
-OrderService -> OrderMapper: toEntity(request)
-OrderMapper --> OrderService: order
-OrderService -> OrderRepository: save(order)
-OrderRepository --> OrderService: savedOrder
-OrderService -> OrderMapper: toDTO(savedOrder)
-OrderMapper --> OrderService: orderDTO
+InvoiceService -> OrderRepository: findAllByCustomerId(customerId)
+InvoiceService <-- OrderRepository: orders: List<Order>
+InvoiceService -> InvoiceBuilderFactory: create()
+InvoiceBuilderFactory --> InvoiceBuilder: <<create>>
+InvoiceService <-- InvoiceBuilderFactory: invoiceBuilder: InvoiceBuilder
+loop for each order in orders
+    InvoiceService -> InvoiceBuilder: addLine(order)
+end
+InvoiceService -> InvoiceBuilder: build()
+InvoiceService <-- InvoiceBuilder: invoice: Invoice
 @enduml
 ```
 
-Three arrows. Three collaborators. One clear design.
 
 **Step 2: Generate tests from the diagram.**
 
@@ -79,51 +78,43 @@ Each arrow becomes one `@Test` with one `verify()`. The final return becomes one
 
 ```java
 @MockitoSettings(strictness = Strictness.LENIENT)
-class DefaultOrderServiceTest {
+class DefaultInvoiceServiceTest {
 
-    @Mock private OrderMapper mapper;
-    @Mock private OrderRepository repository;
+    @Mock private OrderRepository orderRepository;
+    @Mock private InvoiceBuilderFactory invoiceBuilderFactory;
 
-    @Mock private CreateOrderRequest request;
     @Mock private Order order;
-    @Mock private Order savedOrder;
-    @Mock private OrderDTO orderDTO;
+    @Mock private InvoiceBuilder invoiceBuilder;
+    @Mock private Invoice invoice;
 
-    private OrderDTO result;
+    private UUID customerId;
+    private Invoice result;
+    DefaultInvoiceService defaultInvoiceService;
 
     @BeforeEach
     void setUp() {
-        when(mapper.toEntity(any())).thenReturn(order);
-        when(repository.save(any())).thenReturn(savedOrder);
-        when(mapper.toDTO(any())).thenReturn(orderDTO);
-
-        OrderService service = new DefaultOrderService(repository, mapper);
-        result = service.createOrder(request);
+        customerId = UUID.randomUUID();
+        defaultInvoiceService = new DefaultInvoiceService(orderRepository, invoiceBuilderFactory);
     }
 
-    @Test
-    void shouldMapRequestToEntity() {
-        verify(mapper).toEntity(request);
-    }
+    @Nested
+    class WhenGenerateInvoice {
+        @BeforeEach
+        void setUp() {
+            when(orderRepository.findAllByCustomerId(any())).thenReturn(List.of(order));
+            when(invoiceBuilderFactory.create()).thenReturn(invoiceBuilder);
+            when(invoiceBuilder.build()).thenReturn(invoice);
+            result = defaultInvoiceService.generateInvoice(customerId);
+        }
 
-    @Test
-    void shouldSaveOrder() {
-        verify(repository).save(order);
-    }
-
-    @Test
-    void shouldMapSavedOrderToDTO() {
-        verify(mapper).toDTO(savedOrder);
-    }
-
-    @Test
-    void shouldReturnOrderDTO() {
-        assertThat(result).isEqualTo(orderDTO);
+        @Test void shouldFindAllOrdersByCustomerId() { verify(orderRepository).findAllByCustomerId(customerId); }
+        @Test void shouldCreateInvoiceBuilder() { verify(invoiceBuilderFactory).create(); }
+        @Test void shouldAddLineForOrder() { verify(invoiceBuilder).addLine(order); }
+        @Test void shouldBuildInvoice() { verify(invoiceBuilder).build(); }
+        @Test void shouldReturnInvoice() { assertThat(result).isEqualTo(invoice); }
     }
 }
 ```
-
-Three arrows = three `verify()` tests + one return assertion. The `@BeforeEach` wires mocks, creates the class, and executes the method once. Each test verifies one interaction.
 
 **Step 3: AI implements to pass the tests.**
 
@@ -131,25 +122,24 @@ There is exactly one implementation shape that satisfies all constraints:
 
 ```java
 @Service
-public class DefaultOrderService implements OrderService {
-    private final OrderRepository repository;
-    private final OrderMapper mapper;
+public class DefaultInvoiceService implements InvoiceService {
+    private final OrderRepository orderRepository;
+    private final InvoiceBuilderFactory invoiceBuilderFactory;
 
-    public DefaultOrderService(OrderRepository repository, OrderMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
+    public DefaultInvoiceService(OrderRepository orderRepository, InvoiceBuilderFactory invoiceBuilderFactory) {
+        this.orderRepository = orderRepository;
+        this.invoiceBuilderFactory = invoiceBuilderFactory;
     }
 
     @Override
-    public OrderDTO createOrder(CreateOrderRequest request) {
-        Order order = mapper.toEntity(request);
-        Order savedOrder = repository.save(order);
-        return mapper.toDTO(savedOrder);
+    public Invoice generateInvoice(UUID customerId) {
+        List<Order> orders = orderRepository.findAllByCustomerId(customerId);
+        InvoiceBuilder invoiceBuilder = invoiceBuilderFactory.create();
+        orders.forEach(invoiceBuilder::addLine);
+        return invoiceBuilder.build();
     }
 }
 ```
-
-The output of `mapper.toEntity()` feeds into `repository.save()`. The output of `save()` feeds into `mapper.toDTO()`. The data flow is dictated by the `verify()` arguments — the test leaves no other valid implementation.
 
 ```
  Design Artifact (UML Sequence Diagram)
