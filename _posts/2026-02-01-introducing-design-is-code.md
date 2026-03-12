@@ -20,37 +20,72 @@ AI writes code fast. You review it slow. That's not collaboration — that's exp
 
 AI code generation has two root causes of failure.
 
-**Natural language is ambiguous.** "The service validates the user" doesn't say who validates, when validation happens, or what happens on failure. Natural language is built for human communication, where ambiguity is tolerable. As a code specification, it's a liability. The AI interprets rather than executes — same prompt, different code, every time. There's no contract. There's no determinism.
+**Natural language is ambiguous.** The same prompt produces different architectures every time. Consider: "Create a greeting service that builds a personalised greeting for a user."
+
+```
+# AI attempt 1: Calls repository, returns a string
+class GreetingService:
+    def greet(self, user_id):
+        user = self.user_repository.find(user_id)
+        return f"Hello, {user.name}"
+
+# AI attempt 2: Uses a factory, returns a Greeting object
+class GreetingService:
+    def greet(self, user_id):
+        user = self.user_repository.find(user_id)
+        return self.greeting_factory.create(user.name)
+
+# AI attempt 3: Template engine, different dependencies entirely
+class GreetingService:
+    def greet(self, user_id):
+        user = self.user_repository.find(user_id)
+        template = self.template_engine.load("greeting")
+        return template.render(user=user)
+```
+
+Three valid interpretations. Three different dependency structures. Three different test suites. Which one did you mean? The AI doesn't know. Neither will the next developer reading the code.
 
 **Cost is asymmetric.** AI has no cost to generate, and no cost to be wrong. You have high cost to review, and high cost if you miss an error. AI can generate 500 lines in seconds. You review every line for hours.
 
 These two problems compound. Ambiguous input produces unpredictable output, and unpredictable output demands expensive review. You're not designing software anymore. You're doing archaeology on code someone else wrote.
 
-## Design is the Contract
+## The Prompt-Review Loop Is a Trap
 
-Every generation of software engineering raised the abstraction level while preserving formal notation — machine code → assembly → structured programming → OOP. Each step made intent more expressible without sacrificing precision.
+Most teams adopting AI fall into the same cycle: prompt → generate → review → find problems → prompt again → review again.
 
-Natural language breaks that contract. It's expressive, but not formal.
+This is a **positive feedback loop**. Not positive as in "good" — positive as in deviation-amplifying. Each iteration can move you further from your intent because the target itself is unstable. "Correct" lives in your head, and you're re-articulating it each cycle. The reference point drifts.
 
-This is not a tooling problem. It's a specification problem. If the specification is ambiguous, everything downstream inherits that ambiguity — the tests, the implementation, the architecture. You can't review your way out of a bad contract. You can only fix it at the source.
+You don't know if you're converging or diverging until you've already spent the time.
 
-Design is the source.
+What you need is **negative feedback** — a fixed reference point that the system corrects toward. A binary signal. Pass or fail. No interpretation.
 
-A precise design artifact eliminates interpretation before code is written. Peer collaboration, architectural debate, edge case reasoning — all of it happens at design time, not in code review. Reviewing code that AI generated from an agreed design is spot-checking. Reviewing code that AI generated from a natural language prompt is archaeology.
+That's what tests should be. But there's a trap here too. If AI generates both the tests and the implementation, you get circular validation. AI checking AI has no regulatory force. Someone has to define what "correct" means before generation begins. That someone is the human.
 
----
+## Why Not Other Spec-Driven Approaches?
+
+Tools like Kiro, GitHub's spec-kit, and similar SDD frameworks address the ambiguity problem with structured markdown: requirements.md → design.md → tasks.md. This is better than raw prompting.
+
+But as Martin Fowler observed after testing these tools: "I frequently saw the agent ultimately not follow all the instructions." And: "I'd rather review code than all these markdown files."
+
+The issue is that these specs are still natural language. A human reads the spec, reads the code, and judges whether they match. That judgment step reintroduces ambiguity. Two engineers can read the same spec and disagree about whether the implementation satisfies it.
+
+A spec you can't execute is barely better than no spec at all — because the volume of AI-generated code overwhelms human verification capacity.
 
 ## Introducing DisC
 
-**DisC** (Design is Code) applies London-school TDD (Freeman & Pryce, *Growing Object-Oriented Software, Guided by Tests*) to AI code generation. Mockist tests specify exact call structure, order, and arguments — leaving no room for AI interpretation.
+**DisC** (Design is Code) uses both schools of TDD — London and Chicago — each applied where it has the most constraining power. The methodology is built on Freeman & Pryce's *Growing Object-Oriented Software, Guided by Tests*.
 
-The key mechanism: each arrow in a UML sequence diagram becomes one `verify()` call in a test. That `verify()` only passes if the implementation actually makes that call, with those arguments. There is only one implementation that passes.
+The key mechanism for orchestration code: each arrow in a UML sequence diagram becomes one `verify()` call in a test. That `verify()` only passes if the implementation makes exactly that call, with exactly those arguments. There is one implementation that passes.
 
 What you design is what you get.
 
----
-
 ## How It Works
+
+**Step 0: Establish truth.**
+
+Before you design, verify your assumptions. If you don't know how an external API behaves — spike it. If you're guessing about data formats — test them. Write a throwaway integration test that proves the thing you're about to depend on actually works the way you think it does.
+
+DisC guarantees your code matches your design. Step 0 ensures your design matches reality. Without it, you can have a perfectly implemented wrong design. No other spec-driven tool addresses this. They assume you already know what you want. DisC assumes you should prove it first.
 
 **Step 1: Draw a sequence diagram.**
 
@@ -141,35 +176,37 @@ public class DefaultInvoiceService implements InvoiceService {
 }
 ```
 
+The implementation is driven by the tests, not the design directly. The design generates the tests. The tests constrain the code. 
+
+No loop. No review cycle. Design → tests → implementation → tests pass → done. A single-pass pipeline.
+
+
+## Two Types of Components, Two Schools of TDD
+
+Not all components behave the same way. DisC uses both schools of TDD — each where it constrains AI the most.
+
+**London-school (mockist) for collaborative components.** Services that call other services, repositories, mappers — orchestration code. `verify()` constrains the exact call structure: which method, which arguments, which order. AI can satisfy a classicist `assertEquals` a hundred different ways with different architectures. The three greeting service implementations at the top of this post would all pass the same state-based test. But `verify()` leaves zero freedom. One diagram, one implementation. That's what makes determinism possible.
+
+**Chicago-school (classicist) for pure functions.** Calculations, validations, transformations with no dependencies. These have no interactions to mock — there are no arrows. Instead, the human designs a **decision table**:
+
 ```
- Design Artifact (UML Sequence Diagram)
-        |
-        v
-  Phase 1: Design → Tests
-        |
-        v
-  Phase 2: Tests → Implementation
-        |
-        v
-  Working Code
+| input userName | input age | expected result | note           |
+|----------------|-----------|-----------------|----------------|
+| "Alice"        | 25        | ELIGIBLE        | happy path     |
+| ""             | 25        | INVALID_NAME    | empty string   |
+| "Alice"        | -1        | INVALID_AGE     | negative edge  |
+| null           | 25        | INVALID_NAME    | null input     |
+| "Alice"        | 150       | INVALID_AGE     | boundary       |
 ```
 
-The implementation is driven by the tests, not the design directly. The design generates the tests. The tests constrain the code. Reviewed designs don't need code review.
+The table generates parameterised `assertThat()` tests. AI implements the function. The tests constrain *what* the output must be, not *how* it's computed. If an edge case isn't in your table, it won't be tested. Design completeness is your responsibility.
 
----
+Use a checklist: happy path, boundary, null/empty, invalid, overflow.
 
-## Two Types of Components
-
-Not all components behave the same way under this methodology.
-
-| Type | Has Dependencies? | Design Artifact | Test Style | AI Role |
-|------|-------------------|-----------------|------------|---------|
-| Collaborative (orchestrator) | Yes | Sequence diagram | `verify()` | Generate tests + implement |
-| Pure function (leaf node) | No | Decision table | `assertThat()` | Implement only |
-
-For **collaborative components** — services that call mappers, repositories, and other services — DisC dictates the implementation completely. Each `verify()` = one line of code. AI has zero structural freedom.
-
-For **pure functions** — calculations, validations, transformations with no dependencies — the tests constrain *what* the output must be, not *how* it's computed. Humans must design the test cases: input values, expected outputs, and edge cases. If AI generates both the test and the implementation, you get false positives where tests pass but the logic is wrong.
+| Type | TDD School | Design Artifact | Test Style | AI Freedom |
+| --- | --- | --- | --- | --- |
+| Collaborative (orchestrator) | London | Sequence diagram | `verify()` | Zero — each verify = one line of code |
+| Pure function (leaf node) | Chicago | Decision table | `assertThat()` | How, not what — must produce correct output |
 
 In typical enterprise applications, most code is orchestration. Pure functions are the minority, and through composition, each stays small and focused.
 
@@ -236,7 +273,9 @@ Put your UML sequence diagram in your project's `design/` folder. Run `/design-i
 - *Growing Object-Oriented Software, Guided by Tests* — Freeman & Pryce (the foundation)
 - *Test-Driven Development* — Kent Beck
 - *Clean Architecture* — Robert Martin
+- [Understanding Spec-Driven-Development: Kiro, spec-kit, and Tessl](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) — Martin Fowler
+- [AI Doesn't Change the Trajectory. It Changes the Rate.](/ai-doesnt-change-the-trajectory/) — How ecology's S-curves and the 2025 DORA Report explain why codebase health determines whether AI helps or destroys
 
-DisC combines ideas from all three, adapted for the age of AI coding assistants.
+DisC combines ideas from Freeman & Pryce, Kent Beck, and Robert Martin, adapted for the age of AI coding assistants.
 
 **Feedback welcome.** Open an issue, or find me on [LinkedIn](https://www.linkedin.com/in/mossgu).
