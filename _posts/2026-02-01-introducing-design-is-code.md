@@ -230,12 +230,8 @@ DisC constrains interaction structure — how components collaborate. It does no
 
 Some things to know upfront:
 
-- **Pure function test cases require human design.** AI implements them, but you decide the inputs, expected outputs, and edge cases.
-- **If an edge case isn't in your diagram, it won't be tested.** Design completeness is your responsibility.
-- **Algorithmic code** — ML pipelines, trading algorithms, game engines — falls outside the methodology entirely.
-- **Currently Java + Spring only.** The methodology works with any language that supports mocking, but the tooling is Java-first with UML sequence diagrams in PlantUML format.
-- **DisC is best for additive work** — new features, new methods, new branches — whether the
-  codebase is greenfield or mature. It does not handle mutations to existing behavior (refactoring, bug fixes, reordering, removal). 
+- **Algorithmic code** — ML pipelines, trading algorithms, game engines — falls outside the methodology because it's hard to reflect with decision table.
+- **Currently Java + Spring only.** The methodology works with any language that supports mocking, soon it will support C# and Typescript. Python will be supportd after that.
 
 ---
 
