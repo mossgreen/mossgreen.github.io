@@ -73,19 +73,36 @@ A spec you can't execute is barely better than no spec at all — because the vo
 
 ## Introducing DisC
 
-**DisC** (Design is Code) uses both schools of TDD — London and Chicago — each applied where it has the most constraining power. The methodology is built on Freeman & Pryce's *Growing Object-Oriented Software, Guided by Tests*.
+**DisC** (Design is Code) is disciplined design plus deterministic generation. Your team writes the design in a precise notation — one with rules a computer can follow, not prose a reader has to interpret — and reviews it before any code exists. After that, the pipeline is mechanical: tests come from the design, code comes from the tests. The team's judgment goes into the design, not into reviewing AI-generated code.
 
-The key mechanism for orchestration code: each arrow in a UML sequence diagram becomes one `verify()` call in a test. That `verify()` only passes if the implementation makes exactly that call, with exactly those arguments. There is one implementation that passes.
+Because everything past the design is mechanical, the same pipeline runs whether a software team drives it or an AI agent does. The methodology works for either.
+
+- **You design.** Either a picture of how components call each other, or a table of inputs and the answers you expect back.
+- **DisC generates tests.** Mechanically, from the design. No interpretation step.
+- **AI implements.** It writes code that has to match. No room to drift.
 
 What you design is what you get.
 
-## How It Works
-
-**Step 0: Establish truth.**
+## Before You Start: Establish Truth
 
 Before you design, verify your assumptions. If you don't know how an external API behaves — spike it. If you're guessing about data formats — test them. Write a throwaway integration test that proves the thing you're about to depend on actually works the way you think it does.
 
-DisC guarantees your code matches your design. Step 0 ensures your design matches reality. Without it, you can have a perfectly implemented wrong design. No other spec-driven tool addresses this. They assume you already know what you want. DisC assumes you should prove it first.
+DisC guarantees your code matches your design. This step ensures your design matches reality. Without it, you can have a perfectly implemented wrong design. No other spec-driven tool addresses this. They assume you already know what you want. DisC assumes you should prove it first.
+
+## How It Works
+
+### Two Kinds of Code, One Pipeline
+
+Real systems have two kinds of code. **Some code coordinates** — a service calls a repository, which calls a mapper. **Some code calculates** — given inputs, return an answer. DisC handles both, with one design artifact for each:
+
+- **Coordinating code → sequence diagram.** You draw the arrows. Each arrow becomes a test that says "this call must happen, with these arguments." The AI has no room to rearrange the structure.
+- **Calculating code → decision table.** You write the rows. Each row becomes a test that says "given these inputs, return this output." The AI has no room to return the wrong answer.
+
+The human decides what "correct" means — arrows or rows. The tests hold the AI to it.
+
+### Orchestrators
+
+Services that coordinate other services, repositories, mappers — anything with outgoing arrows. The three greeting services from the top of the post would all pass the same output check — they all return "Hello, Alice." What they can't all pass is the same *call* check: each makes different calls in a different order. Pinning the calls is how DisC rules out two of the three.
 
 **Step 1: Draw a sequence diagram.**
 
@@ -176,39 +193,44 @@ public class DefaultInvoiceService implements InvoiceService {
 }
 ```
 
-The implementation is driven by the tests, not the design directly. The design generates the tests. The tests constrain the code. 
+The design generates the tests. The tests constrain the code.
 
 No loop. No review cycle. Design → tests → implementation → tests pass → done. A single-pass pipeline.
 
+### Pure Functions
 
-## Two Types of Components, Two Schools of TDD
+Calculators, validators, transformers — code that takes inputs and returns an answer without calling anything else. There are no calls to pin, so the test pins the output directly: given these inputs, expect this result. AI keeps freedom over *how* to compute, zero freedom over *what* to return.
 
-Not all components behave the same way. DisC uses both schools of TDD — each where it constrains AI the most.
+The pipeline collapses from three steps to one, because the design artifact *is* the test specification. A **decision table** is a list of rows, each pinning the expected output at one specific input point. The human authors it alongside the UML, in the same `design/` folder:
 
-**London-school (mockist) for collaborative components.** Services that call other services, repositories, mappers — orchestration code. `verify()` constrains the exact call structure: which method, which arguments, which order. AI can satisfy a classicist `assertEquals` a hundred different ways with different architectures. The three greeting service implementations at the top of this post would all pass the same state-based test. But `verify()` leaves zero freedom. One diagram, one implementation. That's what makes determinism possible.
+```markdown
+---
+target: TaxCalculator.calculate
+input:
+  amount: BigDecimal
+  rate: BigDecimal
+output: BigDecimal
+config:
+  rounding: HALF_UP
+---
 
-**Chicago-school (classicist) for pure functions.** Calculations, validations, transformations with no dependencies. These have no interactions to mock — there are no arrows. Instead, the human designs a **decision table**:
-
+| amount  | rate  | expected         |
+|---------|-------|------------------|
+| 100.00  | 0.10  | 10.00            |
+| 0.00    | 0.10  | 0.00             |
+| -50.00  | 0.10  | throws: IllegalArgumentException |
 ```
-| input userName | input age | expected result | note           |
-|----------------|-----------|-----------------|----------------|
-| "Alice"        | 25        | ELIGIBLE        | happy path     |
-| ""             | 25        | INVALID_NAME    | empty string   |
-| "Alice"        | -1        | INVALID_AGE     | negative edge  |
-| null           | 25        | INVALID_NAME    | null input     |
-| "Alice"        | 150       | INVALID_AGE     | boundary       |
-```
 
-The table generates parameterised `assertThat()` tests. AI implements the function. The tests constrain *what* the output must be, not *how* it's computed. If an edge case isn't in your table, it won't be tested. Design completeness is your responsibility.
+Frontmatter pins the target method and types; rows pin behaviour at specific input points. DisC consumes the file directly — generating one `@Test` per row (filled, not skeleton) and deriving the implementation from the rows.
 
-Use a checklist: happy path, boundary, null/empty, invalid, overflow.
+Two safeguards keep this honest:
 
-| Type | TDD School | Design Artifact | Test Style | AI Freedom |
-| --- | --- | --- | --- | --- |
-| Collaborative (orchestrator) | London | Sequence diagram | `verify()` | Zero — each verify = one line of code |
-| Pure function (leaf node) | Chicago | Decision table | `assertThat()` | How, not what — must produce correct output |
+- **Row-density warning.** If the table has fewer than 3 rows, or no boundary case (zero, negative, empty string), DisC reports it. Generation proceeds; the warning appears in the final report.
+- **Inferred assumptions.** Rows specify behaviour at points, not everywhere. For anything the rows don't uniquely determine — rounding mode, null-handling, ordering — DisC names the choice it made and why. You verify it. The `config:` block lets you pin choices upfront and suppress the corresponding inference.
 
-In typical enterprise applications, most code is orchestration. Pure functions are the minority, and through composition, each stays small and focused.
+If you don't author a table, DisC still emits a skeleton with `TODO` markers for humans to fill in. Authoring ahead of time just collapses two steps into one.
+
+One hour of peer UML review replaces many hours of reviewing generated code. Design errors are caught at the cheapest possible moment — when they're still arrows on a diagram or rows in a table, not code in a codebase.
 
 ---
 
@@ -220,18 +242,20 @@ In typical enterprise applications, most code is orchestration. Pure functions a
 | Pure function test cases (decision tables) | Product / QA team | Business rules require domain knowledge |
 | Implementation | AI | Mechanical — forced by the tests |
 
-The human effort is in the design room, not the code review. One hour of peer UML review replaces many hours of reviewing generated code. Design errors are caught at the cheapest possible moment — when they're still arrows on a diagram, not code in a codebase.
+The human effort is in the design room, not the code review.
 
 ---
 
-## Scope and Limitations
+## Roadmap
 
-DisC constrains interaction structure — how components collaborate. It does not constrain non-functional properties: performance, readability, or error handling style.
+Today: the methodology, the Java + Spring plugin, UML sequence diagrams, and decision tables. Coming next:
 
-Some things to know upfront:
+- **A design UI with live validation.** Catch a missing arrow or an inconsistent return type before generation runs. The notation stays the source of truth; the UI is just a faster way to author it.
+- **More languages.** C# and TypeScript next, Python after. The methodology works with any language that supports mocking; the plugin catches up.
+- **Integration test generation.** Extends the same design-driven pipeline to seam tests against real databases, HTTP, and queues — beyond unit-level mocks.
+- **Non-functional warnings.** Performance hot-paths, error-handling gaps, logging consistency — flagged at generation time, not at code review.
 
-- **Algorithmic code** — ML pipelines, trading algorithms, game engines — falls outside the methodology because it's hard to reflect with decision table.
-- **Currently Java + Spring only.** The methodology works with any language that supports mocking, soon it will support C# and Typescript. Python will be supportd after that.
+The constant: precise design, mechanical generation, code that follows from the design. Everything new is in service of that.
 
 ---
 
