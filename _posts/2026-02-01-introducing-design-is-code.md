@@ -1,5 +1,5 @@
 ---
-title: Design is Code - Deterministic AI Code Generation with UML and London-Style TDD
+title: "Design is Code: Disciplined Design, Deterministic AI Code Generation"
 tags:
   - AI
   - LLM
