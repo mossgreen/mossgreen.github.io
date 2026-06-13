@@ -21,8 +21,14 @@ social:
   name: Moss GU
   links:
     - https://github.com/mossgreen
-    - https://twitter.com/gufeifei
     - https://www.linkedin.com/in/mossgu/
+    - https://designiscode.ai
+    - https://twitter.com/gufeifei
+
+# Analytics — set `goatcounter` to your GoatCounter code to enable
+# (sign up free at goatcounter.com; the snippet loads nothing until set).
+analytics:
+  goatcounter: ""
 
 logo: /assets/og-default.png
 

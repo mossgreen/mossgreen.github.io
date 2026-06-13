@@ -1,7 +1,8 @@
 <footer>
   <div class="bt pt">
     <p class="muted small font-ui">
-      <a href="{{ '/feed.xml' | relative_url }}" class="muted">RSS</a>
+      <a href="https://designiscode.ai" class="muted" rel="me">Design is Code</a>
+      · <a href="{{ '/feed.xml' | relative_url }}" class="muted">RSS</a>
       {%- if site.author.email %} · <a href="mailto:{{ site.author.email }}" class="muted">Email</a>{%- endif -%}
       {%- for link in site.social.links -%}
         {%- if link contains 'github.com' %} · <a href="{{ link }}" class="muted" rel="me">GitHub</a>{%- endif -%}
