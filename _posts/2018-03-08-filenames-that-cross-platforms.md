@@ -1,12 +1,12 @@
 ---
 title: Filenames That Cross Platforms
 search: true
-tags: 
-  - Linux
-  - Windows
+tags:
+- linux
+- windows
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
 > The most conservative file naming conventions provide the most cross-platform compatibility.

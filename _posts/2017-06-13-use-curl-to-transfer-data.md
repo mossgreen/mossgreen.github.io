@@ -1,13 +1,11 @@
 ---
 title: Use cURL to Transfer Data
 search: true
-
-tags: 
-  - Linux
-  - cURL
+tags:
+- curl
+- linux
 toc: true
 ---
-
 cURL is a command line tool for getting or sending files using URL syntax.
 
 ### 1. To retrieve a page 

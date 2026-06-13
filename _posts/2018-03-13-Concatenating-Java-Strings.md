@@ -1,15 +1,14 @@
 ---
 title: Concatenating Java Strings
 search: true
-tags: 
-  - Java
-  - OCP
+tags:
+- java
+- ocp
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Behavior of String literals is very confusing.
 
 ## String is immutable

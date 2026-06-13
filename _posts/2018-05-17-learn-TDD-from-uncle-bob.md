@@ -1,15 +1,14 @@
 ---
 title: Learn Test-Driven Development (TDD)  from Uncle Bob
 search: true
-tags: 
-  - TDD
-  - Unit Test
+tags:
+- tdd
+- unit test
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 > The jury is in. The controversy is over. The debate has ended. The conclusion is: TDD works.
 
 We have knowledge sharing session every two weeks. Normally we just share the new technics we learn in the sprint. This week is different. We watched the famous Uncle Bob's three TDD rules video.

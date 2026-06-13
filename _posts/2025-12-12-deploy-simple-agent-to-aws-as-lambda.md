@@ -1,18 +1,17 @@
 ---
-title: "Deploying an AI Agent to AWS: OpenAI Agents SDK + FastAPI + Lambda"
+title: 'Deploying an AI Agent to AWS: OpenAI Agents SDK + FastAPI + Lambda'
 tags:
-  - LLM
-  - OpenAI SDK
-  - Bedrock
-  - AI Agent
-  - Terraform
+- ai agent
+- bedrock
+- llm
+- openai sdk
+- terraform
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Deploy a production-ready AI agent to AWS Lambda using OpenAI Agents SDK, FastAPI, and Terraform.
 
 

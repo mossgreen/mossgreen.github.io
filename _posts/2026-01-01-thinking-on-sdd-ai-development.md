@@ -1,18 +1,19 @@
 ---
+featured: true
+description: "Vibe coding is for spikes; spec-driven development is for production. How specs, TDD, and agent orchestration make AI-generated code dependable."
 title: Thinking on SDD AI Development
 tags:
-  - AI
-  - LLM
-  - Spec-Driven Development
-  - Claude Code
-  - TDD
+- ai
+- claude code
+- llm
+- spec-driven development
+- tdd
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Vibe coding is for spikes. Spec-driven development is for production. Before you let an LLM generate code, you should know how every element works.
 
 When a master painter begins a masterpiece, they already see the finished painting in their mind. The brushstrokes follow a vision that exists before the canvas touches paint. Software development should work the same way—especially when AI is involved.

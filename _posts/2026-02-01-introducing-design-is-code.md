@@ -1,19 +1,20 @@
 ---
-title: "Design is Code: Disciplined Design, Deterministic AI Code Generation"
+featured: true
+description: "Design is Code (DisC) compiles PlantUML diagrams and decision tables into tests that pin the implementation — deterministic, reviewable AI code generation."
+title: 'Design is Code: Disciplined Design, Deterministic AI Code Generation'
 tags:
-  - AI
-  - LLM
-  - Spec-Driven Development
-  - Design Is Code
-  - Claude Code
-  - TDD
+- ai
+- claude code
+- design is code
+- llm
+- spec-driven development
+- tdd
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 AI writes code fast. You review it slow. That's not collaboration — that's exploitation.
 
 ## The Problem No One Talks About

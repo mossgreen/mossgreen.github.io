@@ -1,0 +1,11 @@
+<nav class="flex align-center font-ui">
+  <span class="flex-grow">
+    <a href="{{ '/' | relative_url }}" class="plain">{{ site.title }}</a>
+  </span>
+  <span class="flex-shrink">
+    <a href="{{ '/writing/' | relative_url }}" class="muted plain">Writing</a>&nbsp;&nbsp;
+    <a href="{{ '/topics/' | relative_url }}" class="muted plain">Topics</a>&nbsp;&nbsp;
+    <a href="{{ '/about/' | relative_url }}" class="muted plain">About</a>
+  </span>
+  {%- include theme-toggle.html -%}
+</nav>

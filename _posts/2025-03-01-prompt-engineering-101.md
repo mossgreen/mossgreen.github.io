@@ -1,17 +1,16 @@
 ---
 title: Prompt Engineering 101
 tags:
-  - LLM
-  - AI
-  - Prompt engineering
-  - transformer
+- ai
+- llm
+- prompt engineering
+- transformer
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 The art and science of building LLM-based applications.
 
 Large Language Models (LLMs) are transforming how we build intelligent applications. But using them effectively is not as simple as asking a question. The way you **ask**—the prompt—shapes the quality, reliability, and usefulness of the answer.  

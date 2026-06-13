@@ -1,14 +1,13 @@
 ---
 title: Thinking in jQuery
-tags: 
-  - jQuery
-  - Web Development
+tags:
+- jquery
+- web development
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 jQuery, live long and prosper!
 
 ## 1. How to select DOM elements

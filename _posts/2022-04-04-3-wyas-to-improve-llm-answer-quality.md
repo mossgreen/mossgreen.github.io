@@ -1,15 +1,14 @@
 ---
 title: Improve LLM Answer Quality
 tags:
-  - LLM
-  - Prompt engineering
-  - RAG
+- llm
+- prompt engineering
+- rag
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Better prompts, better context, or better training. Three levers for quality answers.
 
 ## The short answer

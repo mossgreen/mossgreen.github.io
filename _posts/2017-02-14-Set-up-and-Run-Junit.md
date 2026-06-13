@@ -1,16 +1,15 @@
 ---
 title: Set up and Run Junit in a Java project
 search: true
-tags: 
-  - Testing
-  - JUnit
-  - TDD
+tags:
+- junit
+- tdd
+- testing
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Set up and Run Junit in a Java project.
 
 ## set up a gradle project with JUnit

@@ -2,14 +2,13 @@
 title: Pass AWS SAA Certification, SAA-C01
 search: true
 tags:
-  - AWS
-  - SAA
+- aws
+- saa
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 AWS Certified Solutions Architect - Associate, SAA-C01
 
 ## Reason why I take the exam

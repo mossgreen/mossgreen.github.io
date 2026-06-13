@@ -1,16 +1,15 @@
 ---
 title: Got Spring Professional Certificated at Aug 2019
 search: true
-tags: 
-  - Spring
-  - Spring Boot
-  - Spring Professional Certification
+tags:
+- spring
+- spring boot
+- spring professional certification
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Got Spring Professional Certificated at Aug 2019
 
 ## What is Spring Professional Certification

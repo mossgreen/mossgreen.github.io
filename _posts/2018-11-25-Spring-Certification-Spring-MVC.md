@@ -1,13 +1,13 @@
 ---
 title: Spring MVC in Spring Professional Certification
 search: true
-tags: 
-  - Spring
-  - Spring MVC
-  - Spring Professional Certification
+tags:
+- spring
+- spring mvc
+- spring professional certification
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring MVC in Pivotal Spring professional certification(8%).

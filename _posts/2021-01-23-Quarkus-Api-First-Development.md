@@ -1,15 +1,14 @@
 ---
 title: Quarkus API First Development
 tags:
-  - Quarkus
-  - Swagger
-  - Maven
+- maven
+- quarkus
+- swagger
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 With Swagger Open API
 
 ## Jargons

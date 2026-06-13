@@ -1,15 +1,14 @@
 ---
 title: How to Submit a Form
 search: true
-tags: 
-  - HTML
-  - FORM
+tags:
+- form
+- html
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
  Submits user's data and sends data to a server.
 
 

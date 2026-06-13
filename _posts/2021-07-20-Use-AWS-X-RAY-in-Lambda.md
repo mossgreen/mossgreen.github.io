@@ -1,15 +1,14 @@
 ---
 title: Use AWS X-Ray in Lambda
 tags:
-  - AWS
-  - Lambda
-  - XRay
+- aws
+- lambda
+- xray
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Identify performance bottlenecks
 
 ## Jargons

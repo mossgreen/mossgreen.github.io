@@ -2,14 +2,13 @@
 title: Spring Scheduled Tasks Stop Working
 search: true
 tags:
-  - Spring
-  - Scheduled Tasks
+- scheduled tasks
+- spring
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Investigate and fix stopped @Scheduled methods in Spring.
 
 ## The issue

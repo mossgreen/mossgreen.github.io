@@ -1,13 +1,12 @@
 ---
 title: CSS Selectors
 tags:
-  - CSS
+- css
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Select the element(s)
 
 ## CSS selectors

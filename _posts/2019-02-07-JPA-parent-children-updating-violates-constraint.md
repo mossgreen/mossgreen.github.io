@@ -1,18 +1,17 @@
 ---
 title: Delete and Create Records Violates Constraints in Spring Data Jpa
 search: true
-tags: 
-  - Spring Data JPA
-  - Sprint Boot
-  - SQL
-  - Spring
-  - Spring Professional Certification
+tags:
+- spring
+- spring data jpa
+- spring professional certification
+- sprint boot
+- sql
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Still haven't found a decent answer in StackOverFlow.
 
 Scenario: I have an **Attribute** entity, which has multiple children **Options**. The option has its unique keys, say, label.

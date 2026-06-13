@@ -1,0 +1,472 @@
+---
+---
+/*
+ * mossgreen.github.io
+ * Hand-written CSS inspired by stephango.com's architecture.
+ * Color palette: Flexoki by Steph Ango (MIT) — github.com/kepano/flexoki
+ */
+
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; font-size: 62.5%; }
+body { margin: 0; }
+img, svg, video, iframe { max-width: 100%; display: block; }
+img { border-radius: var(--image-radius); height: auto; }
+
+/* --- Flexoki palette --- */
+:root {
+  --flexoki-paper: #FFFCF0;
+  --flexoki-black: #100F0F;
+  --flexoki-50:  #F2F0E5;
+  --flexoki-100: #E6E4D9;
+  --flexoki-150: #DAD8CE;
+  --flexoki-200: #CECDC3;
+  --flexoki-300: #B7B5AC;
+  --flexoki-400: #9F9D96;
+  --flexoki-500: #878580;
+  --flexoki-600: #6F6E69;
+  --flexoki-700: #575653;
+  --flexoki-800: #403E3C;
+  --flexoki-850: #343331;
+  --flexoki-900: #282726;
+  --flexoki-950: #1C1B1A;
+
+  --flexoki-red-400:    #D14D41;
+  --flexoki-red-600:    #AF3029;
+  --flexoki-orange-400: #DA702C;
+  --flexoki-orange-600: #BC5215;
+  --flexoki-yellow-100: #F6E2A0;
+  --flexoki-yellow-400: #D0A215;
+  --flexoki-yellow-600: #AD8301;
+  --flexoki-yellow-900: #3A2D04;
+  --flexoki-green-400:  #879A39;
+  --flexoki-green-600:  #66800B;
+  --flexoki-cyan-50:    #DDF1E4;
+  --flexoki-cyan-400:   #3AA99F;
+  --flexoki-cyan-600:   #24837B;
+  --flexoki-cyan-950:   #101F1D;
+  --flexoki-blue-400:   #4385BE;
+  --flexoki-blue-600:   #205EA6;
+  --flexoki-purple-400: #8B7EC8;
+  --flexoki-purple-600: #5E409D;
+  --flexoki-magenta-400:#CE5D97;
+  --flexoki-magenta-600:#A02F6F;
+}
+
+/* --- Semantic tokens --- */
+:root {
+  --bg:        var(--flexoki-paper);
+  --bg-2:      var(--flexoki-50);
+  --tx:        var(--flexoki-black);
+  --tx-muted:  var(--flexoki-600);
+  --tx-faint:  var(--flexoki-300);
+  --ui:        var(--flexoki-100);
+  --ui-hover:  var(--flexoki-150);
+  --action:    var(--flexoki-blue-600);
+  --hover-bg:  var(--flexoki-cyan-50);
+  --highlight: var(--flexoki-yellow-100);
+  --selection: rgba(187,220,206,0.3);
+
+  --font-content: -apple-system, BlinkMacSystemFont, "Inter", "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-ui: var(--font-content);
+  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "IBM Plex Mono", "Roboto Mono", Menlo, Monaco, Consolas, monospace;
+
+  --wrap-normal: 37em;
+  --wrap-wide:   54em;
+  --line-height: 1.55;
+  --image-radius: 6px;
+  --border-radius: 4px;
+  --heading-weight: 500;
+  --font-small: 0.875em;
+  --font-smaller: 0.8em;
+}
+
+html.theme-dark {
+  --bg:        var(--flexoki-black);
+  --bg-2:      var(--flexoki-950);
+  --tx:        var(--flexoki-200);
+  --tx-muted:  var(--flexoki-500);
+  --tx-faint:  var(--flexoki-700);
+  --ui:        var(--flexoki-900);
+  --ui-hover:  var(--flexoki-850);
+  --action:    var(--flexoki-blue-400);
+  --hover-bg:  var(--flexoki-cyan-950);
+  --highlight: var(--flexoki-yellow-900);
+  --selection: rgba(30,95,91,0.3);
+}
+
+@media (max-width: 600px) {
+  :root { --wrap-normal: 88vw; --wrap-wide: 100vw; --heading-weight: 600; }
+}
+
+/* --- Body & typography --- */
+html { color-scheme: light dark; }
+html.theme-dark { color-scheme: dark; }
+
+body {
+  background-color: var(--bg);
+  color: var(--tx);
+  font-family: var(--font-content);
+  font-size: calc(1.5rem + 0.25vw);
+  line-height: var(--line-height);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  margin: 2vw auto 0;
+  padding: 2rem 0 8rem;
+  overflow-x: hidden;
+}
+
+::selection      { background: var(--selection); }
+::-moz-selection { background: var(--selection); }
+
+small, .small   { font-size: var(--font-small); line-height: 1.4; }
+.smaller        { font-size: var(--font-smaller); line-height: 1.4; }
+
+.font-ui      { font-family: var(--font-ui); }
+.font-content { font-family: var(--font-content); }
+.font-mono    { font-family: var(--font-mono); }
+
+.muted        { color: var(--tx-muted); }
+.muted a      { color: var(--tx-muted); }
+.faint        { color: var(--tx-faint); }
+.action       { color: var(--action); }
+.nowrap       { white-space: nowrap; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.line-height-loose { line-height: 1.7; }
+.block        { display: block; }
+
+/* --- Headings --- */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3;
+  margin: 1.5em 0 0.5em;
+  font-weight: var(--heading-weight);
+  letter-spacing: -0.01em;
+  color: var(--tx);
+}
+h1 { font-size: calc(1.4em + 0.55vw); margin-top: 0.5em; letter-spacing: -0.02em; line-height: 1.2; }
+h2 { font-size: calc(1.05em + 0.2vw); }
+h3 { font-size: 1em; }
+h4 { font-size: 1em; font-weight: 600; }
+h5 { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+article h2 { margin-top: 2em; }
+article h3 { margin-top: 1.5em; }
+article h1 + h2,
+article h2 + h3 { margin-top: 1em; }
+
+/* --- Layout containers --- */
+.wrap, article, footer, nav, heading {
+  max-width: var(--wrap-wide);
+  width: var(--wrap-normal);
+  margin-left: auto;
+  margin-right: auto;
+}
+nav { margin-top: 0; margin-bottom: 3em; }
+main { display: block; }
+
+p, ul, ol, blockquote { max-width: var(--wrap-normal); }
+
+/* --- Links --- */
+a {
+  color: var(--tx);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+a:hover, a:focus { color: var(--action); }
+a:focus { outline: none; background-color: var(--hover-bg); }
+a.plain, a.muted { text-decoration: none; }
+a.plain:hover { color: var(--action); }
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { color: var(--tx); text-decoration: none; }
+h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover { color: var(--action); }
+
+/* --- Flex utilities --- */
+.flex { display: flex; }
+.align-center   { align-items: center; }
+.align-baseline { align-items: baseline; }
+.flex-grow      { flex-grow: 1; }
+.flex-shrink    { flex-shrink: 1; }
+
+/* --- Spacing utilities --- */
+.pt { padding-top: 1rem; }
+.pb { padding-bottom: 1rem; }
+.bt { border-top: 1px solid var(--ui); }
+
+hr {
+  width: 100%;
+  border: 0;
+  height: 1px;
+  background: var(--ui);
+  margin: 2em 0;
+}
+article hr {
+  display: block;
+  background: none;
+  text-align: center;
+  margin: calc(2em + 1vh) 0;
+  overflow: visible;
+  height: 0;
+}
+article hr::before {
+  content: "•••";
+  display: inline-block;
+  font-size: 0.7em;
+  letter-spacing: 1.25em;
+  color: var(--tx-faint);
+}
+
+/* --- Lists --- */
+ul, ol { padding: 0.5rem 0 1rem 1.25em; margin: 0 0 0 0.5em; }
+ul > li, ol > li { padding: 0.15rem 0; }
+ul > li::marker, ol > li::marker { color: var(--tx-faint); }
+
+ul.post-list { padding: 0; margin: 1em 0; }
+ul.post-list > li { list-style: none; padding: 0.15rem 0; }
+
+.post-row { display: flex; align-items: baseline; gap: 0.75em; }
+.post-row-date { flex-shrink: 0; min-width: 4.5em; }
+.post-row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.post-row:hover .post-row-title { color: var(--action); }
+
+/* --- Inline / topic links --- */
+.line-height-loose a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* --- Code --- */
+code, kbd {
+  font-family: var(--font-mono);
+  background: var(--bg-2);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+pre {
+  font-family: var(--font-mono);
+  background: var(--bg-2);
+  border: 1px solid var(--ui);
+  border-radius: 4px;
+  padding: 1em;
+  overflow-x: auto;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+/* --- Rouge syntax highlighting (Flexoki-mapped) ---
+   Official Flexoki roles (stephango.com/flexoki): functions=orange,
+   constants=yellow, keywords=green, strings=cyan, variables/attributes=blue,
+   numbers=purple, language features=magenta, invalid/imports=red.
+   Light themes use the 600 shades, dark themes the 400 shades. */
+:root {
+  --syn-fn:      var(--flexoki-orange-600);
+  --syn-const:   var(--flexoki-yellow-600);
+  --syn-keyword: var(--flexoki-green-600);
+  --syn-string:  var(--flexoki-cyan-600);
+  --syn-var:     var(--flexoki-blue-600);
+  --syn-num:     var(--flexoki-purple-600);
+  --syn-lang:    var(--flexoki-magenta-600);
+  --syn-invalid: var(--flexoki-red-600);
+}
+html.theme-dark {
+  --syn-fn:      var(--flexoki-orange-400);
+  --syn-const:   var(--flexoki-yellow-400);
+  --syn-keyword: var(--flexoki-green-400);
+  --syn-string:  var(--flexoki-cyan-400);
+  --syn-var:     var(--flexoki-blue-400);
+  --syn-num:     var(--flexoki-purple-400);
+  --syn-lang:    var(--flexoki-magenta-400);
+  --syn-invalid: var(--flexoki-red-400);
+}
+
+.highlight { background: var(--bg-2); border-radius: 4px; }
+.highlight pre { background: transparent; border: 0; padding: 0; margin: 0; }
+
+/* Comments — italic, faint */
+.highlight .c, .highlight .ch, .highlight .cm, .highlight .cp, .highlight .cpf,
+.highlight .c1, .highlight .cs, .highlight .cd { color: var(--tx-faint); font-style: italic; }
+
+/* Errors */
+.highlight .err { color: var(--syn-invalid); }
+
+/* Keywords (imports red per Flexoki; True/False/None and types as constants) */
+.highlight .k, .highlight .kd, .highlight .kp, .highlight .kr { color: var(--syn-keyword); }
+.highlight .kn { color: var(--syn-invalid); }
+.highlight .kc, .highlight .kt { color: var(--syn-const); }
+
+/* Classes & namespaces as types; bare identifiers as variables */
+.highlight .nc, .highlight .nn { color: var(--syn-const); }
+.highlight .nx { color: var(--syn-var); }
+
+/* Strings */
+.highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .dl,
+.highlight .sd, .highlight .s2, .highlight .se, .highlight .sh, .highlight .si,
+.highlight .sx, .highlight .sr, .highlight .s1, .highlight .ss { color: var(--syn-string); }
+
+/* Numbers */
+.highlight .m, .highlight .mb, .highlight .mf, .highlight .mh,
+.highlight .mi, .highlight .mo, .highlight .mx, .highlight .il { color: var(--syn-num); }
+
+/* Names */
+.highlight .na { color: var(--syn-var); }                  /* attribute */
+.highlight .nb, .highlight .bp { color: var(--syn-lang); } /* builtin / pseudo-builtin */
+.highlight .nd { color: var(--syn-lang); }                 /* decorator / annotation */
+.highlight .ne { color: var(--syn-invalid); }              /* exception */
+.highlight .nf, .highlight .fm { color: var(--syn-fn); }   /* function */
+.highlight .ni { color: var(--syn-lang); }                 /* entity */
+.highlight .nl { color: var(--tx-muted); }                 /* label */
+.highlight .no { color: var(--syn-const); }                /* constant */
+.highlight .nt { color: var(--syn-keyword); }              /* tag */
+.highlight .nv, .highlight .vc, .highlight .vg, .highlight .vi,
+.highlight .vm { color: var(--syn-var); }                  /* variables */
+.highlight .n, .highlight .py { color: var(--syn-var); }   /* generic names — Flexoki paints variables blue */
+
+/* Operators & punctuation — quiet, per the site's minimal aesthetic */
+.highlight .o, .highlight .ow { color: var(--tx-muted); }
+.highlight .p { color: var(--tx); }
+.highlight .pi { color: var(--tx-muted); }
+
+/* Generic (diff / shell / markdown) */
+.highlight .gd { color: var(--syn-invalid); background: rgba(175, 48, 41, 0.08); }
+.highlight .gi { color: var(--syn-keyword); background: rgba(102, 128, 11, 0.08); }
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: 600; }
+.highlight .gh, .highlight .gu { color: var(--tx); font-weight: 600; }
+.highlight .gp, .highlight .go { color: var(--tx-muted); }
+.highlight .gr, .highlight .gt { color: var(--syn-invalid); }
+
+/* Whitespace */
+.highlight .w { color: var(--tx-faint); }
+
+/* (dark-mode token colors come from the --syn-* variable overrides above) */
+
+/* --- Blockquote --- */
+blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.25em;
+  border-left: 2px solid var(--tx-muted);
+  color: var(--tx-muted);
+}
+blockquote p { margin: 0.5em 0; }
+
+mark { background: var(--highlight); color: var(--tx); padding: 0 0.2em; }
+
+/* --- Tables --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.95em;
+}
+th, td { padding: 0.5em 0.75em; text-align: left; border-bottom: 1px solid var(--ui); }
+th { font-weight: 600; }
+
+/* --- Forms --- */
+input, textarea, select, button {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--tx);
+}
+button { cursor: pointer; }
+
+/* --- Theme toggle --- */
+#theme-toggle {
+  height: 20px;
+  width: 36px;
+  display: inline-block;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-left: 1.5em;
+  cursor: pointer;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.theme-toggle-slide {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ui);
+  border-radius: 24px;
+}
+.theme-toggle-switch {
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 18px; height: 18px;
+  background-color: var(--tx-muted);
+  border-radius: 50%;
+  transition: left 0.15s ease, background-color 0.15s ease;
+}
+html.theme-dark .theme-toggle-switch { left: 16px; background-color: var(--tx); }
+#theme-toggle:hover .theme-toggle-switch { background-color: var(--action); }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle-switch { transition: none; }
+}
+
+/* --- Footer --- */
+footer { margin-top: 6em; }
+footer p { margin: 0.5em 0; }
+
+/* --- Article content polish --- */
+.post-content > :first-child { margin-top: 1em; }
+.post-content p { margin: 1em 0; }
+.post-content ul, .post-content ol { margin: 1em 0; }
+.post-content figure { margin: 1.5em 0; text-align: center; }
+.post-content figcaption {
+  font-size: var(--font-smaller);
+  color: var(--tx-muted);
+  padding: 0.5em 0;
+}
+
+/* --- Misc --- */
+.invalid-link { color: var(--tx-muted); cursor: not-allowed; }
+
+/* --- Post table of contents ("On this page") --- */
+.toc { display: none; }
+
+article :is(h2, h3) { scroll-margin-top: 1.5em; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+@media (min-width: 1360px) {
+  .toc {
+    display: block;
+    position: fixed;
+    top: 7em;
+    left: calc(50% + 19.5em);
+    /* fixed width (rem doesn't scale with viewport), capped so the panel
+       can never run past the right edge; long titles wrap instead */
+    width: min(26rem, calc(50vw - 19.5em - 2rem));
+    max-height: 75vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+  }
+  .toc[hidden] { display: none; }
+  /* the global `nav { width: var(--wrap-normal) }` rule must not apply to
+     the TOC's inner nav, or entries become column-width and overflow */
+  .toc nav { width: auto; max-width: none; margin: 0; }
+  .toc-label {
+    font-size: var(--font-smaller);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5em;
+  }
+  .toc ul { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0; }
+  /* accordion: subsections visible only for the h2 currently being read */
+  .toc .toc-sub { display: none; }
+  .toc li.open > .toc-sub { display: block; }
+  .toc a {
+    display: block;
+    padding: 0.2em 0 0.2em 0.75em;
+    border-left: 2px solid var(--ui);
+    color: var(--tx-muted);
+    font-size: var(--font-small);
+    line-height: 1.4;
+    text-decoration: none;
+  }
+  .toc li.toc-h3 a { padding-left: 1.75em; }
+  .toc a:hover { color: var(--action); }
+  .toc a.active { color: var(--tx); border-left-color: var(--action); }
+}

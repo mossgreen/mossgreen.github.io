@@ -1,15 +1,14 @@
 ---
 title: Debug a SQL performance issue (aka, how to read a query plan)
 tags:
-  - PSQL
-  - Query Plan
-  - JOOQ
+- jooq
+- psql
+- query plan
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 aka, how to read a query plan
 
 ### 0. how to get the sql query from JOOQ?

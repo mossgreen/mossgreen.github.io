@@ -1,15 +1,14 @@
 ---
 title: Session is Lost in Session Scope Controller in Spring MVC App
 search: true
-tags: 
-  - Spring
-  - Spring MVC
+tags:
+- spring
+- spring mvc
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Why is my session lost and created as new in every servlet request?
 
 I got a question from coworker:

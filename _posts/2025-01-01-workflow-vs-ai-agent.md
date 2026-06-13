@@ -1,14 +1,13 @@
 ---
 title: AI Workflows vs AI Agents
 tags:
-  - Workflow
-  - AI Agent
+- ai agent
+- workflow
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Autonomy is the dividing line. Workflows execute predefined steps. Agents decide their own path.
 
 ## The Autonomy Spectrum

@@ -1,10 +1,11 @@
 ---
 title: Git Commands
 search: true
-categories: 
-  - Git
+categories:
+- Git
+tags:
+- git
 ---
-
 Git Commands
 
 ## Configure global git ignore

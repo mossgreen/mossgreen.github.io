@@ -1,13 +1,13 @@
 ---
 title: Spring Data Management in Spring Certification
 search: true
-tags: 
-  - Java
-  - Spring
-  - Spring Data
+tags:
+- java
+- spring
+- spring data
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring Data Management in Spring Professional Certification (16%).

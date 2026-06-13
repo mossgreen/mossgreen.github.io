@@ -1,15 +1,14 @@
 ---
 title: How to Insert a Column in PostgreSQL
 search: true
-tags: 
-  - database
-  - PostgreSQL
+tags:
+- database
+- postgresql
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Insert (not add) a column in PostgreSQL is quite a mission.
 
 ## Add a column in a table

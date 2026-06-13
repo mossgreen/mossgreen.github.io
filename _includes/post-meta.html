@@ -1,0 +1,7 @@
+{%- assign words = include.post.content | strip_html | number_of_words -%}
+{%- assign minutes = words | divided_by: 200 -%}
+{%- if minutes < 1 -%}{%- assign minutes = 1 -%}{%- endif -%}
+<p class="muted small font-ui pb">
+  <time datetime="{{ include.post.date | date_to_xmlschema }}">{{ include.post.date | date: "%B %-d, %Y" }}</time>
+  · <span title="Estimated read time">{{ minutes }} min read</span>
+</p>

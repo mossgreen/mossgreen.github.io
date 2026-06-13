@@ -1,15 +1,14 @@
 ---
 title: IDEA IntelliJ Config for Java Projects
 search: true
-tags: 
-  - IDE
-  - IntelliJ
+tags:
+- ide
+- intellij
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 IDEA IntelliJ Config for Java
 
 ## My Sprint project config

@@ -1,14 +1,13 @@
 ---
 title: Using Java Optional
 search: true
-tags: 
-  - JAVA
+tags:
+- java
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Less NPE
 
 ## TL;DR

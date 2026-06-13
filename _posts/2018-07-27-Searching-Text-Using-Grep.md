@@ -1,15 +1,14 @@
 ---
 title: Searching Text Using grep in Linux
 search: true
-tags: 
-  - Linux
-  - grep
+tags:
+- grep
+- linux
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 How to search text in your files in Linux?
 
 ## Terminology

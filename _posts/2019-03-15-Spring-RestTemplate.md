@@ -1,12 +1,12 @@
 ---
 title: Spring RestTemplate
 search: true
-tags: 
-  - Spring
-  - Spring MVC
+tags:
+- spring
+- spring mvc
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring RestTemplate 101.

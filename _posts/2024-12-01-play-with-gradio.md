@@ -1,14 +1,13 @@
 ---
 title: Prototyping AI with Gradio
 tags:
-  - AI
-  - gradio
+- ai
+- gradio
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Build AI interfaces fast. Gradio turns Python functions into shareable web apps.
 
 ## First Demo

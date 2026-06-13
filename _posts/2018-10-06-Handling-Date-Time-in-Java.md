@@ -1,17 +1,16 @@
 ---
 title: Converting Date Time in Java
 search: true
-tags: 
-  - Date
-  - Time
-  - Date Time
-  - Time Zone
+tags:
+- date
+- date time
+- time
+- time zone
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Converting Date Time in Java
 
 Java 8 is awesome because it introduces lots of good features including the new Date and Time APIs. Now a new challenge follows. How to work with the old classes together with the new ones?

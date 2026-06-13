@@ -1,16 +1,15 @@
 ---
 title: Create Couch Views in Spring
 search: true
-tags: 
-  - Spring
-  - NoSQL
-  - CouchDB
+tags:
+- couchdb
+- nosql
+- spring
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 CouchDB is one of NoSQL database, uses JSON to store data, Javascript as its query language using MapReduce, and Http for an API.
 
 Each document in db has a unique identifier `(_id)` and a revision`(_rev)` number.

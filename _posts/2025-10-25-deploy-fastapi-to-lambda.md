@@ -1,17 +1,16 @@
 ---
 title: The Fastest Way to Deploy Your AI Agent to AWS Lambda
 tags:
-  - AWS
-  - Lambda
-  - Python
-  - FastApi
+- aws
+- fastapi
+- lambda
+- python
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 You've built an AI agent. You need it to get to the cloud in 10 minutes.
 
 ## Why Lambda for AI Agents

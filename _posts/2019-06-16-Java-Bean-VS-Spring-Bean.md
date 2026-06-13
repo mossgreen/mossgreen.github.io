@@ -1,15 +1,14 @@
 ---
 title: Java Bean VS Spring Bean
 search: true
-tags: 
-  - Java
-  - Spring
+tags:
+- java
+- spring
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 A Java object can be a JavaBean, a POJO and a Spring bean all at the same time.
 
 ## POJO

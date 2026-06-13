@@ -1,16 +1,16 @@
 ---
+featured: true
+description: "How to evaluate LLMs beyond vibe checks: offline and online evals, benchmarks, metrics, and a practical lifecycle for go/no-go decisions."
 title: Evaluating LLM Models
 tags:
-  - LLM
-  - LLM Models
+- llm
+- llm models
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 Skip evaluation, risk failure. AI without testing is hope, not strategy.
 
 ## 1. What is Evaluating LLMs?

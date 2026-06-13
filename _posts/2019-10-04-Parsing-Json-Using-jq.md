@@ -1,17 +1,16 @@
 ---
 title: Parsing JSON using jq
 search: true
-tags: 
-  - Bash
-  - jq
-  - Json
-  - Curl
+tags:
+- bash
+- curl
+- jq
+- json
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Parse JSON using jq in the bash command line.
 
 ## My challenge

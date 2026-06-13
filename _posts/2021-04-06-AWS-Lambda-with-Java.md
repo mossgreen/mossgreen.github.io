@@ -1,17 +1,16 @@
 ---
 title: AWS Lambda with Java
 tags:
-  - AWS
-  - Lambda
-  - CloudFormation
-  - SAM
-  - ApiGateway
+- apigateway
+- aws
+- cloudformation
+- lambda
+- sam
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 some lambda related concepts
 
 ## Jargons

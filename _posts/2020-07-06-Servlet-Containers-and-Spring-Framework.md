@@ -2,14 +2,13 @@
 title: Servlet Container and Spring Framework
 search: true
 tags:
-  - Spring
-  - Spring Boot
+- spring
+- spring boot
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Servlet Container vs. Spring Containers (not finished yet)
 
 ## Concepts

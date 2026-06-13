@@ -1,17 +1,16 @@
 ---
 title: Returning JSON in Spring Boot
 search: true
-tags: 
-  - JSON
-  - Spring Boot
-  - JPA
-  - Jackson
+tags:
+- jackson
+- jpa
+- json
+- spring boot
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Converting Json in Spring projects.
 
 ## Returning JSON in Spring Boot

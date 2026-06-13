@@ -1,13 +1,12 @@
 ---
 title: Pure React Study Notes
 tags:
-  - React
+- react
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Learn some React basics.
 
 ## JSX

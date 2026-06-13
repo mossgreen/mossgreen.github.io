@@ -1,14 +1,13 @@
 ---
 title: Java Long Value Cacheing
 search: true
-tags: 
-  - Java
+tags:
+- java
 toc: false
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 The cache size may be controlled by `-XX:AutoBoxCacheMax=<size>` option.
 
 1. `==` compares references, `equals` compares value. Comparing Long values should use the latter.

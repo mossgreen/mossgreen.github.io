@@ -5,15 +5,14 @@ header:
   video:
     id: 1knwXRIbVNw
     provider: youtube
-tags: 
-  - SQL Server
-  - Database
+tags:
+- database
+- sql server
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 >Watch my [Youtube video](https://youtu.be/1knwXRIbVNw) to get details!
 
 Let's say you want to migrate SSRS reports​ from an old reporting service server (e.g., SQL Server 2008 R2) to a new one (e.g., SQL Server 2016). What involves?

@@ -1,16 +1,15 @@
 ---
 title: Spring Boot in Spring Professional Certification
 search: true
-tags: 
-  - Spring
-  - Spring Boot
-  - Spring Professional Certification
+tags:
+- spring
+- spring boot
+- spring professional certification
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Spring Boot in Pivotal Spring professional certification (32%).
 
 - Spring Boot Intro (8%)

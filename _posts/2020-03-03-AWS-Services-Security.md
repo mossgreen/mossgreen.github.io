@@ -2,11 +2,11 @@
 title: AWS Servcies - Security
 search: true
 tags:
- - AWS
- - SAA Certificatin
+- aws
+- saa certificatin
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Cognito, IAM, KMS, IDF, etc.

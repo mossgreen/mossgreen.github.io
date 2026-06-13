@@ -1,11 +1,13 @@
 ---
 title: How to Test Jekyll Website Locally
 search: true
-categories: 
-  - Jekyll
-  - GitHub Pages
+categories:
+- Jekyll
+- GitHub Pages
+tags:
+- github pages
+- jekyll
 ---
-
 Preview your site and help troubleshoot failed Jekyll builds.
 
 Test Jekyll website just on GitHub Pages is unprofessional and can be dangerous. It's highly recommend installing Jekyll to preview your site and help troubleshoot failed Jekyll builds.

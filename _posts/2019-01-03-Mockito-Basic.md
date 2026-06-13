@@ -2,16 +2,15 @@
 title: Mockito Basic
 search: true
 tags:
-  - Mockito
-  - Unit Test
-  - Spring
-  - Spring Boot
+- mockito
+- spring
+- spring boot
+- unit test
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 “Once,” said the Mock Turtle at last, with a deep sigh, “I was a real Turtle.”
 —Alice In Wonderland, Lewis Carroll
 

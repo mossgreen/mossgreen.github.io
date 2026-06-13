@@ -1,16 +1,15 @@
 ---
 title: Spring Data JPA Basic
 search: true
-tags: 
-  - Hibernate
-  - JPA
-  - Spring Data JPA
+tags:
+- hibernate
+- jpa
+- spring data jpa
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Additional capabilities beyond core spring and JPA.
 
 ## 0. Concepts

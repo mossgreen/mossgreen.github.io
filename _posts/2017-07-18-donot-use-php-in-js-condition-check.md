@@ -1,12 +1,11 @@
 ---
 title: Don't Use PHP in JS Condition Check
 search: true
-tags: 
-  - Linux
-  - Docker
+tags:
+- docker
+- linux
 toc: true
 ---
-
 // todo
 
 1. php true vs false echo in js

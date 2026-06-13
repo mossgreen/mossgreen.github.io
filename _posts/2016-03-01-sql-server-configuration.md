@@ -1,11 +1,10 @@
 ---
 title: SQL Server Configuration
-tags: 
-  - SQL Server
-  - Database
+tags:
+- database
+- sql server
 toc: true
 ---
-
 These are my notes while using SQL Server 2016.
 
 ### 1. What is a SQL Server instance?

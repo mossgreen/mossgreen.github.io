@@ -1,15 +1,14 @@
 ---
 title: Setup a simplest Spring Project Demo Project
 search: true
-tags: 
-  - Spring
-  - Spring Boot
+tags:
+- spring
+- spring boot
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 A Spring Demo project. See: <https://github.com/digitalsonic/geektime-spring-family>
 
 ## Where to start

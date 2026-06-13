@@ -1,17 +1,15 @@
 ---
-title: "Should You Migrate to Open Source Model?"
+title: Should You Migrate to Open Source Model?
 tags:
-  - LLM
-  - Open source
-  - Model deployment
+- llm
+- model deployment
+- open source
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 What if GPT-4o-mini updates and breaks your prompts? Or gets retired?
 
 ## The Problem

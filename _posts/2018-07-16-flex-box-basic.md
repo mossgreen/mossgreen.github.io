@@ -1,15 +1,14 @@
 ---
 title: Flex Box Basic
 search: true
-tags: 
-  - CSS
-  - Flex
+tags:
+- css
+- flex
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 Get out of nightmare that positioning elements with CSS.
 
 ## What is Flexbox Layout

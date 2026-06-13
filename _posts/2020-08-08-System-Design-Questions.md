@@ -2,13 +2,12 @@
 title: Common System Design Questions
 search: true
 tags:
-  - System Design
+- system design
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Some common system design questions
 
 ## Delivery Framework

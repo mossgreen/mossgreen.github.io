@@ -1,15 +1,14 @@
 ---
 title: Unit Test Terms
 search: true
-tags: 
-  - TDD
-  - Unit Test
+tags:
+- tdd
+- unit test
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Terms using in Unit Tests.
 
 ## Terms

@@ -1,16 +1,14 @@
 ---
-title: "Choosing the Right LLM for Generative vs Discriminative Tasks"
+title: Choosing the Right LLM for Generative vs Discriminative Tasks
 tags:
-  - LLM
-  - AI Agent
+- ai agent
+- llm
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 Choosing the wrong model for the wrong task leads to unstable systems, wasted compute, and unpredictable behavior. 
 
 ## 1. Introduction

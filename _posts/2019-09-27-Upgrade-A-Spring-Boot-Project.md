@@ -1,17 +1,16 @@
 ---
 title: Upgrade A Spring Boot Project from 2.0 to 2.1
 search: true
-tags: 
-  - Java
-  - Sprint Boot
-  - Gradle
-  - Flyway
+tags:
+- flyway
+- gradle
+- java
+- sprint boot
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Upgrade Java, Spring Boot, Gradle, Flyway, etc.
 
 ## Why upgrade

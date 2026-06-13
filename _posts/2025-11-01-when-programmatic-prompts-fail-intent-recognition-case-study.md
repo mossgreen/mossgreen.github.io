@@ -1,16 +1,16 @@
 ---
-title: "Intent Recognition Case Study: Why Conceptual Prompts Won"
+featured: true
+description: "An intent-recognition case study: how conceptual prompts took accuracy from 5/10 to 10,000/10,000 where programmatic prompts kept failing."
+title: 'Intent Recognition Case Study: Why Conceptual Prompts Won'
 tags:
-  - LLM
-  - Prompt engineering
+- llm
+- prompt engineering
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 from 5/10 to 10,000/10,000.
 
 ## The Problem

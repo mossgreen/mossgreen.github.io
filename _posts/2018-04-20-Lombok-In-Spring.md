@@ -1,16 +1,15 @@
 ---
 title: Lombok in Spring
 search: true
-tags: 
-  - Spring
-  - Lombok
-  - Gradle
+tags:
+- gradle
+- lombok
+- spring
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Lombok makes Java prettier, and your life easier.
 
 ## Why do you want to use Lombok

@@ -2,14 +2,13 @@
 title: AWS Key Concepts
 search: true
 tags:
-  - AWS
-  - SAA Certificatin
+- aws
+- saa certificatin
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 AWS SAA: Key Concepts
 
 - Only a subset of services in SAA exam

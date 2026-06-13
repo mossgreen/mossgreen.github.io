@@ -1,20 +1,21 @@
 ---
-title: "The Control Spectrum: 8 AI Orchestration Patterns from Full Control to Full Autonomy"
+featured: true
+description: "Eight AI orchestration patterns, from full control to full autonomy — with working code and a framework for choosing how much AI complexity a problem needs."
+title: 'The Control Spectrum: 8 AI Orchestration Patterns from Full Control to Full
+  Autonomy'
 header:
-  og_image: /assets/images/ai-orchestration-cover.png
+  og_image: "/assets/images/ai-orchestration-cover.png"
 tags:
-  - LLM
-  - OpenAI SDK
-  - Bedrock
-  - AI Agent
+- ai agent
+- bedrock
+- llm
+- openai sdk
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 AI architecture isn't binary. It's a spectrum.
 
 ## The Control Spectrum: A New Mental Model

@@ -1,15 +1,14 @@
 ---
 title: AWS CloudFormation 101
 tags:
-  - AWS
-  - CloudFormation
-  - IaC
+- aws
+- cloudformation
+- iac
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Simplify infrastructure management
 
 ## Jargons

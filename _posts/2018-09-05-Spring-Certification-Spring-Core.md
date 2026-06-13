@@ -1,13 +1,13 @@
 ---
 title: Spring Core in Spring Certification
 search: true
-tags: 
-  - Spring
-  - Spring Core
-  - Spring Professional Certification
+tags:
+- spring
+- spring core
+- spring professional certification
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring Core in Spring Certification (20%).

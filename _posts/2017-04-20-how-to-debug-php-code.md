@@ -1,11 +1,11 @@
 ---
 title: How to Debug PHP Code
 search: true
-tags: 
-  - PHP
+tags:
+- php
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
 There must be a better way. But this is the one I'm currently using.

@@ -1,11 +1,39 @@
 ---
-layout: archive
+layout: default
 ---
+<div class="wrap">
+  {%- assign featured = site.posts | where: "featured", true -%}
+  {%- if featured == empty -%}
+    {%- assign featured = site.posts | slice: 0, 1 -%}
+  {%- endif -%}
+  {%- assign lead = featured | first -%}
+  {%- if lead -%}
+  <p><a href="{{ lead.url | relative_url }}" class="muted font-ui">Featured</a></p>
+  <a href="{{ lead.url | relative_url }}" class="plain block">
+    <h2>{{ lead.title }}</h2>
+    {%- include post-meta.html post=lead -%}
+    {%- assign excerpt = lead.excerpt | strip_html | strip_newlines | truncate: 200 -%}
+    {%- if excerpt and excerpt != "" -%}
+    <p class="small muted">{{ excerpt }} Keep reading →</p>
+    {%- endif -%}
+  </a>
+  {%- if featured.size > 1 -%}
+  <ul class="post-list tabular-nums">
+    {%- for post in featured offset: 1 -%}
+      {%- include post-list-item.html post=post -%}
+    {%- endfor -%}
+  </ul>
+  {%- endif -%}
 
-<h3 class="archive__subtitle">{{ site.data.ui-text[site.locale].recent_posts | default: "Recent Posts" }}</h3>
+  <hr>
+  {%- endif -%}
 
-{% for post in paginator.posts %}
-  {% include archive-single.html %}
-{% endfor %}
+  <p><a href="{{ '/writing/' | relative_url }}" class="muted font-ui">Writing</a></p>
+  <ul class="post-list tabular-nums">
+    {%- for post in site.posts -%}
+      {%- include post-list-item.html post=post -%}
+    {%- endfor -%}
+  </ul>
 
-{% include paginator.html %}
+  <p class="small"><a href="{{ '/topics/' | relative_url }}" class="muted font-ui">Browse by topic →</a></p>
+</div>

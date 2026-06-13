@@ -1,15 +1,14 @@
 ---
 title: Build A 360 Photo View Page
 search: true
-tags: 
-  - PHP
-  - 360 Photo
+tags:
+- 360 photo
+- php
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Handle and view a 360 photo.
 
 We'are building a web page to show 360 photos that user uploads. In this project, I'm using PHP as the backend, using **three.js** in the front end.

@@ -1,16 +1,14 @@
 ---
 title: Programmatic vs Conceptual Prompts
 tags:
-  - LLM
-  - Prompt engineering
+- llm
+- prompt engineering
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 Programmatic prompts: 87% accuracy on complex tasks, 68% on simple ones. Conceptual: the reverse. Know the difference.
 
 If you've ever rewritten the same prompt five times trying to get consistent results, you've felt this problem. Most developers default to one style—usually whatever worked first—and stick with it. But the data shows that's leaving significant performance on the table.

@@ -1,15 +1,14 @@
 ---
 title: Beginning AWS, Why and How
 search: true
-tags: 
-  - AWS
-  - Cloud
+tags:
+- aws
+- cloud
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 AWS does everything. This the first step.
 
 

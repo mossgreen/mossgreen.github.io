@@ -1,12 +1,12 @@
 ---
 title: Prepare for OCAJP, (2)
 search: true
-tags: 
-  - JAVA
-  - OCAJP
+tags:
+- java
+- ocajp
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Java Operators and Statements.

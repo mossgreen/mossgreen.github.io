@@ -1,13 +1,13 @@
 ---
 title: AI Hallucinations Explained
 tags:
-  - LLM
-  - AI
-  - Prompt Engineering
+- ai
+- llm
+- prompt engineering
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
 AI creates compelling stories but fabricates facts. Learn to spot and stop hallucinations.

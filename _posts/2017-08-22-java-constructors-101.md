@@ -1,14 +1,13 @@
 ---
 title: Java Constructors 101
 search: true
-tags: 
-  - JAVA
+tags:
+- java
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 > The method that constructs your object.
 
 ## Basic concepts

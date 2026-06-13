@@ -1,15 +1,14 @@
 ---
 title: JSON Manipulation with Javascript
 search: true
-tags: 
-  - Javascript
-  - JSON
+tags:
+- javascript
+- json
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 > {"quote":"You miss 100% of the shots you don’t take.","author":"Wayne Gretzky"}
 
 ## Basic

@@ -2,14 +2,13 @@
 title: Validations in Spring
 search: true
 tags:
-  - Spring
-  - Bean Validation
+- bean validation
+- spring
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Spring integrates Bean Validation and gives you more
 
 ## 01. Validations in Java world

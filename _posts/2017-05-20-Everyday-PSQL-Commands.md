@@ -1,15 +1,14 @@
 ---
 title: Everyday PSQL Commands
 search: true
-tags: 
-  - database
-  - PostgreSQL
+tags:
+- database
+- postgresql
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 PostgreSQL Cheat Sheet.
 
 ## Contents

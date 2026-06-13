@@ -1,16 +1,15 @@
 ---
 title: Integrate Spring Boot and Angular
 search: true
-tags: 
-  - Java
-  - Spring Boot
-  - Angular
+tags:
+- angular
+- java
+- spring boot
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
-
 Setup a project with Spring Boot and Angular.
 
 ## Why do you want to integrate Spring Boot and Angular

@@ -1,14 +1,13 @@
 ---
 title: Using Pipes Within ngModel on Input Elements in Angular
 search: true
-tags: 
-  - Angular
+tags:
+- angular
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Got an error: Cannot have a pipe in an action expression.
 
 ## The issue

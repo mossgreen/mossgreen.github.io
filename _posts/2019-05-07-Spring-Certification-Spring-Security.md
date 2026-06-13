@@ -1,16 +1,15 @@
 ---
 title: Spring Security in Spring Certification
 search: true
-tags: 
-  - Spring
-  - Spring Security
-  - Spring Professional Certification
+tags:
+- spring
+- spring professional certification
+- spring security
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Spring Security in Pivotal Spring Professional Certification (6%).
 
 ## What are authentication and authorization? Which must come first  

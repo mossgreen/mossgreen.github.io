@@ -1,16 +1,14 @@
 ---
 title: Vim Editor 101
 search: true
-
 header:
-  image:  assets/images/how-to-quit-vim.png
-  --teaser: assets/images/how-to-quit-vim.png
-tags: 
-  - Linux
-  - Vim
+  image: assets/images/how-to-quit-vim.png
+  "--teaser": assets/images/how-to-quit-vim.png
+tags:
+- linux
+- vim
 toc: true
 ---
-
 How to quit vim? - -!
 
 ## It has Dual-mode

@@ -1,11 +1,10 @@
 ---
 title: Understanding SQL Server Connection Strings
-tags: 
-  - SQL Server
-  - Database
+tags:
+- database
+- sql server
 toc: true
 ---
-
 SQL Server Connection Strings.
 
 What is connection string?

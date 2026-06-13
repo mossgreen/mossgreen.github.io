@@ -1,12 +1,12 @@
 ---
 title: Jest, Javascript unit testing
 search: true
-tags: 
-  - Unit Testing
-  - Javascript
+tags:
+- javascript
+- unit testing
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
 Unit Testing in JavaScript

@@ -1,17 +1,16 @@
 ---
 title: Document APIs using Swagger
 search: true
-tags: 
-  - API
-  - Swagger
-  - Spring
-  - Spring Boot
+tags:
+- api
+- spring
+- spring boot
+- swagger
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Use Swagger to document Spring boots porject's APIs
 
 ## Swagger instruction

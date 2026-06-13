@@ -1,11 +1,10 @@
 ---
 title: What I Did After Updating Database by Mistake?
-tags: 
-  - Sql Server
-  - Database
+tags:
+- database
+- sql server
 author: Moss GU
 ---
-
 So sorry that I falsely updated the database with the following script:
 
 ```sql

@@ -1,14 +1,14 @@
 ---
 title: Spring OAuth2 Notes
 search: true
-tags: 
-  - Java
-  - Spring
-  - Spring Security
-  - OAuth2
+tags:
+- java
+- oauth2
+- spring
+- spring security
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring OAuth2 101

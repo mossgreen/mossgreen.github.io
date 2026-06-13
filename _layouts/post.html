@@ -1,0 +1,21 @@
+---
+layout: default
+---
+<article>
+  <h1>{{ page.title }}</h1>
+  {%- include post-meta.html post=page -%}
+  {%- include toc.html -%}
+  <div class="post-content">
+    {{ content }}
+  </div>
+  {%- if page.tags and page.tags.size > 0 -%}
+  <hr>
+  <p class="muted small font-ui">Topics:
+    {%- for tag in page.tags -%}
+      {%- assign slug = tag | slugify -%}
+      <a href="{{ '/topics/' | append: slug | append: '/' | relative_url }}">{{ tag }}</a>{%- unless forloop.last -%}, {% endunless -%}
+    {%- endfor -%}
+  </p>
+  {%- endif -%}
+</article>
+<script src="{{ '/assets/js/toc.js' | relative_url }}" defer></script>

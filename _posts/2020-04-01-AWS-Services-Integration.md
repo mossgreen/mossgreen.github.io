@@ -2,11 +2,11 @@
 title: AWS Services Study Notes, Integration
 search: true
 tags:
- - AWS
- - SAA Certification
+- aws
+- saa certification
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 SNS, SQS, etc.

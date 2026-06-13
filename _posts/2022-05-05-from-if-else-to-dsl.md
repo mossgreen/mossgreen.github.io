@@ -1,16 +1,14 @@
 ---
-title: "From If-Else to DSL: How Software Evolves Toward Configuration-Driven Systems"
+title: 'From If-Else to DSL: How Software Evolves Toward Configuration-Driven Systems'
 tags:
-  - SOLID
-  - DSL
+- dsl
+- solid
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 From hardcoded logic to configuration-driven architectures, with complete Java examples.
 
 ## The Use Case

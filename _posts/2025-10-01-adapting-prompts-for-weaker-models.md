@@ -1,16 +1,14 @@
 ---
 title: Prompts for Weaker LLM Models
 tags:
-  - LLM
-  - Prompt engineering
+- llm
+- prompt engineering
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
-
 Move complexity from prompts to code. Weaker models excel when you simplify their job.
 
 When working with LLMs, we often prototype with powerful models like GPT-4 or Claude Sonnet. But production reality hits: cost, latency, or infrastructure constraints force us to use weaker models. The challenge? Your carefully crafted prompt that worked beautifully with a frontier model now produces inconsistent or incorrect results.

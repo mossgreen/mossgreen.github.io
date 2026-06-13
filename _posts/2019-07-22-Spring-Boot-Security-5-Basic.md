@@ -1,17 +1,16 @@
 ---
 title: Spring Boot Security 5 Basic
 search: true
-tags: 
-  - Spring
-  - Spring Boot
-  - Spring Web
-  - Spring Security
+tags:
+- spring
+- spring boot
+- spring security
+- spring web
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Powerful and highly customizable authentication and access-control.
 
 ## Initializer

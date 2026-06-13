@@ -1,14 +1,13 @@
 ---
 title: Types of Software Testing
 search: true
-tags: 
-  - Testing
+tags:
+- testing
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Test makes perfect.
 
 ## The different types of software testing

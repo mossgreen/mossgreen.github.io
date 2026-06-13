@@ -1,14 +1,13 @@
 ---
 title: Scalable Prompt Design
 tags:
-  - LLM
-  - Prompt engineering
+- llm
+- prompt engineering
 search: true
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
-
 ---
 Separate stable concepts from changing details. Your prompts become maintainable, not messy.
 

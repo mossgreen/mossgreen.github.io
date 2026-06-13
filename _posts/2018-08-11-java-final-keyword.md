@@ -1,11 +1,11 @@
 ---
 title: Opinionated Final Variables in Java
 search: true
-tags: 
-  - Java
+tags:
+- java
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: single
 ---
 I use final whenever it is appropriate. 

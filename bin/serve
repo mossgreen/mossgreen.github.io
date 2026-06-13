@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Local Jekyll dev server.
+# Wraps `bundle exec jekyll serve` with the env tweaks needed on this Mac
+# (RVM/JRuby is the default Ruby; Homebrew Ruby is keg-only).
+set -e
+cd "$(dirname "$0")/.."
+exec env -u GEM_HOME -u GEM_PATH -u RUBY_VERSION \
+  PATH="/opt/homebrew/opt/ruby/bin:/usr/bin:/bin" \
+  /opt/homebrew/opt/ruby/bin/bundle exec jekyll serve "$@"

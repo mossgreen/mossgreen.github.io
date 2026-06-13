@@ -1,14 +1,14 @@
 ---
 title: Spring Testing in Spring Certification
 search: true
-tags: 
-  - Spring
-  - Spring Testing
-  - Mockito
-  - Unit Test
+tags:
+- mockito
+- spring
+- spring testing
+- unit test
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 Spring test in Pivotal Spring professional certification (4%).

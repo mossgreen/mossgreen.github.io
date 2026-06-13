@@ -1,15 +1,14 @@
 ---
 title: Add CloudWatch Alarms to A Lambda Function
 tags:
-  - CloudWatch
-  - Lambda
-  - Alarm
+- alarm
+- cloudwatch
+- lambda
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Better monitoring your app.
 
 ## Jargons

@@ -1,16 +1,15 @@
 ---
 title: Spring REST in Spring Certification
 search: true
-tags: 
-  - Spring
-  - Spring REST
-  - Spring Professional Certification
+tags:
+- spring
+- spring professional certification
+- spring rest
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Spring REST in Pivotal Spring professional certification (6%).
 
 ## What does REST stand for?

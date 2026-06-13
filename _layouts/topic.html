@@ -1,0 +1,20 @@
+---
+layout: default
+---
+<article>
+  <h1>{{ page.tag_label | default: page.tag }}</h1>
+  {%- assign tag_key = page.tag -%}
+  {%- assign tag_posts = site.tags[tag_key] -%}
+  {%- if tag_posts -%}
+  <p class="muted small font-ui">{{ tag_posts | size }} post{% if tag_posts.size != 1 %}s{% endif %} tagged "{{ page.tag_label | default: page.tag }}"</p>
+  <ul class="post-list tabular-nums">
+    {%- for post in tag_posts -%}
+      {%- include post-list-item.html post=post -%}
+    {%- endfor -%}
+  </ul>
+  {%- else -%}
+  <p class="muted">No posts found for this topic.</p>
+  {%- endif -%}
+  <hr>
+  <p class="muted small font-ui"><a href="{{ '/topics/' | relative_url }}" class="muted">← All topics</a></p>
+</article>

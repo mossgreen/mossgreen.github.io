@@ -1,16 +1,15 @@
 ---
 title: Java Enum and How to Persist It
 search: true
-tags: 
-  - Java
-  - Enum
-  - Spring Data JPA
+tags:
+- enum
+- java
+- spring data jpa
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 Should use Enums any time you need to represent a fixed set of constants
 
 - A simple instruction to Java Enum

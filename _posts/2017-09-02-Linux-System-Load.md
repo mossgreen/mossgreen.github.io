@@ -1,14 +1,13 @@
 ---
 title: Linux System Load Average Explained
 search: true
-tags: 
-  - Linux
+tags:
+- linux
 toc: true
-toc_label: "My Table of Contents"
-toc_icon: "cog"
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
-
 `Load Avg: 2.56, 2.26, 2.14`
 
 ## How to monitor linux system load average

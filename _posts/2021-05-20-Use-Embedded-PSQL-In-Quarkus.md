@@ -1,12 +1,12 @@
 ---
 title: Use Embedded PSQL in Quarkus Integration Testing
 tags:
-  - PSQL
-  - Integration Testing
-  - Quarkus
+- integration testing
+- psql
+- quarkus
 toc: true
-toc_label: 'My Table of Contents'
-toc_icon: 'cog'
+toc_label: My Table of Contents
+toc_icon: cog
 classes: wide
 ---
 // todo
