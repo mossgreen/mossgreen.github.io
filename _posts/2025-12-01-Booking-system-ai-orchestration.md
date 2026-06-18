@@ -1,10 +1,9 @@
 ---
 featured: true
-description: "Eight AI orchestration patterns, from full control to full autonomy — with working code and a framework for choosing how much AI complexity a problem needs."
+description: "Eight AI orchestration patterns, from full control to full autonomy — with code examples and a framework for choosing how much AI complexity a problem needs."
 title: 'The Control Spectrum: 8 AI Orchestration Patterns from Full Control to Full
   Autonomy'
-header:
-  og_image: "/assets/images/ai-orchestration-cover.png"
+image: "/assets/images/ai-orchestration-cover.png"
 tags:
 - ai agent
 - bedrock
@@ -20,7 +19,7 @@ AI architecture isn't binary. It's a spectrum.
 
 ## The Control Spectrum: A New Mental Model
 
-Most teams treat AI architecture as a binary choice: "use agents or don't." After implementing 8 production-ready patterns—from "AI as a service" to multi-agent orchestration—I found a better mental model: **the Control Spectrum**.
+Most teams treat AI architecture as a binary choice: "use agents or don't." After implementing 8 patterns end to end—from "AI as a service" to multi-agent orchestration—I found a better mental model: **the Control Spectrum**.
 
 ```
 CONTROL ←─────────────────────────────────────→ AUTONOMY
