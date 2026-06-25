@@ -1,12 +1,13 @@
 ---
 featured: true
-description: "RAG knowledge bases fail in predictable ways — bad chunking, weak retrieval, missing evaluation. A practical guide to the hidden failure points in RAG pipelines and how to build systems that actually work."
+description: "A knowledge base looks like a search box. Underneath it is a four-stage RAG pipeline where every stage fails silently. A comprehensive walk through the failure points — ingestion, retrieval, assembly, generation — plus the concerns that cut across all of them, how to evaluate the system, and where the field is going."
 title: 'Why Building a Knowledge Base Is Harder Than It Looks'
 tags:
 - rag
 - llm
 - retrieval
 - ai architecture
+- evaluation
 search: true
 toc: true
 toc_label: My Table of Contents
@@ -14,130 +15,190 @@ toc_icon: cog
 classes: wide
 ---
 
-A knowledge base looks simple. Underneath, it is a pipeline — with many ways to break.
+An AI knowledge base looks like a search box. You point it at your company's documents, type a question, and get an answer back.
 
-From the outside, it's three moves: connect your documents, ask a question, get an answer. Inside, it's a three-stage pipeline:
-
-- **Ingest** — split your documents into small pieces.
-- **Retrieve** — find the pieces that match the question.
-- **Generate** — write an answer from them.
-
-Every step can go wrong, and none of them throws an error: pick the wrong pieces, or misread the right ones, and you still get a confident answer — just a wrong one. That's why these systems sail through a demo and break in production. This post walks through where each step fails — and how to tell whether yours has.
+It isn't. Underneath is a pipeline, and every stage fails without an error — just a confident, wrong answer. What makes it work is not a better model but structure and measurement around the pipeline. You only learn it is broken if you measure. This post walks the stages, the concerns that cut across them, how to evaluate it, and where the field is heading.
 
 ## What a knowledge base is — and why you need one
 
 A knowledge base is an organized, searchable collection of your documents and facts. The idea predates AI by decades — a company wiki, a help center, or Stack Overflow is a knowledge base. What's new is connecting one to an LLM.
 
-You need that connection because a model's training is fixed and generic: it never saw your internal documents, it's frozen at a cutoff date, and asked about something it doesn't know, it often makes something up. A knowledge base grounds the model in your specific, current information and lets it cite its sources. Doing that well, though, is more than embedding search and a vector database (as Jason Liu argues) — and that gap is what the rest of this post is about.
+You need that connection because a model's training is fixed and generic: it never saw your internal documents, it's frozen at a cutoff date, and asked about something it doesn't know, it often makes something up. A knowledge base grounds the model in your specific, current information and lets it cite its sources. 
 
-## How it works: the RAG pipeline
+Doing it well, though, is more than embedding search and a vector database — and that gap is the rest of this post.
 
-A knowledge base doesn't *have* to use RAG. You could fine-tune the knowledge into the model, or — now that context windows hold a million tokens — paste every document into the prompt. But fine-tuning is expensive to keep current, and stuffing everything in breaks down on cost, latency, and recall as the corpus grows. For knowledge that's large, changing, or needs citations, the dominant approach is **Retrieval-Augmented Generation (RAG)** — and that's what this post is about.
+## A knowledge base is a pipeline, not a feature
 
-RAG comes from a 2020 paper by Patrick Lewis and co-authors at Facebook AI Research. It has three stages:
+A knowledge base doesn't *have* to use RAG. Two alternatives, each with a catch:
 
-1. **Ingest.** Split your documents into chunks, turn each chunk into a vector, and store them in a searchable index.
-2. **Retrieve.** When a user asks a question, find the chunks most relevant to it and add them to the prompt.
-3. **Generate.** The model writes an answer grounded in those chunks, with citations back to the source.
+- **Fine-tune** the knowledge into the model — but it's expensive to keep current.
+- **Paste everything** into the prompt, now that context windows hold a million tokens — but it breaks down on cost, latency, and recall as the corpus grows.
 
-## Why it fails — stage by stage
+For knowledge that's large, changing, or needs citations, the dominant approach is **Retrieval-Augmented Generation (RAG)**.
 
-Barnett et al. catalogued **seven failure points** in production RAG systems (CAIN 2024). They don't cluster in one place — they are spread across all three stages, and none of them throws an error. Each just yields a confident, plausible answer, which is why they sail through a demo and surface only in production. Here is where each one bites.
+RAG comes from a 2020 paper by Patrick Lewis and co-authors at Facebook AI Research. Instead of relying only on what a model memorized during training (*parametric* memory), you give it an external index to look things up in at answer time (*non-parametric* memory).
 
-### Ingestion: getting documents in
+The pipeline is short to describe: chunk your documents, embed them, store the vectors, retrieve the closest, put them in the prompt, and generate an answer. Those same steps, named and grouped, are the **four stages** — each easy to name and hard to do well.
 
-This stage matters most and gets the least attention.
+Each also fails in its own way. Barnett and colleagues' 2024 field report, *Seven Failure Points When Engineering a Retrieval Augmented Generation System*, cataloged seven failures across the pipeline; none throws an error, which is why they surface only in production:
 
-**Chunking.** You split documents into smaller pieces before storing them, and how you split them affects everything downstream.
+1. **Ingestion** — split your documents into pieces and store them.
+   - *#1 missing content* — the answer was never in the corpus.
+2. **Retrieval** — find the pieces that match the question.
+   - *#2 missed the top-ranked documents* — the right piece existed but ranked too low.
+3. **Assembly** — choose and order what goes in the prompt.
+   - *#3 not in context* — the right piece never made it into the prompt.
+4. **Generation** — write an answer grounded in those pieces.
+   - *#4–7 not extracted, wrong format, wrong specificity, incomplete* — the answer was in the prompt but the model still got it wrong.
 
-- Too small: you cut off the context a passage needs.
-- Too big: each result is partly irrelevant, so the match is weaker.
+Walk the pipeline and the difficulty shows up at every stage.
 
-There is no single correct size, and a chunk can be useless once it's separated from the page it came from. Chroma's evaluation of chunking strategies shows the choice measurably moves retrieval accuracy — it is not a detail. The common fix is to add overlap, or store the text at several sizes, but that bloats the index, retrieves the same passage more than once (so you have to de-duplicate), and still doesn't tell a chunk which document or section it came from.
+## Stage 1 — Ingestion: garbage in, confident garbage out
 
-Better options:
+This is the stage that matters most and gets demoed least. Three separate problems bite here.
 
-- Split on meaning, not a fixed length.
-- Label each chunk with where it sits in the document.
-- Anthropic's *Contextual Retrieval* prepends a short line of context to each chunk before storing it, for exactly this reason.
+### Chunking — how you cut the documents
 
-**Conflicting or out-of-date documents.** Retrieval returns whatever you gave it. It can't reconcile two documents that disagree, a document that's months stale, or knowledge that was never written down. If the answer isn't in your documents, no search method can find it — this is Barnett's first failure point, *missing content*.
+Before anything is searchable, you cut documents into passages. The size is a trade-off:
 
-**Documents aren't always text.** A real document set includes wiki pages, but also screenshots, diagrams, and whiteboard photos. To search an image you have two choices:
+- **Too small** — you cut off the context a passage needs to mean anything.
+- **Too big** — every result is half-irrelevant, which dilutes the match.
 
-- Turn it into text first — OCR for typed text, plus a vision model to describe diagrams, then store the text. Standard, but lossy and brittle.
-- Store the page image directly with a model like ColPali, which skips OCR and embeds the page as a vector. Strong on charts and complex layouts.
+There is no universal right size — Chroma's evaluation shows the choice measurably moves retrieval accuracy — and a chunk that reads fine to a human can be meaningless once it is separated from the page around it.
 
-The hard cases stay hard: ColPali's authors flag handwritten documents as outside what they tested, and audio and video have to be transcribed before any of this applies. Every new format adds a step that can fail.
+The common fix is redundancy: overlap the chunks, or store them at several sizes. It helps, but it inflates the index, retrieves the same passage twice, and still never tells a chunk what document or section it came from. Two better moves:
 
-### Retrieval: finding the right information
+- **Split on meaning**, not a fixed token count.
+- **Label each chunk** with where it sits — Anthropic's *Contextual Retrieval* uses an LLM to prepend a one-line "here's where this sits" note to every chunk before indexing.
 
-The common mistake is treating search as a choice between two methods. Both have been around for years:
+### Conflicting and stale knowledge — what's in the corpus
 
-- **Keyword search (BM25).** Matches words; the backbone of Lucene and Elasticsearch, from work by Robertson and Spärck Jones. Finds an exact string like the error code `TS-999`, but doesn't know that "can't log in" and "authentication failure" mean the same thing.
-- **Semantic search.** Matches meaning, via methods like Dense Passage Retrieval (Karpukhin et al., 2020) and ColBERT (Khattab & Zaharia, 2020); the nearest-neighbour lookup itself is usually handled by an index such as HNSW (Malkov & Yashunin). Places similar ideas close together, but can miss the exact `TS-999` and return general text instead.
+Retrieval surfaces whatever you fed it, and it cannot reconcile:
 
-Neither is enough alone. Use both and fuse the results (Reciprocal Rank Fusion, Cormack et al., 2009). Anthropic's tests show the gain — measured as the reduction in top-20 retrieval failures:
+- two documents that disagree,
+- a document six months out of date,
+- knowledge that lives in someone's head and was never written down.
 
-- Contextual embeddings: 35% fewer failures.
-- Plus keyword search: 49%.
+If the answer is not in the corpus, no search method can conjure it. This is Barnett's first failure point, *missing content* — an ingestion problem, not a retrieval one.
+
+### Documents that aren't text — formats beyond plain text
+
+A real corpus is wiki pages, but also screenshots, diagrams, and whiteboard photos. To make an image searchable, two options:
+
+- **Convert it to text first** — OCR for typed text, plus a vision model to describe diagrams and charts, then index that. Standard, but lossy and brittle.
+- **Embed the image directly** — models like ColPali skip OCR and embed the page screenshot into the vector space. Strong on charts and dense layouts.
+
+The hard cases stay hard. Whiteboard photos defeat both — handwriting plus freehand boxes and arrows is the worst input either approach has, and even ColPali's authors flag handwritten documents as outside what they tested. Audio and video need transcription before any of this applies. Every new format is another preprocessing step that can fail.
+
+## Stage 2 — Retrieval: finding the needle
+
+Once the documents are in, you have to find the right pieces for a question. The common mistake is treating this as a choice between two search methods. It isn't: you need both, plus a second pass to sort them and some help with the question itself.
+
+### Lexical vs semantic — run both, don't choose
+
+Two families of search, each with a long pedigree:
+
+- **Lexical search (BM25)** matches words. The workhorse behind Lucene and Elasticsearch, rooted in the probabilistic-relevance work of Robertson and Spärck Jones. Ask for error code `TS-999` and it finds the literal string — but it has no idea that "can't log in" and "authentication failure" are the same thing.
+- **Semantic search** matches meaning. Dense Passage Retrieval (Karpukhin et al., 2020) and late-interaction models like ColBERT (Khattab & Zaharia, 2020) embed text so "can't log in" lands near "authentication failure" — the nearest-neighbour lookup itself handled by an index such as HNSW. But it can sail past the exact `TS-999` and return generic content instead.
+
+Neither wins outright, so you run both and fuse the results (Reciprocal Rank Fusion, Cormack et al., 2009). On Anthropic's own benchmarks, measured as the reduction in top-20 retrieval failures, the methods are additive:
+
+- Semantic embeddings alone: 35% fewer failures.
+- Plus lexical search: 49%.
 - Plus a reranking step: 67%.
 
-The methods people treat as alternatives work better together.
+This doesn't take two systems: engines like Elasticsearch and OpenSearch run BM25, vector search, and RRF in a single index.
 
-**Which results to keep.** The common approach sets a score cutoff and keeps the strong matches — but the cutoff is usually a guess. Better: retrieve many results, then use a **reranker** (a model that judges how well each result answers the question) to sort them, and surface only the top few. Public answer engines work this way — retrieving many candidates per query and showing only a handful. Get this wrong and you hit Barnett's second failure point: the right document was retrieved, but didn't rank high enough to be used.
+### Which results to keep — recall, then rerank
 
-**The question itself is also a problem.** A user types "the billing issue" when there are forty of them. You can ask them to be specific, or rewrite the query for them — HyDE writes a hypothetical answer first and searches with that. How far to go is a design choice, not a solved problem.
+The instinct is a similarity-score cutoff: keep the strong matches, drop the rest. Two traps. First, the score is real but the line you draw on it usually isn't backed by anything. Second, the instinct itself is wrong. You don't aim for a clean result set at retrieval time — you retrieve widely for *recall*, then let a **reranker** (a model that scores how well each candidate answers the query) do the precision work. Public answer engines work this way: retrieve many candidates, surface only a handful. Get this wrong and you hit Barnett's second failure point — the right document existed but never ranked high enough to be seen.
 
-### Generation: assembling and answering
+### The query itself — rewriting the question
 
-You've found good chunks. You're still not done.
+A user types "the billing issue" and means one of forty. You can ask them to clarify, or rewrite the query for them — HyDE drafts a *hypothetical* answer and searches with that instead of the bare question. How far to go is a product judgment, not a solved problem.
 
-**Too little or too much context.** One chunk and the answer may be incomplete; twenty and it can get lost. *Lost in the Middle* (Liu et al., 2023) found that models use information best at the start or end of a long context and often miss the middle — true even for models built for long contexts. So where a chunk sits in the prompt affects whether the model uses it, which is why systems add a step to rerank, shorten, and order the context before generating (Fusion-in-Decoder, Izacard & Grave, 2021, is the classic way to combine many passages). That step adds cost and latency to every query. A retrieved chunk that never makes it into the final prompt is Barnett's third failure point.
+## Stage 3 — Assembly: ordering the context
 
-**Finding the answer is not the same as using it.** Even with the correct source in front of it, the model can ignore it, blend it with its own assumptions, or make something up. This covers the rest of Barnett's failure points: the answer was there but not extracted (#4), the requested format was ignored (#5), the reply was too vague or too specific (#6), or it was incomplete (#7). Finding the right information and stating it correctly are two separate problems.
+You've found good chunks. Now you decide what actually goes into the prompt, and in what order. Both matter.
 
-## How to do it properly
+### How much goes in — too little, too much
 
-Doing it properly means improving two things at once: how you **structure** documents going in, and how you **retrieve** them coming out. Most tutorials stop at flat chunks and naive search — and improving only one side just leaves the other as the bottleneck.
+Return one chunk and you've under-answered. Dump twenty and you've buried the answer in noise. More context is not automatically better.
 
-The shape is the same everywhere: hybrid retrieval, then reranking, then grounded generation, on top of documents that have been labeled and linked. Two common variants:
+### What order — lost in the middle
 
-- **Structure-first.** Build a knowledge graph of entities and relationships (people, projects, documents) rather than flat chunks. Map every source into one format, enforce permissions at query time, and link related documents so "the billing issue" resolves to the right one. Internal corporate tools tend this way — the value compounds as the graph grows richer.
-- **Pipeline-first.** Run full retrieval on every query: hybrid keyword + semantic search, a cross-encoder reranker, then a final pass for authority and recency. Add citations to the prompt before the model writes, so the answer stays tied to its sources. Public-facing tools tend this way — the value is freshness and breadth.
+Position changes what the model uses. *Lost in the Middle* (Liu et al., 2023) showed that models reliably use information at the **start and end** of a long context and miss what's in the **middle** — even models built for long contexts. So you add a pass to rerank, compress, and order the context before generating (Fusion-in-Decoder, Izacard & Grave, 2021, is the classic way to combine many passages), and it costs money and latency on every query. A retrieved chunk that never makes it into the final prompt is Barnett's third failure point, *not in context*: finding a passage and getting it in front of the model are two different things.
 
-If you need to answer "what are the themes across everything" questions that flat retrieval can't, there's a graph version: Microsoft's **GraphRAG** uses an LLM to build a knowledge graph from your documents. It's powerful but expensive — graph indexing can be orders of magnitude more costly than vector indexing, and Microsoft's own advice is to start small. Don't build a graph unless you actually need to connect entities across documents.
+## Stage 4 — Generation: grounding
 
-More advanced systems make retrieval *adaptive*: the model judges whether what it retrieved is good enough and retries or corrects when it isn't (Self-RAG, Asai et al., 2024; CRAG, Yan et al., 2024).
+The last stage is the hardest to defend against. Even when the system retrieves the *correct* source, the model can ignore it, blend it with its own assumptions, or fabricate around it.
 
-## How to evaluate it
+### Grounding isn't retrieval — finding the truth vs stating it
 
-This is how you answer the question the demo couldn't: does it actually work? You have no answer key, and every failure mode above produces a confident answer — so you can't eyeball it. Without measurement, a knowledge base goes stale and no one notices. As Hamel Husain argues, your AI product needs evals — a knowledge base is only as good as the evals you build around it.
+This covers the back half of Barnett's list. The answer was sitting in the context and the model still didn't extract it (#4), ignored the requested format (#5), was too vague or too specific (#6), or was simply incomplete (#7). Finding the truth and stating it are two different problems, and solving the first does not solve the second.
 
-Start with a **golden set**:
+### Defenses — ground the model on purpose
+
+The fixes are mechanical: instruct the model to answer *only* from the provided context, force it to attach a citation to every claim, and have it say "not in the documents" when nothing supports an answer. None is free, and none is perfect — which is exactly why the system needs measurement, below.
+
+## Cross-cutting concerns: permissions, freshness, cost
+
+Some problems don't live in one box. They run through the whole pipeline, and they're the difference between "studied the papers" and "shipped the system."
+
+**Access control.** Retrieval must respect who is allowed to see what. A document retrieved correctly that the user shouldn't see is not an answer — it's a data leak. So permissions have to be enforced at query time, filtering candidates *before* they reach the model. This is hard because permissions live in the source systems, differ per user, and change constantly; the index has to mirror them and stay in sync. In an enterprise corpus this is often the single hardest part of the build, and it has nothing to do with model quality.
+
+**Freshness.** Documents change. The index has to keep up — incremental re-indexing, capturing changes from the source systems, expiring what's been deleted. A stale index returns old answers with full confidence and no error. A knowledge base with no refresh loop rots silently: stale answers, drifting relevance, no alarm bell.
+
+**Cost and latency.** Every stage you add — hybrid search, a reranker, query rewriting, context compression — costs money and time on every query. The latency budget is a design constraint, not an afterthought. Sometimes the right call is a smaller pipeline, not a bigger one. The most autonomous design is rarely the one that ships.
+
+## Evaluation: you can't tell whether it works
+
+Here's what quietly sinks most projects. You have no answer key. There's no ground truth telling you if the system is good, and every failure mode above produces a confident answer — so you can't eyeball it. Teams ship and hope. As Hamel Husain puts it, your AI product needs evals; a knowledge base is only as good as the evals around it.
+
+The fix is unglamorous but mechanical. Build a **golden set**:
 
 - 50–200 examples of (question → ideal answer → source passage).
-- Write them by hand, or generate them from your documents and review them.
-- Include hard cases: vague questions, questions with no answer, multi-step questions. Otherwise you only test the easy path.
+- Write them by hand, or generate them from your own docs and review them.
+- Deliberately include the hard cases — ambiguous questions, questions with *no* answer in the corpus, multi-step questions — or you'll only ever measure the easy path.
 
-Score the two stages separately, because a system can find the right chunk and still make something up, or miss it and still sound confident. Measure retrieval first — a generation problem you can't trace back to retrieval is hard to fix (Liu, *Systematically Improving Your RAG*):
+Then score the two halves of the pipeline separately, because a system can fetch the right chunk and still hallucinate, or miss the chunk and still sound confident. Measure retrieval first — a generation problem you can't trace back to retrieval is hard to fix:
 
 - **Retrieval:** recall@k (did the right passage make the top-k?), precision@k, MRR.
-- **Generation:** faithfulness (is every claim backed by a source? this catches made-up answers) and answer relevance.
+- **Generation:** *faithfulness* (is every claim backed by a retrieved passage? — this is your hallucination detector) and *answer relevance*.
 
 A few notes:
 
-- Grade generation with an LLM-as-judge (a strong model scoring answers against the sources), but check it against a few human-graded examples — judges favor longer answers and their own style.
-- Tools like RAGAS and DeepEval do this for you.
-- Fifty examples beat zero. The goal is a ruler, not a perfect score.
+- Grade generation with an LLM-as-judge — a strong model scoring answers against their sources — but calibrate it against a small human-graded sample, because judges favor longer answers and their own style.
+- Frameworks like RAGAS and DeepEval implement all of this off the shelf.
+- Fifty examples beat zero. You're not chasing a perfect score — you're building a ruler, so changes stop being guesses.
+
+## The frontier: agentic retrieval and knowledge graphs
+
+The pipeline so far is *single-shot*: retrieve once, assemble, answer. The frontier relaxes that.
+
+**Adaptive and agentic retrieval.** Instead of retrieving once, the model drives the loop: it judges whether what it retrieved is good enough, then rewrites the query, retries, or fetches more — and does this over several hops for questions a single search can't answer. Self-RAG (Asai et al., 2024) and CRAG (Yan et al., 2024) are early, concrete versions. Retrieval stops being a fixed first step and becomes a tool the model calls.
+
+**Knowledge graphs.** Flat chunks can't answer "what are the themes across *everything*." For that you need structure. Microsoft's **GraphRAG** uses an LLM to extract a knowledge graph from your documents automatically, which unlocks those whole-corpus questions. The catch is brutal and worth stating plainly: graph indexing can cost 100–1000× more than vector indexing, and Microsoft's own guidance is to *start small*. Don't build a graph speculatively. Reach for it only when you actually hit questions that require connecting entities across documents.
+
+## What good looks like: Glean and Perplexity
+
+Not the best embedding model. The systems that work treat a knowledge base as a **pipeline plus structure plus a feedback loop**. Two of them, at opposite ends of the spectrum:
+
+**Glean** searches a company's internal tools, and its bet is structure. Instead of a flat pile of chunks it builds a *knowledge graph* of entities and relationships — people, projects, customers, documents — so it can reason across connected things, not just match text. It maps every source into one schema, fine-tunes embeddings per customer, enforces each user's permissions, and learns continuously from feedback. (Glean reports its search quality improving around 20% over six months from that feedback loop alone.)
+
+**Perplexity** answers over the live web, and its bet is the pipeline. Real-time retrieval on every query, multi-stage ranking (lexical + semantic → cross-encoder rerank → a final pass weighing authority and recency), and — the move that matters — it embeds citations into the prompt *before* the model writes, rather than bolting sources on afterward. That's how the answer stays tied to evidence.
+
+Different worlds, same shape:
+
+> **hybrid retrieval → rerank → grounded generation, on top of real structure, with measurement wrapped around the whole thing.**
 
 ## Summary
 
-The demo is the easy part. The rest is a pipeline — getting documents in, finding them, assembling them, generating the answer — and every stage has a known, silent way to fail.
+The search box is the easy 10%. The other 90% is a pipeline — ingestion, retrieval, assembly, generation — where every stage has a well-documented way to fail silently, plus cross-cutting concerns (permissions, freshness, cost) that no single stage owns, held together by structure and measurement rather than by a clever model.
 
-What separates a system that demos well from one that works isn't a cleverer model. It's structure (labeled, linked documents), retrieval that combines keyword and semantic search with reranking, and measurement around the whole thing. You only find out it's broken if you measure it.
+That's the real reason building a knowledge base is hard: not because any single piece is exotic, but because all of them have to work at once — and you only find out they didn't if you bothered to measure.
 
-Build a golden set with fifty examples. Add reranking to your retrieval. Label your chunks. Then measure again, and repeat until the system is honest about what it doesn't know — that's when it starts being useful.
+Build a golden set with fifty examples. Add reranking to your retrieval. Label your chunks. Enforce permissions at query time. Then measure again, and repeat until the system is honest about what it doesn't know — that's when it starts being useful.
 
 ## References
 
@@ -166,11 +227,11 @@ Build a golden set with fifty examples. Add reranking to your retrieval. Label y
 
 - **Fusion-in-Decoder** — Izacard & Grave, "Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering," EACL 2021. [arXiv:2007.01282](https://arxiv.org/abs/2007.01282)
 - **Lost in the Middle** — Liu et al., "Lost in the Middle: How Language Models Use Long Contexts," TACL 2024. [arXiv:2307.03172](https://arxiv.org/abs/2307.03172)
+
+**The frontier**
+
 - **Adaptive retrieval (Self-RAG)** — Asai et al., "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection," ICLR 2024. [arXiv:2310.11511](https://arxiv.org/abs/2310.11511)
 - **Corrective retrieval (CRAG)** — Yan et al., "Corrective Retrieval Augmented Generation" (2024). [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
-
-**Architecture**
-
 - **Knowledge graphs (GraphRAG)** — Microsoft Research, "GraphRAG" (2024). [github.com/microsoft/graphrag](https://github.com/microsoft/graphrag)
 
 **Evaluation**
