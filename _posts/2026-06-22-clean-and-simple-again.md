@@ -212,7 +212,7 @@ Clean has been commoditized. That's genuinely good. It's also why "does it look 
 
 Simple did not get cheaper, because simple is a different kind of decision. Deciding where complexity should live — which boundary absorbs it, which level stays thin — is a global judgment about the whole system, not a local pattern you can predict token by token. The model has no view of it. It also never feels the test pain from section 5, because it isn't the one who has to write the sixtieth test. So it adds the next plausible branch, and the next, and lands in the clean-but-complex cell by default.
 
-I've written before that [AI does development, not engineering]({% post_url 2026-02-13-development-vs-engineering %}). This is the same line, drawn through these two words. Clean is development — local, mechanical, now automatable. Simple is engineering — the judgment about structure that decides where the complexity goes. AI took over the first and handed you the second, concentrated.
+I've argued before that AI does development, not engineering. This is the same line, drawn through these two words. Clean is development — local, mechanical, now automatable. Simple is engineering — the judgment about structure that decides where the complexity goes. AI took over the first and handed you the second, concentrated.
 
 ## 7. Where this leaves us
 
