@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "Design is Code (DisC) compiles PlantUML diagrams and decision tables into tests that pin the implementation — deterministic, reviewable AI code generation."
 title: 'Design is Code: Disciplined Design, Deterministic AI Code Generation'
 tags:

@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "Vibe coding is for spikes; spec-driven development is for production. How specs, TDD, and agent orchestration make AI-generated code dependable."
 title: Thinking on SDD AI Development
 tags:

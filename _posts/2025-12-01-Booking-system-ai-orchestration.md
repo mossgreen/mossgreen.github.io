@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "Eight AI orchestration patterns, from full control to full autonomy — with code examples and a framework for choosing how much AI complexity a problem needs."
 title: 'The Control Spectrum: 8 AI Orchestration Patterns from Full Control to Full
   Autonomy'

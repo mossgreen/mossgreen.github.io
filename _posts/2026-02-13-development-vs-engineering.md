@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "AI does development, not engineering — which is why 'entry-level' now means five years. The fix isn't hiring; it's designing above the code, where checking splits so juniors can verify again and the apprenticeship returns."
 title: "Development Is Solved. Engineering Isn't."
 tags:

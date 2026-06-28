@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "A knowledge base looks like a search box. Underneath it is a four-stage RAG pipeline where every stage fails silently. A comprehensive walk through the failure points — ingestion, retrieval, assembly, generation — plus the concerns that cut across all of them, how to evaluate the system, and where the field is going."
 title: 'Why Building a Knowledge Base Is Harder Than It Looks'
 tags:

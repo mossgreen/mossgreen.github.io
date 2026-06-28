@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "How to evaluate LLMs beyond vibe checks: offline and online evals, benchmarks, metrics, and a practical lifecycle for go/no-go decisions."
 title: Evaluating LLM Models
 tags:

@@ -1,5 +1,4 @@
 ---
-featured: true
 description: "An intent-recognition case study: how conceptual prompts took accuracy from 5/10 to 10,000/10,000 where programmatic prompts kept failing."
 title: 'Intent Recognition Case Study: Why Conceptual Prompts Won'
 tags:
