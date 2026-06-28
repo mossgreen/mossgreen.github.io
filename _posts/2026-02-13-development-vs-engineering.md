@@ -29,7 +29,7 @@ Because AI didn't take a slice of every job. It removed an entire level of senio
 - **Development** — *a point in time.* The problem is already specified; produce the code that solves it: the function, the endpoint, the test. Discrete, gradeable, done when it passes.
 - **Engineering** — *the same work, over time.* What to build, how it fits what's already there, how it fails in production, what it costs to own in two years — and whether it should exist at all.
 
-Titus Winters put it in one line: **engineering is programming integrated over time** — and that integral is where AI is weak. It lives at the point — the prompt, the file, the moment — and there it's genuinely good. But it has no memory of the incident this code caused last year, no stake in the pager, no model of the system it was never shown.
+Titus Winters put it in one line: **engineering is programming integrated over time** — and that integral is where AI is weak. It lives at the point — the prompt, the file, the moment — and there it's genuinely good. But it has no memory of the incident this code caused last year, no consequences when it breaks at 3am, no model of the system it was never shown.
 
 Juniors were hired to do development — the gradeable work AI now does in seconds. A senior with AI covers what used to take a senior and three juniors, so the cheapest seats go first: AI substitutes for development and complements engineering (Acemoglu & Autor, 2011). And "five years" isn't a measure of time. It's the market's name for someone who has crossed from development into engineering — a blunt proxy for judgment it can't measure directly.
 
@@ -44,7 +44,7 @@ In 1983 Lisanne Bainbridge named the mechanism — the *irony of automation*: au
   - the model covers the grunt work they used to do,
   - and a junior you train might leave for someone else.
 
-  So every firm optimizes its own quarter and the shared pool drains: **the market bids up a senior supply it refuses to produce.**
+  So every firm makes the same short-term choice, and the supply of future seniors shrinks: **everyone competes for seniors that no one is training.**
 
 - **The judgment can't be downloaded to shortcut the path.** Mine came as scars — code that compiled, passed review, demoed fine, then broke in a way I didn't see coming, each costing a day, each never hit again. Experience like that isn't a dataset:
   - a model trained on every bug report ever filed has everyone's scars as data — it knows the bugs better than I do;
