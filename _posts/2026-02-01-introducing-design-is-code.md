@@ -108,8 +108,12 @@ Services that coordinate other services, repositories, mappers — anything with
 
 You and your team sketch how components interact. This is where engineering judgment lives — deciding what components should exist, how they collaborate, what contracts they honor.
 
+Two markers make the design executable: `' @package` declares where the generated code lives, and `[*]` is the system boundary — its arrow into `InvoiceService` declares the method under test, and the final arrow back to `[*]` declares the return value.
+
 ```
 @startuml
+' @package com.disc.loop
+[*] -> InvoiceService : createInvoice(customerId)
 InvoiceService -> OrderRepository: findAllByCustomerId(customerId)
 InvoiceService <-- OrderRepository: orders: List<Order>
 InvoiceService -> InvoiceBuilderFactory: create()
@@ -120,8 +124,11 @@ loop for each order in orders
 end
 InvoiceService -> InvoiceBuilder: build()
 InvoiceService <-- InvoiceBuilder: invoice: Invoice
+[*] <-- InvoiceService : invoice : Invoice
 @enduml
 ```
+
+This diagram is `03_loop.puml` in the demo repo — you can run it yourself.
 
 
 **Step 2: Generate tests from the diagram.**
@@ -150,13 +157,13 @@ class DefaultInvoiceServiceTest {
     }
 
     @Nested
-    class WhenGenerateInvoice {
+    class WhenCreateInvoice {
         @BeforeEach
         void setUp() {
             when(orderRepository.findAllByCustomerId(any())).thenReturn(List.of(order));
             when(invoiceBuilderFactory.create()).thenReturn(invoiceBuilder);
             when(invoiceBuilder.build()).thenReturn(invoice);
-            result = defaultInvoiceService.generateInvoice(customerId);
+            result = defaultInvoiceService.createInvoice(customerId);
         }
 
         @Test void shouldFindAllOrdersByCustomerId() { verify(orderRepository).findAllByCustomerId(customerId); }
@@ -184,7 +191,7 @@ public class DefaultInvoiceService implements InvoiceService {
     }
 
     @Override
-    public Invoice generateInvoice(UUID customerId) {
+    public Invoice createInvoice(UUID customerId) {
         List<Order> orders = orderRepository.findAllByCustomerId(customerId);
         InvoiceBuilder invoiceBuilder = invoiceBuilderFactory.create();
         orders.forEach(invoiceBuilder::addLine);
@@ -201,17 +208,20 @@ No loop. No review cycle. Design → tests → implementation → tests pass →
 
 Calculators, validators, transformers — code that takes inputs and returns an answer without calling anything else. There are no calls to pin, so the test pins the output directly: given these inputs, expect this result. AI keeps freedom over *how* to compute, zero freedom over *what* to return.
 
-The pipeline collapses from three steps to one, because the design artifact *is* the test specification. A **decision table** is a list of rows, each pinning the expected output at one specific input point. The human authors it alongside the UML, in the same `design/` folder:
+The pipeline collapses from three steps to one, because the design artifact *is* the test specification. A **decision table** is a list of rows, each pinning the expected output at one specific input point. The human authors it alongside the UML, in the same folder as the diagram (`<Participant>.decision.md` next to the `.puml`):
 
 ```markdown
 ---
 target: TaxCalculator.calculate
+package: com.disc.tax
 input:
   amount: BigDecimal
   rate: BigDecimal
 output: BigDecimal
 config:
   rounding: HALF_UP
+  scale: 2
+  nullHandling: throw
 ---
 
 | amount  | rate  | expected         |
@@ -221,12 +231,12 @@ config:
 | -50.00  | 0.10  | throws: IllegalArgumentException |
 ```
 
-Frontmatter pins the target method and types; rows pin behaviour at specific input points. DisC consumes the file directly — generating one `@Test` per row (filled, not skeleton) and deriving the implementation from the rows.
+Frontmatter pins the target method, its types, and where the generated code lives; rows pin behaviour at specific input points. DisC consumes the file directly — generating one `@Test` per row (filled, not skeleton) and deriving the implementation from the rows.
 
 Two safeguards keep this honest:
 
-- **Row-density warning.** If the table has fewer than 3 rows, or no boundary case (zero, negative, empty string), DisC reports it. Generation proceeds; the warning appears in the final report.
-- **Inferred assumptions.** Rows specify behaviour at points, not everywhere. For anything the rows don't uniquely determine — rounding mode, null-handling, ordering — DisC names the choice it made and why. You verify it. The `config:` block lets you pin choices upfront and suppress the corresponding inference.
+- **Thresholds are declared, then demonstrated.** Rows pin behaviour at points; between rows, an implementation could put a tier cut anywhere. So every threshold in the rule is declared in the table's `boundaries:` frontmatter and demonstrated by a bracketing pair of rows (quantity `4` → 0% and quantity `5` → 10% pin the cut at exactly 5) — DisC refuses a declared boundary without its pair. Enum and boolean inputs go further: every value of the domain must have a row, or DisC refuses — a finite domain has no between-rows gap at all.
+- **DisC refuses rather than guesses.** For any behaviour-changing choice the rows don't demonstrate — rounding mode, null handling, exception type — either the `config:` block pins it or DisC stops and asks. Documented cosmetic defaults (like locale) still apply, and every default the implementation actually depends on is listed on the run's `Applied defaults` line. No silent decisions.
 
 If you don't author a table, DisC still emits a skeleton with `TODO` markers for humans to fill in. Authoring ahead of time just collapses two steps into one.
 
@@ -248,9 +258,9 @@ The human effort is in the design room, not the code review.
 
 ## Roadmap
 
-Today: the methodology, the Java + Spring plugin, UML sequence diagrams, and decision tables. Coming next:
+Today: the methodology and the Java + Spring plugin — UML sequence diagrams and decision tables, brownfield support (participant stereotypes to reuse, extend, defer, or regenerate existing code), domain entities and sealed families, boundary declarations and finite-domain coverage, and host-integration modes (`--plan` dry-runs and `--validate-only` preflight, both emitting machine-readable output). Coming next:
 
-- **A design UI with live validation.** Catch a missing arrow or an inconsistent return type before generation runs. The notation stays the source of truth; the UI is just a faster way to author it.
+- **A design UI with live validation.** Catch a missing arrow or an inconsistent return type before generation runs. The plugin's validate and plan modes are the contract it builds on — this is the current focus. The notation stays the source of truth; the UI is just a faster way to author it.
 - **More languages.** C# and TypeScript next, Python after. The methodology works with any language that supports mocking; the plugin catches up.
 - **Integration test generation.** Extends the same design-driven pipeline to seam tests against real databases, HTTP, and queues — beyond unit-level mocks.
 - **Non-functional warnings.** Performance hot-paths, error-handling gaps, logging consistency — flagged at generation time, not at code review.
