@@ -84,7 +84,7 @@ concept    = an abstraction you and the model already share → reference it
 definition = an abstraction you declare to make it shared   → declare, then reference
 ```
 
-This is the word-scale form of a claim [a later post]({% post_url 2026-07-04-intention-is-the-new-abstraction %}) makes in general — an abstraction is a contract over a hidden implementation; the name is the contract, and the definition is what it hides.
+This is the word-scale form of a claim a later post makes in general — an abstraction is a contract over a hidden implementation; the name is the contract, and the definition is what it hides.
 
 Round 1 restated every definition inline. Round 2 referenced three shared ones:
 
