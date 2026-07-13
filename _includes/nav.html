@@ -1,4 +1,10 @@
-<nav class="flex align-center font-ui">
+<nav class="site-nav flex align-center font-ui">
+  <button id="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="false" title="Toggle post list">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/>
+      <line x1="6" y1="2.5" x2="6" y2="13.5"/>
+    </svg>
+  </button>
   <span class="flex-grow">
     <a href="{{ '/' | relative_url }}" class="plain">{{ site.title }}</a>
   </span>

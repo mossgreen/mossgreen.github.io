@@ -11,6 +11,15 @@
         }
       } catch (e) {}
     })();
+    (function() {
+      try {
+        // Sidebar starts open on wide screens unless the user closed it;
+        // on narrow screens it is always a closed overlay drawer.
+        if (window.innerWidth >= 1100 && localStorage.sidebar !== 'closed') {
+          document.documentElement.classList.add('sidebar-open');
+        }
+      } catch (e) {}
+    })();
   </script>
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="32x32">
   <link rel="icon" href="{{ '/assets/icon.svg' | relative_url }}" type="image/svg+xml">

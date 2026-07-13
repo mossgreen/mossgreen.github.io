@@ -1,0 +1,17 @@
+{%- assign years = site.posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
+{%- assign open_year = "" -%}
+{%- if page.date -%}{%- assign open_year = page.date | date: '%Y' -%}{%- endif -%}
+{%- if open_year == "" -%}{%- assign open_year = years.first.name -%}{%- endif -%}
+<aside class="sidebar font-ui" id="sidebar" aria-label="All posts">
+  <p class="sidebar-label muted">Posts</p>
+  {%- for year in years -%}
+  <details class="sidebar-year"{% if year.name == open_year %} open{% endif %}>
+    <summary>{{ year.name }} <span class="count">· {{ year.items | size }}</span></summary>
+    <ul>
+      {%- for post in year.items -%}
+      <li><a href="{{ post.url | relative_url }}"{% if post.url == page.url %} class="active" aria-current="page"{% endif %}>{{ post.title }}</a></li>
+      {%- endfor -%}
+    </ul>
+  </details>
+  {%- endfor -%}
+</aside>

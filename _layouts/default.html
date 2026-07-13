@@ -2,12 +2,16 @@
 <html lang="{{ site.lang | default: 'en' }}">
 {%- include head.html -%}
 <body>
-  {%- include nav.html -%}
-  <main>
-    {{ content }}
-  </main>
-  {%- include footer.html -%}
+  {%- include sidebar.html -%}
+  <div class="page-main">
+    {%- include nav.html -%}
+    <main>
+      {{ content }}
+    </main>
+    {%- include footer.html -%}
+  </div>
   <script src="{{ '/assets/js/theme-toggle.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/sidebar.js' | relative_url }}" defer></script>
   {%- include analytics.html -%}
 </body>
 </html>

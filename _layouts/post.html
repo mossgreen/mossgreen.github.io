@@ -1,21 +1,49 @@
 ---
 layout: default
 ---
-<article>
-  <h1>{{ page.title }}</h1>
-  {%- include post-meta.html post=page -%}
-  {%- include toc.html -%}
-  <div class="post-content">
-    {{ content }}
+<article class="post-fragment">
+  <h1 class="post-title">{{ page.title }}</h1>
+  <div class="post-columns">
+    <aside class="post-rail font-ui" aria-label="Post details">
+      <div class="rail-block">
+        <div class="rail-label">Published</div>
+        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>
+      </div>
+      {%- assign words = page.content | strip_html | number_of_words -%}
+      {%- assign minutes = words | divided_by: 200 -%}
+      {%- if minutes < 1 -%}{%- assign minutes = 1 -%}{%- endif -%}
+      <div class="rail-block">
+        <div class="rail-label">Read time</div>
+        {{ minutes }} min
+      </div>
+      {%- if page.tags and page.tags.size > 0 -%}
+      <div class="rail-block">
+        <div class="rail-label">Topics</div>
+        {%- for tag in page.tags -%}
+        {%- assign slug = tag | slugify -%}
+        <a href="{{ '/topics/' | append: slug | append: '/' | relative_url }}">{{ tag }}</a>{%- unless forloop.last -%}<br>{%- endunless -%}
+        {%- endfor -%}
+      </div>
+      {%- endif -%}
+    </aside>
+    <div class="post-body">
+      <div class="post-meta-inline">{%- include post-meta.html post=page -%}</div>
+      {%- include toc.html -%}
+      <div class="post-content">
+        {{ content }}
+      </div>
+      {%- if page.tags and page.tags.size > 0 -%}
+      <div class="post-topics-inline">
+        <hr>
+        <p class="muted small font-ui">Topics:
+          {%- for tag in page.tags -%}
+            {%- assign slug = tag | slugify -%}
+            <a href="{{ '/topics/' | append: slug | append: '/' | relative_url }}">{{ tag }}</a>{%- unless forloop.last -%}, {% endunless -%}
+          {%- endfor -%}
+        </p>
+      </div>
+      {%- endif -%}
+    </div>
   </div>
-  {%- if page.tags and page.tags.size > 0 -%}
-  <hr>
-  <p class="muted small font-ui">Topics:
-    {%- for tag in page.tags -%}
-      {%- assign slug = tag | slugify -%}
-      <a href="{{ '/topics/' | append: slug | append: '/' | relative_url }}">{{ tag }}</a>{%- unless forloop.last -%}, {% endunless -%}
-    {%- endfor -%}
-  </p>
-  {%- endif -%}
 </article>
 <script src="{{ '/assets/js/toc.js' | relative_url }}" defer></script>

@@ -54,25 +54,31 @@ img { border-radius: var(--image-radius); height: auto; }
 }
 
 /* --- Semantic tokens --- */
+/* Light theme: brandur.org's neutral gray scale on pure white —
+   near-black headings/links, gray-700 body, gray-200 hairlines,
+   monochrome slate hovers. Dark theme stays Flexoki. */
 :root {
-  --bg:        var(--flexoki-paper);
-  --bg-2:      var(--flexoki-50);
-  --tx:        var(--flexoki-black);
-  --tx-muted:  var(--flexoki-600);
-  --tx-faint:  var(--flexoki-300);
-  --ui:        var(--flexoki-100);
-  --ui-hover:  var(--flexoki-150);
-  --action:    var(--flexoki-blue-600);
-  --hover-bg:  var(--flexoki-cyan-50);
+  --bg:        #FFFFFF;
+  --bg-2:      #F8FAFC;
+  --tx:        #374151;
+  --tx-strong: #111827;
+  --tx-muted:  #6B7280;
+  --tx-faint:  #9CA3AF;
+  --ui:        #E5E7EB;
+  --ui-hover:  #D1D5DB;
+  --action:    #475569;
+  --hover-bg:  #F1F5F9;
   --highlight: var(--flexoki-yellow-100);
-  --selection: rgba(187,220,206,0.3);
+  --selection: rgba(100,116,139,0.18);
 
   --font-content: -apple-system, BlinkMacSystemFont, "Inter", "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-ui: var(--font-content);
   --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "IBM Plex Mono", "Roboto Mono", Menlo, Monaco, Consolas, monospace;
 
   --wrap-normal: 37em;
   --wrap-wide:   54em;
+  --sidebar-w:   26rem;
   --line-height: 1.55;
   --image-radius: 6px;
   --border-radius: 4px;
@@ -85,6 +91,7 @@ html.theme-dark {
   --bg:        var(--flexoki-black);
   --bg-2:      var(--flexoki-950);
   --tx:        var(--flexoki-200);
+  --tx-strong: var(--flexoki-200);
   --tx-muted:  var(--flexoki-500);
   --tx-faint:  var(--flexoki-700);
   --ui:        var(--flexoki-900);
@@ -141,8 +148,9 @@ h1, h2, h3, h4, h5, h6 {
   margin: 1.5em 0 0.5em;
   font-weight: var(--heading-weight);
   letter-spacing: -0.01em;
-  color: var(--tx);
+  color: var(--tx-strong);
 }
+strong, b { color: var(--tx-strong); }
 h1 { font-size: calc(1.4em + 0.55vw); margin-top: 0.5em; letter-spacing: -0.02em; line-height: 1.2; }
 h2 { font-size: calc(1.05em + 0.2vw); }
 h3 { font-size: 1em; }
@@ -168,7 +176,7 @@ p, ul, ol, blockquote { max-width: var(--wrap-normal); }
 
 /* --- Links --- */
 a {
-  color: var(--tx);
+  color: var(--tx-strong);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -177,7 +185,7 @@ a:hover, a:focus { color: var(--action); }
 a:focus { outline: none; background-color: var(--hover-bg); }
 a.plain, a.muted { text-decoration: none; }
 a.plain:hover { color: var(--action); }
-h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { color: var(--tx); text-decoration: none; }
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { color: var(--tx-strong); text-decoration: none; }
 h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover { color: var(--action); }
 
 /* --- Flex utilities --- */
@@ -403,7 +411,7 @@ html.theme-dark .theme-toggle-switch { left: 16px; background-color: var(--tx); 
 }
 
 /* --- Footer --- */
-footer { margin-top: 6em; }
+footer { margin-top: 6em; text-align: center; }
 footer p { margin: 0.5em 0; }
 
 /* --- Article content polish --- */
@@ -433,10 +441,11 @@ article :is(h2, h3) { scroll-margin-top: 1.5em; }
     display: block;
     position: fixed;
     top: 7em;
-    left: calc(50% + 19.5em);
+    /* 24.5em clears the wider .post-fragment column (47em) plus a gap */
+    left: calc(50% + 24.5em);
     /* fixed width (rem doesn't scale with viewport), capped so the panel
        can never run past the right edge; long titles wrap instead */
-    width: min(26rem, calc(50vw - 19.5em - 2rem));
+    width: min(26rem, calc(50vw - 24.5em - 2rem));
     max-height: 75vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -468,5 +477,169 @@ article :is(h2, h3) { scroll-margin-top: 1.5em; }
   }
   .toc li.toc-h3 a { padding-left: 1.75em; }
   .toc a:hover { color: var(--action); }
-  .toc a.active { color: var(--tx); border-left-color: var(--action); }
+  .toc a.active { color: var(--tx-strong); border-left-color: var(--action); }
+
+  /* With the post-tree sidebar open the content column shifts right by half
+     the sidebar width, so the fixed-position TOC must shift too — and below
+     1700px there is no longer room for it at all. */
+  html.sidebar-open .toc { display: none; }
+}
+@media (min-width: 1700px) {
+  html.sidebar-open .toc:not([hidden]) {
+    display: block;
+    left: calc(50% + var(--sidebar-w) / 2 + 24.5em);
+    width: min(26rem, calc(50vw - var(--sidebar-w) / 2 - 24.5em - 2rem));
+  }
+}
+
+/* --- Site nav --- */
+.site-nav { font-size: var(--font-small); }
+.site-nav .flex-grow a { font-weight: 700; letter-spacing: -0.02em; }
+
+#sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0.5rem;
+  margin-right: 1.2rem;
+  color: var(--tx-muted);
+  border-radius: var(--border-radius);
+  flex-shrink: 0;
+}
+#sidebar-toggle svg { display: block; }
+#sidebar-toggle:hover { color: var(--action); background: var(--ui); }
+
+/* --- Collapsible post-tree sidebar --- */
+/* Closed: display none, content centered in the viewport. Open on wide
+   screens: fixed rail on the left, .page-main shifts right by its width.
+   Open on narrow screens: overlay drawer above the content. */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  width: var(--sidebar-w);
+  display: none;
+  overflow-y: auto;
+  padding: 2.4rem 1.6rem 3rem;
+  background: var(--bg);
+  border-right: 1px solid var(--ui);
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+html.sidebar-open .sidebar { display: block; }
+@media (min-width: 1100px) {
+  html.sidebar-open .page-main { margin-left: var(--sidebar-w); }
+}
+@media (max-width: 1099.98px) {
+  html.sidebar-open .sidebar {
+    width: min(var(--sidebar-w), 85vw);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.sidebar-label {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1em;
+}
+.sidebar details { margin: 0; }
+.sidebar summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--tx-strong);
+  font-weight: 600;
+  padding: 0.3em 0.4em;
+  border-radius: var(--border-radius);
+  user-select: none;
+}
+.sidebar summary::-webkit-details-marker { display: none; }
+.sidebar summary::before {
+  content: "\25B8";
+  display: inline-block;
+  width: 1.2em;
+  color: var(--tx-faint);
+  transition: transform 0.15s ease;
+}
+.sidebar details[open] > summary::before { transform: rotate(90deg); }
+.sidebar summary:hover { background: var(--ui); }
+.sidebar summary .count { color: var(--tx-faint); font-weight: 400; }
+.sidebar ul { list-style: none; margin: 0.2em 0 0.8em; padding: 0; }
+.sidebar li { padding: 0; }
+.sidebar li a {
+  display: block;
+  padding: 0.3em 0.5em 0.3em 1.2em;
+  margin-left: 0.85em;
+  color: var(--tx-muted);
+  text-decoration: none;
+  border-left: 2px solid var(--ui);
+}
+.sidebar li a:hover { color: var(--action); }
+.sidebar li a.active { color: var(--tx-strong); border-left-color: var(--action); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar summary::before { transition: none; }
+}
+
+/* --- Fragment-style post layout --- */
+/* Big centered serif title above a two-column block: a narrow sticky meta
+   rail on the left, a vertical rule, and the prose on the right. */
+article.post-fragment {
+  width: min(47em, 88vw);
+  max-width: none;
+}
+.post-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: calc(2.1em + 1vw);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0.6em auto 1em;
+}
+.post-columns { margin-top: 2.5em; }
+.post-rail { display: none; }
+
+@media (min-width: 720px) {
+  .post-columns { display: flex; align-items: flex-start; }
+  .post-rail {
+    display: block;
+    position: sticky;
+    top: 2.5em;
+    flex-shrink: 0;
+    width: 9.5em;
+    padding-right: 1.8em;
+    text-align: right;
+    font-size: var(--font-smaller);
+    line-height: 1.45;
+    color: var(--tx-muted);
+  }
+  .post-body {
+    flex: 1;
+    min-width: 0;
+    border-left: 1px solid var(--ui);
+    padding-left: 2.6em;
+  }
+  .post-meta-inline, .post-topics-inline { display: none; }
+}
+
+.rail-block { border-bottom: 1px solid var(--ui); padding: 1em 0; }
+.rail-block:first-child { padding-top: 0.2em; }
+.rail-block:last-child { border-bottom: 0; }
+.rail-label { font-weight: 600; color: var(--tx-strong); margin-bottom: 0.15em; }
+.post-rail a { color: var(--tx-muted); text-decoration: none; }
+.post-rail a:hover { color: var(--action); }
+
+/* Brandur-style content links: no underline, a quiet bottom border */
+.post-fragment .post-content a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--tx-faint);
+}
+.post-fragment .post-content a:hover {
+  color: var(--action);
+  border-bottom-color: var(--action);
 }
