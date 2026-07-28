@@ -1,5 +1,5 @@
 ---
-description: "Prompt engineering has a folk version — magic phrases, ever-longer instructions — and a real one. The real one is engineering: reference concepts the model already shares instead of describing from scratch; move down the six escalation levels only when a failing test forces you, and back up when a better model arrives. A prompt file is software — same forces, same principles — and the practice is engineering with fewer safety nets than code."
+description: "Prompt engineering has a folk version — magic phrases, ever-longer instructions — and a real one. The real one is engineering. Reference concepts the model already shares instead of describing from scratch. Move down the six escalation levels only when a failing test forces you, and back up when a better model arrives. A prompt file is software, with the same forces and the same principles. And the practice is engineering with fewer safety nets than code."
 title: "The Real Prompt Engineering"
 tags:
 - prompt engineering
@@ -24,7 +24,7 @@ This is very important to my career. I will tip $200.
 NEVER apologize. NEVER guess. NEVER use markdown. NEVER…
 ```
 
-A flattering role, a bribe, and a wall of prohibitions — each "never" patching an earlier failure, and no line anywhere saying what you actually want. This prompt returns twice below.
+A flattering role, a bribe, and a wall of prohibitions. Each "never" patches an earlier failure, and no line anywhere says what you actually want. This prompt returns twice below.
 
 **TL;DR**
 
@@ -36,7 +36,7 @@ A flattering role, a bribe, and a wall of prohibitions — each "never" patching
 
 ## 1. The experiment
 
-Before any theory, feel the problem. Here is a task:
+Here is a task:
 
 > **Move one emoji to the center of the bottom-right section.**
 
@@ -79,24 +79,19 @@ Three terms carry this post, so define them first.
 
 An **abstraction** is a name that stands for a definition, so the definition can be used without being restated. A **concept** is an abstraction that both sides already share — the name points to the same definition in your head and in the model's training. A **definition**, in a prompt, is an abstraction you declare so that it *becomes* shared.
 
-```text
-concept    = an abstraction you and the model already share → reference it
-definition = an abstraction you declare to make it shared   → declare, then reference
-```
-
-This is the word-scale form of a claim a later post makes in general — an abstraction is a contract over a hidden implementation; the name is the contract, and the definition is what it hides.
+This is the word-scale form of a claim a later post makes in general: an abstraction is a contract over a hidden implementation.
 
 Round 1 restated every definition inline. Round 2 referenced three shared ones:
 
-- **"hugging face emoji"** — *what to move*. Three words that replace Round 1's nine-word description, by pointing at a definition the model learned in training. You taught it nothing; you referenced something it already knows.
-- **"bottom-right quadrant"** — *where*. Carries the full geometric specification — a rectangular region, one of four, in the bottom-right — that Round 1 spent nineteen words rebuilding by hand.
-- **"center"** — *how to position it*. One word for "the exact middle point, equidistant from all four boundaries of that section."
+- **"hugging face emoji"** — *what to move*. Three words replace Round 1's nine-word description, because they point at a definition the model learned in training. You taught it nothing; you referenced something it already knows.
+- **"bottom-right quadrant"** — *where*. It carries the full geometric specification: a rectangular region, one of four, in the bottom-right. Round 1 spent nineteen words rebuilding that by hand.
+- **"center"** — *how to position it*. One word replaces "the exact middle point, equidistant from all four boundaries of that section."
 
 Dijkstra said the whole thing in his 1972 Turing Award lecture:
 
 > The purpose of abstracting is not to be vague, but to create a new semantic level in which one can be absolutely precise.
 
-That is exactly what "quadrant" did. It didn't blur the geometry — it named a level where the geometry is already exact, so the prompt no longer has to build it out of fold lines and boundaries. Each concept is a deep module in Ousterhout's sense: a three-word interface over a training-corpus-sized implementation.
+That is exactly what "quadrant" did. It didn't blur the geometry. It named a level where the geometry is already exact, so the prompt no longer has to build it out of fold lines and boundaries. Each concept is a deep module in Ousterhout's sense: a three-word interface over a training-corpus-sized implementation.
 
 ### 2.1 Sharedness, not generality, makes a concept cheap
 
@@ -107,19 +102,15 @@ Sharedness and generality are different properties, and it pays to keep them apa
 | **General** | "quadrant", "center" — reference freely | "non-mixable" — declare first |
 | **Specific** | "hugging face emoji" — reference freely | your internal jargon — declare first |
 
-"Hugging face emoji" is barely abstract at all — it names one specific character — yet it compresses nine words into three, because the definition already sits on the other side. What makes a word cheap in a prompt is not how general it is; it's that you don't have to ship its definition with it.
+"Hugging face emoji" is barely abstract at all; it names one specific character. It still compresses nine words into three, because the model already holds the definition. What makes a word cheap in a prompt is not how general it is. It is that you don't have to send its definition along with it.
 
-Generality matters too, but it controls a different question — *how much detail to write out* — and section 4's escalation ladder is how you adjust it.
+Generality matters too, but it controls a different question: *how much detail to write out*.
 
 ### 2.2 Fewer tokens, fewer misreads
 
-Every word you add is a place to be misread. "Bottom-right quadrant" offers one reading; "the area that is both to the right of the vertical fold line and below the horizontal fold line" offers several. Concepts compress meaning, so there are fewer words to get wrong — fewer, not zero; section 4's ladder exists for the times a concept is still misread. Anthropic states the same principle for context engineering: find *the smallest possible set of high-signal tokens that maximize the likelihood of the desired outcome*.
+Every word you add is a place to be misread. "Bottom-right quadrant" offers one reading; "the area that is both to the right of the vertical fold line and below the horizontal fold line" offers several. Concepts compress meaning, so there are fewer words to get wrong. Fewer, not zero: section 4's ladder exists for the times a concept is still misread. Anthropic states the same principle for context engineering: find *the smallest possible set of high-signal tokens that maximize the likelihood of the desired outcome*.
 
-```text
-concepts carry maximum meaning in minimum tokens with minimum ambiguity
-```
-
-One caution before the rules: **precise beats short**. Compression is not the goal — precision per token is. "Use the response correctly" is short and worthless, because "correctly" references a definition that doesn't exist anywhere. If defining "correctly" costs thirty tokens, spend them.
+**Precise beats short.** Compression is not the goal — precision per token is. "Use the response correctly" is short and worthless, because "correctly" references a definition that doesn't exist anywhere. If defining "correctly" costs thirty tokens, spend them.
 
 ## 3. Three rules
 
@@ -133,7 +124,7 @@ Model: The region to the right of the vertical midline and
        below the horizontal midline.
 ```
 
-Shared — one word just replaced thirty. Not shared — then declare it: state the definition once, before the first use. One probe is enough here: you are checking whether a definition exists in the model — a stable fact — not how reliably the model applies it in your task, which is a distribution and needs section 4's evals. In code you don't call a class you never imported or defined; in a prompt, don't reference a term you never verified or declared.
+If it is shared, one word just replaced thirty. If it is not, declare it: state the definition once, before the first use. One probe is enough here. You are checking whether a definition exists in the model, which is a stable fact. You are not checking how reliably the model applies it in your task, which is a distribution and needs section 4's evals. In code you don't call a class you never imported or defined; in a prompt, don't reference a term you never verified or declared.
 
 Domain vocabulary is where this rule matters most. Words like "session", "action", or "workflow" mean something specific inside your system. The model has *a* definition for each — just not yours. Those are exactly the terms that must move from the "not shared" column to the "shared" one by declaration.
 
@@ -149,7 +140,7 @@ If you can't state what you want in one precise sentence, you are not ready to p
 
 ### 3.3 Start abstract; move down only on evidence
 
-Concepts are the first choice, not always the last. Sometimes the model misreads a concept; sometimes the task has an edge the concept doesn't cover. When testing proves it — not before — you move down one level. The ladder itself is the next section.
+Concepts are the first choice, not always the last. Sometimes the model misreads a concept; sometimes the task has an edge the concept doesn't cover. When testing proves it — not before — you move down one level.
 
 ## 4. The escalation ladder runs both ways
 
@@ -169,43 +160,35 @@ Six levels, most abstract first — each step down bought by a failing test, not
 
 **Level 4 — step-by-step instructions.**
 "Identify the hugging face emoji. The grid is divided into four quadrants. The bottom-right quadrant spans from the vertical midline to the right edge and from the horizontal midline to the bottom edge. Calculate the center point of that region. Move the emoji to that point."
-*Writing the definition out by hand is not a failure — it is the right tool when evidence demands it. You have seen this level already: Round 1 of the experiment was Level 4 — the right register when no shared concept exists, wrong there only because nothing had failed yet to pay for it.*
+*Writing the definition out by hand is not a failure. It is the right tool when evidence demands it. You have seen this level already: Round 1 of the experiment was Level 4. That register is right when no shared concept exists. It was wrong there only because nothing had failed yet to pay for it.*
 
 **Level 5 — explicit reinforcement.**
 "Identify the hugging face emoji, NOT the smiley one." "Never", "forbidden", "invalid".
-*Two things about this level. First, even here, prefer stating the positive: "don't move it upward" rules out one direction and names no target; "move it to the bottom-right" names one. Jang, Ye & Seo (2022) measured the cost on the pretrained models of that era — worse on negated prompts, and worse as models grew — and Anthropic's current model guidance still says the same: positive instructions work better than telling the model what not to do. Second, if your prompt is accumulating "never"s — the folk prompt from the opening, caught mid-growth — the concept above them is broken: go fix it instead of stacking prohibitions.*
+*First, even here, prefer stating the positive: "don't move it upward" rules out one direction and names no target; "move it to the bottom-right" names one. Jang, Ye & Seo (2022) measured the cost on the pretrained models of that era: worse on negated prompts, and worse as models grew. Anthropic's current model guidance still says the same — positive instructions work better than telling the model what not to do. Second, if your prompt is accumulating "never"s — the folk prompt from the opening, caught mid-growth — the concept above them is broken. Go fix the concept instead of stacking prohibitions.*
 
 **Level 6 — a better model.**
 *When Level 5 still fails, the remaining gap is not in the wording. Rule out missing context and conflicting instructions first; if neither is the cause, the model can't meet the spec.*
 
-And the levels run both ways. Everything below Level 1 is a patch for one specific model's weaknesses — evidence against *that* model, not truth about the task. When the model changes, the evidence expires. Anthropic's own migration guidance for its newest models says exactly this: prompts tuned for earlier models are often too prescriptive for a stronger one and now *degrade* output, and instructions added to compensate for weaker planning should be removed. Taking Level 6 means re-testing at Level 1.
+And the levels run both ways. Everything below Level 1 is a patch for one specific model's weaknesses — evidence against *that* model, not truth about the task. When the model changes, the evidence expires. Anthropic's own migration guidance for its newest models says exactly this. Prompts tuned for earlier models are often too prescriptive for a stronger one, and now *degrade* output. Instructions added to compensate for weaker planning should be removed. Taking Level 6 means re-testing at Level 1.
 
 ```text
 a failing test moves you down one level
 a better model moves you back up
 ```
 
-A *test* here means an eval — the same cases rerun until the pass rate is a measurement, not luck; one output, good or bad, is an anecdote. That is the evidence discipline of [AI Demos Lie]({% post_url 2026-03-03-on-ai-rnd %}), run one level down — and it is how defensive constraints work in production prompts: added when the model proves it needs them, removed when it stops.
+A *test* here means an eval — the same cases rerun until the pass rate is a measurement, not luck; one output, good or bad, is an anecdote. That is the evidence discipline of [AI Demos Lie]({% post_url 2026-03-03-on-ai-rnd %}), run one level down. It is also how defensive constraints work in production prompts: added when the model proves it needs them, removed when it stops.
 
 ## 5. Prompt engineering is software engineering
 
-Sections 1–4 stayed inside a single instruction; the rest of the post zooms out — first to the file the instructions live in, then to the practice around it.
-
 Not "prompts are *like* software." A prompt file *is* software: instructions that determine machine behavior, kept in version control, edited by several hands, growing over time.
 
-That identity is why the principles below transfer. Single responsibility, separation of concerns, depending on abstractions — none of these was ever about code syntax. They answer forces: parts change at different rates, responsibilities drift, dependencies rot. A prompt file has every one of those forces, so the same principles hold, for the same reasons. (The runtime differences — stochastic interpretation, no compiler — change tactics, not discipline. Section 6 takes them up.)
+That identity is why the principles below transfer. Single responsibility, separation of concerns, depending on abstractions — none of these was ever about code syntax. They answer forces: parts change at different rates, responsibilities drift, dependencies rot. A prompt file has every one of those forces, so the same principles hold, for the same reasons. (The runtime differences — stochastic interpretation, no compiler — change tactics, not discipline.)
 
 The examples below come from the production instruction file behind a form-building agent I work on, with internal vocabulary genericized.
 
 ### 5.1 Single responsibility
 
-At sentence scale, each concept owns exactly one aspect of the task:
-
-- "hugging face emoji" — *what*. Says nothing about position.
-- "bottom-right quadrant" — *where*. Says nothing about which object.
-- "center" — *how*. Says nothing about either.
-
-No overlap; each is complete within its scope.
+At sentence scale, Round 2's three concepts split the task into *what*, *where*, and *how*, and none of them says anything about the other two. No overlap; each is complete within its scope.
 
 At file scale, the same discipline: `<review_rules>` separate from `<edit_rules>`, `<field_definitions>` separate from `<action_definitions>`. To understand a rule, you go to one place, and that section doesn't leak into other concerns. Anthropic's context-engineering guidance recommends the same shape — distinct, delimited sections, each owning one job.
 
@@ -236,7 +219,7 @@ None of the three forces changes on another.
 
 ### 5.3 Rules depend on abstractions
 
-The strongest of the three. A real requirement: a form step holding a multiple_choice or multiple_select field must hold no other field.
+A real requirement: a form step holding a multiple_choice or multiple_select field must hold no other field.
 
 The brittle fix writes instance names into the rule: *"if the field type is multiple_select or multiple_choice, the step has exactly one field."* It works today. Next month a ranking field arrives with the same constraint, and the rule gets edited. Then a rating field. Every arrival edits a rule that was already correct. Anthropic's guidance calls this out directly: hardcoded, if-else-shaped prompt logic is brittle and compounds into maintenance burden.
 
@@ -246,11 +229,11 @@ The engineered fix introduces the property at the definition level — `non-mixa
 a non-mixable field stands alone in its step
 ```
 
-This is dependency inversion, in a text file: the rule — the high-level part — depends on an abstract property, and the field types — the details — implement it. The rule never learns instance names. Open/closed follows for free: next month's non-mixable field type registers itself at the instance level and touches zero rules. The system extends without modification.
+This is dependency inversion, in a text file. The rule is the high-level part, and it depends on an abstract property. The field types are the details, and they implement it. The rule never learns instance names. Open/closed follows for free: next month's non-mixable field type registers itself at the instance level and touches zero rules. The system extends without modification.
 
 ## 6. Prompt engineering is engineering
 
-Section 5 was about the artifact. You could concede all of it — the file is software, structure it accordingly — and still *prompt* by incantation. The stronger claim is about the practice.
+You could concede all of section 5 — the file is software, structure it accordingly — and still *prompt* by incantation. The stronger claim is about the practice.
 
 Reread the three rules. They were never prompt tricks:
 
@@ -265,14 +248,6 @@ And prompts need it *more* than code does. In code, some correctness comes free:
 So prompt engineering is not diluted engineering that borrowed a serious name. It is engineering with fewer safety nets — where the method is the only verification there is.
 
 Deciding what you want, which abstractions carry it, and which level of detail the evidence justifies — that judgment is the engineering half of the work, and it stays yours. It is the same line that separates [development from engineering]({% post_url 2026-02-13-development-vs-engineering %}), met here from the other side of the prompt.
-
-```text
-know your goal before you type
-reference what's shared; declare what isn't
-move down a level on a failing test; move back up on a better model
-separate rules, definitions, and instances
-write rules against abstractions, not instances
-```
 
 The folk version hunts for magic words — the expert role, the tip, the wall of "never"s from the opening. The real version was in the name the whole time.
 

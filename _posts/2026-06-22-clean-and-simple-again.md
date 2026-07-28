@@ -1,6 +1,6 @@
 ---
 featured: true
-description: "Clean and simple are two different questions, not two words for good code. They work differently across a system's levels — clean means the same thing at every level, simple only has meaning at one level at a time — and simplicity rests on a clean boundary. Clean itself has two layers: surface and structural. AI made surface clean almost free and left the rest — honest boundaries and simplicity, the judgment about where complexity goes — to you."
+description: "Clean and simple are two different questions, not two words for good code. They also work differently across a system's levels. Clean means the same thing at every level; simple only has meaning at one level at a time. And simplicity rests on a clean boundary. Clean itself has two layers: surface and structural. AI made surface clean almost free. It left you the rest: honest boundaries and simplicity, the judgment about where complexity goes."
 title: "Clean and Simple, Again"
 tags:
 - software engineering
@@ -25,7 +25,7 @@ classes: wide
 - **Clean itself has two layers.** 
     - *Surface* clean is form — formatting, style, a predictable spot; the look a linter enforces.
     - *Structural* clean is the boundary telling the truth — an honest name, one responsibility, the right place. Surface is mechanical; structural is judgment, the same kind simple needs.
-- **AI changed the price of all three.** *Surface* clean is mechanical, so AI now does it for free. *Structural* clean and simple both come down to judgment — where to draw a boundary, where complexity should live — which AI can't do well. AI took the cheap layer and left you the two that matter.
+- **AI changed the price of all three.** *Surface* clean is mechanical, so AI now does it for free. *Structural* clean and simple both come down to judgment: where to draw a boundary, where complexity should live. That judgment is what AI does badly. AI took the cheap layer and left you the two that matter.
 
 ## 1. What clean and simple each mean
 
@@ -55,7 +55,7 @@ Where does this belong, and does its name tell the truth?
 
 ### 1.2 Simple is one concern, standing on its own
 
-Simple is about being *one thing*. Rich Hickey, in *Simple Made Easy* (2011), goes back to the root — the Latin *simplex*, from *sim-* ("one") and *-plex* ("fold," as in *duplex*, twofold). One fold: one concern, one role, standing on its own, not folded together with anything else. That is the property itself — objective, a fact about the thing, not about whether you happen to find it familiar. *How much you must hold in your head* is what you feel as a result: when a thing is one concern, there is little to hold. The mental load is the symptom; being one concern is the thing itself.
+Simple is about being *one thing*. Rich Hickey, in *Simple Made Easy* (2011), goes back to the root — the Latin *simplex*, from *sim-* ("one") and *-plex* ("fold," as in *duplex*, twofold). One fold: one concern, one role, standing on its own, not folded together with anything else. That is the property itself. It is objective — a fact about the thing, not about whether you happen to find it familiar. *How much you must hold in your head* is what you feel as a result. When a thing is one concern, there is little to hold. The mental load is the symptom; being one concern is the thing itself.
 
 Simple is not **easy**. Easy means familiar — it reads comfortably because you have seen the pattern before. A heavyweight framework can be easy (one command to install) and not simple (a thousand entangled parts underneath). Easy is about you. Simple is about the thing.
 
@@ -74,7 +74,7 @@ Clean  → is the boundary honest?     (does the name tell the truth about the i
 Simple → how much must you hold at once?  (how tangled is it, at this level?)
 ```
 
-Hold onto that. Both interrogate one boundary; they just ask different things about it — and everything below is what happens when you ask them at different scales.
+Hold onto that. Both ask about one boundary; they just ask different things about it. Everything below is what happens when you ask them at different scales.
 
 ## 2. Clean and simple behave differently across levels
 
@@ -100,7 +100,7 @@ This is why the same two words show up whether you're naming a variable or drawi
 
 ### 2.1 Clean means the same thing at every level
 
-Read down the *clean* column: the question never changes. Clean asks the same thing of a variable name and of a company's service map — *is the responsibility clearly placed, is the boundary honest, is the organization consistent?* Only the **dialect** changes. And the levels don't stop at code: a UI speaks clean as a consistent visual language, a team as obvious ownership. Same question, different vocabulary.
+Read down the *clean* column: the question never changes. Clean asks the same thing of a variable name and of a company's service map — *is the responsibility clearly placed, is the boundary honest, is the organization consistent?* Only the **vocabulary** changes. And the levels don't stop at code: a UI shows clean as a consistent visual language, a team as obvious ownership.
 
 And there is a second property that's easy to miss: **clean does not compose.** A clean architecture does not make the code inside it clean, and dirty names inside do not travel upward to spoil the architecture's boundaries. You can have an immaculate dependency diagram drawn over methods named `tmp` and `doIt2`. Clean has to be true *at each level independently*. It is checked everywhere, separately. (Complexity is different: push more of it behind a boundary than the boundary can hold and it wrecks the level above. That is section 3's story.)
 
@@ -146,7 +146,7 @@ Across levels, simplicity rests on clean boundaries.
 - **A clean boundary keeps the level above it simple.** `checkout()` can ignore retries, transactions, and the Stripe call only because `pay()` honestly contains them. That cleanliness is load-bearing.
 - **Overload the boundary and both collapse.** A boundary hides the complexity below only while it stays deep enough to cover it. Push more behind it than it can honestly hold, and the complexity shows through: the level above is no longer simple, and the boundary that promised to contain it was lying.
 
-Hibernate is the classic case — the famous "leaky abstraction" (Joel Spolsky, 2002). "Forget SQL, just save objects," until the N+1 query problem surfaces, the SQL shows through the interface, and the level you thought was simple is anything but. Its names are honest and a linter finds nothing; it lied anyway — about what it could hold. The promise it broke is the last clause of structural clean: *that you can trust the boundary without reading behind it*.
+Hibernate is the classic case — the famous "leaky abstraction" (Joel Spolsky, 2002). The promise was "forget SQL, just save objects." Then the N+1 query problem surfaces, the SQL shows through the interface, and the level you thought was simple is anything but. Its names are honest and a linter finds nothing. It lied anyway — about what it could hold. The promise it broke is the last clause of structural clean: *that you can trust the boundary without reading behind it*.
 
 You can no longer trust the boundary, so you read what's behind it — and reading down is how the complexity below reaches you.
 
@@ -154,7 +154,7 @@ You can no longer trust the boundary, so you read what's behind it — and readi
 
 A while back I added one small rule to the method that totals an order — a bulk discount, one `if`, one multiply. The diff was clean: honest names, house style, the linter silent. Then I sat down to write the test for my one rule, and couldn't — not without testing everyone else's too. That test is why this post exists.
 
-*Surface* clean is cheap to *fake*. Consistent names, tidy structure, a passing linter — a thing can wear all of that and still not be simple underneath, and reading it won't reliably tell you. In a ten-line toy you might spot the tangle by staring; in a real method the folds spread too wide to see, and surface polish and genuine simplicity look identical on the page. So how do you actually find out whether something is as good as it looks?
+*Surface* clean is cheap to *fake*. A thing can carry consistent names, tidy structure, and a passing linter, and still not be simple underneath. Reading it won't reliably tell you. In a ten-line toy you might spot the tangle by staring. In a real method the folds spread too wide to see, and surface polish and genuine simplicity look identical on the page. So how do you actually find out whether something is as good as it looks?
 
 You don't read it. You try to change it. And the cheapest way to try to change something is to test it — not refactor it for real, not ship it and find out in production.
 
@@ -178,7 +178,7 @@ BigDecimal orderTotal(Cart cart, Customer customer) {
 }
 ```
 
-Read it and it's clean — every name honest, the style consistent, nothing for a linter to flag. Test it and it isn't simple — because the pricing rules don't stay in their lanes. All four write to the same running `total`, so their effects fold together: the member discount lands on a number the sale has already changed, the coupon cuts what both multiplied, and my bulk rule scales whatever is left. You can't pin down what one rule does to the result without fixing what the other three did — so their cases multiply rather than add, the *product* of the folded branches, not the sum. And notice the alcohol guard is different: it never touches `total` — it throws or it doesn't — so it stays in its lane and merely *adds* two cases instead of doubling everything to thirty-two. That is section 1.2's line between size and complexity, showing up in your test count:
+Read it and it's clean — every name honest, the style consistent, nothing for a linter to flag. Test it and it isn't simple, because the pricing rules are not independent. All four write to the same running `total`, so their effects fold together: the member discount lands on a number the sale has already changed, the coupon cuts what both multiplied, and my bulk rule scales whatever is left. You can't pin down what one rule does to the result without fixing what the other three did. So their cases multiply rather than add — the *product* of the folded branches, not the sum. The alcohol guard is different. It never touches `total`; it throws or it doesn't. So it stays independent and merely *adds* two cases instead of doubling everything to thirty-two. That is section 1.2's line between size and complexity, showing up in your test count:
 
 ```text
 if (age < 18 && hasAlcohol)   +2   (throws or not — never touches total)
@@ -191,7 +191,7 @@ if (itemCount >= BULK_MIN)    ×2   (writes total — mine)
      folded:   2 × 2 × 2 × 2 = 16 combinations
 ```
 
-Four folded rules, sixteen combinations — my one line doubled them — and a sibling method where six conditions share the total runs to sixty-four. The test for my rule alone did not exist; only the sixteen did.
+Four folded rules make sixteen combinations, and my one line doubled them. A sibling method where six conditions share the total runs to sixty-four. The test for my rule alone did not exist; only the sixteen did.
 
 Nobody writes sixteen tests for one method. We write the handful that look likely, call it good coverage, and move on. That isn't laziness — it's the rational response to a cost that no clean-code tool measures. The reading was honest. The testing is what exposed the tangle.
 
@@ -207,7 +207,7 @@ Everything above predates AI.
 
 The obvious reply is to ask the model to simplify. It will — locally: extract a method, flatten a branch, tidy the diff in front of it. But where complexity *should* live is a claim about the whole system and where it is heading, and the model owns neither. And it is never the one who has to write the sixteenth test, so the pain that triggers a human's refactor never reaches it.
 
-So "does it *look* clean?" has stopped being a useful review question; the answer is almost always yes. The useful question is section 4's: *how many tests would it honestly take to cover this?* What still bites are the two that take judgment — and those two are one kind of work: structural clean and simple ask different questions (*is the boundary honest?* vs *how tangled is what's behind it?*) but take the same call — where to draw the boundary, and what to put behind it.
+So "does it *look* clean?" has stopped being a useful review question; the answer is almost always yes. The useful question is section 4's: *how many tests would it honestly take to cover this?* What still bites are the two that take judgment, and those two are one kind of work. Structural clean and simple ask different questions: *is the boundary honest?* versus *how tangled is what's behind it?* But they take the same call — where to draw the boundary, and what to put behind it.
 
 I've [argued before]({% post_url 2026-02-13-development-vs-engineering %}) that AI does development, not engineering. Here is that line, exactly: surface clean is development — mechanical, now automatable; structural clean and simple are engineering — judgment. AI took the first and handed you the rest, concentrated.
 
@@ -222,7 +222,7 @@ AI didn't change that distinction. It changed the price. Surface clean — the f
 
 Which leaves one question hanging. A boundary buys simplicity above by hiding complexity below — a deep module. But *how deep should it go?* The big names point and stop: Ousterhout says deeper is better; Parnas says hide one secret; Uncle Bob says make it tiny. All true — and not one is a number you can act on.
 
-I have one, from years of TDD: **keep the unit test within two levels of nesting.** Push the module deeper and the test's nesting climbs with it, until the test itself turns unmaintainable — and that unmaintainable test is the module telling you it went too deep. The test is the measuring stick the philosophers never handed you. Why two, what counts as a level, and how test pain makes it self-enforcing is the next few posts — because a number you can apply under pressure beats a principle you can only nod at.
+I have one, from years of TDD: **keep the unit test within two levels of nesting.** Push the module deeper and the test's nesting climbs with it, until the test itself turns unmaintainable. That unmaintainable test is the module telling you it went too deep. The test is the measuring stick the philosophers never handed you. Why two, what counts as a level, and how test pain makes it self-enforcing are the next few posts. A number you can apply under pressure beats a principle you can only nod at.
 
 
 ## References
