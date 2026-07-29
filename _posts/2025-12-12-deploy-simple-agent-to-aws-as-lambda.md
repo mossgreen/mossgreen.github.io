@@ -283,7 +283,8 @@ resource "aws_lambda_function" "main" {
 
     environment {
         variables = {
-            OPENAI_API_KEY = var.openai_api_key
+            OPENAI_SECRET_ARN = aws_secretsmanager_secret.openai_api_key.arn
+            OPENAI_MODEL      = var.openai_model
         }
     }
 }
@@ -299,6 +300,8 @@ resource "aws_apigatewayv2_integration" "lambda" {
     integration_uri  = aws_lambda_function.main.invoke_arn
 }
 ```
+
+The Lambda never receives the API key itself — only the ARN of a Secrets Manager secret plus an IAM grant to read it, and `settings.py` fetches the value at runtime. Passing the key as a plain environment variable would leave it readable in the Lambda console.
 
 **Deploy:**
 ```bash
