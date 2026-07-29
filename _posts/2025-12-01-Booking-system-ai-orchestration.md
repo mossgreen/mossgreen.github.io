@@ -1309,17 +1309,11 @@ for event in response["completion"]:
 
 ---
 
-## Where MCP Fits: A Layer, Not Pattern I
+## Where MCP Fits
 
-Every time I show this spectrum, someone asks: "where does MCP go — is it Pattern I?"
+The spectrum answers **who decides which function to call**. [MCP](https://modelcontextprotocol.io) answers **how tools are exposed**. It's a separate axis, so it layers onto patterns D–G.
 
-No. And the reason is the most useful thing I learned building this.
-
-The spectrum answers one question: **who decides which function to call and when** — your code, the LLM, or a managed service. [MCP (Model Context Protocol)](https://modelcontextprotocol.io) answers a completely different question: **how tools are exposed and discovered**. It standardizes the tool boundary, not the control flow. So it doesn't extend the spectrum — it composes with any pattern from D onward.
-
-### What actually moves
-
-Nothing about the orchestration changes. What changes is the distance between the agent and its tools:
+The only thing that changes is the distance between the agent and its tools:
 
 ```
 Patterns D–G:  agent ──(in-process function call)──▶ tool code
@@ -1327,27 +1321,11 @@ MCP local:     agent ──(stdio, subprocess)─────────▶ MCP
 MCP remote:    agent ──(streamable HTTP)───────────▶ MCP server ──▶ tool code
 ```
 
-Function call → IPC → network. That's the same Single-Process → Multi-Process ladder you already saw in B→C and F→G, applied to the tool boundary instead of the orchestration boundary.
+The orchestration is untouched. In the repo the MCP agent is Pattern E, except it defines no tools at all — it declares `mcp_servers=[...]` and discovers `check_availability` and `book_slot` at runtime.
 
-In the repo, the consuming agent is a Pattern E single agent with **zero locally-defined tools** — it declares `mcp_servers=[...]` and discovers `check_availability` and `book_slot` at runtime. The agent code doesn't know what tools exist until it asks.
+The payoff: tools stop belonging to the agent. Any MCP client can use them, including Claude Code, which can book a court through the same server.
 
-### The part that bites you on serverless
-
-Running an MCP server on Lambda is not the documented happy path, and two things broke:
-
-**Streaming doesn't exist.** API Gateway and Lambda are buffered request/response — no Server-Sent Events, and no in-memory MCP session survives between invocations. The fix is stateless JSON mode: `FastMCP(..., stateless_http=True, json_response=True)`, so every POST is self-contained JSON-RPC. This is the standard shape for serverless MCP.
-
-**The session manager fights the adapter.** FastMCP expects its session manager started by the ASGI lifespan, but Mangum re-runs the lifespan on every invocation while the session manager may only start once per instance. The handler keeps `lifespan="off"` and enters `session_manager.run()` once per container, at first request.
-
-### Why this becomes a governance story
-
-The server requires `Authorization: Bearer <token>` — the tool plane is not public. It also holds **no OpenAI key**, because there's no LLM in it. Tools are just tools.
-
-That bearer token is the single-server seed of a much bigger pattern. At organization scale you put an **MCP gateway** between many agents and many servers, and it owns identity and authorization (per-client OAuth, not static tokens), tool allowlists (`check_availability` for everyone, `book_slot` only for booking agents), audit of every `tools/call`, and egress control so agents can only reach registered, version-pinned servers.
-
-The moment tools leave the process, the tool boundary becomes a **governance boundary**. That's the real argument for MCP in an enterprise — not convenience.
-
-**In the repo:** [`mcp/`](https://github.com/mossgreen/ai-orchestration-patterns/tree/main/mcp) — server, agent, both transports, and the raw JSON-RPC handshake. It's also registrable in Claude Code as a local stdio server, so you can ask Claude directly: *"What tennis courts are free tomorrow afternoon?"*
+**In the repo:** [`mcp/`](https://github.com/mossgreen/ai-orchestration-patterns/tree/main/mcp) — server, agent, and both transports.
 
 ---
 
