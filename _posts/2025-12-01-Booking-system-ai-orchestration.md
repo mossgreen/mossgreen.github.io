@@ -21,18 +21,34 @@ AI architecture isn't binary. It's a spectrum.
 Most teams treat AI architecture as a binary choice: "use agents or don't." After implementing 8 patterns end to end—from "AI as a service" to multi-agent orchestration—I found a better mental model: **the Control Spectrum**.
 
 ```
-CONTROL ←─────────────────────────────────────→ AUTONOMY
+Control ←——————————————————————————————————————————→ Autonomy
 
-    A         B        C        D        E        F        G
-No Agent  Workflow Workflow Function Single   Multi    Multi
-         (Shared) (Indep.)  Calling  Agent  Agent  Agent
+  A       B       C       D       E       F       G       H
+  │       │       │       │       │       │       │       │
+ No    Workflow Workflow Function Single Multi  Multi  Bedrock
+ Agent  (Single) (Multi)  Calling  Agent  Agent  Agent  (Managed)
+  │       │       │       │       │       │       │       │
+ You    Fixed   Fixed    LLM     Agent  Manager Manager  AWS
+control steps   steps  suggests controls routes  routes manages
+ all   (single) (multi)  you      loop
+                        control
 ```
 
 **The trade-off:** Moving right increases AI capability but decreases predictability, debuggability, and control. This post maps the entire spectrum so you can position your system correctly.
 
-**What's inside:** All 8 patterns implement the same booking system (`check_availability`, `book`) with identical OpenAI/Claude/Bedrock integrations. The difference: **who decides which function to call and when**.
+**What's inside:** All 8 patterns implement the same booking system (`check_availability`, `book`) against the same booking service. The difference: **who decides which function to call and when**.
 
-**Business impact:** 40% of multi-agent projects fail due to insufficient state management and over-engineering. Choosing the right position on the spectrum means shipping faster, debugging easier, and scaling reliably.
+**The code is real.** Every pattern is implemented and deployed on AWS Lambda + API Gateway: **[github.com/mossgreen/ai-orchestration-patterns](https://github.com/mossgreen/ai-orchestration-patterns)**. You can talk to any of them right now:
+
+```bash
+curl -X POST https://ok1ro2wdf1.execute-api.us-east-1.amazonaws.com/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Book tomorrow at 3pm"}'
+```
+
+The pseudocode in this post mixes OpenAI, Claude, and Bedrock to show that **any step can use any vendor**. The repo keeps it simpler — OpenAI for patterns A–G, Bedrock for H — so the diffs between patterns show orchestration, not SDK noise.
+
+**Business impact:** Gartner [predicts that over 40% of agentic AI projects will be canceled by the end of 2027](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027), citing escalating costs, unclear business value, and inadequate risk controls. Choosing the right position on the spectrum means shipping faster, debugging easier, and scaling reliably.
 
 ---
 
@@ -51,7 +67,7 @@ All 8 patterns implement these same 2 functions. The difference: **who decides w
 
 **Style:** None — AI just generates/responds
 
-**Runtime:** Shared
+**Runtime:** Single-Process
 
 ### Architecture
 
@@ -150,7 +166,9 @@ System: "Booked! Court A, Dec 4 at 3pm"
 
 **This is where Pattern A gets painful** — you're coding a state machine manually.
 
-Patterns B–G handle this more naturally.
+Patterns D–G handle this more naturally. (B and C won't save you here — a fixed sequence still needs you to track what's missing between turns.)
+
+**In the repo:** [`pattern-a-ai-as-service/src/parser.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-a-ai-as-service/src/parser.py)
 
 ### Pros
 
@@ -173,13 +191,13 @@ Patterns B–G handle this more naturally.
 
 ---
 
-## Pattern B: Workflow (Shared Runtime)
+## Pattern B: Workflow (Single-Process)
 
-Pattern B introduces a workflow engine that explicitly controls step sequencing and state transitions. The application predefines the steps, while the workflow engine manages how they execute within a shared runtime.
+Pattern B introduces a workflow engine that explicitly controls step sequencing and state transitions. The application predefines the steps, while the workflow engine manages how they execute within a single process.
 
 **Style:** Workflow — Predefined sequence of steps
 
-**Runtime:** Shared — all steps run in one process
+**Runtime:** Single-Process — all steps run in one process
 
 ### Architecture
 
@@ -225,6 +243,7 @@ Not every step needs AI. Many are pure code, database queries, or API calls. The
 
 ### Pseudo Code
 
+{% raw %}
 ```python
 from openai import OpenAI
 import anthropic
@@ -308,6 +327,9 @@ def booking_workflow(user_input: str, user_id: str) -> str:
 # Run
 response = booking_workflow("Book me a court for tomorrow at 3pm", "user-123")
 ```
+{% endraw %}
+
+**In the repo:** [`pattern-b-workflow-single-process/src/workflow.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-b-workflow-single-process/src/workflow.py)
 
 ### Pros
 
@@ -333,11 +355,11 @@ response = booking_workflow("Book me a court for tomorrow at 3pm", "user-123")
 
 ---
 
-## Pattern C: Workflow (Independent Runtime)
+## Pattern C: Workflow (Multi-Process)
 
 **Style:** Workflow — Predefined sequence of steps
 
-**Runtime:** Independent — each step runs in its own service
+**Runtime:** Multi-Process — each step runs in its own service
 
 ### Architecture
 
@@ -353,7 +375,7 @@ Same predefined sequence as Pattern B, but each step runs in its own service (La
 
 ### Difference from Pattern B
 
-| Pattern B (Shared Runtime) | Pattern C (Independent Runtime) |
+| Pattern B (Single-Process) | Pattern C (Multi-Process) |
 |----------------------------|--------------------------------|
 | All steps in one process | Each step in its own service |
 | Deploy together | Deploy independently |
@@ -363,6 +385,7 @@ Same predefined sequence as Pattern B, but each step runs in its own service (La
 
 ### Pseudo Code
 
+{% raw %}
 ```python
 # Service 1: Parse Input (using OpenAI)
 # Deployed as Lambda, container, or separate service
@@ -428,7 +451,7 @@ def booking_service_handler(event):
     # Use Bedrock to select best slot
     bedrock = boto3.client("bedrock-runtime")
     response = bedrock.invoke_model(
-        modelId="anthropic.claude-3-sonnet-20240229-v1:0",
+        modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
         body=json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
             "max_tokens": 1024,
@@ -460,6 +483,9 @@ def workflow_orchestrator(user_input: str, user_id: str) -> str:
     
     return result["confirmation"]
 ```
+{% endraw %}
+
+**In the repo:** [`pattern-c-workflow-multi-process/src/workflow.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-c-workflow-multi-process/src/workflow.py) orchestrates, and each step lives in [`src/services/`](https://github.com/mossgreen/ai-orchestration-patterns/tree/main/pattern-c-workflow-multi-process/src/services).
 
 ### Pros
 
@@ -490,7 +516,7 @@ def workflow_orchestrator(user_input: str, user_id: str) -> str:
 
 **Style:** Function Call — LLM suggests, YOU execute and control loop
 
-**Runtime:** Shared
+**Runtime:** Single-Process
 
 ### Architecture
 
@@ -661,6 +687,8 @@ def handle_booking_request(user_input: str, user_id: str) -> str:
         # Loop continues until LLM returns no tool_calls
 ```
 
+**In the repo:** [`pattern-d-function-calling/src/function_caller.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-d-function-calling/src/function_caller.py)
+
 ### Pros
 
 - More flexible than fixed workflows
@@ -687,7 +715,7 @@ def handle_booking_request(user_input: str, user_id: str) -> str:
 
 **Style:** Agent — Autonomous reasoning + execution
 
-**Runtime:** Shared
+**Runtime:** Single-Process
 
 ### Architecture
 
@@ -783,6 +811,8 @@ User: "Book me a court for tomorrow at 3pm"
          tomorrow at 3pm. Confirmation #123"
 ```
 
+**In the repo:** [`pattern-e-single-agent/src/agent.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-e-single-agent/src/agent.py)
+
 ### Pros
 
 - Clean, minimal code
@@ -805,11 +835,11 @@ User: "Book me a court for tomorrow at 3pm"
 
 ---
 
-## Pattern F: Multi-Agent (Shared Runtime)
+## Pattern F: Multi-Agent (Single-Process)
 
 **Style:** Multi-Agent — Manager routes dynamically to specialists
 
-**Runtime:** Shared — all agents run in one process
+**Runtime:** Single-Process — all agents run in one process
 
 ### Architecture
 
@@ -921,6 +951,44 @@ print(result.final_output)
 # Manager: analyzes → hands off to availability → hands off to booking → responds
 ```
 
+### Handoff or tool? The gotcha that cost me an afternoon
+
+The code above calls them "handoffs," but they're deliberately *not* the Agents SDK `handoff` primitive. That distinction is easy to miss and it breaks this exact use case.
+
+**A handoff is a one-way transfer.** Control moves to the specialist and stays there. The manager never sees the result — so it cannot check availability, read the slots back, and then book. A complete booking needs two specialists in sequence, and a handoff makes that impossible in one turn.
+
+**A specialist-as-tool returns its result.** The manager stays in control, receives the slot list, passes the chosen `slot_id` to the booking specialist, and synthesizes the final answer.
+
+So in the repo, specialists are exposed with `Agent.as_tool()`:
+
+```python
+manager_agent = Agent(
+    name="Tennis Court Booking Manager",
+    instructions=get_manager_instructions,
+    tools=[
+        availability_agent.as_tool(
+            tool_name="ask_availability_specialist",
+            tool_description=(
+                "Ask the Availability Specialist to find open tennis court slots. "
+                "Pass a natural-language request including the date (YYYY-MM-DD) "
+                "and optional time (HH:MM)."
+            ),
+        ),
+        booking_agent.as_tool(
+            tool_name="ask_booking_specialist",
+            tool_description=(
+                "Ask the Booking Specialist to book a slot. "
+                "Pass the slot_id of the slot to book."
+            ),
+        ),
+    ],
+)
+```
+
+**Rule of thumb:** hand off when the specialist owns the rest of the conversation (routing a billing question to a billing agent). Use a tool when the manager needs the answer back to keep working. Multi-step orchestration almost always wants the second one.
+
+**In the repo:** [`pattern-f-multi-agent-single-process/src/agent.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-f-multi-agent-single-process/src/agent.py)
+
 ### Pros
 
 - Flexible routing based on user intent
@@ -943,11 +1011,11 @@ print(result.final_output)
 
 ---
 
-## Pattern G: Multi-Agent (Independent Runtime)
+## Pattern G: Multi-Agent (Multi-Process)
 
 **Style:** Multi-Agent — Manager routes dynamically to specialists
 
-**Runtime:** Independent — each agent runs in its own service
+**Runtime:** Multi-Process — each agent runs in its own service
 
 ### Architecture
 
@@ -969,7 +1037,7 @@ Three independent services: Manager receives user requests and routes to special
 
 ### Difference from Pattern F
 
-| Pattern F (Shared Runtime) | Pattern G (Independent Runtime) |
+| Pattern F (Single-Process) | Pattern G (Multi-Process) |
 |----------------------------|--------------------------------|
 | All agents in one process | Each agent in its own service |
 | Single vendor typically | Mix vendors freely |
@@ -1084,6 +1152,8 @@ def manager_service_handler(event):
 # Invocation: API Gateway → Manager Lambda → Specialist Lambdas
 # invoke_service("manager-service", {"input": "Book me a court for tomorrow", "user_id": "user-123"})
 ```
+
+**In the repo:** [`pattern-g-multi-agent-multi-process/src/manager/agent.py`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-g-multi-agent-multi-process/src/manager/agent.py) — three Lambdas, manager routes to specialists over HTTP.
 
 ### Pros
 
@@ -1201,6 +1271,8 @@ for event in response["completion"]:
         print(event["chunk"]["bytes"].decode())
 ```
 
+**In the repo:** [`pattern-h-bedrock-agent/`](https://github.com/mossgreen/ai-orchestration-patterns/tree/main/pattern-h-bedrock-agent) — action-group Lambda plus [`openapi-schema.json`](https://github.com/mossgreen/ai-orchestration-patterns/blob/main/pattern-h-bedrock-agent/openapi-schema.json), which is how Bedrock learns the tool signatures.
+
 ### Pros
 
 - Fully managed — AWS handles scaling, reasoning loop
@@ -1237,22 +1309,64 @@ for event in response["completion"]:
 
 ---
 
+## Where MCP Fits: A Layer, Not Pattern I
+
+Every time I show this spectrum, someone asks: "where does MCP go — is it Pattern I?"
+
+No. And the reason is the most useful thing I learned building this.
+
+The spectrum answers one question: **who decides which function to call and when** — your code, the LLM, or a managed service. [MCP (Model Context Protocol)](https://modelcontextprotocol.io) answers a completely different question: **how tools are exposed and discovered**. It standardizes the tool boundary, not the control flow. So it doesn't extend the spectrum — it composes with any pattern from D onward.
+
+### What actually moves
+
+Nothing about the orchestration changes. What changes is the distance between the agent and its tools:
+
+```
+Patterns D–G:  agent ──(in-process function call)──▶ tool code
+MCP local:     agent ──(stdio, subprocess)─────────▶ MCP server ──▶ tool code
+MCP remote:    agent ──(streamable HTTP)───────────▶ MCP server ──▶ tool code
+```
+
+Function call → IPC → network. That's the same Single-Process → Multi-Process ladder you already saw in B→C and F→G, applied to the tool boundary instead of the orchestration boundary.
+
+In the repo, the consuming agent is a Pattern E single agent with **zero locally-defined tools** — it declares `mcp_servers=[...]` and discovers `check_availability` and `book_slot` at runtime. The agent code doesn't know what tools exist until it asks.
+
+### The part that bites you on serverless
+
+Running an MCP server on Lambda is not the documented happy path, and two things broke:
+
+**Streaming doesn't exist.** API Gateway and Lambda are buffered request/response — no Server-Sent Events, and no in-memory MCP session survives between invocations. The fix is stateless JSON mode: `FastMCP(..., stateless_http=True, json_response=True)`, so every POST is self-contained JSON-RPC. This is the standard shape for serverless MCP.
+
+**The session manager fights the adapter.** FastMCP expects its session manager started by the ASGI lifespan, but Mangum re-runs the lifespan on every invocation while the session manager may only start once per instance. The handler keeps `lifespan="off"` and enters `session_manager.run()` once per container, at first request.
+
+### Why this becomes a governance story
+
+The server requires `Authorization: Bearer <token>` — the tool plane is not public. It also holds **no OpenAI key**, because there's no LLM in it. Tools are just tools.
+
+That bearer token is the single-server seed of a much bigger pattern. At organization scale you put an **MCP gateway** between many agents and many servers, and it owns identity and authorization (per-client OAuth, not static tokens), tool allowlists (`check_availability` for everyone, `book_slot` only for booking agents), audit of every `tools/call`, and egress control so agents can only reach registered, version-pinned servers.
+
+The moment tools leave the process, the tool boundary becomes a **governance boundary**. That's the real argument for MCP in an enterprise — not convenience.
+
+**In the repo:** [`mcp/`](https://github.com/mossgreen/ai-orchestration-patterns/tree/main/mcp) — server, agent, both transports, and the raw JSON-RPC handshake. It's also registrable in Claude Code as a local stdio server, so you can ask Claude directly: *"What tennis courts are free tomorrow afternoon?"*
+
+---
+
 ## Side-by-Side Comparison
 
 | Pattern | Style | Who Decides Flow | Runtime | Complexity |
 |---------|-------|------------------|---------|------------|
-| A | No Agent | You | Shared | Low |
-| B | Workflow | You (fixed steps) | Shared | Medium |
-| C | Workflow | You (fixed steps) | Independent | Medium-High |
-| D | Function Call | LLM suggests, you execute | Shared | Medium |
-| E | Single Agent | Agent | Shared | Low |
-| F | Multi-Agent | Manager Agent | Shared | Medium |
-| G | Multi-Agent | Manager Agent | Independent | High |
+| A | No Agent | You | Single-Process | Low |
+| B | Workflow | You (fixed steps) | Single-Process | Medium |
+| C | Workflow | You (fixed steps) | Multi-Process | Medium-High |
+| D | Function Call | LLM suggests, you execute | Single-Process | Medium |
+| E | Single Agent | Agent | Single-Process | Low |
+| F | Multi-Agent | Manager Agent | Single-Process | Medium |
+| G | Multi-Agent | Manager Agent | Multi-Process | High |
 | H | Bedrock Agent | AWS | Managed | Low-Medium |
 
 **Runtime explained:**
-- **Shared** — All runs together in one process
-- **Independent** — Each step/agent runs in its own service
+- **Single-Process** — All runs together in one process
+- **Multi-Process** — Each step/agent runs in its own service
 - **Managed** — Cloud provider handles it
 
 ---
@@ -1266,16 +1380,17 @@ Do you need AI to make decisions (not just parse)?
        │
        Yes
        │
-Do you want AWS to manage everything? → Yes → Pattern H (Bedrock Agent)
-       │
-       No
-       │
 Is the flow predictable (fixed sequence)?
        │
-       Yes → Need independent scaling/deployment? → No  → Pattern B (Workflow, Shared)
-       │                                          → Yes → Pattern C (Workflow, Independent)
+       Yes → Need independent scaling/deployment? → No  → Pattern B (Workflow, Single-Process)
+       │                                          → Yes → Pattern C (Workflow, Multi-Process)
+       │                                                  (on AWS, this is Step Functions)
        │
        No (dynamic flow needed)
+       │
+Do you want AWS to manage the agent loop? → Yes → Pattern H (Bedrock Agent)
+       │
+       No
        │
 Do you want to control the loop yourself?
        │
@@ -1287,43 +1402,28 @@ Do you need multiple specialized agents?
        │
        No → Pattern E (Single Agent)
        │
-       Yes → Need independent scaling/deployment? → No  → Pattern F (Multi-Agent, Shared)
-                                                  → Yes → Pattern G (Multi-Agent, Independent)
+       Yes → Need independent scaling/deployment? → No  → Pattern F (Multi-Agent, Single-Process)
+                                                  → Yes → Pattern G (Multi-Agent, Multi-Process)
+
+Then, orthogonally: are these tools shared across teams, agents, or
+processes? → add the MCP layer on top of D–G.
 ```
+
+**Why the AWS question moved:** asking "do you want AWS to manage everything?" first sends fixed, predictable workflows to a Bedrock agent — the wrong tool. If your sequence is known in advance, the AWS answer is Step Functions (Pattern C), not an autonomous agent. Only reach for H once you've established you need a *dynamic* loop.
 
 ### Quick Reference
 
 | If you need... | Use Pattern |
 |----------------|-------------|
 | Full control, AI just parses | A |
-| Fixed steps, shared runtime | B |
-| Fixed steps, independent runtime | C |
+| Fixed steps, single process | B |
+| Fixed steps, multi-process | C |
 | LLM suggests functions, you control loop | D |
 | Autonomous agent, minimal code | E |
-| Dynamic routing, shared runtime | F |
-| Dynamic routing, independent runtime | G |
+| Dynamic routing, single process | F |
+| Dynamic routing, multi-process | G |
 | AWS-managed agent | H |
-
-### The Spectrum
-
-```
-Control ←————————————————————————————————→ Autonomy
-
-    A       B       C       D       E       F       G
-    │       │       │       │       │       │       │
-    No   Workflow Workflow Function Agent  Multi   Multi
-   Agent (Shared) (Indep.) Calling        Agent   Agent
-    │       │       │       │       │       │       │
-   You    Fixed   Fixed    LLM    Agent  Manager Manager
-  control steps   steps  suggests controls routes  routes
-   all   (shared) (indep.) you loop  loop
-                           control
-
-                        H
-                        │
-                    Bedrock
-                    (AWS Managed)
-```
+| Tools shared across agents/teams | MCP layer, on top of D–G |
 
 ---
 
@@ -1377,14 +1477,14 @@ Start simple, evolve as needed:
 ```
 A (No Agent)
   ↓ need multi-step with AI
-B (Workflow, Shared) — fixed steps, simple deployment
-C (Workflow, Independent) — fixed steps, need scaling/isolation
+B (Workflow, Single-Process) — fixed steps, simple deployment
+C (Workflow, Multi-Process) — fixed steps, need scaling/isolation
   ↓ need dynamic flow
 D (Function Calling) — LLM suggests, you control loop
 E (Single Agent) — agent controls the loop
   ↓ need specialized agents
-F (Multi-Agent, Shared) — manager routes, simple deployment
-G (Multi-Agent, Independent) — enterprise scale, full isolation
+F (Multi-Agent, Single-Process) — manager routes, simple deployment
+G (Multi-Agent, Multi-Process) — enterprise scale, full isolation
   
 H (Bedrock) — AWS alternative to E
 ```
