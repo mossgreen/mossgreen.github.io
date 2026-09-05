@@ -365,6 +365,12 @@ DAX maintains two distinct caches: the item cache and the query cache.
 - the **item cache** is populated with results from `GetItem` and `BatchGetItem` and has a five-minutes default TTL.
 - the **query cache** stores results of `Query` and `Scan` operations and caches based on the parameters specified.
 
+### restrict user or role to specific attributes in a DynamoDB table
+
+Use IAM policy conditions for **fine-grained access control (FGAC)**.
+
+FGAC allows you to control access to individual items or item attributes for both read and write operations in a DynamoDB table.
+
 ## Amazon Redshift
 
 - It's a petabyte-scale data warehouse product available within AWS.
