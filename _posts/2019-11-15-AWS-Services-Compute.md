@@ -396,6 +396,12 @@ API Gateway supports multiple mechanisms of access control using
 
 Use AWS Systems Manager Parameter Store, you can store data such as passwords, database strings, Amazon Machine Image (AMI) IDs, and license codes as parameter values.
 
+### Pass custom headers through API Gateway to a Lambda
+
+By default, a Lambda function only ingests the request body received by an API Gateway API. To pass custom headers from an API Gateway API to a Lambda function, use curl to send a message to the API using a body mapping template to extract any custom headers added to the message.
+
+The API sends the updated message to a Lambda function to process the headers, returning one or more header values from the original message.
+
 ### AWS Step Fuctions
 
 It enables you to coordinate the components of distributed applications and microservices using visual workflows. You build applications from individual components that each perform a discrete function, or task, allowing you to scale and change applications quickly.
